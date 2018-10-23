@@ -551,7 +551,7 @@ export default {
 .main{
 	width:100%;
 	height:100%;
-	overflow: auto;
+	overflow-y: scroll;
 }
 .head-bottom1{
 	display:flex;

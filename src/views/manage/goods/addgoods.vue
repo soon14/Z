@@ -650,7 +650,6 @@
 	                    	<!--订单详情页面cgxqInfo-->
 							<div class="detail-top">
 								<h3>
-									<span style='color:#2B8F8F;'>{{$t('manage.sku.SkuName')}}：</span><!--名称-->
 									{{cgxqInfo.skuName}}
 								</h3>
 								<div style='display:flex'>
@@ -5761,8 +5760,6 @@ import Uediter from '@/components/ue.vue'
     .title:hover{
     	cursor:pointer;
     }
-
-
     .model-main{
     	width: 100%;
     	padding:10px;
@@ -5785,10 +5782,10 @@ import Uediter from '@/components/ue.vue'
     .detail-top h3{
 		width:500px;
 		overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
-    white-space: nowrap;
-
+	    text-overflow: ellipsis;
+	    display: block;
+	    white-space: nowrap;
+	    margin-left:20px;
     }
     .detail-top li span.info{
       width:67%;

@@ -35,9 +35,7 @@
 							</li>
 						</ul>
 					</li>
-				</div>	
-				
-
+				</div>
 			</nav>
 			<div class='main-right'>
 				<header class="layout-header">
@@ -114,7 +112,7 @@
 									    </mu-list-item>
 									    
 									  </mu-list>
-									</mu-popover>
+								</mu-popover>
 							</li>
 						</ul>
 					</div>
@@ -135,7 +133,6 @@
 								</div>
 							</li>
 						</ul>
-
 					</div>
 					<router-view keep-alive class='Router'></router-view>
 				</article>
@@ -555,7 +552,7 @@ import m from '../common/meta.js'
 						"child":[
 							{
 								"name":"概览",
-								"path":"/operationHome"
+								"path":"/sku"
 							},
 							{
 								"name":"库存",
@@ -667,7 +664,7 @@ import m from '../common/meta.js'
 						"displayName":"长护宝",
 						"path":"/zhb",
 						"icon":"http://img.zsydian.com/icon/sidebaricon/zhb.png",
-						"activeIcon":"http://img.zsydian.com/icon/sidebaricon/zhb.png",
+						"activeIcon":"http://img.zsydian.com/icon/sidebaricon/zhbActive.png",
 						"child":[
 							{
 								"name":"概览",
@@ -680,6 +677,10 @@ import m from '../common/meta.js'
 							{
 								"name":"护理员",
 								"path":"/attendantIndex"
+							},
+							{
+								"name":"工单",
+								"path":"/wordOrderIndex"
 							},
 							{
 								"name":"日程",
@@ -1006,7 +1007,7 @@ import m from '../common/meta.js'
 				
 				// if(sessionStorage.getItem('getSystem')){
 				// 	this.getSystem=JSON.parse(sessionStorage.getItem('getSystem'))//将sessionStorage存储得字符串转为对象数组
-				// 	this.secondMenu=m.getMenu(this.getSystem,this.$route.path)
+				// 	this.secondMenu=this.m.getMenu(this.firstMenuData,this.$parent.data.length==0?this.$route.path:this.$parent.data[0].url)//依据路由显示二级菜单
 				// }else{
 				// 	this.System();//菜单模块
 				// 	this.getSystem=JSON.parse(sessionStorage.getItem('getSystem'))//将sessionStorage存储得字符串转为对象数组
@@ -1779,7 +1780,7 @@ import m from '../common/meta.js'
 	background:#E9E9EF;
 }
 .nav-left::-webkit-scrollbar{
-	width: 4px;
+	width: 0px;
 	height: 4px;
 	background-color: #f5f5f5;
 }

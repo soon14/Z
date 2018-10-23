@@ -19,12 +19,12 @@
                 <mu-button small  color="primary" style='margin-top: 18px' @click='storeExport'>导出</mu-button>
             </div>
         </div>
-        <div v-if='loadingisshow1' >
+        <!-- <div v-if='loadingisshow1' >
             <Spin >
                 <mu-icon value="rotate_right" color="blue"  class="demo-spin-icon-load"></mu-icon>
                 <div>Loading...</div>
             </Spin>
-        </div>
+        </div> -->
         <ag-grid-vue style='width:100%;' id="agGridTable" class="ag-theme-balham is-full-widthag" 
         :gridOptions="grid"
         :rowData="rowData"
@@ -177,7 +177,9 @@ export default {
                 },
             ],
             loadingisshow1:false,
+            rowData: [],
             grid:{
+               
                 floatingFilter: true,
                 enableFilter:true,
                 enableSorting:true,
@@ -185,6 +187,7 @@ export default {
                 rowHeight:40,
                 enableColResize:true,
                 enableRangeSelection:true,
+                 animateRows: true,
                 //单行选中，"multiple" 多选（ctrl）,"single" 单选
                  rowSelection: 'multiple',
                  autoGroupColumnDef: autoGroupColumnDef,
@@ -396,7 +399,7 @@ export default {
                 },
                
             ],
-            rowData: [],
+            
             total:0,
             pageSize:0,
 
@@ -525,6 +528,7 @@ export default {
                 if(res.data.status == '200') {
                     this.loadingisshow1=false
                     let data = res.data;
+                   
                     this.rowData = data.rows;
                     this.pageSize = data.pageSize;
                     this.total = data.total;

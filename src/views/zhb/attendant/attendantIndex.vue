@@ -46,11 +46,9 @@
       
         
         ></ag-grid-vue>
-        <!--:cellMouseDown="mouseDown"  :autoHeight="true"-->
         
         <div class='page-box'>
             <Page :total="total" size='small' show-total :pageSize='pageSize'  @on-change="changeSize"></Page>
-            <!-- <mu-pagination raised circle :current='current' :total="total"  :pageSize='pageSize' @change='changeSize'></mu-pagination> -->
         </div>
 
             <!--导入-->
@@ -164,6 +162,7 @@ export default {
             orderStr:"",
             single:false,
             grid:{
+               
                 enableFilter:true,
                 enableSorting:true,
                 animateRows:true,
@@ -548,7 +547,7 @@ export default {
                     this.rowData = data.rows;
                     this.pageSize = data.pageSize;
                     this.total = data.total;
-                    this.rowData .forEach(x=>{
+                    this.rowData.forEach(x=>{
                         if(x.gender==1){    
                             x.gender="男"
                         }else{

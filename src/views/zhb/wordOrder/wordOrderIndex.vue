@@ -25,13 +25,13 @@
                 <mu-button small  color="primary" style='margin-top: 18px' @click='storeExport'>导出</mu-button>
             </div>
         </div>
-        <div v-if='loadingisshow' >
+        <!-- <div v-if='loadingisshow' >
             <Spin >
                 <mu-icon value="rotate_right" color="blue"  class="demo-spin-icon-load"></mu-icon>
                 
                 <div>Loading...</div>
             </Spin>
-        </div>
+        </div> -->
         <ag-grid-vue style='width:100%;' id="agGridTable" class="ag-theme-balham is-full-widthag" 
         :gridOptions="grid"
         :rowData="rowData"
@@ -41,15 +41,10 @@
         :enableSorting="true"
         :enableFilter="true"
         ></ag-grid-vue>
-        <!--:cellMouseDown="mouseDown"-->
-        
       <div class='page-box'>
-            <!-- <mu-pagination raised circle :current='current' :total="total"  
-            :page-size='pageSize' @change='changeSize'></mu-pagination> -->
             <Page :total="total" size='small' show-total :pageSize='pageSize'  @on-change="changeSize"></Page>
         </div>
-
-              <!--导入-->
+     <!--导入-->
     <Modal v-model="importisshow" width="700" :mask-closable='false' :closable='false' :title="$t('manage.warehouse.fileImport')"><!--文件导入-->
         <el-steps  :active="active"  :align-center='true' style='margin-left:120px'>
               <el-step :title="$t('manage.warehouse.fileImport')" ></el-step>
@@ -174,6 +169,7 @@ export default {
             btime:"",
             etime:"",
             grid:{
+                
                 enableFilter:true,
                 enableSorting:true,
                 animateRows:true,
@@ -443,8 +439,6 @@ export default {
                             x.actStartTime=new Date(parseInt(x.actStartTime)).toTimeString().substring(0, 5)
                              
                         }
-                        
-                        
                     })
                 }
             })
