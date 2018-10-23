@@ -1,0 +1,261 @@
+<template>
+	<div class='editInfo'>
+		<div class='head'>
+			<span>{{$t('info.editZL')}}</span><!--修改资料-->
+			<div>
+				<Button shape="circle" type="ghost" @click="saveUserInfo(formValidate)" style=';border:none;background:#3b77e3;color:#fff'>
+	                     <Icon type="checkmark-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.SaveBtn')}}<!--保存-->
+	            </Button>
+	            <span @click="" style="cursor:pointer;margin-right:25px;margin-top:5px"><Icon type="close" class="cha" ></Icon></span>
+            </div>
+		</div>
+		<div>
+			<div class='right-content'>
+				<div style='margin-top:-80px;height:400px'>
+					<div class='right-left'>
+						<el-upload
+						  class="avatar-uploader"
+						  :action="logoUrl"
+						  name='file'
+						  :show-file-list="false"
+						  :on-success="addsucess"
+						  >
+						  <img v-if="formValidate.logo" :src="formValidate.logo" class="avatar" width='30' height='30'>
+						  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+						</el-upload>
+
+					</div>
+					<div class='logotext'><span>更换个人头像</span></div>
+				</div>
+
+
+			<div class='box'>
+				<Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
+					<Col span="8">
+						<FormItem label="账号" prop="name">
+	                        <Input v-model="formValidate.name" disabled  placeholder="账号" style='width:200px'></Input>
+	                    </FormItem>
+						<FormItem label="昵称" prop="trueName">
+	                        <Input v-model="formValidate.trueName" placeholder="昵称" style='width:200px'></Input>
+	                    </FormItem>
+	                    <FormItem label="手机" prop="mobile">
+	                        <Input v-model="formValidate.mobile"   placeholder="手机" style='width:200px'></Input>
+	                    </FormItem>
+	                    <FormItem label="邮箱" prop="email">
+	                        <Input v-model="formValidate.email"   placeholder="邮箱" style='width:200px'></Input>
+	                    </FormItem>
+	                    
+					</Col>
+					<Col span="8">
+						<FormItem :label="$t('public.gender')" >
+							<RadioGroup v-model="gender" @on-change="selsectedSex">
+								<Radio label="1">
+									<span>男</span><!--男-->
+								</Radio>
+								<Radio label="0">
+									<span>女</span><!--女-->
+								</Radio>
+							</RadioGroup>
+						</FormItem>
+						<FormItem label="生日" prop="birthday">
+	                       <DatePicker type="date" v-model="formValidate.birthday" :options="optionsB" placeholder="请选择出生年月日" style="width: 200px" @on-change="SelectBirthday"></DatePicker>
+	                    </FormItem>
+					</Col>
+                 </Form>
+			</div>
+			</div>
+		</div>
+	</div>
+</template>
+<script type="text/javascript">
+import * as types from '../../store/types'
+import LoadUrl from '@/components/common/actionLoad'
+export default{
+	data(){
+		return {
+			//生日(最小18岁)
+			optionsB:this.optionsBirthday,
+			gender:'1',//
+			province:'',
+			city:'',
+			s:[],
+			address:'',
+			// cityData:cityData,
+			uid: this.$store.state.common.token,
+			logoUrl:LoadUrl.httpPrefix.Url+'file/action/upload/image/url?uid='+this.$store.state.common.token,
+
+			user:this.$store.state.common.user,
+			formValidate:{
+				trueName:'',//昵称
+				name:'',
+				email:"",
+				logo:'',//logo
+				mobile:'',//手机
+				birthday:"",
+			},
+			ruleValidate:{
+				mobile:[{ pattern: /^1[3|4|5|7|8][0-9]{9}$/, message: '请输入正确的手机号码' }],
+				email:[{ pattern: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/, message: '请输入正确的邮箱',trigger: 'blur' }],
+			}
+		}
+	},
+	methods:{
+		//上传图片成功
+		addsucess(res,file){
+			this.formValidate.logo=res.rows.url
+			console.log(res)
+
+		},
+		//选择性别
+		selsectedSex(s){
+			this.gender=s
+		},
+		//选择生日
+		SelectBirthday(birthday){
+			this.formValidate.birthday=birthday
+
+		},
+		//选择省市县之后的回调函数
+        change: function(v,result) {
+
+            this.province = result[0].label;
+            this.city = result[1].label;
+        },
+        //用户信息
+		getInfo(){
+        	this.axios.get('getInfo?uid='+this.uid).then(res=>{
+        		if(res.data.status==200){
+        			let data=res.data.rows
+	        		this.formValidate.trueName = data.trueName
+	        		this.formValidate.name = data.name
+	        		this.formValidate.logo=data.logo
+	        		this.formValidate.mobile=data.mobile
+	        		this.gender=String(data.gender)
+	        		console.log(data.birthday)
+	        		if(data.birthday==undefined){
+	        			this.formValidate.birthday=''
+	        		}else{
+	        			this.formValidate.birthday=new Date(data.birthday)
+	        		}
+	        		this.formValidate.email=data.email
+        		}
+        	})
+        },
+		//保存编辑用户
+		saveUserInfo(v){
+			this.axios.put('/customer/update?uid='+this.uid,{
+				trueName:this.formValidate.trueName,
+				logo:this.formValidate.logo,
+        		mobile:this.formValidate.mobile,
+        		gender:Number(this.gender),
+        		email:this.formValidate.email,
+        		birthday:this.getLocalTime(this.formValidate.birthday)
+        		// province:this.province,
+        		// city:this.city,
+        		// address:this.address
+			}).then(res=>{
+				if(res.data.status==200){
+					this.$notify({
+                        title:"",//
+                        message: this.$t('public.SaveSuccess'),//
+                        type: 'success',
+                        position: 'bottom-right'
+                    });
+					this.getInfo()
+				}else{
+					this.$notify({
+                        title:"",//
+                        message: res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+				}
+			})
+
+		},
+
+	},
+	mounted(){
+		//获取当前用户信息
+		this.getInfo()
+		this.formValidate.trueName=this.user.trueName
+		this.formValidate.logo=this.user.logo
+		console.log(this.formValidate.logo)
+	}
+}
+</script>
+<style type="text/css" scoped>
+.editInfo{
+	width:100%;
+	/*height:100%;*/
+}
+.head{
+	height:50px;
+	line-height: 50px;
+	width:100%;
+	display:flex;
+	justify-content: space-between;
+	border-bottom:1px solid #e4e4e4;
+}
+.head span{
+	margin-left:20px;
+	font-size:14px;
+	font-weight:900;
+}
+.avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 180px;
+    height: 180px;
+    line-height: 180px;
+    text-align: center;
+  }
+  .avatar {
+    width: 180px;
+    height: 180px;
+    display: block;
+  }
+.logotext{
+	width:180px;
+	height:30px;
+	line-height: 55px;
+	text-align: center;
+
+}
+.right-content{
+	width:100%;
+	height:100%;
+
+	display:flex;
+	justify-content: center;
+	align-items: center;
+
+}
+  .right-left{
+	width: 182px;
+
+    margin-top: 26px;
+	text-align: center;
+	border:1px dashed #e1e1e1;
+}
+.box{
+	width:60%;
+	height:500px;
+	margin-top:70px;
+
+}
+.list{
+	display:flex;
+	height:35px;
+	line-height: 35px;
+	margin-bottom:10px;
+}
+.list span{
+	width:40px;
+}
+
+</style>
+

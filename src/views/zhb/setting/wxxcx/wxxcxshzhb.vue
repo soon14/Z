@@ -1,0 +1,498 @@
+<template>
+	<div class="units-box">
+		<!--微信小程序-->
+		<div class='goods-left'>
+			
+			<div class='left-top'>
+				<span style='font-size:18px;font-weight:600'>微信小程序</span>
+			</div>
+			
+			<div style="height:100%;"  class='flclass'>
+				<ul>
+					<li class='flclass' v-for='(item,index) in Allfl' @click='addBg(index)' :class="{bg:numIndex==index}" style='display:flex;justify-content: space-between'>
+						<span style='margin-left:10px'>{{item.label}}</span>
+					</li>
+				</ul>
+			</div>
+			
+		</div>
+		<div class='goods-right'>
+			<div class="btns-box">
+				
+				<div style='display:flex'>
+					<p class="wldw">
+                        <span style="width:42px;font-weight:900">微信小程序授权</span>
+                    </p>
+				</div>
+			</div>
+			<!-- <div style='height:50px'></div> -->
+			<!--表格数据-->
+			<div class="table">
+				<div class='desc'>
+					
+					<div style="width: 60%;">
+						<div style=';margin-bottom:10px'>
+							<span style='display:inline-block;width:100px;text-align:right'>公司名称：</span>
+							<span>{{name}}</span>
+							<span style='margin:0 10px'><a @click='reloadWx'>重新授权</a></span>
+							<span style='margin:0 10px'><a @click='jcbd'>解除授权</a></span>
+						</div>
+						<span style=';display:inline-block;width:100px;text-align:right'>微信支付：</span>
+						
+						<p style=';margin-left:103px;margin-top:-20px;margin-bottom:20px'>目前小程序仅支持微信自有支付，你可以在「<a href='https://mp.weixin.qq.com/' target='_blank'>小程序后台</a>-微信支付」页面下申请开通并完成相关配置。微信支付的开通小程序注册主体必须为企业，才可以申请微信支付；如果你的小程序不是企业主体，请另行注册一个，并重新授权给智胜云店，完成以上配置后，请在本页填写您的商户号和商户密匙。</p>
+						 <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="100" style='margin-left:20px'>
+						 	<FormItem label="小程序名称" prop="templeteName">
+                                  <p style='display:flex;line-height:35px;height:35px;'>
+									<Input v-model='formValidate.templeteName' style='width:350px;' placeholder='填写您的小程序名称'></Input>
+									
+								</p> 
+                            </FormItem>
+						 	<FormItem label="商户号" >
+                                  <p style='display:flex;line-height:35px;height:35px;'>
+									<Input v-model='formValidate.merchantNo' style='width:350px;' placeholder='填写您的商家商户号'></Input>
+									
+								</p> <div style='margin-top:5px;color:#ccc'>微信支付审核通过后，微信会将商户号发送到对应邮箱</div>
+                            </FormItem>
+							<FormItem label="商户密钥" >
+							<p style='display:flex;line-height:35px;height:35px;'>
+								
+								<Input v-model='formValidate.secretKey' style='width:350px;' placeholder='填写您的商户密钥'></Input>
+								<div style=';margin-top:5px;color:#ccc'>请登录<a href='https://mp.weixin.qq.com/' target='_blank'>微信用户平台</a>，进入「账户中心-API安全」页面，设置密匙</div>
+							</p>
+							</FormItem>
+						</Form>
+							<div style='margin-left:110px;margin-top:5px;'>
+								 <Checkbox v-model="single" @on-change='CheckboxChange'></Checkbox><span>已确认商户号和商户密钥配置正确 (否则将导致微信支付异常，小程序无法通过审核)</span>
+							</div>
+						
+						<p style='margin-left:110px;margin-top:20px;'>
+							 <ButtonGroup>
+						        <Button type="primary" style='width:160px;height:40px' :disabled='IsDisabled' @click='gotowx("formValidate")'>提交至微信审核</Button>
+						    </ButtonGroup>
+						</p>
+					</div>
+					<div class="store-EWM">
+						<ul @mouseover='over(0)' @mouseleave='leave'>
+					    	<div class='store-mark' v-if="num==0">
+					    		<img src="http://img.zsydian.com/icon/androidCode.png" alt="" width='300' height='300' style="margin-top: 100px;">
+					    	</div>
+				    	</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--重新授权弹框-->
+			<Modal v-model="wxModel" width="460px" >
+				<p slot="header" style="height:30px;line-height:30px;">
+					<span>提示</span>
+				</p>
+					<div class='attrNum'>
+						<ul>
+							<p>温馨提示：</p>
+							<li style='color:#ff0000;'>必须使用当前绑定的公众号进行授权，否则将可能导致某些重要数据丢失或其他异常情况</li>
+							<li style='color:#ff0000;'>为保证您在有赞平台功能的正常使用，授权时请保持默认选择，把权限统一授权给智胜云。</li>
+							
+						</ul>
+					</div>
+				<div slot="footer">
+					<div >
+						<div class='attrNum'>
+							<Button shape="circle" type="ghost" style="display:inline-block;background:#60BB46;border:none;color:#fff" @click='iknow'>
+								
+								<span >我知道了，继续</span>
+								
+							</Button>
+							
+						</div>
+					</div>
+				</div>
+			</Modal>
+		<!--解除绑定弹框-->
+			<Modal v-model="wxModelbd" width="460px">
+				<p slot="header" style="height:30px;line-height:30px;">
+					<span>提示</span>
+				</p>
+
+					<div class='attrNum'>
+						<ul>
+							<p>温馨提示：</p>
+							<li style='color:#ff0000;'>解除绑定微信小程序，会造成当前小程序的重要信息丢失请谨慎操作!</li>
+							
+						</ul>
+					</div>
+				<div slot="footer">
+					<div >
+						<div class='attrNum'>
+							<Button shape="circle" type="ghost" style="display:inline-block;background:#60BB46;border:none;color:#fff" @click='jcbdsure'>解除绑定</Button>
+							<Button shape="circle" type="ghost" style="display:inline-block;background:#ccc;border:none;color:#fff" @click='wxcancel'>取消</Button>
+						</div>
+					</div>
+				</div>
+			</Modal>
+	</div>
+</template>
+<script type="text/javascript">
+
+	export default{
+		data(){
+			return{
+				formValidate:{
+					merchantNo:'',//商户号
+					secretKey:'',//商户秘钥
+					templeteName:"",//小程序名称
+				},
+				ruleValidate:{
+					merchantNo:[
+                         { required: true, message: '商户号不能为空', trigger: 'blur' }
+                    ],
+                   
+				},
+				IsDisabled:true,//按钮是否可点击状态
+				single:false,//Checkbox
+				wxModel:false,
+				wxModelbd:false,
+				appId:'',//第三方平台appId
+				token:'',//预授权码
+				serverIp:'',//回掉地址
+				auth_type:2,//类型小程序
+				
+				uid: this.$store.state.common.token,
+				numIndex:0,
+				num:-1,
+				name:'',//小程序名称
+				Allfl:[
+					{
+						label:'小程序设置',
+						value:0
+					}
+				],
+			}
+		},
+		methods:{
+			over(index){
+	    	   this.num=index
+	    	},
+	    	leave(){
+	            this.num=-1    		
+	    	},
+			addBg(index){
+				this.numIndex=index
+			},
+			//审核
+			gotowx(name){
+				this.$refs[name].validate((valid) => {
+					if(valid){
+						this.axios.post('acommit/submit?uid='+this.uid,{
+							merchantNo:this.formValidate.merchantNo,
+							secretKey:this.formValidate.secretKey,
+							templeteName:this.formValidate.templeteName
+						}).then(res=>{
+							if(res.data.status==200){
+								this.$router.push('/wxxcxSubmit')
+								this.formValidate.secretKey=''
+								this.formValidate.merchantNo=''
+								this.formValidate.templeteName=''
+								
+							}else{
+								this.$notify({
+							        title:"",//
+							        message: response.errorMessage,
+							        type: 'error',
+							        position: 'bottom-right'
+						        });
+							}
+						})
+					}
+				})
+			},
+			//checkbox
+			CheckboxChange(v){
+				if(v){
+					this.IsDisabled=false
+				}else{
+					this.IsDisabled=true
+				}
+			},
+			
+			//重新授权
+				reloadWx(){
+					this.wxModel=true
+				},
+			//重新授权，我知道了
+			iknow(){
+				//重新授权
+				this.axios.get('/acommit/again?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.wxModel=false
+						this.$router.push('/wxxcxhomezhb')
+					}else{
+						this.$notify({
+	                        title:"",//
+	                        message: res.data.errorMessage,
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+					}
+				})
+				
+			},
+		//解除绑定按钮
+		jcbd(){
+			this.wxModelbd=true
+		},
+		//解除绑定的确认GET GET /wxa/cancel 取消授权
+		jcbdsure(){
+			this.axios.get('/wxa/cancel?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					//成功解除授权
+					this.$router.push('/wxxcxhomezhb')
+					this.wxModelbd=false 
+				}else{
+					this.$notify({
+                        title:"",//
+                        message: res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+				}
+			})
+		},
+		//获取授权信息
+		getInfo(){
+			this.axios.get('wxa/app?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					//获取小程序名称
+					console.log(res.data.rows)
+					// this.name=res.data.rows.nick_name
+					this.name=res.data.rows.principal_name
+				}
+			})
+		},
+		//取消
+		wxcancel(){
+			this.wxModelbd=false
+		},
+		},
+		created(){
+            this.$nextTick(()=>{
+				this.getInfo()
+			})
+        },
+		mounted(){
+			
+	},
+}
+</script>
+<style scoped>
+	.units-box {
+		width: 100%;
+		height: 100%;
+		background: rgb(230,233,236);
+		display:flex;
+	}
+	
+	.search-box {
+		width: 300px;
+		height: auto;
+		position: fixed;
+		top: 15px;
+		left: 250px;
+		z-index: 9999;
+	}
+	
+	.search-box .add {
+		width: 32px;
+		height: 32px;
+		border-radius: 50%;
+		background: #00a8ff;
+		line-height: 28px;
+		text-align: center;
+		color: #fff;
+		font-size: 22px;
+		float: left;
+		margin-right: 10px;
+	}
+	
+	.btns-box {
+		
+		height: 50px;
+		border-bottom:1px solid #e4e4e4;
+		display:flex;
+		justify-content: space-between;
+		
+		line-height: 50px;
+		
+		background: #fff;
+	}
+	 .wldw{
+    	margin-left:10px;
+    }
+    .wldw span{
+    	margin-left:20px;
+    }
+	.right{
+		margin-right:20px;
+		margin-bottom:10px;
+	}
+	
+	.ivu-icon-chevron-down {
+		font-size: 10px;
+	}
+	.flclass:last-child{
+		margin-bottom:40px;
+	}
+	
+	.btns img {
+		width: 16px;
+		height: 16px;
+		vertical-align: middle;
+	}
+	
+	.table {
+		margin:0 10px;
+		font-size:14px;
+	}
+	
+	.page-box {
+		text-align: center;
+		margin-top:5px;
+	}
+	/***气泡提示样式设置***/
+	
+	.qp-con {
+		width: 100%;
+		height: 30px;
+		color: #0d0d0d;
+		font-size: 14px;
+		line-height: 30px;
+		padding:0 10px;
+		cursor: pointer;
+	}
+	
+	.qp-con img {
+		width: 16px;
+		height: 16px;
+		vertical-align: middle;
+	}
+	.goods-left{
+		width:120px;
+		height:100%;
+		flex:0 0 120px;
+		margin-right:3px;
+		background: #fff;
+		border-right:1px solid #eee;
+	}
+	.goods-right{
+		
+   	 	width: 100%;
+   	 	background: #fff;
+   	 	overflow: hidden;
+	}
+	.left-top{
+		height:50px;
+		line-height: 50px;
+	
+		
+		border-bottom:1px solid #F5F5F5;
+		justify-content: space-between;
+	}
+	.left-top span{
+		margin-left:10px;
+		display:inline-block;
+	}
+	.goods-left li{
+		list-style: none;
+		height:40px;
+		line-height: 40px;
+		width:100%;
+	
+
+	}
+	.goods-left li span{
+		
+		margin-right:10px;
+	}
+	.bg{
+		background: rgb(241,245,247);
+    color: rgb(59,119,227);
+	}
+	.table div.desc{
+		margin:40px 20px;
+		display: flex;
+	}
+	.a-btn{
+		display:block;
+		margin:40px 20px 10px 20px;
+	}
+	.a-btn1{
+		margin:10px 20px;
+	}
+.wxBtn{
+	display:flex;
+	width:20%;
+	height:40px;
+	justify-content: center;
+	text-align: center;
+	line-height: 40px;
+	font-size:14px; 	
+	background: #3B77E3;
+	color:#fff;
+	border-radius:3px;
+}
+.wxBtn:hover{
+	cursor:pointer;
+}
+.submitBtn{
+	border-color:blue;
+
+}
+.store-EWM{
+	background: url("http://img.zsydian.com/icon/wxxcxmb.png") no-repeat center center;
+
+}
+.store-EWM ul{
+	width: 400px;
+    height: 500px;
+    flex:0 0 400px;
+    text-align: center;
+    border: solid 1px #eee;
+	position:relative;
+}
+.store-mark{
+	/*display: none;*/
+	height:100%;
+	width:100%;
+	background-color: rgba(0, 0, 0, 0.65);
+}
+.ant-btn:not([disabled]):active{
+	outline: 0;
+    transition: none;
+}
+.ant-btn:not([disabled]):hover{
+	text-decoration: none;
+}
+.ant-btn:hover, .ant-btn:focus, .ant-btn:active, .ant-btn.active{
+	 background: #fff;
+}
+.download-button{
+	cursor:pointer;
+	z-index: 10;
+    background-color: #fff;
+    border-radius: 50px;
+    text-align: center;
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    left: 0px;
+    top: 0px;
+    border: solid 1px #5491de;
+    color: #5491de;
+}
+</style>
+<style type="text/css">
+	.ivu-table .demo-table-info-row td{
+        background-color: #2db7f5;
+        color: #fff;
+    }
+
+</style>

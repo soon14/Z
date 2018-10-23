@@ -1,0 +1,187 @@
+<template>
+	<div>
+		<div class='head'>
+			<span>修改资料</span>
+			<div>
+				<Button shape="circle" type="ghost" @click="saveUserInfo(formValidate)" style=';border:none;background:#169BD5;color:#fff'>
+	                     <Icon type="checkmark-round" style="margin-right:5px;color:#fff"></Icon>保存
+	            </Button>
+	            <span @click="" style="cursor:pointer;margin-right:25px;margin-top:5px"><Icon type="close" class="cha" ></Icon></span>
+            </div>
+		</div>
+		<div>
+
+			<div class='right-content'>
+				<div style='margin-top:-80px;height:400px'>
+					<div class='right-left'>
+						<el-upload
+						  class="avatar-uploader"
+						  :action="logoUrl"
+						  name='file'
+						  :show-file-list="false"
+						  :on-success="addsucess"
+						  accept="image/*"
+						  >
+						  <img v-if="formValidate.logo" :src="formValidate.logo" class="avatar" width='30' height='30'>
+						  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+						</el-upload>
+
+					</div>
+					<div class='logotext'><span>上传或更换个人头像</span></div>
+				</div>
+
+
+			<div class='box'>
+				<Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
+					<FormItem label="昵称：" prop="trueName">
+                        <Input v-model="formValidate.trueName" placeholder="昵称" style='width:60%'></Input>
+                    </FormItem>
+                    <FormItem label="公司：" prop="name">
+                        <Input v-model="formValidate.name"  disabled placeholder="公司：" style='width:60%'></Input>
+                    </FormItem>
+                    <FormItem label="职位：" prop="name">
+                        <Input v-model="formValidate.name"  disabled placeholder="职位：" style='width:60%'></Input>
+                    </FormItem>
+                    <FormItem label="简介：" prop="name">
+                        <Input v-model="formValidate.name" type='textarea' placeholder="简介：" style='width:60%'></Input>
+                    </FormItem>
+                 </Form>
+				<!-- <div class='list'>
+					<span>昵称：</span>
+					<Input style='width:60%'></Input>
+				</div>
+				<div class='list'>
+					<span>公司：</span>
+					<Input style='width:60%' disabled></Input>
+				</div>
+				<div class='list'>
+					<span>职位：</span>
+					<Input style='width:60%' disabled></Input>
+				</div>
+				<div class='list'>
+					<span>简介：</span>
+					<Input type='textarea' style='width:60%'></Input>
+				</div> -->
+			</div>
+			</div>
+		</div>
+	</div>
+</template>
+<script type="text/javascript">
+import LoadUrl from '@/components/common/actionLoad'
+import * as types from '../../store/types'
+export default{
+	data(){
+		return {
+			uid: this.$store.state.common.token,
+			logoUrl:LoadUrl.httpPrefix.Url+'file/action/upload/image/url?uid='+this.$store.state.common.token,
+
+			user:this.$store.state.common.user,
+			formValidate:{
+				trueName:'',//昵称
+				logo:''//logo
+			},
+			ruleValidate:{
+
+			}
+		}
+	},
+	methods:{
+		//上传图片成功
+		addsucess(res,file){
+			this.logo=res.rows.url
+
+		},
+		//保存编辑用户
+		saveUserInfo(v){
+			if(v){
+				// this.axios.put('/customer/update?uid='+this.uid,{
+				// 	trueName:this.formValidate.trueName
+				// }).then(res=>{
+				// 	if(res.data.status==200){
+
+				// 	}
+				// })
+			}
+		},
+
+	},
+	mounted(){
+		//获取当前用户信息
+		this.formValidate.trueName=this.user.trueName
+		this.formValidate.logo=this.user.logo
+		console.log(this.user)
+	}
+}
+</script>
+<style type="text/css" scoped>
+.head{
+	height:50px;
+	line-height: 50px;
+	width:100%;
+	display:flex;
+	justify-content: space-between;
+	border-bottom:1px solid #e4e4e4;
+}
+.head span{
+	margin-left:20px;
+	font-size:14px;
+	font-weight:900;
+}
+.avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 180px;
+    height: 180px;
+    line-height: 180px;
+    text-align: center;
+  }
+  .avatar {
+    width: 180px;
+    height: 180px;
+    display: block;
+  }
+.logotext{
+	width:180px;
+	height:30px;
+	line-height: 55px;
+	text-align: center;
+
+}
+.right-content{
+	width:100%;
+	height:100%;
+
+	display:flex;
+	justify-content: center;
+	align-items: center;
+
+}
+  .right-left{
+	width: 182px;
+
+    margin-top: 26px;
+	text-align: center;
+	border:1px dashed #e1e1e1;
+}
+.box{
+	width:60%;
+	height:500px;
+	margin-top:70px;
+
+}
+.list{
+	display:flex;
+	height:35px;
+	line-height: 35px;
+	margin-bottom:10px;
+}
+.list span{
+	width:40px;
+}
+
+</style>
+

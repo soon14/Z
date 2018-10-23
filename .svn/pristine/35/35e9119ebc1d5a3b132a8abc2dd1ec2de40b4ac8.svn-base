@@ -1,0 +1,7 @@
+export function getLocalTime(s){
+    var myYear= new Date(s).getFullYear()
+    var myMonth= new Date(s).getMonth()+1
+    var myDay= new Date(s).getDate()
+    var showDate = myYear+"-"+myMonth+'-'+myDay   
+   return showDate
+};

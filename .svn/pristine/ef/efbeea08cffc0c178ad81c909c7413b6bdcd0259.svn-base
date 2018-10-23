@@ -1,0 +1,382 @@
+<template>
+	<div class='safesetting'>
+		<div class='head'>
+			<span>安全设置</span>
+		</div>
+		<div class='main'>
+			<div class='user'>
+				<span>当前账号:</span><span>{{mobile}}</span>
+			</div>
+			<div style='margin-top:20px;'>
+				<li  style='border-top:1px dotted #e4e4e4;'>
+					<span>
+						<Icon type="checkmark-circled" style='display:inline-block;color:#43BF89;vertical-align:middle' size='25'></Icon>
+						<span style='margin-left:10px'>登陆密码</span>
+					</span>
+					
+					<span style='margin-left:20px;display:inline-block'>互联网账号存在被盗风险，建议您定期更改密码以保护账户安全</span>
+					<div class='btn'>
+					<Button type="primary" @click='editPs'>修改</Button>
+					</div>
+				</li>
+				<li>
+					<span>
+						<Icon type="checkmark-circled" style='display:inline-block;color:#43BF89;vertical-align:middle' size='25'></Icon>
+						<span style='margin-left:10px'>绑定邮箱</span>
+					</span>
+					
+					<span style='margin-left:20px;;display:inline-block'>您绑定的邮箱：{{email}}若已丢失或停用，请立即更换，避免账户被盗</span>
+					<div class='btn'>
+						<Button type="primary" @click='editEmail'>修改</Button>
+					</div>
+				</li>
+				<!-- <li>
+					<span>
+						<Icon type="checkmark-circled" style='display:inline-block;color:#43BF89;vertical-align:middle' size='25'></Icon>
+						<span style='margin-left:10px'>绑定手机</span>
+					</span>
+					
+					<span style='margin-left:50px;width:500px;display:inline-block'>您绑定的手机：{{user.mobile}}若已丢失或停用，请立即更换，避免账户被盗</span>
+					<div class='btn'>
+						<Button type="primary" @click='editPhone'>修改</Button>
+					</div>
+				</li> -->
+			</div>
+		</div>
+		<!--修改密码-->
+		<Modal v-model="psisshow" width="360px">
+		<p slot="header" style="height:30px;line-height:30px;text-align:center">
+			
+			<span>修改密码</span>
+		</p>
+		 <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="100">
+			
+				<FormItem label="原始密码：" prop="oldps">
+	               <Input style='' v-model='formValidate.oldps' type='password'></Input>
+	            </FormItem>
+			
+				<FormItem label="输入新密码：" prop="newps">
+	               <Input style='' v-model='formValidate.newps' type='password'></Input>
+	            </FormItem>
+			
+				<FormItem label="重复新密码：" prop="repeatps">
+	              <Input style='' v-model='formValidate.repeatps' type='password'></Input>
+	            </FormItem>
+				
+			
+		</Form>
+		<div slot="footer">
+			<div class='footer-mark'>
+				<span><a style='color:#999;font-size:14px' @click='cancelPs'>取消</a></span>
+				<span style='font-size:20px;width:1px;height:40px;background:#e4e4e4'></span>
+				<span ><a style='color:#3B77E3;font-size:14px' @click='savePs("formValidate")'>确认</a></span>
+			</div>
+		</div>
+	</Modal>
+	<!--修改邮箱-->
+		<Modal v-model="emailisshow" width="360px">
+		<p slot="header" style="height:30px;line-height:30px;text-align:center">
+			
+			<span>修改邮箱</span>
+		</p>
+		<Form ref="formValidateEmail" :model="formValidateEmail" :rules="ruleValidateEmail" :label-width="100">
+				<FormItem label="原邮箱：">
+	               <span v-model='user.email' disabled>{{user.email}}</span>
+	            </FormItem>
+				<FormItem label="新邮箱：" prop="email">
+	               <Input style='' v-model='formValidateEmail.email'></Input>
+	            </FormItem>
+				<!-- <FormItem label="验证码：" prop="email">
+	               <Input v-model='formValidateEmail.email' style='width:153px;'></Input>
+	               <a style='margin-left:5px;color:#E47171'>获取验证码</a>
+	            </FormItem> -->
+		</Form>
+		<div slot="footer">
+			<div class='footer-mark'>
+				<span><a style='color:#999;font-size:14px' @click='cancelEmail'>取消</a></span>
+				<span style='font-size:20px;width:1px;height:40px;background:#e4e4e4'></span>
+				<span ><a style='color:#3B77E3;font-size:14px' @click='sureEmail'>确认</a></span>
+			</div>
+		</div>
+	</Modal>
+	<!--修改手机-->
+		<Modal v-model="phoneisshow" width="360px">
+		<p slot="header" style="height:30px;line-height:30px;text-align:center">
+			
+			<span>修改手机</span>
+		</p>
+		<Form ref="formValidatePhone" :model="formValidatePhone" :rules="ruleValidatePhone" :label-width="100">
+	
+				<FormItem label="新手机：" prop="phone">
+	               <Input style='' v-model='formValidatePhone.phone'></Input>
+	            </FormItem>
+				<FormItem label="验证码：" prop="yzm">
+	               <Input v-model='formValidatePhone.yzm' style='width:153px;'></Input>
+	               <a style='margin-left:5px;color:#E47171'>获取验证码</a>
+	            </FormItem>
+		</Form>
+		<div slot="footer">
+			<div class='footer-mark'>
+				<span><a style='color:#999;font-size:14px' @click='cancelPhone'>取消</a></span>
+				<span style='font-size:20px;width:1px;height:40px;background:#e4e4e4'></span>
+				<span >
+					<a style='color:#3B77E3;font-size:14px' @click='savePhone("formValidatePhone")'>确认</a></span>
+			</div>
+		</div>
+	</Modal>
+	</div>
+</template>
+<script type="text/javascript">
+import * as types from '../../store/types'
+export default{
+	data(){
+		//老密码验证
+		const oldps = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('原始密码不能为空！'));
+                }else{
+                	callback();
+                }
+            };
+            //新密码验证
+		 const validatePass = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请输入新密码！'));
+                } else {
+                    if (this.formValidate.repeatps !== '') {
+                        // 对第二个密码框单独验证
+                        this.$refs.formValidate.validateField('repeatps');
+                    }
+                    callback();
+                }
+            };
+            //两次密码是否一致验证
+         const validatePassCheck = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请重复输入新密码！'));
+                } else if (value !== this.formValidate.newps) {
+                    callback(new Error('两次输入密码不一致！'));
+                } else {
+                    callback();
+                }
+            };
+		return{
+			mobile:"",
+			email:"",
+			//修改密码
+			formValidate:{
+				oldps:'',//旧密码
+				newps:'',//新密码
+				repeatps:'',//重复密码
+			},
+			//密码验证规则
+			ruleValidate:{
+				oldps: [
+					{ required: true, message: '密码不能为空！', trigger: 'blur' },
+                    { validator: oldps, trigger: 'blur' },
+                        
+                    ],
+				newps: [
+				 	{ required: true, message: '新密码不能为空！', trigger: 'blur' },
+                    { validator: validatePass, trigger: 'blur' },
+                        
+                    ],
+				repeatps: [
+					{ required: true, message: '请再次输入新密码！', trigger: 'blur' },
+                    { validator: validatePassCheck, trigger: 'blur' },
+                    
+                    ],
+				
+			},
+			//修改邮箱
+			formValidateEmail:{
+				email:'',//新邮箱
+				
+			},
+			//邮箱验证规则
+			ruleValidateEmail:{
+				email:[{ required: true, message: '请输入新邮箱！', trigger: 'blur' },,{ pattern: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/, message: '请输入正确的邮箱',trigger: 'blur' }],
+				
+			},
+			//修改手机号
+			formValidatePhone:{
+				phone:'',//新邮箱
+				yzm:""
+			
+			},
+			//手机号证规则
+			ruleValidatePhone:{
+				phone: [
+                        { required: true, message: '手机号不能为空！', trigger: 'blur' },
+                        { pattern: /^1[3|4|5|7|8][0-9]{9}$/, message: '请输入正确的手机号码' }
+                    ],
+				yzm:[{ required: true, message: '手机号不能为空！', trigger: 'blur' }]
+			},
+			psisshow:false,//修改密码框显示
+			emailisshow:false,//修改邮箱框显示
+			phoneisshow:false,//修改手机号框显示
+			uid: this.$store.state.common.token,
+			user:this.$store.state.common.user,
+		}
+	},
+	methods:{
+		//修改密码
+		editPs(){
+			this.psisshow=true
+		},
+		//取消修改密码
+		cancelPs(){
+			this.psisshow=false
+		},
+		//保存密码
+		savePs(v){
+			this.$refs[v].validate((valid) => {
+				if(valid){
+					this.axios.get('/customer/mdps?oldps='+this.formValidate.oldps+'&newps='+this.formValidate.newps+'&uid='+this.uid).then(res=>{
+						if(res.data.status==200){
+							
+		                    this.$notify({
+		                        title:"",//
+		                        message: this.$t('public.editSuccess'),//
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+		                    //成功后清空
+		                    this.psisshow=false
+		                    this.formValidate.oldps=''
+		                    this.formValidate.newps=''
+		                    this.formValidate.repeatps=''
+		                    this.getInfo()
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message: res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+				}
+			})
+			
+		},
+		//修改邮箱
+		editEmail(){
+			this.emailisshow=true
+		},
+		getInfo(){
+        	this.axios.get('getInfo?uid='+this.uid).then(res=>{
+        		console.log(res.data.rows)
+        		let data=res.data.rows
+        		
+        		this.mobile=data.mobile
+        		
+        		this.email=data.email
+        		
+        	})
+        },
+		//确认PUT /customer/updateEmail 修改邮箱
+		sureEmail(){
+			this.axios.put('/customer/updateEmail?uid='+this.uid,this.formValidateEmail.email).then(res=>{
+				if(res.data.status==200){
+                    this.$notify({
+                        title:"",//
+                        message: this.$t('public.editSuccess'),//
+                        type: 'success',
+                        position: 'bottom-right'
+                    });
+                    //成功后清空
+                    this.emailisshow=false
+                    this.formValidateEmail.email=''
+                    this.getInfo()
+				}else{
+					this.$notify({
+                        title:"",//
+                        message: res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+				}
+			})
+		},
+		//取消修改邮箱
+		cancelEmail(){
+			this.emailisshow=false
+			this.formValidateEmail.email=''
+		},
+		//修改手机
+		editPhone(){
+			this.phoneisshow=true
+		},
+		//保存修改手机
+		savePhone(v){
+
+		},
+		//取消修改手机
+		cancelPhone(){
+			this.phoneisshow=false
+		},
+	},
+	mounted(){
+		this.getInfo()
+		console.log(this.user)
+	}
+}
+</script>
+<style type="text/css" scoped>
+.safesetting{
+	width:100%;
+	/*height:100%;*/
+}
+.head{
+	height:50px;
+	line-height: 50px;
+	width:100%;
+	display:flex;
+	justify-content: space-between;
+	border-bottom:1px solid #e4e4e4;
+}
+.head span{
+	margin-left:20px;
+	font-size:14px;
+	font-weight:900;
+}
+.main{
+	width:100%;
+	margin-left:20px;
+	
+}
+.main .user{
+	display:block;
+	height:50px;
+	line-height: 50px;
+	
+	font-size:14px;
+	font-weight:900;
+}
+li{
+	list-style: none;
+	height:80px;
+	line-height: 80px;
+	border-bottom:1px dotted #e4e4e4;
+
+}
+.btn{
+	display:inline-block;
+	width:100px;
+	text-align: center;
+	
+}
+.footer-mark{
+	width:100%;
+	height:40px;
+	border-top:1px solid #E4E4E4;
+	display: flex;
+	justify-content: space-around;
+	margin-bottom:-10px;
+}
+.footer-mark span{
+	height:40px;
+	line-height: 40px
+}
+</style>

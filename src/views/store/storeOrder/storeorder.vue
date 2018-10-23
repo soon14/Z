@@ -1,0 +1,1151 @@
+<template>
+	<!--订单-->
+	<div class="units-box">
+		<div style='display:flex;height:100%;overflow:hidden'>
+			<!-- <div class='main-left'>
+				<div style='height: 50px; border-bottom: 1px solid rgb(228, 228, 228); font-size: 14px; font-weight: 900; line-height: 50px;'>
+					<div style='margin-left:10px'>订单</div>
+				</div>
+				<li class="flclass" v-for='(item,index) in fhlist' :key='index' @click='getfhlistbg(index)' :class="{bor:index==fhindex}">
+					<span>{{item.label}}</span>
+				</li>
+			</div> -->
+			<Tabs :animated="false"  style="background:#fff;width:100%;height:100%" @on-click="getfhlistbg">
+		        <TabPane label="门店订单">
+		        	<!--门店订单-->
+					<div class="table">
+						<div class='right-top'>
+							<div style='font-size: 14px; font-weight: 700;margin-left:10px'>{{title}}</div>
+							<Input style='width:400px;margin-top:10px;margin-left:10px' v-model='orderkeyword' placeholder='请输入单号' @on-enter='entersSearchorder' >
+			                	<span slot="append"  @click='clickorder' style='cursor:pointer'>搜索</span>
+			        		</Input>
+		        		</div>
+						<div style='margin:10px'>
+							<div class='order-center'>
+								<div class='table-head'>
+									<div style="width:330px;flex:0 0 330px;display: flex;">
+									<span >{{$t('orders.sku')}}</span><!--商品-->
+									</div>
+									<span >{{$t('orders.shouh')}}</span><!--售后-->
+					
+									<span >{{$t('orders.orderTime')}}<a></a></span><!--下单时间↓-->
+									<span >{{$t('orders.orderStatus')}}</span><!--订单状态-->
+									<span >{{$t('orders.sfje')}}</span><!--实付金额-->
+								</div>
+								<div style='width:100%;text-align:center;padding:20px 0' v-if='orderData.length==0'>{{$t('public.NoData')}}</div><!--暂无数据-->
+								<div class='table-head1' v-for='(item,index) in orderData' :key="index" v-else>
+										<div class='table-sub-head'>
+											<div class='Checkbox'>
+												<!-- <Checkbox :value='item.check' @on-change='changeOnRowOrder(item,index,$event)'></Checkbox> -->
+												<span style='margin-left:10px'>{{$t('orders.orderNo')}}: {{item.orderNo}}</span><!--订单号-->
+												<span style='margin-left:10px'>
+												{{getLocalTimeH(item.createTime)}}
+												<!-- {{new Date(item.createTime).toLocaleString().replace(/\//g,'-')}} -->
+											</span><!--订单号-->
+											</div><!--选中-->
+											
+											<span style='margin-right:10px' @click='seeDetails(item,index)'><a>{{$t('orders.seeInfo')}}</a></span><!--查看详情-->
+										</div>
+										<div class='table-sub-order-list' v-for='(i,j) in item.details' :key="j">
+											
+											<li style='flex:1 0 300px;text-align:left;position:relative'>
+												<img :src="i.mainPhoto" width='60' height='60' class='skuImg'>
+													<span class='skuname' @click='seeDetails(item,index)'>{{i.skuName}}</span>
+													<span class='goodsSpec'>{{i.skuTypeDesc}}</span>
+												<span class='goodsPrice'>
+													<span style='color:#d53c39'>￥:{{i.price}}</span>
+													<!-- <span> 元</span> -->
+												</span>
+												<span style='position:absolute;right:20px;
+												bottom:35px;height:20px'>({{i.qty}}){{i.unit}}</span>
+											</li>
+											<li>
+												<span>{{item.customerName}}</span>
+											</li>
+											<!-- <li>
+												<span>ID：{{item.id}}</span>
+											</li> -->
+											<li>
+												
+												<span>{{getLocalTimeH(item.createTime)}}</span>
+											</li>
+											<li>
+												<span>{{item.statusDesc}}</span>
+											</li>
+											<li>
+												<span style='color:#d53c39'>￥：{{(i.qty*i.price).toFixed(2)}}</span>
+												<!-- <span style='color:#d53c39'>￥：{{item.amount.toFixed(2)}}</span> -->
+											</li>
+										</div>
+
+											<div style='height:40px;;line-height:40px;background:#FFF1F1' v-if="item.remark"><span style='margin-left:10px' >备注：{{item.remark}}</span></div>
+
+								</div>
+							</div>
+							<div class="page-box">
+								 <Page v-if='ordertotal!=0' size='small' :total="ordertotal" show-total  :pageSize='orderpageSize'  @on-change="ordergetData" @on-page-size-change="orderchangePageSize"></Page>
+							</div>
+						</div>
+					</div>
+		        </TabPane>
+		        <TabPane label="挂单列表">
+		        	<!--挂单列表-->
+					<div class="table">
+						<div class='right-top'>
+							<div style='font-size: 14px; font-weight: 900;margin:0 10px'>{{title}}</div>
+							<Input style='margin-top:10px;width:400px' v-model='gdkeyword' placeholder='请输入单号' @on-enter='entersSearchgd' >
+		                    	<span slot="append"  @click='searchgd' style='cursor:pointer'>搜索</span>
+		            		</Input>
+		        		</div>
+						<div style='margin:10px'>
+							<!-- <Table border   :columns="gdkey" :data="gdData" @on-row-dblclick='clickRowAllOrdergd'></Table> -->
+							<div class='order-center'>
+								<div class='table-head'>
+									<div style="width:330px;flex:0 0 330px;display: flex;">
+										<!-- <div class='checkAll'><Checkbox v-model='single' @on-change='changeAll'></Checkbox></div> -->
+									
+									<span >{{$t('orders.sku')}}</span><!--商品-->
+									</div>
+									<span >{{$t('orders.shouh')}}</span><!--售后-->
+					
+									<span >{{$t('orders.orderTime')}}<a></a></span><!--下单时间↓-->
+									<span >{{$t('orders.orderStatus')}}</span><!--订单状态-->
+									<span >{{$t('orders.sfje')}}</span><!--实付金额-->
+								</div>
+								<div style='width:100%;text-align:center;padding:20px 0' v-if='gdData.length==0'>{{$t('public.NoData')}}</div><!--暂无数据-->
+								<div class='table-head1' v-for='(item,index) in gdData' :key="index" v-else>
+										<div class='table-sub-head'>
+											<div class='Checkbox'>
+												<!-- <Checkbox :value='item.check' @on-change='changeOnRowOrder(item,index,$event)'></Checkbox> -->
+												<span style='margin-left:10px'>{{$t('orders.orderNo')}}: {{item.orderNo}}</span><!--订单号-->
+												<span style='margin-left:10px'><span>{{getLocalTimeH(item.createTime)}}</span></span><!--订单号-->
+											</div><!--选中-->
+											
+											<span style='margin-right:10px' @click='seeDetailsgd(item,index)'><a>{{$t('orders.seeInfo')}}</a></span><!--查看详情-->
+										</div>
+										<div class='table-sub-order-list' v-for='(i,j) in item.details' :key="j">
+											
+											<li style='flex:1 0 300px;text-align:left;position:relative'>
+												<img :src="i.mainPhoto" width='60' height='60' class='skuImg'>
+													<span class='skuname' @click='seeDetailsgd(item,index)'>{{i.skuName}}</span>
+													<span class='goodsSpec'>{{i.skuTypeDesc}}</span>
+												<span class='goodsPrice'>
+													<span style='color:#d53c39'>￥:{{i.price}}</span>
+													<!-- <span> 元</span> -->
+												</span>
+												<span style='position:absolute;right:20px;
+												bottom:35px;height:20px'>({{i.qty}}){{i.unit}}</span>
+											</li>
+											<li>
+												<span>{{item.customerName}}</span>
+											</li>
+											<!-- <li>
+												<span>ID：{{item.id}}</span>
+											</li> -->
+											<li>
+												<span><span>{{getLocalTimeH(item.createTime)}}</span></span>
+											</li>
+											<li>
+												<span>{{item.statusDesc}}</span>
+											</li>
+											<li>
+												<span style='color:#d53c39'>￥：{{(i.qty*i.price).toFixed(2)}}</span>
+												<!-- <span style='color:#d53c39'>￥：{{item.amount.toFixed(2)}}</span> -->
+											</li>
+										</div>
+
+											<div style='height:40px;;line-height:40px;background:#FFF1F1' v-if="item.remark"><span style='margin-left:10px' >备注：{{item.remark}}</span></div>
+
+								</div>
+							</div>
+							<div class="page-box">
+								 <Page v-if='gdtotal!=0' size='small' :total="gdtotal" show-total  :pageSize='gdpageSize'  @on-change="gdgetData" @on-page-size-change="gdchangePageSize"></Page>
+							</div>
+						</div>
+					</div>
+		        </TabPane>
+		        <TabPane label="网络订单">
+		        	<!--网络订单列表-->
+					<div class="table" >
+						<div class='right-top'>
+							<div style='font-size: 14px; font-weight: 900;margin:0 10px'>{{title}}</div>
+							<Input style='margin-top:10px;width:400px' v-model='wlkeyword' placeholder='请输入单号' @on-enter='entersSearchwl' >
+		                    	<span slot="append"  @click='searchwl(3)' style='cursor:pointer'>搜索</span>
+		            		</Input>
+		        		</div>
+						<div style='margin:10px'>
+							<!-- <Table border :columns="wlkey" :data="wlData" @on-row-dblclick='clickRowAllOrderwl'></Table> -->
+							<div class='order-center'>
+								<div class='table-head'>
+									<div style="width:330px;flex:0 0 330px;display: flex;">
+										<!-- <div class='checkAll'><Checkbox v-model='single' @on-change='changeAll'></Checkbox></div> -->
+									
+									<span >{{$t('orders.sku')}}</span><!--商品-->
+									</div>
+									<span >{{$t('orders.shouh')}}</span><!--售后-->
+					
+									<span >{{$t('orders.orderTime')}}<a></a></span><!--下单时间↓-->
+									<span >{{$t('orders.orderStatus')}}</span><!--订单状态-->
+									<span >{{$t('orders.sfje')}}</span><!--实付金额-->
+								</div>
+								<div style='width:100%;text-align:center;padding:20px 0' v-if='wlData.length==0'>{{$t('public.NoData')}}</div><!--暂无数据-->
+								<div class='table-head1' v-for='(item,index) in wlData' :key="index" v-else>
+										<div class='table-sub-head'>
+											<div class='Checkbox'>
+												<!-- <Checkbox :value='item.check' @on-change='changeOnRowOrder(item,index,$event)'></Checkbox> -->
+												<span style='margin-left:10px'>{{$t('orders.orderNo')}}: {{item.orderNo}}</span><!--订单号-->
+												<span style='margin-left:10px'><span>{{getLocalTimeH(item.createTime)}}</span></span><!--订单号-->
+											</div><!--选中-->
+											
+											<span style='margin-right:10px' @click='seeDetailswl(item,index)'><a>{{$t('orders.seeInfo')}}</a></span><!--查看详情-->
+										</div>
+										<div class='table-sub-order-list' v-for='(i,j) in item.details' :key="j">
+											
+											<li style='flex:1 0 300px;text-align:left;position:relative'>
+												<img :src="i.mainPhoto" width='60' height='60' class='skuImg'>
+													<span class='skuname' @click='seeDetailswl(item,index)'>{{i.skuName}}</span>
+													<span class='goodsSpec'>{{i.skuTypeDesc}}</span>
+												<span class='goodsPrice'>
+													<span style='color:#d53c39'>￥:{{i.price}}</span>
+													<!-- <span> 元</span> -->
+												</span>
+												<span style='position:absolute;right:20px;
+												bottom:35px;height:20px'>({{i.qty}}){{i.unit}}</span>
+											</li>
+											<li>
+												<span>{{item.customerName}}</span>
+											</li>
+											<!-- <li>
+												<span>ID：{{item.id}}</span>
+											</li> -->
+											<li>
+												<span>{{getLocalTimeH(item.createTime)}}</span>
+											</li>
+											<li>
+												<span>{{item.statusDesc}}</span>
+											</li>
+											<li>
+												<span style='color:#d53c39'>￥：{{(i.qty*i.price).toFixed(2)}}</span>
+												<!-- <span style='color:#d53c39'>￥：{{item.amount.toFixed(2)}}</span> -->
+											</li>
+										</div>
+
+											<div style='height:40px;;line-height:40px;background:#FFF1F1' v-if="item.remark"><span style='margin-left:10px' >备注：{{item.remark}}</span></div>
+
+								</div>
+							</div>
+							<div class="page-box">
+								 <Page v-if='wltotal!=0' size='small' :total="wltotal" show-total  :pageSize='wlpageSize'  @on-change="wlgetData" @on-page-size-change="wlchangePageSize"></Page>
+							</div>
+						</div>
+					</div>
+		        </TabPane>
+		        <TabPane label="退货订单">
+		        	<!--退货订单列表-->
+					<div class="table">
+						<div class='right-top'>
+							<div style='font-size: 14px; font-weight: 900;margin:0 10px'>{{title}}</div>
+							<Input style='margin-top:10px;width:400px' v-model='returnkeyword' placeholder='请输入单号' @on-enter='entersSearchreturn' >
+		                    	<span slot="append"  @click='searchreturn()' style='cursor:pointer'>搜索</span>
+		            		</Input>
+		        		</div>
+						<div style='margin:10px'>
+							<Table border :columns="returnkey" :data="returnData" ></Table>
+							<div class="page-box">
+								 <Page v-if='returntotal!=0' size='small' :total="returntotal" show-total  :pageSize='returnpageSize'  @on-change="returngetData" @on-page-size-change="returnchangePageSize"></Page>
+							</div>
+						</div>
+					</div>
+		        </TabPane>
+		    </Tabs>
+		</div>
+	</div>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				orderkeyword:'',
+				single:false,//订单全选
+				orderStr:"",
+				orderStrArr:[],
+				title:"门店订单",
+				valueT:0,
+				orderListname:[
+					{
+						label:"全部",
+						value:0
+					},
+					{
+						label:"线下订单",
+						value:1
+					},
+					{
+						label:"线上订单",
+						value:3
+					},
+					// {
+					// 	label:"分销订单",
+					// 	value:5
+					// },
+					// {
+					// 	label:"跨店订单",
+					// 	value:7
+					// }
+				],
+				fhindex:0,
+				fhlist:[
+					{
+						label:"门店订单",
+						value:0
+					},
+					{
+						label:"挂单列表",
+						value:1
+					},
+					{
+						label:"网络订单",
+						value:2
+					},
+					{
+						label:"退货订单",
+						value:3
+					},
+				],
+				value:0,//下拉项
+				uid: this.$store.state.common.token,
+				//门店订单0：全部 1：线下订单 3：线上订单 5：分销订单 7：跨店订单
+				orderData:[],
+				orderkey:[
+					{
+						title:"订单编号",
+						key:"orderNo",
+						width:180,
+					},
+					{
+						title:"订单金额",
+						width:100,
+						key:"amount"
+					},
+					{
+						title:"商品",
+						
+						ellipsis:true,
+						key:"skuname"
+					}, 
+					
+					{
+						title:"支付方式",
+						width:120,
+						key:"typeDesc"
+					},
+					// {
+					// 	title:"会员",
+					// 	key:"customerName"
+					// },
+					// {
+					// 	title:"收货人",
+					// 	key:"trueName"
+					// },
+					{
+						title:"时间",
+						width:100,
+						key:"createTime"
+					},
+					{
+						title:"状态",
+						width:100,
+						key:"statusDesc",
+						render:(h,params)=>{
+                            return h('span',{
+                                style:{
+                                    color:params.row.status==10?'#3b77e3':params.row.status==1?'#278A8B':'#40ca98'
+                                }
+                            },params.row.statusDesc)
+                        }
+					},
+				],
+				ordertotal:0,
+				orderpageSize:0,
+				//挂单
+				gdkeyword:'',
+				gdpageSize:0,
+				gdtotal:0,
+				gdData:[],
+				gdkey:[
+					{
+						title:"订单编号",
+						key:"orderNo",
+						width:180,
+					},
+					{
+						title:"订单金额",
+						width:100,
+						key:"amount"
+					},
+					{
+						title:"商品",
+						
+						ellipsis:true,
+						key:"skuname"
+					}, 
+					
+					{
+						title:"支付方式",
+						width:120,
+						key:"typeDesc"
+					},
+					// {
+					// 	title:"会员",
+					// 	key:"customerName"
+					// },
+					// {
+					// 	title:"收货人",
+					// 	key:"trueName"
+					// },
+					{
+						title:"时间",
+						width:100,
+						key:"createTime"
+					},
+					{
+						title:"状态",
+						width:100,
+						key:"statusDesc",
+						render:(h,params)=>{
+                            return h('span',{
+                                style:{
+                                    color:params.row.status==0?'#3b77e3':params.row.status==1?'#278A8B':'#40ca98'
+                                }
+                            },params.row.statusDesc)
+                        }
+					},
+				],
+				//网络订单
+				wlkeyword:'',
+				wlpageSize:0,
+				wltotal:0,
+				wlData:[],
+				wlkey:[
+					{
+						title:"订单编号",
+						key:"orderNo",
+						width:180,
+					},
+					{
+						title:"订单金额",
+						width:100,
+						key:"amount"
+					},
+					{
+						title:"商品",
+						
+						ellipsis:true,
+						key:"skuname"
+					}, 
+					
+					{
+						title:"支付方式",
+						width:120,
+						key:"typeDesc"
+					},
+					// {
+					// 	title:"会员",
+					// 	key:"customerName"
+					// },
+					// {
+					// 	title:"收货人",
+					// 	key:"trueName"
+					// },
+					{
+						title:"时间",
+						width:100,
+						key:"createTime"
+					},
+					{
+						title:"状态",
+						width:100,
+						key:"statusDesc",
+						render:(h,params)=>{
+                            return h('span',{
+                                style:{
+                                    color:params.row.status==10?'#3b77e3':params.row.status==50?'#40ca98':'#278A8B'
+                                }
+                            },params.row.statusDesc)
+                        }
+					},
+				],
+				//退货订单
+				returnkeyword:'',
+				returnpageSize:0,
+				returntotal:0,
+				returnData:[],
+				returnkey:[
+					{
+						title:"订单编号",
+						key:"orderNo",
+						width:180,
+					},
+					{
+						title:"订单金额",
+						width:100,
+						key:"amount"
+					},
+					{
+						title:"商品",
+						
+						ellipsis:true,
+						key:"skuname"
+					}, 
+					
+					{
+						title:"支付方式",
+						width:120,
+						key:"type1"
+					},
+					// {
+					// 	title:"会员",
+					// 	key:"customerName"
+					// },
+					// {
+					// 	title:"收货人",
+					// 	key:"trueName"
+					// },
+					{
+						title:"时间",
+						width:100,
+						key:"createTime"
+					},
+					{
+						title:"状态",
+						width:100,
+						key:"statusDesc",
+						render:(h,params)=>{
+                            return h('span',{
+                                style:{
+                                    color:params.row.status==0?'#3b77e3':params.row.status==1?'#278A8B':'#40ca98'
+                                }
+                            },params.row.statusDesc)
+                        }
+					},
+				],
+			}
+		},
+		methods: {
+			//切换
+			getfhlistbg(index){
+				this.fhindex=index
+				if(this.fhindex==0){
+					this.title='门店订单'
+					this.getStoreOrder(0)
+				}
+				if(this.fhindex==1){
+					this.title='挂单列表'
+					this.getStoregd()
+				}
+				if(this.fhindex==2){
+					this.title='网络订单'
+					this.getStorewl(3)
+				}
+				if(this.fhindex==3){
+					this.title='退货订单'
+					this.getStorereturn()
+				}
+			},
+			//下拉框选择
+			orderselected(v){
+				this.value=v
+				this.getStoreOrder(v)
+			},
+			seeDetails(data,index){
+				this.$router.push({
+					path:'/storeOrderDetails',
+					query:{
+						id:data.id,
+						index:index,
+						s:data.status,
+						ordertype:0
+					}
+				})
+			},
+			//单击一行门店订单
+			clickRowAllOrder(data,index){
+				this.$router.push({
+					path:'/storeOrderDetails',
+					query:{
+						id:data.id,
+						index:index,
+						s:data.status,
+						ordertype:0
+					}
+				})
+			},
+			//挂单
+			seeDetailsgd(data,index){
+				this.$router.push({
+					path:'/gddetails',
+					query:{
+						id:data.id,
+						index:index,
+						s:data.status,
+						ordertype:13
+					}
+				})
+			},
+			
+			//网络订单跳转页面
+			seeDetailswl(){
+				this.$router.push({
+					path:'/interdetails',
+					query:{
+						id:data.id,
+						index:index,
+						s:data.status,
+						ordertype:3
+					}
+				})
+			},
+			
+			getSt(item){
+				switch(item.status){
+					case 1:
+						item.statusDesc=this.$t('orders.newOrder')
+					break;
+					case 10:
+						item.statusDesc=this.$t('orders.ySure')
+					break;
+					case 20:
+						item.statusDesc=this.$t('orders.yPay')
+					break;
+					case 23:
+						item.statusDesc=this.$t('orders.orderDfh')
+					break;
+					case 30:
+						item.statusDesc=this.$t('orders.orderYFH')
+					break;
+					case 50:
+						item.statusDesc=this.$t('orders.shSuccess')
+					break;
+					case 99:
+						item.statusDesc=this.$t('orders.iscancel')
+					break;
+				}
+			},
+			 //订单全选
+            changeAll(v){
+            	this.single=v
+            	this.orderData.forEach((x)=>{
+            		if(this.single){
+            			x.check=true
+            			if(this.orderStrArr.indexOf(x.id)>=0){
+            				this.orderStrArr.splice(this.orderStrArr.indexOf(x.id),1)
+            				console.log(this.orderStr)
+            			}else{
+            				this.orderStrArr.push(x.id)
+            				this.orderStr=this.orderStrArr.join(',')//
+            				console.log(this.orderStr)
+            			}
+            				
+            		}else{
+            			x.check=false
+            			this.orderStrArr=[]
+            			this.orderStr=''
+            		}
+        		})
+        		
+            },
+            //单选
+            changeOnRowOrder(item,index,event){
+            	if(event==false){
+            		this.single=false
+            		this.orderStrArr.splice(this.orderStrArr.indexOf(item.id),1)
+					this.orderStr=this.orderStrArr.join(',')
+            		console.log(this.orderStr)
+            	}else{
+            		this.orderStrArr.push(item.id)
+            		this.orderStr=this.orderStrArr.join(',')
+            		console.log(this.orderStr)
+            	}
+
+            },
+			//门店订单GET /morder/query/{searchtype} 门店订单
+			getStoreOrder(value){
+				this.axios.get('/morder/query/'+value+'?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.orderData=res.data.rows
+						this.ordertotal=res.data.total
+						this.orderpageSize=res.data.pageSize
+						this.orderData.forEach((x,index)=>{
+							this.getSt(x)
+							//0 新增 1;//可售后 3;//售后中 6;//已售后 9;//完成
+							x.check=false//添加一个是否选中
+							
+						})
+					}
+				})
+			},
+			//搜索订单
+			clickorder(){
+				this.axios.get('/morder/query/0?keyword='+this.orderkeyword+'?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.orderData=res.data.rows
+						this.ordertotal=res.data.total
+						this.orderpageSize=res.data.pageSize
+						
+					}
+				})
+			},
+			//回车搜索
+			entersSearchorder(){
+				this.clickorder()
+			},
+			//订单翻页
+			ordergetData(current){
+				this.axios.get('/morder/query/'+this.value+'?offset='+current+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.orderData=res.data.rows
+						this.ordertotal=res.data.total
+						this.orderpageSize=res.data.pageSize
+						
+					}
+				})
+			},
+			orderchangePageSize(size){
+				this.orderpageSize=size
+			},
+			//挂单搜索
+			searchgd(){
+				this.axios.get('/morder/listgd?keyword='+this.gdkeyword+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.gdData=res.data.rows
+						this.gdtotal=res.data.total
+						this.gdpageSize=res.data.pageSize
+						
+					}
+				})
+			},
+			//回车搜索
+			entersSearchgd(){
+				this.searchgd()
+			},
+			//挂单
+			getStoregd(){
+				this.axios.get('/morder/listgd?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.gdData=res.data.rows
+						this.gdtotal=res.data.total
+						this.gdpageSize=res.data.pageSize
+						
+					}
+				})
+			},
+			gdgetData(current){
+				this.axios.get('morder/listgd?offset='+current+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.gdData=res.data.rows
+						this.gdtotal=res.data.total
+						this.gdpageSize=res.data.pageSize
+						
+					}
+				})
+			},
+			gdchangePageSize(size){
+				this.gdpageSize=size
+			},
+			//网络订单
+			searchwl(value){
+				this.axios.get('/morder/query/'+value+'?keyword='+this.wlkeyword+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.wlData=res.data.rows
+						this.wltotal=res.data.total
+						this.wlpageSize=res.data.pageSize
+						
+					}
+				})
+			},
+			//回车搜搜
+			entersSearchwl(){
+				this.searchwl(3)
+			},
+			//网络订单
+			getStorewl(value){
+				this.axios.get('/morder/query/'+value+'?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.wlData=res.data.rows
+						this.wltotal=res.data.total
+						this.wlpageSize=res.data.pageSize
+					}
+				})
+			},
+			wlgetData(current){
+				this.axios.get('morder/listgd?offset='+current+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.wlData=res.data.rows
+						this.wltotal=res.data.total
+						this.wlpageSize=res.data.pageSize
+						
+					}
+				})
+			},
+			wlchangePageSize(size){
+				this.wlpageSize=size
+			},
+			//退货订单
+			getStorereturn(){
+				// this.axios.get('/moreturn/query?uid='+this.uid).then(res=>{
+				// 	if(res.data.status==200){
+				// 		this.returnData=res.data.rows
+				// 		this.returntotal=res.data.total
+				// 		this.returnpageSize=res.data.pageSize
+				// 		let arr=[]
+				// 		let arr1=[]
+				// 		res.data.rows.forEach((x,index)=>{
+				// 			x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+				// 			x.details.forEach((i,j)=>{
+				// 				arr.push(x.details[j].skuName)
+				// 				x.skuname=arr.join(',')
+				// 			})
+
+				// 			x.payVos.forEach((k,l)=>{
+				// 				console.log(k)
+				// 				arr1.push(x.payVos[l].type)
+				// 				x.type1=arr1.join(',')
+				// 			})
+				// 		})
+				// 	}
+				// })
+			},
+			//退货订单
+			searchreturn(){
+				// this.axios.get('/moreturn/query?keyword='+this.wlkeyword+'&uid='+this.uid).then(res=>{
+				// 	if(res.data.status==200){
+				// 		this.returnData=res.data.rows
+				// 		this.returntotal=res.data.total
+				// 		this.returnpageSize=res.data.pageSize
+				// 		let arr=[]
+				// 		let arr1=[]
+				// 		res.data.rows.forEach((x,index)=>{
+				// 			x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+				// 			x.details.forEach((i,j)=>{
+				// 				arr.push(x.details[j].skuName)
+				// 				x.skuname=arr.join(',')
+				// 			})
+
+				// 			x.payVos.forEach((k,l)=>{
+				// 				console.log(k)
+				// 				arr1.push(x.payVos[l].type)
+				// 				x.type1=arr1.join(',')
+				// 			})
+				// 		})
+				// 	}
+				// })
+			},
+			//回车搜搜
+			entersSearchreturn(){
+				this.searchreturn()
+			},
+			returngetData(current){
+				// this.axios.get('moreturn/query?offset='+current+'&uid='+this.uid).then(res=>{
+				// 	if(res.data.status==200){
+				// 		this.returnData=res.data.rows
+				// 		this.wltotal=res.data.total
+				// 		this.returnpageSize=res.data.pageSize
+				// 		let arr=[]
+				// 		let arr1=[]
+				// 		res.data.rows.forEach((x,index)=>{
+				// 			x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+				// 			x.details.forEach((i,j)=>{
+				// 				arr.push(x.details[j].skuName)
+				// 				x.skuname=arr.join(',')
+				// 			})
+
+				// 			x.payVos.forEach((k,l)=>{
+				// 				console.log(k)
+				// 				arr1.push(x.payVos[l].type)
+				// 				x.type1=arr1.join(',')
+				// 			})
+				// 		})
+
+						
+				// 	}
+				// })
+			},
+			returnchangePageSize(size){
+				this.returnpageSize=size
+			},
+		},
+		mounted() {
+			//全部订单
+			this.getStoreOrder(0)
+			//挂单
+			this.getStoregd()
+		}
+	}
+</script>
+
+<style lang="css" scoped>
+p.edit:hover{
+	color:blue;
+}
+	.units-box {
+		width: 100%;
+		background: rgb(230,233,236);
+	}
+	/*.btns-box {
+		width: 16%;
+		height: 50px;
+		display:flex;
+		justify-content: space-between;
+		background: #fff;
+		line-height: 50px;
+		margin-left: 7px;
+		margin-right: 7px;
+	}
+	 .wldw{
+    	margin-left: 15px;
+    	font-size:18px;font-weight:bold;
+    }*/
+	.right{
+		margin-right:10px;
+		margin-bottom:10px;
+	}
+	.ivu-icon-chevron-down {
+		font-size: 10px;
+	}
+	.btns img {
+		width: 14px;
+		height: 14px;
+		vertical-align: middle;
+	}
+	.main-left{
+		width: 120px;
+		margin-right: 3px;
+		flex: 0 0 120px;
+		font-size: 14px;
+		background: #fff;
+	}
+	.main-left li{
+		list-style: none;
+		padding:10px 0;
+		width:100%;
+		
+	}
+	.main-left li span{
+		margin-left:20px;
+	}
+	.table {
+		width: 100%;
+		height: 100%;
+		
+		overflow: auto;
+		background: #fff;
+	}
+	.bor{
+		background:rgb(241,245,247);
+        color:rgb(59,119,227);
+	}
+.mtewm{
+width:100%;
+
+display:flex;
+padding: 0px 200px 0 200px;
+
+justify-content: center;
+align-items: center;
+flex-direction: column;
+    	
+}
+.mtewm span{
+	width:260px;
+	height:30px;
+	line-height: 30px;
+	font-weight:600;
+	text-align: center
+}
+.mtewm div{
+	width:260px;
+	height:60px;
+	line-height: 35px;
+	
+}
+.right-top{
+	height:50px;
+	width:100%;
+	line-height: 50px;
+	display: flex;
+	border-bottom:1px solid #e4e4e4;
+}
+.ygewm{
+	 padding:10px;
+	width:100%;
+	height:100%;
+	/*border:1px solid red;*/
+	display: flex;
+	flex-wrap: wrap;
+	 /*justify-content: center;*/
+    text-align: center;
+	/*justify-content: center;*/
+	/*flex-direction: column*/
+	background: #fff
+}
+.ygewm-list{
+	margin:10px;
+    height: 195px;
+    width:17%;
+    padding:10px;
+    justify-content: center;
+    text-align: center;
+    border: 1px solid #ccc;
+}
+.page-box{
+	width:100%;
+	margin-bottom:120px;
+	margin-top:15px;
+	text-align: center;
+}
+.bottom-btn{
+	width:100%;
+	height:80px;
+	/*border:1px solid red;*/
+	margin-top:10px;
+	background: #f8f8f8;
+	line-height: 80px;
+	margin-right:56px;
+	text-align:right;
+
+}
+
+.right-head{
+	/*margin-top: 20px;*/
+	display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #F4F4F4;
+    height: 160px;
+}
+.goodsSpec{
+	position:absolute;width:170px;height:30px;line-height: 30px;left:80px;bottom:0px;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;
+}
+.goodsPrice{
+	position:absolute;right:20px;top:30px;line-height:20px;height:20px;
+}
+.order-right{
+	width:100%;
+	height:100%;
+	overflow: auto;
+	background: #fff
+}
+.table-head{
+	display:flex;
+	justify-content: space-around;
+	background: #F1F1F1;
+	border:1px solid #E4E4E4;
+	height:40px;
+	margin:0 10px;
+	line-height: 40px;
+	margin-bottom:10px;
+	position:relative;
+}
+.skuImg{
+	vertical-align: middle;
+	margin-left:10px;
+	border-radius: 50%
+}
+.table-head1{
+	margin:10px 10px 0 10px;
+	border-bottom:1px solid #e4e4e4;
+	border-left:1px solid #e4e4e4;
+	border-right:1px solid #e4e4e4;
+
+}
+.Checkbox{
+	margin-left:10px;
+}
+.checkAll{
+	position:absolute;
+	left:10px;top: 0;
+}
+.table-sub-head{
+	width:100%;
+	height:30px;
+	line-height: 30px;
+	background: #F1F1F1;
+	border:1px solid #E4E4E4;
+	display:flex;
+	justify-content: space-between;
+	align-items: center
+}
+.table-sub-order-list{
+	height:100%;
+	display:flex;
+	justify-content: center;
+	align-items: center;
+
+}
+.table-sub-order-list li{
+	text-align: center;
+	border-right:1px solid #e4e4e4;
+	height:80px;
+	line-height: 80px;
+	width:100%;
+/*	overflow: hidden;
+text-overflow:ellipsis;
+white-space: nowrap;*/
+}
+.order-center{
+	width:100%;
+	/*height: 100%;*/
+}
+.table {
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	background: #fff;
+	padding: 0 10px;
+}
+li{
+	list-style: none;
+}
+.bg{
+	background:rgb(241,245,247);
+	color:rgb(59,119,227);
+}
+.skuname{
+    position: absolute;
+    width: 113px;
+    height: 34px;
+    line-height: 44px;
+ 	cursor:pointer;
+ 	color:#3b77e3;
+    left: 80px;
+    bottom: 30px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.page-box {
+text-align: center;
+margin-top:5px;
+}
+.table-head span{
+	width:100%;
+	text-align: center;
+}
+.order-center::-webkit-scrollbar{
+	width: 0px;
+	height: 4px;
+	background-color: #f5f5f5;
+}
+.iorder-center::-webkit-scrollbar-track{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	border-radius: 10px;
+	background-color: #f5f5f5;
+}
+.iorder-center::-webkit-scrollbar-thumb{
+
+	height: 2px;
+	border-radius: 18px;
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	background-color: #ccc;
+}
+</style>

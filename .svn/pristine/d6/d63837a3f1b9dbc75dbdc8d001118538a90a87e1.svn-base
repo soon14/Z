@@ -1,0 +1,180 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "vue-i18n",
+        "scope": null,
+        "escapedName": "vue-i18n",
+        "name": "vue-i18n",
+        "rawSpec": "",
+        "spec": "latest",
+        "type": "tag"
+      },
+      "C:\\Users\\cxy\\Desktop\\zsyd"
+    ]
+  ],
+  "_from": "vue-i18n@latest",
+  "_id": "vue-i18n@7.8.0",
+  "_inCache": true,
+  "_location": "/vue-i18n",
+  "_nodeVersion": "8.11.1",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/vue-i18n_7.8.0_1527874042311_0.44943812173887965"
+  },
+  "_npmUser": {
+    "name": "kazupon",
+    "email": "kawakazu80@gmail.com"
+  },
+  "_npmVersion": "5.6.0",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "vue-i18n",
+    "scope": null,
+    "escapedName": "vue-i18n",
+    "name": "vue-i18n",
+    "rawSpec": "",
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "https://registry.npmjs.org/vue-i18n/-/vue-i18n-7.8.0.tgz",
+  "_shasum": "fa49c3f90d20edab2048e9ef825774d39f1906d9",
+  "_shrinkwrap": null,
+  "_spec": "vue-i18n",
+  "_where": "C:\\Users\\cxy\\Desktop\\zsyd",
+  "author": {
+    "name": "kazuya kawaguchi",
+    "email": "kawakazu80@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/kazupon/vue-i18n/issues"
+  },
+  "dependencies": {},
+  "description": "Internationalization plugin for Vue.js",
+  "devDependencies": {
+    "@babel/core": "^7.0.0-beta.48",
+    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.49",
+    "@babel/plugin-syntax-flow": "^7.0.0-beta.49",
+    "@babel/plugin-transform-flow-strip-types": "^7.0.0-beta.49",
+    "@vue/babel-preset-app": "^3.0.0-beta.11",
+    "babel-eslint": "^8.0.0",
+    "babel-loader": "^8.0.0-beta.3",
+    "babel-plugin-istanbul": "^3.1.2",
+    "babel-preset-power-assert": "^3.0.0-beta.1",
+    "buble": "^0.19.3",
+    "chromedriver": "^2.27.2",
+    "conventional-changelog-cli": "^1.2.0",
+    "conventional-github-releaser": "^1.1.3",
+    "cross-env": "^5.1.6",
+    "cross-spawn": "^6.0.0",
+    "eslint": "^4.19.0",
+    "eslint-loader": "^2.0.0",
+    "eslint-plugin-flowtype": "^2.47.0",
+    "eslint-plugin-vue-libs": "^2.0.1",
+    "flow-bin": "^0.38.0",
+    "git-commit-message-convention": "git://github.com/kazupon/git-commit-message-convention.git",
+    "http-server": "^0.9.0",
+    "intl": "^1.2.5",
+    "jasmine": "^2.5.3",
+    "jasmine-core": "^2.5.2",
+    "karma": "^2.0.2",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-coverage": "^1.1.2",
+    "karma-firefox-launcher": "^1.1.0",
+    "karma-mocha": "^1.3.0",
+    "karma-mocha-reporter": "^2.2.5",
+    "karma-safari-launcher": "^1.0.0",
+    "karma-sauce-launcher": "^1.2.0",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-webpack": "^3.0.0",
+    "mocha": "^4.1.0",
+    "mocha-loader": "^1.1.1",
+    "nightwatch": "^0.9.12",
+    "nightwatch-helpers": "^1.2.0",
+    "power-assert": "^1.5.0",
+    "rollup": "^0.59.3",
+    "rollup-plugin-buble": "^0.19.2",
+    "rollup-plugin-flow-no-whitespace": "^1.0.0",
+    "rollup-plugin-replace": "^2.0.0",
+    "selenium-server": "2.53.1",
+    "sinon": "^2.1.0",
+    "typescript": "^2.4.1",
+    "uglify-js": "^2.7.5",
+    "vue": "^2.5.16",
+    "vue-template-compiler": "^2.5.16",
+    "vuepress": "^0.10.0",
+    "webpack": "^4.9.1",
+    "webpack-serve": "^1.0.2"
+  },
+  "directories": {},
+  "dist": {
+    "integrity": "sha512-06lw8q6+hWhcCq1O5hw7pZ0CYKcY8CFV4iUjKctz5VRXTVvYC/soEfEQyWrQ3qjYHNCtePv/YieArm3pF70JVg==",
+    "shasum": "fa49c3f90d20edab2048e9ef825774d39f1906d9",
+    "tarball": "https://registry.npmjs.org/vue-i18n/-/vue-i18n-7.8.0.tgz",
+    "fileCount": 22,
+    "unpackedSize": 241528,
+    "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJbEYH7CRA9TVsSAnZWagAA45QP/2unsxhyseyboJ3lntYu\niNBNs5UkY0YKorm1MTCTp4LvPIgE+PXyr9Fh0r/glIsUEm0IkQeKKEM9Lzrt\nSs10ZxnNvFPH5gUQcVEX1AcrSxnoIkyoJSTbDGodsldwzrs3FQeJr7Nalers\n660JMKOFyJFk7GXzsqcc1Kq0no+zy5/sbXhA1OwoV1jn86UbXk+JCXEJoEVO\nJNpZKHfmlSeTS35hE79e0tEoQxJrCNOKKh71C84ksxIpkwPjXIPYs0GlWL8V\njLQVStLu14pY0LGVmc4wzecvFN4Uxen5i51JoH+cwGlIlh+M6PB4n4fnBI1m\nehdQP+UqRpVMNPYNMgRMO0+CnkbI4cjRqu/YAReGePdWtigzDCp3vzZSOoba\nAIwIraQngoKed0JdXQsSdZ1LHqCSgQckA7/MM7ESzRwecrsc8a2mmFh2jPvE\nucSPCvZnbjEPylGNiaJ/Z4gZ1B0UKNTLOm9Da26ab/ZBY1cvL3EPwo4V7bNF\ne29/eiybM1Nh2fg+GGn/cnEOnrlPW+3Ku52Mvy8VjUL1cKEEJt/UQCkDzPEV\n1eJWlrj0xYi39x8bNLOjFMh2zwpcwOuqQ3ptv1AaFZSPri1MDZltlG+9xqdE\nKIxHUpDVHB2nJ0jOO0rYwuHlPAOfg13KOt+GFC4j7JDbR/dQcSzQ/ZzIKBuo\n29JS\r\n=dDoU\r\n-----END PGP SIGNATURE-----\r\n"
+  },
+  "files": [
+    "dist/vue-i18n.js",
+    "dist/vue-i18n.min.js",
+    "dist/vue-i18n.common.js",
+    "dist/vue-i18n.esm.js",
+    "src",
+    "types/*.d.ts",
+    "decls"
+  ],
+  "gitHead": "df10fc28b8bd25fb4ad1e265fef6ec5e656e26ec",
+  "homepage": "https://github.com/kazupon/vue-i18n#readme",
+  "keywords": [
+    "i18n",
+    "internationalization",
+    "plugin",
+    "vue",
+    "vue.js"
+  ],
+  "license": "MIT",
+  "main": "dist/vue-i18n.common.js",
+  "maintainers": [
+    {
+      "name": "kazupon",
+      "email": "kawakazu80@gmail.com"
+    }
+  ],
+  "module": "dist/vue-i18n.esm.js",
+  "name": "vue-i18n",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kazupon/vue-i18n.git"
+  },
+  "scripts": {
+    "build": "node config/build.js",
+    "changelog": "conventional-changelog -i CHANGELOG.md -s -n ./node_modules/git-commit-message-convention/convention.js",
+    "clean": "rm -rf coverage && rm -rf dist/*.js* && rm ./*.log",
+    "coverage": "cat ./coverage/lcov.info",
+    "dev": "cross-env BABEL_ENV=test webpack-serve --hot --open --content ./test/unit/ --config config/webpack.dev.conf.js",
+    "docs:build": "node config/version.js && vuepress build vuepress -d docs",
+    "docs:clean": "rm -rf docs/**",
+    "docs:dev": "vuepress dev vuepress",
+    "flow": "flow check",
+    "lint": "eslint --fix src test config",
+    "release": "conventional-github-releaser -n ./node_modules/git-commit-message-convention/convention.js",
+    "sauce": "npm run sauce:coolkids && npm run sauce:ie && npm run sauce:mobile",
+    "sauce:coolkids": "karma start config/karma.sauce.conf.js -- 0",
+    "sauce:ie": "karma start config/karma.sauce.conf.js -- 1",
+    "sauce:mobile": "karma start config/karma.sauce.conf.js -- 2",
+    "test": "npm run lint && npm run flow && npm run test:types && npm run test:cover && npm run test:e2e",
+    "test:cover": "cross-env BABEL_ENV=test karma start config/karma.cover.conf.js",
+    "test:e2e": "npm run build && node test/e2e/runner.js",
+    "test:types": "tsc -p types",
+    "test:unit": "cross-env BABEL_ENV=test karma start config/karma.unit.conf.js"
+  },
+  "types": "types/index.d.ts",
+  "unpkg": "dist/vue-i18n.js",
+  "version": "7.8.0"
+}

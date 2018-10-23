@@ -1,0 +1,716 @@
+<template>
+	<div class="main">
+		<!--线下订单orderType:[this.$t('orders.Allorder'),this.$t('orders.gd'),this.$t('public.success'),this.$t('public.cancel')],-->
+		<div style='display:flex;height: 100%;width:100%;overflow:hidden'>
+			<div class='order-left'>
+				<div class='left-top'>
+					<span style='font-size:18px;font-weight:600'>{{$t('orders.orderStatus')}}</span><!--订单状态-->
+				</div>
+				<div style="height:100%"  class='flclass'>
+					<li class='flclass' v-for='(item,index) in orderType' :key='index' @click='addBg(item,index)' :class="{bg:numIndex==index}" style='display:flex;justify-content: space-between'>
+						<div style='margin-left:20px'>{{item.label}}</div>
+					</li>
+				</div>
+			</div>
+			<!--右侧-->
+			<div class='order-right'>
+				<div class='right-head'>
+				
+						<div style='margin:10px'>
+							<div style='display:flex;height:40px;line-height:40px'>
+							    <span style='width:140px;text-align:right;'>{{$t('orders.orderNo')}}：</span><!--单号-->
+							    <Input v-model='searchNum' style='width:220px;' placeholder="请输入单号"></Input><!--单号：-->
+						    </div>
+						    <div style='margin-top:10px'>
+							    <div style='display:flex;height:40px;line-height:40px'>
+							    	<span style='width:140px;text-align:right'>{{$t('orders.skuname')}}：</span>
+							    	<Input v-model='skuname1' style='width:220px;' placeholder="请输入商品名称"></Input><!--商品名称-->
+							    </div>
+							 
+						    </div>
+					    </div>
+					
+						<div style='margin-top:10px;margin-left:20px'>
+							<div style='display:flex;height:40px;line-height:40px'>
+								<span style='text-align: right;width: 100px;'>{{$t('orders.orderTime')}}：</span> <!--下单时间：-->
+								<DatePicker type="date"  :value='searchDate' style="width: 140px" placeholder="Start time" @on-change='searchDate1'></DatePicker>
+								<span style='margin-left: 6px;width: 80px;'>{{$t('operation.yhqHome.endTime')}}：</span>
+								<DatePicker type="date"  :value='searchDate2' style="width: 140px;" placeholder="End time" @on-change='searchDate21'></DatePicker>
+								<span style='margin-left:10px'>
+									<a style='display:inline-block;margin-left:10px' @click='clickSeven'>{{$t('orders.sevenD')}}</a><!--进7天-->
+									<a style='display:inline-block;margin-left:10px' @click='clickThirty'>{{$t('orders.threetD')}}</a><!--进30天-->
+								</span>
+
+							</div>
+							<div style='display:flex;height:40px;line-height:40px'>
+								<span style='width: 100px; text-align: right;'>{{$t('orders.orderStatus')}}：</span> <!--订单状态-->
+								<Select v-model='orderstatus' style="width:140px;"  @on-change="orderselectedStatus" :placeholder="$t('public.all')">
+									<Option v-for="item in orderTypeList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+								</Select>
+
+								
+							    <span style='margin-left: 6px;width: 80px;'>会员名称：</span> 
+									<Input v-model='memberName' style='width:140px;' :placeholder="$t('data.crm.crmName')"></Input><!--会员-->
+							   
+							</div>
+							<div style='height:40px;line-height:40px;margin-left: 40px;'>
+								<Button type="primary" shape="circle" style='border:none;' @click='searchFilter'>
+								{{$t('public.screen')}}</Button><!--筛选-->
+							
+								<Button type="primary" shape="circle" style='border:none;;margin-left:10px' @click='add'>
+
+								{{$t('orders.addorder')}}</Button><!--新增订单-->
+								<Button type="primary" shape="circle" style='border:none;;margin-left:10px' @click='exportOrder'>
+
+								{{$t('public.export')}}</Button><!--导出-->
+								<Button type="primary" shape="circle" style='border:none;;margin-left:10px' @click='printOrder'>
+
+								{{$t('public.Prin')}}	
+								</Button><!--打印-->
+
+							</div>
+						</div>
+					<!-- </Col> -->
+				</div>
+				<!--下方订单数据-->
+				<div class='order-center'>
+
+					<div class='table-head'>
+						<div style="width:330px;flex:0 0 330px;display: flex;">
+							<div class='checkAll'><Checkbox v-model='single' @on-change='changeAll'></Checkbox></div>
+						
+						<span >{{$t('orders.sku')}}</span><!--商品-->
+						</div>
+						<span >{{$t('orders.shouh')}}</span><!--售后-->
+		
+						<span >{{$t('orders.orderTime')}}<a></a></span><!--下单时间↓-->
+						<span >{{$t('orders.orderStatus')}}</span><!--订单状态-->
+						<span >{{$t('orders.sfje')}}</span><!--实付金额-->
+					</div>
+					<div style='width:100%;text-align:center;padding:20px 0' v-if='AllOrderList.length==0'>{{$t('public.NoData')}}</div><!--暂无数据-->
+					<div class='table-head1' v-for='(item,index) in AllOrderList' :key="index" v-else>
+							<div class='table-sub-head'>
+								<div class='Checkbox'  style="margin-left:10px">
+									<Checkbox :value='item.check' @on-change='changeOnRowOrder(item,index,$event)'></Checkbox>
+									<span style='margin-left:10px'>{{$t('orders.orderNo')}}: {{item.orderNo}}</span><!--订单号-->
+									<span style='margin-left:10px'>{{new Date(item.createTime).toLocaleString().replace(/\//g,'-')}}</span>
+								</div><!--选中-->
+								
+								<span style='margin-right:10px' @click='seeDetails(item.id,index,item.status,item)'><a>{{$t('orders.seeInfo')}}</a></span><!--查看详情-->
+							</div>
+							<div class='table-sub-order-list' v-for='(i,j) in item.details' :key="j">
+								
+								<li style='flex:1 0 300px;text-align:left;position:relative'>
+									<img :src="i.mainPhoto" width='60' height='60' class='skuImg'>
+										<span class='skuname' @click='seeDetails(item.id,index,item.status)'>{{i.skuName}}</span>
+										<span class='goodsSpec'>{{i.skuTypeDesc}}</span>
+									<span class='goodsPrice'>
+										<span style='color:#d53c39'>￥:{{i.price}}</span>
+										<!-- <span> 元</span> -->
+									</span>
+									<span style='position:absolute;right:20px;
+									bottom:35px;height:20px'>({{i.qty}}){{i.unit}}</span>
+								</li>
+								
+								<li>
+									<span>ID：{{item.customerName}}</span>
+								</li>
+								<li>
+									<span>{{new Date(item.createTime).toLocaleString().replace(/\//g,'-')}}</span>
+								</li>
+								<li>
+									<span>{{item.statusDesc}}</span>
+								</li>
+								<li>
+									<span style='color:#d53c39'>￥：{{(i.qty*i.price).toFixed(2)}}</span>
+								</li>
+							</div>
+
+								<div style='height:40px;;line-height:40px;background:#FFF1F1' v-if="item.remark"><span style='margin-left:10px' >备注：{{item.remark}}</span></div>
+
+					</div>
+					<!--底部的分页-->
+					<div class="page-box">
+						 <Page :total="total"  :page-size-opts="[10,50,100,150,200]" size="small" show-total  show-sizer placement='top' :pageSize='pageSize'  @on-change="getData" @on-page-size-change="changePageSize"></Page>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</template>
+<script type="text/javascript">
+export default{
+	data(){
+
+		return {
+			single:false,//订单全选
+			searchNum:'',//单号姓名手机
+			orderstatus:'',//订单状态
+			skuname1:'',
+			memberName:"",
+			searchDate:'',
+			searchDate2:'',
+			height:'',
+			numIndex:0,
+			orderStr:"",
+			orderStrArr:[],
+			AllOrderList:[],
+			AllOrderListExport:[],//导出的订单
+			
+				orderTypeList:[
+					{
+						label:"全部订单",
+						value:0,
+					},
+					{
+						label:"待确认",
+						value:10,
+					},
+					{
+						label:"发货中",
+						value:23,
+					},
+					
+					{
+						label:"已发货",
+						value:40,
+					},
+					{
+						label:"已完成",
+						value:50,
+					},
+					{
+						label:"已取消",
+						value:99,
+					},
+					{
+						label:"已关闭",
+						value:79,
+					},
+				],
+				
+			//10;//待支付  20:待确认  23：待发货    30：发货中  40：待收货  50 ：已完成 79：已关闭 99：已取消
+			valueT:0,
+			orderType:[
+				{
+					label:"全部订单",
+					value:0,
+				},
+				{
+					label:"待确认",
+					value:10,
+				},
+				{
+					label:"发货中",
+					value:23,
+				},
+				
+				{
+					label:"已发货",
+					value:40,
+				},
+				{
+					label:"已完成",
+					value:50,
+				},
+				{
+					label:"已取消",
+					value:99,
+				},
+				{
+					label:"已关闭",
+					value:79,
+				},
+			],
+			addText:true,
+			pageSize:0,
+			total:0,
+			uid:this.$store.state.common.token
+		}
+	},
+	methods:{
+
+		addBg(item,index){
+			this.numIndex=index
+			this.valueT=item.value//左侧状态
+			this.orderstatus=item.value
+			switch(index){
+				case 0:
+					this.getAllOrder(1)//所有线下订单
+				break;
+			}
+			if(this.valueT!=0){
+				this.getSorder(this.valueT)
+			}
+		},
+		//侧栏点击
+		getSorder(status){
+			this.axios.get('order/query/0?uid='+this.uid+'&status='+status).then(res=>{
+				if(res.data.status==200){
+					this.AllOrderList=res.data.rows
+					this.total=res.data.total
+					this.pageSize=res.data.pageSize
+						
+				}
+			})
+		},
+		//获取所有线上订单
+		getAllOrder(value){
+				this.axios.get('order/query/'+value+'?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.AllOrderList=res.data.rows
+						this.total=res.data.total
+						this.pageSize=res.data.pageSize
+					
+					}
+				})
+			},
+			//新增订单
+			add(){
+				this.$router.push({
+					path:'/networdDetails',
+				})
+			},
+			//查看详情
+			seeDetails(id,index,s){
+				this.$router.push({
+					path:'/networdDetails',
+					query:{
+						id:id,
+						index:index,
+						s:s
+					}
+				})
+			},
+			getSt(item){
+				switch(item.status){
+					case 1:
+						item.statusDesc=this.$t('orders.newOrder')
+					break;
+					case 10:
+						item.statusDesc=this.$t('orders.ySure')
+					break;
+					case 20:
+						item.statusDesc=this.$t('orders.yPay')
+					break;
+					case 23:
+						item.statusDesc=this.$t('orders.orderDfh')
+					break;
+					case 30:
+						item.statusDesc=this.$t('orders.orderYFH')
+					break;
+					case 50:
+						item.statusDesc=this.$t('orders.shSuccess')
+					break;
+					case 99:
+						item.statusDesc=this.$t('orders.iscancel')
+					break;
+				}
+			},
+			//筛选查询
+			searchFilter(){//orderNo
+					this.axios.get('order/query/1?uid='+this.uid,{
+					params:{
+						orderNo:this.searchNum,
+						createTimeF:this.searchDate,//开始时间
+						createTimeT:this.searchDate2,//结束时间
+						skuName:this.skuname1,//商品名称
+						status:this.orderstatus,
+						customerName:this.memberName,
+					}
+					
+				}).then((res)=>{
+					if(res.data.status==200){
+						let data = res.data
+						this.AllOrderList = data.rows;
+						this.AllOrderList=data.rows
+						this.total=res.data.total
+						this.pageSize=res.data.pageSize
+						
+					}
+				})
+			},
+			//下单时间
+			searchDate1(date){
+				// date=(new Date()).getTime()//转为时间戳
+				this.searchDate=date
+
+			},
+			searchDate21(date){
+				// date=(new Date()).getTime()//转为时间戳
+				this.searchDate2=date
+
+			},
+		//获取当前几天
+        getBdate(day){
+	        var now = new Date();
+			var Days = now - day*24*60*60*1000;
+			return new Date(Days)
+	    },
+		//点击七天
+		clickSeven(){
+		  this.axios.get('/order/query/1'+'?uid='+this.uid,{
+			  params:{
+				createTimeF:this.getLocalTime(this.getBdate(0)),
+				createTimeT:this.getLocalTime(this.getBdate(7)),
+			  }
+		  }).then((res)=>{
+		  	if(res.data.status==200){
+			  	this.AllOrderList = res.data.rows
+			  	this.total=res.data.total
+				this.pageSize=res.data.pageSize
+			  	this.AllOrderList.forEach((item,index)=>{
+				this.getSt(item)
+			  })
+		  	}
+		  })
+		},
+		//点击30天
+		clickThirty(){
+			this.axios.get('/order/query/1'+'?uid='+this.uid,{
+				params:{
+					createTimeF:this.getLocalTime(this.getBdate(0)),
+					createTimeT:this.getLocalTime(this.getBdate(31)),
+				}
+			}).then((res)=>{
+				if(res.data.status==200){
+					this.AllOrderList = res.data.rows
+					this.total=res.data.total
+					this.pageSize=res.data.pageSize
+					this.AllOrderList.forEach((item,index)=>{
+					this.getSt(item)
+				  })
+		  		}
+		  	})
+		},
+			//订单状态搜索
+			orderselectedStatus(value){
+				console.log(value)
+				this.orderstatus=value
+			},
+		 //切换一条页
+            getData(current){
+                this.axios.get('/order/query/1'+'?offset='+current+'&uid='+this.uid).then((res)=>{
+                    this.AllOrderList = res.data.rows
+                    this.total=res.data.total
+					this.pageSize=res.data.pageSize		
+                })
+            },
+            //翻页
+            changePageSize(size){
+                this.axios.get('/order/query/1'+'?length='+size+'&uid='+this.uid).then((res)=>{
+                    this.AllOrderList = res.data.rows
+                    this.total=res.data.total
+					this.pageSize=res.data.pageSize
+                })
+            },
+            //订单全选
+        changeAll(v){
+        	this.single=v
+        	this.AllOrderList.forEach((x)=>{
+        		if(this.single){
+        			x.check=true
+        			if(this.orderStrArr.indexOf(x.id)>=0){
+        				this.orderStrArr.splice(this.orderStrArr.indexOf(x.id),1)
+        				console.log(this.orderStr)
+        			}else{
+        				this.orderStrArr.push(x.id)
+        				this.orderStr=this.orderStrArr.join(',')//
+        				console.log(this.orderStr)
+        			}
+        				
+        		}else{
+        			x.check=false
+        			this.orderStrArr=[]
+        			this.orderStr=''
+        		}
+    		})
+    		
+        },
+        //单选
+        changeOnRowOrder(item,index,event){
+        	if(event==false){
+        		this.single=false
+        		this.orderStrArr.splice(this.orderStrArr.indexOf(item.id),1)
+				this.orderStr=this.orderStrArr.join(',')
+        		console.log(this.orderStr)
+        	}else{
+        		this.orderStrArr.push(item.id)
+        		this.orderStr=this.orderStrArr.join(',')
+        		console.log(this.orderStr)
+        	}
+
+        },
+        //一周时间段
+		getSevenDay(day){//day 传的天数
+		    var today = new Date();
+		    var targetday_milliseconds=today.getTime() + 1000*60*60*24*day;
+		    today.setTime(targetday_milliseconds); //注意，这行是关键代码
+		    var tYear = today.getFullYear();
+		    var tMonth = today.getMonth();
+		    var tDate = today.getDate();
+		    tMonth = this.doHandleMonth(tMonth + 1);
+		    tDate = this.doHandleMonth(tDate);
+		    // return tYear+"年"+tMonth+"月"+tDate;
+		    return tMonth+"-"+tDate;
+		},
+		doHandleMonth(month){
+		    var m = month;
+		    if(month.toString().length == 1){
+		     m = "0" + month;
+		    }
+		    return m;
+		},
+        //导出GET /orderExport/excel 导出excel发货清单
+        exportOrder(){
+        	if(this.orderStr==''){
+        		this.$notify({
+                    title: "",//'错误',
+                    message:this.$t('orders.selecOrder'),//'请选择订单',
+                    type: 'error',
+                    position: 'bottom-right'
+                });
+        	}else{
+        		this.axios.get('/orderExport/excel?orderIds='+this.orderStr+'&uid='+this.uid).then(res=>{
+        			if(res.data!=null){
+						this.$notify({
+							title:"",//
+							message: res.data.errorMessage,
+							type: 'error',
+							position: 'bottom-right'
+						});
+					}else{
+						window.location.href=res.request.responseURL
+        				this.single=false
+        				this.AllOrderList.forEach((x)=>{
+            				x.check=false
+        				})
+		            	this.orderStrArr=[]
+		            	this.orderStr=''
+					}
+    				
+            	})
+        	}
+        },
+        //打印GET /orderExport/pdf 导出PDF发货单
+        printOrder(){
+        	if(this.orderStr==''){
+				this.$notify({
+					title: "",//'错误',
+					message:this.$t('orders.selecOrder'),//'请选择订单',
+					type: 'error',
+					position: 'bottom-right'
+				});
+			}else{
+				this.axios.get('/orderExport/pdf?orderIds='+this.orderStr+'&uid='+this.uid).then(res=>{
+					if(res.data!=null){
+						this.$notify({
+							title:"",//
+							message: res.data.errorMessage,
+							type: 'error',
+							position: 'bottom-right'
+						});
+					}else{
+						window.location.href=res.request.responseURL
+						this.getAllOrder()
+	    				this.single=false
+	    				this.AllOrderList.forEach((x)=>{
+	        				x.check=false
+	    				})
+		            	this.orderStrArr=[]
+		            	this.orderStr=''
+					}
+					
+	        	})
+			}
+        	
+        },
+            
+	},
+	created(){
+		this.$nextTick(()=>{
+			this.getAllOrder(1)//所有线下订单
+		
+		})
+	},
+	mounted(){
+		
+	}
+}
+</script>
+<style type="text/css" scoped>
+.main{
+	background: rgb(230,233,236);
+
+	width:100%;
+	height:100%;
+	overflow-y: hidden;
+}
+.order-left{
+	width: 120px;
+	margin-right: 3px;
+	flex: 0 0 120px;
+	font-size: 14px;
+	background: #fff;
+
+}
+.left-top{
+height: 50px;
+    line-height: 50px;
+    display: -ms-flexbox;
+    /* display: flex; */
+
+
+    margin-left: 10px;
+
+    z-index: 9;
+    border-bottom: 1px solid #F5F5F5;
+    -ms-flex-pack: distribute;
+    justify-content: space-around;
+}
+li{
+	list-style: none;
+
+	width:100%;
+
+
+}
+.flclass li{
+	height:40px;
+	line-height: 40px;
+	margin-right:10px;
+}
+.right-head{
+	/*margin-top: 20px;*/
+	display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #F4F4F4;
+    height: 160px;
+}
+.goodsSpec{
+	position:absolute;width:215px;height:30px;line-height: 30px;left:80px;bottom:0px;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;
+}
+.goodsPrice{
+	position:absolute;right:20px;top:30px;line-height:20px;height:20px;
+}
+.order-right{
+	width:100%;
+	height:100%;
+	overflow: auto;
+	background: #fff
+}
+.table-head{
+	display:flex;
+	justify-content: space-around;
+	background: #F1F1F1;
+	border:1px solid #E4E4E4;
+	height:40px;
+	margin:0 10px;
+	line-height: 40px;
+	margin-bottom:10px;
+	position:relative;
+}
+.table-head span{
+	width:100%;
+	text-align: center;
+}
+.skuImg{
+	vertical-align: middle;
+	margin-left:10px;
+	border-radius: 50%
+}
+.table-head1{
+	margin:10px 10px 0 10px;
+	border-bottom:1px solid #e4e4e4;
+	border-left:1px solid #e4e4e4;
+	border-right:1px solid #e4e4e4;
+
+}
+.Checkbox{
+	margin-left:10px;
+}
+.checkAll{
+	position:absolute;
+	left:10px;top: 0;
+}
+.table-sub-head{
+	width:100%;
+	height:30px;
+	line-height: 30px;
+	background: #F1F1F1;
+	border:1px solid #E4E4E4;
+	display:flex;
+	justify-content: space-between;
+	align-items: center
+}
+.table-sub-order-list{
+	height:100%;
+	display:flex;
+	justify-content: center;
+	align-items: center;
+
+}
+.table-sub-order-list li{
+	text-align: center;
+	border-right:1px solid #e4e4e4;
+	height:80px;
+	line-height: 80px;
+/*	overflow: hidden;
+text-overflow:ellipsis;
+white-space: nowrap;*/
+}
+.order-center{
+
+	width:100%;
+	/*height: 100%;*/
+    padding-bottom:120px;
+}
+.table {
+    width: 100%;
+    height: 100%;
+		
+    margin-bottom: 60px;
+  }
+.flclass:last-child{
+	margin-bottom:40px;
+}
+
+.bg{
+	background:rgb(241,245,247);
+	color:rgb(59,119,227);
+}
+.skuname{
+    position: absolute;
+    width: 113px;
+    height: 34px;
+    line-height: 44px;
+ 	cursor:pointer;
+ 	color:#3b77e3;
+    left: 80px;
+    bottom: 30px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.page-box {
+text-align: center;
+margin-top:5px;
+}
+.order-center::-webkit-scrollbar{
+	width: 0px;
+	height: 4px;
+	background-color: #f5f5f5;
+}
+.iorder-center::-webkit-scrollbar-track{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	border-radius: 10px;
+	background-color: #f5f5f5;
+}
+.iorder-center::-webkit-scrollbar-thumb{
+
+	height: 2px;
+	border-radius: 18px;
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	background-color: #ccc;
+}
+</style>

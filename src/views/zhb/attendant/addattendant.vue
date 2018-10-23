@@ -1,0 +1,2689 @@
+<template>
+    <!--护理员-->
+    <div class="add-box">
+        <!--固定导航-->
+        <div class="add-header">
+            <!-- <div class="top"> -->
+                    <div class="left-top">
+                            <Select style="width:100px;margin-right:10px;margin-top: 15px;" v-model='value' :placeholder="$t('public.all')" @on-change="selectChange">
+                                <Option v-for="item in orderListname" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                            </Select>
+                        <div>
+                            <!--新建-->
+                            <span class="top-left-btn"  @click="addStoreInfo">
+                            <Icon type="plus" style="position:absolute;top:7px;left:8px"></Icon></span>
+                        </div>
+                    </div>
+                    <div class="right-top">
+                        <span style="margin-left:20px;font-weight:600;font-size:19px;color:#ff0000">{{storeTxt}}</span>
+                        <div >
+                            <mu-button small  style="background:#3b77e3;margin-right:5px;color:#fff;border:none"
+                            @click="saveAddInfo" v-show="addText">
+                            <Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>
+                            {{$t('public.SaveBtn')}}<!--保存-->
+                            </mu-button>
+                            <mu-button small v-show="addText"  @click="addCancel"  style="background:#999999;color:#fff;" ><Icon type="close" style="margin-right:5px;">
+                            </Icon>{{$t('public.cancel')}}</mu-button><!--取消-->
+                            <mu-button small @click="updateStoreInfo1" v-if="xiugaibtn1" style="background:#40ca98;color:#fff;border:none" ><i class="el-icon-edit" style=";margin-right:5px;"></i>{{$t('public.EditBtn')}}</mu-button><!--修改-->
+                            <mu-button small @click="updateStoreInfo2" v-if="xiugaibtn2"  style="background:#3b77e3;margin-right:5px;color:#fff;border:none" ><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon> {{$t('public.SaveBtn')}}<!--保存--></mu-button>
+                            <mu-button small v-show="xiugaibtn2"  @click="editCancel"  style="background:#999999;color:#fff;" ><Icon type="close" style="margin-right:5px;">
+                            </Icon>{{$t('public.cancel')}}</mu-button><!--取消-->
+                            <Dropdown trigger="click" style="margin-left: 4px" v-if='xiugaibtn1'>
+                                <mu-button small type="ghost" style="background:#ff7d16;color:#fff;border:none">
+                                    {{$t('public.more')}}<!--更多提交|终止|日程|派单-->
+                                    <span><i class="ivu-icon ivu-icon-chevron-down"></i></span>
+                                </mu-button>
+                                <DropdownMenu slot="list">
+                                    <!-- <span @click="startUser"><DropdownItem >{{$t('public.start')}}</DropdownItem></span>
+                                    <span @click="stopUser"><DropdownItem >{{$t('public.stop')}}</DropdownItem></span> -->
+
+                                    <span  @click="comite" v-if="start1"><DropdownItem >提交</DropdownItem></span>
+                                    <span  @click="stop" v-if="stop1"><DropdownItem >终止</DropdownItem></span>
+                                    <span  @click=""><DropdownItem >日程</DropdownItem></span>
+                                    <span  @click="pdUser" v-if='pdisshow'><DropdownItem >派单</DropdownItem></span>
+                                    <span  @click="contract"><DropdownItem >续约</DropdownItem></span>
+                                    <span  @click="delUser"><DropdownItem >删除</DropdownItem></span>
+                                   
+                                </DropdownMenu>
+                            </Dropdown>
+
+                        <span @click="cancelHome" style="cursor:pointer;margin: 20px;"><Icon type="close" class="cha" ></Icon></span>
+                        </div>
+                    </div>
+            <!-- </div> -->
+        </div>
+        <!-- <div class="cheng"></div> -->
+        <div style="display:flex;height:100%;background: rgb(230,233,236);">
+                <div class="add-left">
+                    <!--左边内容-->
+                    <div class="left-content">
+                       
+                        <div class='locationSearch'>
+                            <Input style='padding:10px 20px;' v-model='searchKeyword' :placeholder="$t('public.orderornameandphone')" @on-enter='enterSearch'>
+                            <span slot="append"  @click='search' style='cursor:pointer;'>{{$t('public.search')}}</span>
+                            </Input>
+                        </div>
+                        <p v-if="storeList.length==0" class='scrollFix'>
+                            <Spin>
+                                <div>{{$t('public.NoData')}}</div><!--暂无数据-->
+                            </Spin>
+                        </p>
+                        <Scroll :on-reach-bottom="handleReachEdge" :height="height" v-else>
+                            <div class="con-list" v-for="(item,index) in storeList" :key='index' @click="seeStoreInfo(item.id,index)" :class="{bg:numIndex==index}">
+                                 <span style="margin-right: 10px;">
+                                     <!-- <Checkbox :value="numIndex==index"></Checkbox> -->
+                                 </span>
+                                 <div>
+                                <p class="list-title">{{item.name}}</p>
+                                <p class="txt" style="margin-top:10px;">{{item.gender}}</p>
+
+                                <div class="lanrenLeft" :class="{bgd5:item.status==1,bgd4:item.status==3,bgd6:item.status==9}">
+                                <span >{{item.statusDesc}}</span>
+                                </div>​
+                                <span class="date">手机号：{{item.mobile}}</span>
+                                </div>
+                            </div>
+                        </Scroll>
+                    </div>
+
+
+                </div>
+            <!--右边内容-->
+                <div class="add-right">
+                    <div class="right-content" v-show="addText">
+                        <mu-form ref="form" :model="validateForm" >
+                            <div class='title-txt'>基本资料：</div>
+                            <div style='display:flex;width:100%'>
+                                <div style='width:33%;'>
+                                    <mu-form-item label="姓名"  prop="name" :rules="usernameRules">
+                                        <mu-text-field v-model="validateForm.name"
+                                        prop="name"
+                                        placeholder="请输入姓名"></mu-text-field>
+                                    </mu-form-item>
+                                    <mu-form-item label="身份证"  prop="sfz" :rules="sfzRules">
+                                        <mu-text-field v-model="validateForm.sfz"
+                                        prop="sfz"
+                                        placeholder="请输入身份证号"></mu-text-field>
+                                    </mu-form-item>
+                                </div>
+                                <div style='width:33%;padding-left:40px'>
+                                    <mu-form-item label="手机号"  prop="mobile" :rules="mobileRules">
+                                        <mu-text-field v-model="validateForm.mobile"
+                                        prop="mobile"
+                                        placeholder="请输入手机号"></mu-text-field>
+                                    </mu-form-item>
+                                    <div style="display: flex;">
+                                        <mu-form-item label="年"  >
+                                            <mu-text-field type="number" v-model="validateForm.year"
+                                       
+                                        placeholder="出生年份" ></mu-text-field>
+                                        </mu-form-item>
+                                         <mu-form-item label="月"  >
+                                            <mu-text-field type="number" v-model="validateForm.month"
+                                       
+                                        placeholder="出生月份"></mu-text-field>
+                                        </mu-form-item>
+                                        <mu-form-item label="日"  >
+                                            <mu-text-field type="number" v-model="validateForm.day"
+                                      
+                                        placeholder="出生日" ></mu-text-field>
+                                        </mu-form-item>
+                                    </div>
+                                    
+                                </div>
+                                <div style='width:33%;padding-left:40px'>
+                                    <mu-form-item label="紧急联系人"  prop="lxrname">
+                                        <mu-text-field v-model="validateForm.lxrname"
+                                        prop="lxrname"
+                                        placeholder="请输入紧急联系人"></mu-text-field>
+                                    </mu-form-item>
+                                    <mu-form-item label="紧急联系人电话"  prop="lxrtel">
+                                        <mu-text-field v-model="validateForm.lxrtel"
+                                        prop="lxrtel"
+                                        placeholder="请输入紧急联系人电话"></mu-text-field>
+                                    </mu-form-item>
+                                    
+                                </div>
+                            </div>
+                            <div  style='display:flex'>
+                                <div style='margin-right:20px'>
+                                    <div style='padding: 0 10px 10px 0;color: rgba(0,0,0,.54);font-size:14px'>
+                                        请输入编号</div>
+                                    <mu-form-item label="编号">
+                                        <mu-text-field v-model="validateForm.code"
+                                        prop="code"
+                                        placeholder="请输入编号" ></mu-text-field>
+                                    </mu-form-item>
+                                </div>
+                                <div>
+                                    <div style='padding: 0 10px 10px 0;color: rgba(0,0,0,.54);font-size:14px'>
+                                        合同有效期</div>
+                                    <div style='display:flex'>
+                                        <mu-form-item label="开始日期" prop="contractStart" :rules="contractStartRules" style=''>
+                                            <mu-date-input  landscape
+                                            v-model="validateForm.contractStart"
+                                            view-type='list'
+                                            type="date"
+                                            label-float
+                                            container="dialog"
+                                            full-width @change='changecontractStart'></mu-date-input>
+                                        </mu-form-item>
+                                        <mu-form-item label="结束日期" prop="contractEnd" :rules="contractEndRules" style='margin-left:20px;'>
+                                            <mu-date-input  landscape
+                                            v-model="validateForm.contractEnd"
+                                            view-type='list'
+                                            type="date"
+                                            label-float
+                                            container="dialog"
+                                            full-width @change='changecontractEnd'></mu-date-input>
+                                        </mu-form-item>
+                                        
+                                    </div>
+                                </div>
+
+                                <div style='margin-left:20px'>
+                                    <div style='padding: 0 10px 10px 0;color: rgba(0,0,0,.54);font-size:14px'>
+                                        服务时间</div>
+                                    <div  style='display:flex'>
+                                        <mu-form-item label="开始时间" prop="hlbtime">
+                                                <mu-date-input  landscape
+                                                v-model="validateForm.hlbtime"
+                                                view-type='list'
+                                                type="time"
+                                                label-float
+                                                clock-type="24hr"
+                                                container="dialog"
+                                                full-width @change='changebTime'></mu-date-input>
+                                        </mu-form-item>
+                                        <mu-form-item label="结束时间" prop="hletime" style='margin-left:20px'>
+                                            <mu-date-input  landscape
+                                            v-model="validateForm.hletime"
+                                            view-type='list'
+                                            type="time"
+                                            label-float
+                                            clock-type="24hr"
+                                            container="dialog"
+                                            full-width @change='changeeTime'></mu-date-input>
+                                        </mu-form-item>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style='display:flex;'>
+                                <div style='display:flex;'>
+                                        <div style='padding: 0 10px 20px 0;'>
+                                            <div style='padding: 0 10px 10px 0;color: rgba(0,0,0,.54);font-size:14px'>
+                                            性别</div>
+                                            <div style='display:flex'>
+                                                <div :label-left='true' class="select-control-row" :key="index" v-for="(i,index) in genders">
+                                                    <mu-radio @change="changeGender" :value="i.value" v-model="gender" :label="i.lable"></mu-radio>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style='padding: 0 10px 20px 20px;'>
+                                            <div style='padding: 0 10px 10px 0;color: rgba(0,0,0,.54);font-size:14px'>
+                                            全兼职</div>
+                                            <div style='display:flex'>
+                                                <div :label-left='true' class="select-control-row" :key="index" v-for="(i,index) in genders1">
+                                                    <mu-radio @change="changeGender1" :value="i.value" v-model="gender1" :label="i.lable"></mu-radio>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style='display:flex;margin-left:40px'>
+                                        
+                                        <mu-form-item label="护理日期"  prop="jsname"  style='margin-left:40px'>
+                                   <li  style='float:left;padding:5px'>
+                                        <!-- <Checkbox v-model='first0' @on-change="changeDay0">周一</Checkbox> -->
+                                        <mu-checkbox v-model="first0" label="周一" @change="changeDay0"></mu-checkbox>
+                                    </li>
+                                    <li  style='float:left;padding:5px'>
+                                        <!-- <Checkbox v-model='first1' @on-change="changeDay1">周二</Checkbox> -->
+                                         <mu-checkbox v-model="first1" label="周二" @change="changeDay1"></mu-checkbox>
+                                    </li>
+                                    <li  style='float:left;padding:5px'>
+                                        <!-- <Checkbox v-model='first2' @on-change="changeDay2">周三</Checkbox> -->
+                                         <mu-checkbox v-model="first2" label="周三" @change="changeDay2"></mu-checkbox>
+                                    </li>
+                                    <li  style='float:left;padding:5px'>
+                                        <!-- <Checkbox v-model='first3' @on-change="changeDay3">周四</Checkbox> -->
+                                        <mu-checkbox v-model="first3" label="周四" @change="changeDay3"></mu-checkbox>
+                                    </li>
+                                    <li  style='float:left;padding:5px'>
+                                        <!-- <Checkbox v-model='first4' @on-change="changeDay4">周五</Checkbox> -->
+                                        <mu-checkbox v-model="first4" label="周五" @change="changeDay4"></mu-checkbox>
+                                    </li>
+                                    <li  style='float:left;padding:5px'>
+                                        <!-- <Checkbox v-model='first5' @on-change="changeDay5">周六</Checkbox> -->
+                                        <mu-checkbox v-model="first5" label="周六" @change="changeDay5"></mu-checkbox>
+                                    </li>
+                                    <li  style='float:left;padding:5px'>
+                                        <!-- <Checkbox v-model='first6' @on-change="changeDay6">周日</Checkbox> -->
+                                        <mu-checkbox v-model="first6" label="周日" @change="changeDay6"></mu-checkbox>
+                                    </li>
+                                </mu-form-item>
+                                    </div>
+                                    
+                            </div>
+                             <mu-form-item label="地址"  prop="address" :rules="addressRules">
+                                <el-cascader
+                                    filterable
+                                    expand-trigger="click"
+                                    :options="cityInfo"
+                                    v-model="selectedOptions2"
+                                    @change="handleChange">
+                                </el-cascader>
+                                <Input type="text" :rules="addressRules" prop="address"
+                                    v-model="validateForm.address"
+                                    :placeholder="$t('purchase.supplier.Raddress')"
+                                    style="width:50%;margin-left:10px"></Input>
+                            </mu-form-item>
+                            <div class='title-txt'>证件材料：</div>
+                            <ul class="detail-title-mark" style='margin-bottom:20px'>
+                                <li v-for="(item,index) in titlessku" class="detail-title" @click="addbordersku(index)" :class="{bor:index==num4}">
+                                    {{item}}
+                                </li>
+                            </ul>
+                                <div v-if='num4==0'>
+                                    <div style="display:flex">
+                                        <div style='border:2px dotted #C0CCDA;border-radius:6px;width:300px'>
+                                            <el-upload
+                                            class="avatar-uploader"
+                                            :action="sfzUrl"
+                                            :show-file-list="false"
+                                            name='file'
+                                            :before-upload="beforeAvatarUpload"
+                                            :on-success="handleAvatarSuccess"
+                                            >
+                                            <img v-if="validateForm.imageUrl" :src="validateForm.imageUrl" class="avatar">
+                                            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                            <span v-if="!validateForm.imageUrl">身份证正面照</span>
+                                            </el-upload>
+                                        </div>
+                                        <div style='border:2px dotted #C0CCDA;border-radius:6px;width:300px;margin-left:20px'>
+                                            <el-upload
+                                            class="avatar-uploader"
+                                            :action="sfzUrl"
+                                            :show-file-list="false"
+                                            name='file'
+                                            :before-upload="beforeAvatarUpload2"
+                                            :on-success="handleAvatarSuccess2"
+                                            >
+                                            <img v-if="validateForm.imageUrl2" :src="validateForm.imageUrl2" class="avatar">
+                                            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                            <span v-if="!validateForm.imageUrl2">身份证背面照</span>
+                                            </el-upload>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div v-if='num4==1'>
+                                   
+                                    <div style='border:2px dotted #C0CCDA;border-radius:6px;width:300px'>
+
+                                        <el-upload
+                                        class="avatar-uploader"
+                                        :action="sfzUrl"
+                                        :show-file-list="false"
+                                        name='file'
+                                        :before-upload="beforeAvatarUpload"
+                                        :on-success="handleAvatarSuccessJ"
+                                        >
+                                        <img v-if="validateForm.imageUrlJ" :src="validateForm.imageUrlJ" class="avatar">
+                                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                        </el-upload>
+                                    </div>
+                                </div>
+                                <div v-if='num4==2'>
+                                   
+                                    <div style='border:2px dotted #C0CCDA;border-radius:6px;width:300px'>
+
+                                        <el-upload
+                                        class="avatar-uploader"
+                                        :action="sfzUrl"
+                                        :show-file-list="false"
+                                        name='file'
+                                        :before-upload="beforeAvatarUpload"
+                                        :on-success="handleAvatarSuccessY"
+                                        >
+                                        <img v-if="validateForm.imageUrlY" 
+                                        :src="validateForm.imageUrlY" class="avatar">
+                                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                        </el-upload>
+                                    </div>
+                                </div>
+                            
+                        </mu-form>
+                    </div>
+                     <!--修改信息-->
+                    <div class="right-content" v-show="xiugai">
+                       <mu-form ref="Editform" :model="validateForm" >
+                            <div class='title-txt'>基本资料：</div>
+                            <div style='display:flex;width:100%'>
+                                <div style='width:33%;'>
+                                    <mu-form-item label="姓名"  prop="name" :rules="usernameRules">
+                                        <mu-text-field v-model="validateForm.name"
+                                        prop="name"
+                                        placeholder="请输入姓名"></mu-text-field>
+                                    </mu-form-item>
+                                    <mu-form-item label="身份证"  prop="sfz" :rules="sfzRules">
+                                        <mu-text-field v-model="validateForm.sfz"
+                                        prop="sfz"
+                                        placeholder="请输入身份证号"></mu-text-field>
+                                    </mu-form-item>
+                                </div>
+                                <div style='width:33%;padding-left:40px'>
+                                    <mu-form-item label="手机号"  prop="mobile" :rules="mobileRules">
+                                        <mu-text-field v-model="validateForm.mobile"
+                                        prop="mobile"
+                                        placeholder="请输入手机号"></mu-text-field>
+                                    </mu-form-item>
+                                    <div style="display: flex;">
+                                        <mu-form-item label="年"  >
+                                            <mu-text-field type="number" v-model="validateForm.year"
+                                       
+                                        placeholder="出生年份"></mu-text-field>
+                                        </mu-form-item>
+                                         <mu-form-item label="月">
+                                            <mu-text-field type="number" v-model="validateForm.month"
+                                       
+                                        placeholder="出生月份"></mu-text-field>
+                                        </mu-form-item>
+                                        <mu-form-item label="日"  >
+                                            <mu-text-field type="number" v-model="validateForm.day"
+                                      
+                                        placeholder="出生日" ></mu-text-field>
+                                        </mu-form-item>
+                                    </div>
+                                </div>
+                                <div style='width:33%;padding-left:40px'>
+                                    <mu-form-item label="紧急联系人"  prop="lxrname">
+                                        <mu-text-field v-model="validateForm.lxrname"
+                                        prop="lxrname"
+                                        placeholder="请输入紧急联系人"></mu-text-field>
+                                    </mu-form-item>
+                                    <mu-form-item label="紧急联系人电话"  prop="lxrtel">
+                                        <mu-text-field v-model="validateForm.lxrtel"
+                                        prop="lxrtel"
+                                        placeholder="请输入紧急联系人电话"></mu-text-field>
+                                    </mu-form-item>
+                                    
+                                </div>
+                            </div>
+                            <div  style='display:flex'>
+                                <div style='margin-right:20px'>
+                                    <div style='padding: 0 10px 10px 0;color: rgba(0,0,0,.54);font-size:14px'>
+                                        请输入编号</div>
+                                    <mu-form-item label="编号">
+                                        <mu-text-field v-model="validateForm.code"
+                                        prop="code"
+                                        placeholder="请输入编号" ></mu-text-field>
+                                    </mu-form-item>
+                                </div>
+                                <div>
+                                    <div style='padding: 0 10px 10px 0;color: rgba(0,0,0,.54);font-size:14px'>
+                                        合同有效期</div>
+                                    <div style='display:flex'>
+                                        <mu-form-item label="开始日期" prop="contractStart" :rules="contractStartRules" style=''>
+                                            <mu-date-input  landscape
+                                            v-model="validateForm.contractStart"
+                                            view-type='list'
+                                            type="date"
+                                            label-float
+                                            container="dialog"
+                                            full-width @change='changecontractStart'></mu-date-input>
+                                        </mu-form-item>
+                                        <mu-form-item label="结束日期" prop="contractEnd" :rules="contractEndRules" style='margin-left:20px;'>
+                                            <mu-date-input  landscape
+                                            v-model="validateForm.contractEnd"
+                                            view-type='list'
+                                            type="date"
+                                            label-float
+                                            container="dialog"
+                                            full-width @change='changecontractEnd'></mu-date-input>
+                                        </mu-form-item>
+                                        
+                                    </div>
+                                </div>
+
+                                <div style='margin-left:20px'>
+                                    <div style='padding: 0 10px 10px 0;color: rgba(0,0,0,.54);font-size:14px'>
+                                        服务时间</div>
+                                    <div  style='display:flex'>
+                                        <mu-form-item label="开始时间" prop="hlbtime">
+                                                <mu-date-input  landscape
+                                                v-model="validateForm.hlbtime"
+                                                view-type='list'
+                                                type="time"
+                                                label-float
+                                                clock-type="24hr"
+                                                container="dialog"
+                                                full-width @change='changebTime'></mu-date-input>
+                                        </mu-form-item>
+                                        <mu-form-item label="结束时间" prop="hletime" style='margin-left:20px'>
+                                            <mu-date-input  landscape
+                                            v-model="validateForm.hletime"
+                                            view-type='list'
+                                            type="time"
+                                            label-float
+                                            clock-type="24hr"
+                                            container="dialog"
+                                            full-width @change='changeeTime'></mu-date-input>
+                                        </mu-form-item>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style='display:flex;'>
+                                <div style='display:flex;'>
+                                        <div style='padding: 0 10px 20px 0;'>
+                                            <div style='padding: 0 10px 10px 0;color: rgba(0,0,0,.54);font-size:14px'>
+                                            性别</div>
+                                            <div style='display:flex'>
+                                                <div :label-left='true' class="select-control-row" :key="index" v-for="(i,index) in genders">
+                                                    <mu-radio @change="changeGender" :value="i.value" v-model="gender" :label="i.lable"></mu-radio>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style='padding: 0 10px 20px 20px;'>
+                                            <div style='padding: 0 10px 10px 0;color: rgba(0,0,0,.54);font-size:14px'>
+                                            全兼职</div>
+                                            <div style='display:flex'>
+                                                <div :label-left='true' class="select-control-row" :key="index" v-for="(i,index) in genders1">
+                                                    <mu-radio @change="changeGender1" :value="i.value" v-model="gender1" :label="i.lable"></mu-radio>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style='display:flex;margin-left:40px'>
+                                    
+                                        <mu-form-item label="护理日期"  prop="jsname"  style='margin-left:40px'>
+                                   <li  style='float:left;padding:5px'>
+                                        <!-- <Checkbox v-model='first0' @on-change="changeDay0">周一</Checkbox> -->
+                                        <mu-checkbox v-model="first0" label="周一" @change="changeDay0"></mu-checkbox>
+                                    </li>
+                                    <li  style='float:left;padding:5px'>
+                                        <!-- <Checkbox v-model='first1' @on-change="changeDay1">周二</Checkbox> -->
+                                         <mu-checkbox v-model="first1" label="周二" @change="changeDay1"></mu-checkbox>
+                                    </li>
+                                    <li  style='float:left;padding:5px'>
+                                        <!-- <Checkbox v-model='first2' @on-change="changeDay2">周三</Checkbox> -->
+                                         <mu-checkbox v-model="first2" label="周三" @change="changeDay2"></mu-checkbox>
+                                    </li>
+                                    <li  style='float:left;padding:5px'>
+                                        <!-- <Checkbox v-model='first3' @on-change="changeDay3">周四</Checkbox> -->
+                                        <mu-checkbox v-model="first3" label="周四" @change="changeDay3"></mu-checkbox>
+                                    </li>
+                                    <li  style='float:left;padding:5px'>
+                                        <!-- <Checkbox v-model='first4' @on-change="changeDay4">周五</Checkbox> -->
+                                        <mu-checkbox v-model="first4" label="周五" @change="changeDay4"></mu-checkbox>
+                                    </li>
+                                    <li  style='float:left;padding:5px'>
+                                        <!-- <Checkbox v-model='first5' @on-change="changeDay5">周六</Checkbox> -->
+                                        <mu-checkbox v-model="first5" label="周六" @change="changeDay5"></mu-checkbox>
+                                    </li>
+                                    <li  style='float:left;padding:5px'>
+                                        <!-- <Checkbox v-model='first6' @on-change="changeDay6">周日</Checkbox> -->
+                                        <mu-checkbox v-model="first6" label="周日" @change="changeDay6"></mu-checkbox>
+                                    </li>
+                                </mu-form-item>
+                                    </div>
+                                    
+                            </div>
+                             <mu-form-item label="地址"  prop="address" :rules="addressRules">
+                                <el-cascader
+                                    filterable
+                                    expand-trigger="click"
+                                    :options="cityInfo"
+                                    v-model="selectedOptions2"
+                                    @change="handleChange">
+                                </el-cascader>
+                                <Input type="text" :rules="addressRules" prop="address"
+                                    v-model="validateForm.address"
+                                    :placeholder="$t('purchase.supplier.Raddress')"
+                                    style="width:50%;margin-left:10px"></Input>
+                            </mu-form-item>
+                            <div class='title-txt'>证件材料：</div>
+                            <ul class="detail-title-mark" style='margin-bottom:20px'>
+                                <li v-for="(item,index) in titlessku" class="detail-title" @click="addbordersku(index)" :class="{bor:index==num4}">
+                                    {{item}}
+                                </li>
+                            </ul>
+                                <div v-if='num4==0'>
+                                    <div style="display:flex">
+                                        <div style='border:2px dotted #C0CCDA;border-radius:6px;width:300px'>
+                                            <el-upload
+                                            class="avatar-uploader"
+                                            :action="sfzUrl"
+                                            :show-file-list="false"
+                                            name='file'
+                                            :before-upload="beforeAvatarUpload"
+                                            :on-success="handleAvatarSuccess"
+                                            >
+                                            <img v-if="validateForm.imageUrl" :src="validateForm.imageUrl" class="avatar">
+                                            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                            <span v-if="!validateForm.imageUrl">身份证正面照</span>
+                                            </el-upload>
+                                        </div>
+                                        <div style='border:2px dotted #C0CCDA;border-radius:6px;width:300px;margin-left:20px'>
+                                            <el-upload
+                                            class="avatar-uploader"
+                                            :action="sfzUrl"
+                                            :show-file-list="false"
+                                            name='file'
+                                            :before-upload="beforeAvatarUpload2"
+                                            :on-success="handleAvatarSuccess2"
+                                            >
+                                            <img v-if="validateForm.imageUrl2" :src="validateForm.imageUrl2" class="avatar">
+                                            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                            <span v-if="!validateForm.imageUrl2">身份证背面照</span>
+                                            </el-upload>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div v-if='num4==1'>
+                                   
+                                    <div style='border:2px dotted #C0CCDA;border-radius:6px;width:300px'>
+
+                                        <el-upload
+                                        class="avatar-uploader"
+                                        :action="sfzUrl"
+                                        :show-file-list="false"
+                                        name='file'
+                                        :before-upload="beforeAvatarUpload"
+                                        :on-success="handleAvatarSuccessJ"
+                                        >
+                                        <img v-if="validateForm.imageUrlJ" :src="validateForm.imageUrlJ" class="avatar">
+                                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                        </el-upload>
+                                    </div>
+                                </div>
+                                <div v-if='num4==2'>
+                                   
+                                    <div style='border:2px dotted #C0CCDA;border-radius:6px;width:300px'>
+
+                                        <el-upload
+                                        class="avatar-uploader"
+                                        :action="sfzUrl"
+                                        :show-file-list="false"
+                                        name='file'
+                                        :before-upload="beforeAvatarUpload"
+                                        :on-success="handleAvatarSuccessY"
+                                        >
+                                        <img v-if="validateForm.imageUrlY" 
+                                        :src="validateForm.imageUrlY" class="avatar">
+                                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                        </el-upload>
+                                    </div>
+                                </div>
+                            
+                        </mu-form>
+                    </div>
+                    <!--详情明细订单页面-->
+                    <div class="right-content right-detail" ref="detail"  v-if='details'>
+                        <div>
+                            <mu-form :model="validateForm" >
+                            <div class='title-txt'>基本资料：</div>
+                            <div style='display:flex;width:100%'>
+                                <div style='width:33%;'>
+                                    <mu-form-item label="姓名"  prop="name" >
+                                        <mu-text-field disabled v-model="validateForm.name"
+                                        prop="name"
+                                        placeholder="请输入姓名"></mu-text-field>
+                                    </mu-form-item>
+                                    <mu-form-item label="身份证"  prop="sfz" >
+                                        <mu-text-field disabled v-model="validateForm.sfz"
+                                        prop="sfz"
+                                        placeholder="请输入身份证号"></mu-text-field>
+                                    </mu-form-item>
+                                </div>
+                                <div style='width:33%;padding-left:40px'>
+                                    <mu-form-item label="手机号"  prop="mobile">
+                                        <mu-text-field disabled v-model="validateForm.mobile"
+                                        prop="mobile"
+                                        placeholder="请输入手机号"></mu-text-field>
+                                    </mu-form-item>
+                                    <div style="display: flex;">
+                                        <mu-form-item label="年"  >
+                                            <mu-text-field v-model="validateForm.year"
+                                       
+                                        placeholder="出生年份" disabled></mu-text-field>
+                                        </mu-form-item>
+                                         <mu-form-item label="月"  >
+                                            <mu-text-field v-model="validateForm.month"
+                                       
+                                        placeholder="出生月份" disabled></mu-text-field>
+                                        </mu-form-item>
+                                        <mu-form-item label="日"  >
+                                            <mu-text-field v-model="validateForm.day"
+                                      
+                                        placeholder="出生日" disabled></mu-text-field>
+                                        </mu-form-item>
+                                    </div>
+                                </div>
+                                <div style='width:33%;padding-left:40px'>
+                                    <mu-form-item label="紧急联系人"  prop="lxrname">
+                                        <mu-text-field disabled v-model="validateForm.lxrname"
+                                        prop="lxrname"
+                                        placeholder="请输入紧急联系人"></mu-text-field>
+                                    </mu-form-item>
+                                    <mu-form-item label="紧急联系人电话"  prop="lxrtel">
+                                        <mu-text-field disabled v-model="validateForm.lxrtel"
+                                        prop="lxrtel"
+                                        placeholder="请输入紧急联系人电话"></mu-text-field>
+                                    </mu-form-item>
+                                    
+                                </div>
+                            </div>
+                            <div  style='display:flex'>
+                                <div style='margin-right:20px'>
+                                    <div style='padding: 0 10px 10px 0;color: rgba(0,0,0,.54);font-size:14px'>
+                                        请输入编号</div>
+                                    <mu-form-item label="编号">
+                                        <mu-text-field v-model="validateForm.code"
+                                        prop="code"
+                                        placeholder="请输入编号" disabled></mu-text-field>
+                                    </mu-form-item>
+                                </div>
+                                <div>
+                                    <div style='padding: 0 10px 10px 0;color: rgba(0,0,0,.54);font-size:14px'>
+                                        合同有效期</div>
+                                    <div style='display:flex'>
+                                        <mu-form-item label="开始日期" prop="contractStart" :rules="contractStartRules" style=''>
+                                            <mu-date-input  landscape
+                                            v-model="validateForm.contractStart"
+                                            view-type='list'
+                                            type="date"
+                                            label-float
+                                            container="dialog"
+                                            full-width disabled></mu-date-input>
+                                        </mu-form-item>
+                                        <mu-form-item label="结束日期" prop="contractEnd" :rules="contractEndRules" style='margin-left:20px;'>
+                                            <mu-date-input  landscape
+                                            v-model="validateForm.contractEnd"
+                                            view-type='list'
+                                            type="date"
+                                            label-float
+                                            container="dialog"
+                                            full-width disabled></mu-date-input>
+                                        </mu-form-item>
+                                        
+                                    </div>
+                                </div>
+
+                                <div style='margin-left:20px'>
+                                    <div style='padding: 0 10px 10px 0;color: rgba(0,0,0,.54);font-size:14px'>
+                                        服务时间</div>
+                                    <div  style='display:flex'>
+                                        <mu-form-item label="开始时间" prop="hlbtime">
+                                                <mu-date-input  landscape
+                                                v-model="validateForm.hlbtime"
+                                                view-type='list'
+                                                type="time"
+                                                label-float
+                                                container="dialog"
+                                                full-width disabled></mu-date-input>
+                                        </mu-form-item>
+                                        <mu-form-item label="结束时间" prop="hletime" style='margin-left:20px'>
+                                            <mu-date-input  landscape
+                                            v-model="validateForm.hletime"
+                                            view-type='list'
+                                            type="time"
+                                            label-float
+                                            container="dialog"
+                                            full-width disabled></mu-date-input>
+                                        </mu-form-item>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style='display:flex;'>
+                                <div style='display:flex;'>
+                                        <div style='padding: 0 10px 20px 0;'>
+                                            <div style='padding: 0 10px 10px 0;color: rgba(0,0,0,.54);font-size:14px'>
+                                            性别</div>
+                                            <div style='display:flex'>
+                                                <div :label-left='true' class="select-control-row" :key="index" v-for="(i,index) in genders">
+                                                    <mu-radio disabled :value="i.value" v-model="gender" :label="i.lable"></mu-radio>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style='padding: 0 10px 20px 20px;'>
+                                            <div style='padding: 0 10px 10px 0;color: rgba(0,0,0,.54);font-size:14px'>
+                                            全兼职</div>
+                                            <div style='display:flex'>
+                                                <div :label-left='true' class="select-control-row" :key="index" v-for="(i,index) in genders1">
+                                                    <mu-radio disabled :value="i.value" v-model="gender1" :label="i.lable"></mu-radio>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style='display:flex;margin-left:40px'>
+                                       
+                                        <mu-form-item label="护理日期"  prop="jsname"  style='margin-left:40px'>
+                                           <li  style='float:left;padding:5px'>
+                                                <!-- <Checkbox v-model='first0' @on-change="changeDay0">周一</Checkbox> -->
+                                                <mu-checkbox v-model="first0" disabled label="周一" @change="changeDay0"></mu-checkbox>
+                                            </li>
+                                            <li  style='float:left;padding:5px'>
+                                                <!-- <Checkbox v-model='first1' @on-change="changeDay1">周二</Checkbox> -->
+                                                 <mu-checkbox v-model="first1" disabled label="周二" @change="changeDay1"></mu-checkbox>
+                                            </li>
+                                            <li  style='float:left;padding:5px'>
+                                                <!-- <Checkbox v-model='first2' @on-change="changeDay2">周三</Checkbox> -->
+                                                 <mu-checkbox v-model="first2" disabled label="周三" @change="changeDay2"></mu-checkbox>
+                                            </li>
+                                            <li  style='float:left;padding:5px'>
+                                                <!-- <Checkbox v-model='first3' @on-change="changeDay3">周四</Checkbox> -->
+                                                <mu-checkbox v-model="first3" disabled label="周四" @change="changeDay3"></mu-checkbox>
+                                            </li>
+                                            <li  style='float:left;padding:5px'>
+                                                <!-- <Checkbox v-model='first4' @on-change="changeDay4">周五</Checkbox> -->
+                                                <mu-checkbox v-model="first4" disabled label="周五" @change="changeDay4"></mu-checkbox>
+                                            </li>
+                                            <li  style='float:left;padding:5px'>
+                                                <!-- <Checkbox v-model='first5' @on-change="changeDay5">周六</Checkbox> -->
+                                                <mu-checkbox v-model="first5" disabled label="周六" @change="changeDay5"></mu-checkbox>
+                                            </li>
+                                            <li  style='float:left;padding:5px'>
+                                                <!-- <Checkbox v-model='first6' @on-change="changeDay6">周日</Checkbox> -->
+                                                <mu-checkbox v-model="first6" disabled label="周日" @change="changeDay6"></mu-checkbox>
+                                            </li>
+                                        </mu-form-item>
+                                    </div>
+                                    
+                            </div>
+                             <mu-form-item label="地址"  prop="address" :rules="addressRules">
+                                <el-cascader
+                                    filterable
+                                    expand-trigger="click"
+                                    :options="cityInfo"
+                                    v-model="selectedOptions2"
+                                   disabled>
+                                </el-cascader>
+                                <Input type="text" disabled prop="address"
+                                    v-model="validateForm.address"
+                                    :placeholder="$t('purchase.supplier.Raddress')"
+                                    style="width:50%;margin-left:10px"></Input>
+                            </mu-form-item>
+                            
+                                
+                            
+                        </mu-form>
+                                <ul class="detail-title-mark" style='margin-top:20px'>
+                                    <li v-for="(item,index) in detailsArr" :key='index' class="detail-title flclass" @click="addborderdefails(index)" :class="{bor:index==num5}">
+                                        {{item}}
+                                    </li>
+                                </ul>
+                           
+                            <!--工单-->
+                            <div v-show='num5==0' class='main-btm'>
+                                <div style='margin: 10px 10px 0 0;'>
+                                    <ag-grid-vue style='width:100%;' class="ag-theme-balham is-full-widthag"
+                                        :gridOptions="grid"
+                                        :rowData="gdhistory"
+                                        :columnDefs="columnsgd"
+                                        :gridAutoHeight="true"
+                                        autoHeight=true
+                                        ></ag-grid-vue>
+                                    <div justify-content="center" >
+                                    
+                                        <Page :total="total1" size='small' show-total :pageSize='pageSize1'  @on-change="changeSize1"></Page>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--客户-->
+                            <div v-show='num5==1' class='main-btm'>
+                                <div style='margin: 10px 10px 0 0;'>
+                                    <ag-grid-vue style='width:100%;' class="ag-theme-balham is-full-widthag"
+                                         :gridOptions="gridIm"
+                                        :rowData="ZDhistory"
+                                        :columnDefs="columnsZDHistory"
+                                        :gridAutoHeight="true"
+                                        autoHeight=true
+                                        ></ag-grid-vue>
+                                        <div justify-content="center" >
+                                      
+                                        <Page :total="total2" size='small' show-total :pageSize='pageSize2'  @on-change="changeSize2"></Page>
+                                    </div>
+                                </div>
+                            </div>
+                          
+                            <div v-show='num5==2' style='margin-top:20px' class='main-btm'>
+                                    <div style="display:flex">
+                                        <div style='border:2px dotted #C0CCDA;border-radius:6px;width:300px'>
+                                            <el-upload
+                                            class="avatar-uploader"
+                                            :action="sfzUrl"
+                                            :show-file-list="false"
+                                            name='file'
+                                            :before-upload="beforeAvatarUpload"
+                                            :on-success="handleAvatarSuccess"
+                                            disabled>
+                                            <img v-if="validateForm.imageUrl" :src="validateForm.imageUrl" class="avatar" @click="overImg">
+                                            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                            <span v-if="!validateForm.imageUrl">身份证正面照</span>
+                                            </el-upload>
+                                        </div>
+                                        <div style='border:2px dotted #C0CCDA;border-radius:6px;width:300px;margin-left:20px'>
+                                            <el-upload
+                                            class="avatar-uploader"
+                                            :action="sfzUrl"
+                                            :show-file-list="false"
+                                            name='file'
+                                            :before-upload="beforeAvatarUpload"
+                                            :on-success="handleAvatarSuccess2"
+                                            disabled>
+                                            <img v-if="validateForm.imageUrl2" :src="validateForm.imageUrl2" class="avatar" @click="overImg1">
+                                            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                            <span v-if="!validateForm.imageUrl2">身份证背面照</span>
+                                            </el-upload>
+                                        </div>
+                                    </div>
+                            </div>
+                            <div v-show='num5==3' style='margin-top:20px' class='main-btm'>
+                               
+                                <div style='border:2px dotted #C0CCDA;border-radius:6px;width:300px'>
+
+                                    <el-upload
+                                    class="avatar-uploader"
+                                    :action="sfzUrl"
+                                    :show-file-list="false"
+                                    name='file'
+                                    :before-upload="beforeAvatarUpload"
+                                    :on-success="handleAvatarSuccessJ"
+                                    disabled>
+                                    <img v-if="validateForm.imageUrlJ" :src="validateForm.imageUrlJ" class="avatar" @click="overImg2">
+                                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                    </el-upload>
+                                </div>
+                            </div>
+                            <div v-show='num5==4' style='margin-top:20px' class='main-btm'>
+                               
+                                <div style='border:2px dotted #C0CCDA;border-radius:6px;width:300px'>
+
+                                    <el-upload
+                                    class="avatar-uploader"
+                                    :action="sfzUrl"
+                                    :show-file-list="false"
+                                    name='file'
+                                    :before-upload="beforeAvatarUpload"
+                                    :on-success="handleAvatarSuccessY"
+                                    disabled>
+                                    <img v-if="validateForm.imageUrlY" 
+                                    :src="validateForm.imageUrlY" class="avatar" @click="overImg3">
+                                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                    </el-upload>
+                                </div>
+                            </div>
+                        <!--状态-->
+                        <div class="lanren" :class="{bgd1:storeDetails.status==1,bgd2:storeDetails.status==9,bgd21:storeDetails.status==3}">
+                           <span>{{storeDetails.statusDesc}}</span>
+                        </div>​
+                        </div>
+                    </div>
+                </div>
+            <!-- </Col> -->
+        </div>
+        <!--续约-->
+        <Modal v-model="contractisshow" >
+            <p slot="header" style="height:30px;line-height:30px;">
+              <span>续约</span>
+            </p>
+            
+            <mu-form ref="contractform" :model="contractvalidateForm" >
+                <div style='display:flex;width:100%'>
+                    <mu-form-item label="开始时间"  prop="startDate" :rules="startDateRules" style='width:50%'>
+                        <mu-form-item prop="startDate">
+                            <mu-date-input  landscape
+                            v-model="contractvalidateForm.startDate"
+                            view-type='list'
+                            type="date"
+                            label-float
+                            container="dialog"
+                            placeholder="请选择开始时间"
+                            full-width @change='changecontractbTime'></mu-date-input>
+                        </mu-form-item>
+                    </mu-form-item>
+                    <mu-form-item label="结束时间"  prop="startDate" :rules="endDateRules" style='width:50%'>
+                        <mu-form-item  prop="startDate" >
+                            <mu-date-input  landscape
+                            v-model="contractvalidateForm.endDate"
+                            view-type='list'
+                            type="date"
+                            label-float
+                            container="dialog"
+                            placeholder="结束时间"
+                            full-width @change='changecontracteTime'></mu-date-input>
+                        </mu-form-item>
+                    </mu-form-item>
+                     
+                </div>
+                <mu-form-item label="备注"  prop="remark" style='width:100%'>
+                        <mu-text-field v-model="contractvalidateForm.remark" placeholder="请输入备注信息" multi-line :rows="2" full-width></mu-text-field><br/>
+                    </mu-form-item>
+            </mu-form>
+            <div slot="footer">
+              <div class='footer-mark'>
+                <span><a style='color:#999;font-size:14px' @click='contractCancel'>{{$t('public.cancel')}}</a></span>
+                <span style='font-size:20px;width:1px;height:40px;background:#e4e4e4'></span>
+                <span ><a style='color:#3B77E3;font-size:14px' @click='contractSure'>{{$t('public.sure')}}</a></span>
+              </div>
+            </div>
+        </Modal>
+        <Modal v-model="imgisshow" >
+            <p slot="header" style="height:30px;line-height:30px;">
+              <span>图片预览</span>
+            </p>
+                <div style="text-align:center">
+                    <img :src="detailsImg" width="100%" height="100%">
+                </div>
+            <div slot="footer">
+              
+            </div>
+        </Modal>
+    <div class='totBottom'>
+        <span>共<span style='color:#ff0000'> {{total}} </span>条</span>
+        <span>当前第<span style='color:#ff0000'> {{current}} </span>页</span>
+    </div>
+    </div>
+</template>
+<script>
+import { AgGridVue } from "ag-grid-vue";
+import LoadUrl from '@/components/common/actionLoad'
+import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
+    export default {
+        components:{
+            AgGridVue
+        },
+        data() {
+            return {
+                grid:{
+                
+                enableFilter:true,
+                enableSorting:true,
+                animateRows:true,
+                rowHeight:40,
+                // pagination: true,
+                enableColResize:true,
+                enableRangeSelection:true,
+                //单行选中，"multiple" 多选（ctrl）,"single" 单选
+                 rowSelection: 'multiple',
+            },
+            gridIm:{
+                enableFilter:true,
+                enableSorting:true,
+                animateRows:true,
+                rowHeight:40,
+                // pagination: true,
+                enableColResize:true,
+            },
+                imgisshow:false,
+                detailsImg:"",
+                storeTxt:"",
+                //续约
+                contractisshow:false,
+                contractvalidateForm:{
+                    startDate:"",
+                    endDate:"",
+                    remark:""
+                },
+                startDateRules:[{ validate: (val) => !!val, message:"必须填写开始时间"}],
+                endDateRules:[{ validate: (val) => !!val, message:"必须填写开始时间"}],
+                start1:false,
+                stop1:false,
+                pdisshow:false,//派單
+                detailsArr:['工单','客户','身份证','健康证','医疗照'],
+                DRhistory:[],
+                current0:1,
+                total0:0,
+                pageSize0:0,
+                columnsDR:[
+                     {
+                        headerName:"护理员",
+                        field: 'name',
+                   
+                    },
+                    {
+                        headerName:"性别",
+                        field:'gender',
+                    
+                    },
+                    {
+                        headerName:"地址",//"地址",
+                        field:'Raddress',
+                    
+                    },
+                    {
+                        headerName:"电话",//"电话",
+                        field:'mobile',
+                        
+                    },
+                    
+                ],
+                gdhistory:[],
+                current1:1,
+                total1:0,
+                pageSize1:0,
+                columnsgd:[
+                    {
+                        headerName: "工单号",
+                        field: "code",
+                       
+                    },
+                    
+                    {
+                        headerName: "客户姓名",
+                        field: "auntName"
+                    },
+                    {
+                        headerName: "客户手机",
+                        field: "auntMobile"
+                    },
+                    {
+                        headerName: "开始时间",
+                        field: "startTime",
+                        cellStyle: function(params) {
+                            return {background:"#008222"}
+                        }
+                    },
+                    {
+                        headerName: "结束时间",
+                        field: "endTime"
+                    },
+                     {
+                        headerName: "实际开始时间",
+                        field: "actStartTime",
+                        cellStyle: function(params) {
+                            return {background:"#008222"}
+                        }
+                    },
+                    {
+                        headerName: "实际结束时间",
+                        field: "actEndTime"
+                    },
+                    {
+                        headerName:"日期",
+                        field:"createTime"
+                    },
+                ],
+                loghistory:[],
+                current3:1,
+                total3:0,
+                pageSize3:0,
+                columnslog:[
+                  
+                ],
+                //客户
+                columnsZDHistory: [
+               
+                {
+                    headerName:"客户",
+                    field: 'name',
+                    pinned: 'left',
+                    width:180,
+                },
+                
+                {
+                    headerName:"次数",
+                    field:'weekTimes',
+                    width:180,
+                },
+                {
+                    headerName:"开始时间",
+                    field: 'purposeStartTime',
+                    width:180,
+                },
+                {
+                    headerName:"结束时间",
+                    field: 'purposeEndTime',
+                    width:180,
+                },
+                 {
+                    headerName:"状态",
+                    field: 'statusDesc',
+                    width:180,
+                },
+                {
+                    headerName:"周一",
+                    field:'monday',
+                   
+                    width:180,
+                    cellStyle: function(params) {
+                        if (params.value=="服务") {
+                          
+                            return {color: '#fff', backgroundColor: 'green'};
+                        } else {
+                            return {color: '#fff', backgroundColor: '#ff0000'};;
+                        }
+                    }
+
+                },
+                {
+                    headerName:"周二",
+                    field:'tuesday',
+                    width:180,
+                    cellStyle: function(params) {
+                        if (params.value=="服务") {
+                            //mark police cells as red
+                            return {color: '#fff', backgroundColor: 'green'};
+                        } else {
+                            return {color: '#fff', backgroundColor: '#ff0000'};;
+                        }
+                    }
+                },
+                {
+                    headerName:"周三",
+                    field:'wednesday',
+                    width:180,
+                    cellStyle: function(params) {
+                        if (params.value=="服务") {
+                            //mark police cells as red
+                            return {color: '#fff', backgroundColor: 'green'};
+                        } else {
+                            return {color: '#fff', backgroundColor: '#ff0000'};;
+                        }
+                    }
+                },
+                {
+                    headerName:"周四",
+                    field:'thursday',
+                    width:180,
+                    cellStyle: function(params) {
+                        if (params.value=="服务") {
+                            //mark police cells as red
+                            return {color: '#fff', backgroundColor: 'green'};
+                        } else {
+                            return {color: '#fff', backgroundColor: '#ff0000'};;
+                        }
+                    }
+                },
+                {
+                    headerName:"周五",
+                    field:'friday',
+                    width:180,
+                    cellStyle: function(params) {
+                        if (params.value=="服务") {
+                            //mark police cells as red
+                            return {color: '#fff', backgroundColor: 'green'};
+                        } else {
+                            return {color: '#fff', backgroundColor: '#ff0000'};;
+                        }
+                    }
+                },
+                {
+                    headerName:"周六",
+                    field:'saturday',
+                    width:180,
+                    cellStyle: function(params) {
+                        if (params.value=="服务") {
+                            //mark police cells as red
+                            return {color: '#fff', backgroundColor: 'green'};
+                        } else {
+                            return {color: '#fff', backgroundColor: '#ff0000'};;
+                        }
+                    }
+                },
+                {
+                    headerName:"周日",
+                    field:'sunday',
+                    width:180,
+                    cellStyle: function(params) {
+                        if (params.value=="服务") {
+                            //mark police cells as red
+                            return {color: '#fff', backgroundColor: 'green'};
+                        } else {
+                            return {color: '#fff', backgroundColor: '#ff0000'};;
+                        }
+                    }
+                },
+                
+               
+            ],
+                ZDhistory:[],
+                current2:1,
+                total2:0,
+                pageSize2:0,
+                num5:0,
+                
+                titlessku:['身份证','健康证','医疗照'],
+                num4:0,
+                gender:1,
+                genders:[
+                    {
+                        lable:"男",
+                        value:1
+                    },
+                    {
+                        lable:"女",
+                        value:0
+                    },
+                ],
+                //全兼职
+                gender1:0,
+                genders1:[
+                    {
+                        lable:"全职",
+                        value:0
+                    },
+                    {
+                        lable:"兼职",
+                        value:1
+                    },
+                ],
+                searchKeyword:'',
+                CodeToText:CodeToText,//code转为Text
+                TextToCode:TextToCode,//Text转为code
+                cityInfo:regionData,//地址数据
+                selectedOptions2:['310000','310100','310107'],//绑定的数据
+                uid: this.$store.state.common.token,
+                sfzUrl:LoadUrl.httpPrefix.Url+'file/action/upload/image/url?c=身份证图片&uid='+this.$store.state.common.token,
+                imageUrlJ:LoadUrl.httpPrefix.Url+'file/action/upload/image/url?c=健康证&uid='+this.$store.state.common.token,
+                imageUrlY:LoadUrl.httpPrefix.Url+'file/action/upload/image/url?c=医疗照护证&uid='+this.$store.state.common.token,
+                
+                importstore:false,//导入
+                value:1,
+                orderListname:[
+                    
+                    {
+                        label:"待审核",
+                        value:1
+                    },
+                    {
+                        label:"合约中",
+                        value:3
+                    },
+                    {
+                        label:"已終止",
+                        value:9
+                    },
+                ],
+                landscape:true,
+                validateForm:{
+                    name:"",
+                    mobile:"",
+                    code:"",//编号
+                    sfz:"",//身份证
+                    ymd:"",//出生年月日
+                    year:"",
+                    month:"",
+                    day:"",
+                    lxrname:"",//紧急联系人
+                    lxrtel:"",//紧急联系人电话
+                    hlbtime:null,//服务时间
+                    hletime:null,//服务时间
+                    address: '', //详细地址
+                    contractStart:"",//合同开始时间
+                    contractEnd:"",//合同结束时间
+                    display: true,
+                    type: 'ampm',
+                    viewType: 'list',
+                    imageUrl:"",//身份证照片
+                    imageUrl2:"",//身份证照片
+                    imageUrlJ:"",//健康证
+                    imageUrlY:"",//医疗照护证
+                },
+                usernameRules:[{ validate: (val) => !!val, message:"必须填写姓名"}],//姓名不能为空,
+                mobileRules:[{ validate: (val) => !!val, message:"必须填写手机号"},//必须填写手机号
+                            { validate: (val) => /^1[3|4|5|7|8][0-9]{9}$/.test(val), message:"请输入正确的手机号"}],
+                sfzRules:[{ validate: (val) => !!val, message:"必须填写身份证号"},
+                            { validate: (val) =>/^[1-9]{1}[0-9]{14}$|^[1-9]{1}[0-9]{16}([0-9]|[xX])$/.test(val), message:"请输入正确的身份证号"}
+                ],
+                ymdRules:[{ validate: (val) => !!val, message:"必须填写出生日期"}],
+                servertimeRoul:[{ validate: (val) => !!val, message:"必须选择服务时间"}],
+                addressRules:[{ validate: (val) => !!val, message:"必须填写地址"}],
+                contractStartRules:[{ validate: (val) => !!val, message:"必须填合同开始时间"}],
+                contractEndRules:[{ validate: (val) => !!val, message:"必须填合同结束时间"}],
+                dialogVisible:false,
+                xiugaibtn2:false,//修改的保存按钮
+                xiugaibtn1:false,//修改按钮
+                details:false,//详情页是否显示
+                xiugai:false,//修改页面是否显示
+                storeDetails:{},//详情丢向
+
+
+                height:'',
+                
+                numIndex:-1,//侧栏下标
+                indexId:"",//仓库id
+                addText: true, //新建仓库true  修改仓库false
+               
+                storeList: [],
+                current:1,
+                total: 0, //页码总数
+                pageSize: 0, //页面条数
+                province: '', //省
+                city: '', //市
+                district: '', //区
+                remark: '', //备注
+                id: '', //仓库的id
+        
+                first0:false,
+                first1:false,
+                first2:false,
+                first3:false,
+                first4:false,
+                first5:false,
+                first6:false,
+               
+              
+            }
+        },
+        methods: {
+            //移动到
+            overImg(){
+                this.imgisshow=true
+                this.detailsImg=this.validateForm.imageUrl
+               
+            },
+            overImg1(){
+                this.imgisshow=true
+                this.detailsImg=this.validateForm.imageUrl2
+               
+            },
+            //
+            overImg2(){
+                this.imgisshow=true
+                this.detailsImg=this.validateForm.imageUrlJ
+               
+            },
+            overImg3(){
+                this.imgisshow=true
+                this.detailsImg=this.validateForm.imageUrlY
+               
+            },
+            //周一到周日
+            changeDay0(e){
+                if(e){this.first0=e} 
+                console.log(this.first0)
+            },
+            changeDay1(e){
+                if(e) this.first1=e
+               
+            },
+            changeDay2(e){
+                if(e) this.first2=e
+              
+            },
+            changeDay3(e){
+                if(e) this.first3=e
+               
+            },
+            changeDay4(e){
+                if(e) this.first4=e
+            
+            },
+            changeDay5(e){
+                if(e) this.first5=e
+             
+            },
+            changeDay6(e){
+                if(e) this.first6=e
+                
+            },
+            //搜索
+            search(){
+                this.axios.get('/caregivers/query?keyword='+this.searchKeyword+'&uid=' + this.uid+'&status='+this.value).then((res) => {
+                    let data = res.data;
+                    if(res.data.status == '200') {
+                        this.storeList = data.rows;
+                        this.pageSize = data.pageSize;
+                        this.total = data.total;
+                        this.storeList .forEach(x=>{
+                            if(x.gender==1){    
+                                x.gender="男"
+                            }else{
+                                x.gender="女"
+                            }
+                            x.Raddress=x.province+x.city+x.district+x.addressDetail
+                        })
+                    }
+                })
+            },
+            enterSearch(){
+                this.search()
+            },
+            //下拉选择
+            selectChange(v){
+                this.value=v
+                this.numIndex=-1
+                this.current=1
+                this.getStoreList(this.value);//仓库列表
+            },
+            //选择性别
+            changeGender(value){
+                this.gender=value
+                console.log(value)
+            },
+            //选择性别
+            changeGender1(value){
+                this.gender1=value
+                console.log(value)
+            },
+            //合同开始时间
+            changecontractStart(d){
+                this.validateForm.contractStart=d
+            },
+            //合同开始时间
+            changecontractEnd(d){
+                this.validateForm.contractEnd=d
+            },
+            //选择生日
+            changeyear(d){
+                this.validateForm.year=d
+                console.log(d)
+            },
+            changemonth(d){
+                this.validateForm.month=d
+                console.log(d)
+            },
+            changedate(d){
+                this.validateForm.date=d
+                console.log(d)
+            },
+            //选择服务时间
+            changebTime(time, mode, finished){
+                this.validateForm.hlbtime=time
+                console.log(time)
+            },
+             //选择服务时间
+            changeeTime(time, mode, finished){
+                this.validateForm.hletime=time
+                console.log(time)
+            },
+
+
+
+             //续约
+            contract(){
+                this.contractisshow=true
+            },
+            //续约开始时间选择
+            changecontractbTime(date){
+                this.contractvalidateForm.startDate=date
+            },
+             //续约结束时间选择
+            changecontracteTime(date){
+                this.contractvalidateForm.endDate=date
+            },
+            //续约确认GET /caregivers/contract/{id} 续约
+            contractSure(){
+                this.$refs.contractform.validate().then((result) => {
+                    if(result){
+                        this.axios.get('/caregivers/contract/'+this.indexId+'?uid='+this.uid,{
+                            params:{
+                                startDate:this.contractvalidateForm.startDate,
+                                endDate:this.contractvalidateForm.endDate,
+                                remark:this.contractvalidateForm.remark,
+                            }
+                        }).then(res=>{
+                            if(res.data.status==200){
+                                this.addStoreInfo()
+                                this.getStoreList(1)
+                                this.contractisshow=false
+                                this.contractvalidateForm.startDate=''
+                                this.contractvalidateForm.endDate=''
+                                this.contractvalidateForm.remark=''
+                                this.$notify({
+                                    title:"",//
+                                    message:"续约成功",
+                                    type: 'success',
+                                    position: 'bottom-right'
+                                });
+                            }else{
+                                this.$notify({
+                                    title:"",//
+                                    message: res.data.errorMessage,
+                                    type: 'error',
+                                    position: 'bottom-right'
+                                });
+                            }
+                        })
+                    }
+                })
+            },
+            //取消续约确认
+            contractCancel(){
+                this.contractisshow=false
+                this.contractvalidateForm.startDate=''
+                this.contractvalidateForm.endDate=''
+                this.contractvalidateForm.remark=''
+            },
+
+            //详情
+            addborderdefails(index){
+                this.num5=index
+                switch(this.num5){
+                    case 0:
+                        this.getOrderDetails()
+                    break;
+                    case 1:
+                        this.getaunt()
+                    break;
+                }
+            },
+            changeSize0(size){
+                this.current0=size
+            },
+            
+            //上传前
+            beforeAvatarUpload(file) {
+                const isJPG = file.type === 'image/jpeg';
+                const isPng = file.type === 'image/png';
+                const isLt2M = file.size / 1024 / 1024 < 2;
+                if (!isJPG && !isPng) {
+                      this.$notify({
+                        title: "",//'失败',
+                        message:this.$t('public.upJpngOrPng'),
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+                if (!isLt2M) {
+                     this.$notify({
+                        title: "",//'失败',
+                        message:this.$t('public.upJpngTwoM'),
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+                return isJPG || isPng && isLt2M;
+              },
+            //上传身份证照片成功
+            handleAvatarSuccess(res, file){
+                this.validateForm.imageUrl=res.rows.url
+            },
+            beforeAvatarUpload2(file) {
+                const isJPG = file.type === 'image/jpeg';
+                const isPng = file.type === 'image/png';
+                const isLt2M = file.size / 1024 / 1024 < 2;
+                if (!isJPG && !isPng) {
+                      this.$notify({
+                        title: "",//'失败',
+                        message:this.$t('public.upJpngOrPng'),
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+                if (!isLt2M) {
+                     this.$notify({
+                        title: "",//'失败',
+                        message:this.$t('public.upJpngTwoM'),
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+                return isJPG || isPng && isLt2M;
+              },
+            //上传身份证照片成功
+            handleAvatarSuccess2(res, file){
+                this.validateForm.imageUrl2=res.rows.url
+            },
+            //上传健康证成功
+            handleAvatarSuccessJ(res, file){
+                this.validateForm.imageUrlJ=res.rows.url
+            },
+            //上传医疗照护证成功
+            handleAvatarSuccessY(res, file){
+                this.validateForm.imageUrlY=res.rows.url
+            },
+            //获取地址
+            //省市区
+            handleChange(arr){
+                this.province = this.CodeToText[arr[0]]
+                this.city =this.CodeToText[arr[1]]
+                this.district = this.CodeToText[arr[2]]
+            },
+            //双击后可修改仓库信息
+            seeStoreInfo(id,index) {
+                this.addText = false;
+                this.xiugai=false
+                this.details=true
+                this.indexId = id;
+                this.numIndex = index;
+                this.xiugaibtn2=false
+                this.xiugaibtn1=true
+                
+                this.getStoreDetail(id);
+               
+            },
+            //详情
+            addStoreInfo() {
+                this.addText = true;
+                this.xiugaibtn2=false
+                this.xiugaibtn1=false
+                this.details=false
+                this.xiugai=false
+                this.selectedOptions2=['310000','310100','310107']//默认地址//上海市/市辖区/普陀区
+                this.address=''
+                this.validateForm.name=''
+                this.validateForm.mobile=''
+                this.validateForm.sfz=''//身份证
+                this.validateForm.year=''
+                this.validateForm.month=''
+                this.validateForm.day=''
+                this.validateForm.lxrname=''//紧急联系人
+                this.validateForm.lxrtel=''//紧急联系人电话
+                this.validateForm.hlbtime=''//服务时间
+                this.validateForm.hletime=''//服务时间
+                this.gender1=0
+                this.validateForm.address=''//详细地址
+                this.province=''
+                this.city=''
+                this.district=''
+                this.validateForm.imageUrl=''//身份证照片
+                this.validateForm.imageUrl2=''
+                this.validateForm.imageUrlJ=''//健康证
+                this.validateForm.imageUrlY=''//医疗照护证
+                this.validateForm.code=''//编号
+                this.validateForm.ymd=''
+                this.gender=0
+                this.first0=false
+                this.first1=false
+                this.first2=false
+                this.first3=false
+                this.first4=false
+                this.first5=false
+                this.first6=false
+                 this.validateForm.contractStart=''//合同开始时间
+                this.validateForm.contractEnd=''//合同结束时间
+            },
+            addbordersku(index){
+                this.num4=index
+            },
+            //取消保存
+            addCancel(){
+                this.addStoreInfo()
+            },
+            //取消修改
+            editCancel(){
+                this.seeStoreInfo(this.indexId,this.numIndex)
+            },
+             //GET /caregivers/query 护理员清单
+            getStoreList(s) {
+               this.axios.get('/caregivers/query?length=30&uid=' + this.uid+'&status='+s).then((res) => {
+                let data = res.data;
+                    if(res.data.status == '200') {
+                        this.storeList = data.rows;
+                        this.pageSize = data.pageSize;
+                        this.total = data.total;
+                        this.storeList.forEach(x=>{
+                            if(x.gender==1){    
+                                x.gender="男"
+                            }else{
+                                x.gender="女"
+                            }
+                        })
+                    }
+                })
+            },
+            addZero(num){
+                if (num<10){
+                    return "0"+num
+                }else{
+                    return num       
+                }
+            },
+             //保存POST /caregivers/add 新增护理员
+             saveAddInfo () {
+                this.$refs.form.validate().then((result) => {
+                    if(result){
+                        this.axios.post('/caregivers/add?uid='+this.uid,{
+                            name:this.validateForm.name,
+                            mobile:this.validateForm.mobile,
+                            identityCard:this.validateForm.sfz,//身份证
+                            birthday:this.validateForm.year+'/'+this.validateForm.month+'/'+this.validateForm.day,
+                            gender:this.gender,
+                            code:this.validateForm.code,//编号
+                            emergencyName:this.validateForm.lxrname,//紧急联系人
+                            emergencyCall:this.validateForm.lxrtel,//紧急联系人电话
+                            contractStart:this.validateForm.contractStart,//合同开始时间
+                            contractEnd:this.validateForm.contractEnd,//合同结束时间
+                            jobType:this.gender1,
+                            // serviceStartTime:this.validateForm.hlbtime,//服务时间
+                            // serviceEndTime:this.validateForm.hletime,//服务时间
+                            serviceStartTime:this.addZero(new Date(this.validateForm.hlbtime).getHours())+':'+this.addZero(new Date(this.validateForm.hlbtime).getMinutes()),//护理时间
+                            serviceEndTime:this.addZero(new Date(this.validateForm.hletime).getHours())+':'+this.addZero(new Date(this.validateForm.hletime).getMinutes()),//护理结束时间
+
+                            addressDetail:this.validateForm.address, //详细地址
+                            province:this.CodeToText[this.selectedOptions2[0]],
+                            city:this.CodeToText[this.selectedOptions2[1]],
+                            district:this.CodeToText[this.selectedOptions2[2]],
+                            monday: this.first0,
+                            tuesday: this.first1,
+                            wednesday: this.first2,
+                            thursday: this.first3,
+                            friday: this.first4,
+                            saturday: this.first5,
+                            sunday: this.first6,
+                            identityCardPic:this.validateForm.imageUrl,//身份证照片
+                            identityCardBackPic:this.validateForm.imageUrl2,//身份证背面照片
+                            healthCertificatePic:this.validateForm.imageUrlJ,//健康证
+                            medicalCertificatePic:this.validateForm.imageUrlY,//医疗照护证
+                        }).then(res=>{
+                            if(res.data.status==200){
+                                this.addStoreInfo()
+                                this.getStoreList(1)
+                                this.$notify({
+                                    title:"",//
+                                    message:"保存成功",
+                                    type: 'success',
+                                    position: 'bottom-right'
+                                });
+                            }else{
+                                this.$notify({
+                                    title:"",//
+                                    message: res.data.errorMessage,
+                                    type: 'error',
+                                    position: 'bottom-right'
+                                });
+                            }
+                        })
+                    }
+                })
+            },
+            //GET /caregivers/getDetail/{id} 护理员详情
+            getStoreDetail(id) {
+                this.axios.get('/caregivers/getDetail/'+this.indexId+'?uid='+this.uid).then(res=>{
+                    if(res.data.status==200){
+                        let rows=res.data.rows
+                        this.storeDetails=rows
+                            this.validateForm.name=rows.name
+                            this.storeTxt =rows.code
+                            this.validateForm.mobile=rows.mobile
+                            this.validateForm.sfz=rows.identityCard//身份证
+                          
+                            this.gender=rows.gender
+                            this.validateForm.lxrname=rows.emergencyName//紧急联系人
+                            this.validateForm.lxrtel=rows.emergencyCall//紧急联系人电话
+                            this.validateForm.contractStart=rows.contractStart//合同开始时间
+                            this.validateForm.contractEnd=rows.contractEnd//合同结束时间
+                            this.validateForm.code=rows.code//编号
+                            // this.validateForm.hlbtime=rows.serviceStartTime//服务时间
+                          
+                            // this.validateForm.hletime=rows.serviceEndTime//服务时间
+                            let date=new Date()
+                            let year=date.getFullYear()
+                            let month=date.getMonth()+1
+                            let day=date.getDate()
+                            let Minutes=date.getMinutes()
+                       
+                            // this.validateForm.hlbtime=rwos.purposeStartTime//护理时间
+                            console.log(rows.serviceStartTime)
+                            if(rows.serviceStartTime=="NaN:NaN"){
+                                this.validateForm.hlbtime=""
+                            }else{
+                                let Time=year+'-'+month+'-'+day+' '+rows.serviceStartTime
+                                
+                                this.validateForm.hlbtime=new Date(Time)//护理时间
+                            }
+                            if(rows.serviceEndTime=="NaN:NaN"){
+                                this.validateForm.hletime=""
+                            }else{
+                                let Time=year+'-'+month+'-'+day+' '+rows.serviceEndTime
+                                this.validateForm.hletime=new Date(Time)//护理时间
+                            }
+
+                            this.gender1=rows.jobType
+                            this.first0=rows.monday
+                            this.first1=rows.tuesday
+                            this.first2=rows.wednesday
+                            this.first3=rows.thursday
+                            this.first4=rows.friday
+                            this.first5=rows.saturday
+                            this.first6=rows.sunday
+                            this.validateForm.imageUrl=rows.identityCardPic//身份证照片
+                            this.validateForm.imageUrl2=rows.identityCardBackPic//身份证照片
+                            this.validateForm.imageUrlJ=rows.healthCertificatePic//健康证
+                            this.validateForm.imageUrlY=rows.medicalCertificatePic//医疗照护证
+                            this.getOrderDetails()//护理员工单
+                            switch(rows.status){
+                                case 1://正常
+                                    this.start1=true//提交
+                                    this.stop1=false//终止
+                                    this.pdisshow=true//派单
+                                break;
+                                case 3://合约中
+                                    this.start1=false
+                                    this.stop1=true
+                                    this.pdisshow=false
+                                break;
+                                case 9://终止
+                                    this.start1=false
+                                    this.stop1=false
+                                    this.pdisshow=false//派单
+                                break;
+                            }
+                            this.validateForm.address=rows.addressDetail //详细地址
+                            this.province=rows.province
+                            this.city=rows.city
+                            this.district=rows.district
+
+                        if(this.province==null||this.province=='' || this.city==null||this.city=='' || this.district==null||this.district==''){
+                            this.selectedOptions2=['310000','310100','310107']
+                        }else{
+                            this.selectedOptions2=[this.TextToCode[this.province].code,this.TextToCode[this.province][this.city].code,this.TextToCode[this.province][this.city][this.district].code]
+                        }
+                        let darArr=[]
+                        if(rows.birthday==""){
+                            rows.birthday=''
+                            this.validateForm.year=''
+                             this.validateForm.month=''
+                             this.validateForm.day=''
+                        }else{
+                            darArr=rows.birthday.split('/')
+                            this.validateForm.year=darArr[0]
+                            this.validateForm.month=darArr[1]
+                            this.validateForm.day=darArr[2]
+                        }
+                         
+                    }
+                })
+            },
+            //点击修改
+            updateStoreInfo1:function () {
+                this.xiugai=true
+                this.details=false
+                this.addText=false
+                this.xiugaibtn2=true
+                this.xiugaibtn1=false
+            },
+            //执行修改PUT /caregivers/update 修改护理员
+            updateStoreInfo2(){
+                this.$refs.Editform.validate().then((result) => {
+                    if(result){
+                        this.axios.put('/caregivers/update?uid='+this.uid,{
+                            id: this.indexId,
+                            name:this.validateForm.name,
+                            mobile:this.validateForm.mobile,
+                            identityCard:this.validateForm.sfz,//身份证
+                            birthday:this.validateForm.year+'/'+this.validateForm.month+'/'+this.validateForm.day,
+                            gender:this.gender,
+                            code:this.validateForm.code,//编号
+                            emergencyName:this.validateForm.lxrname,//紧急联系人
+                            emergencyCall:this.validateForm.lxrtel,//紧急联系人电话
+                            contractStart:this.validateForm.contractStart,//合同开始时间
+                            contractEnd:this.validateForm.contractEnd,//合同结束时间
+                            serviceStartTime:this.addZero(new Date(this.validateForm.hlbtime).getHours())+':'+this.addZero(new Date(this.validateForm.hlbtime).getMinutes()),//护理时间
+                            serviceEndTime:this.addZero(new Date(this.validateForm.hletime).getHours())+':'+this.addZero(new Date(this.validateForm.hletime).getMinutes()),//护理结束时间
+
+                            jobType:this.gender1,
+                            addressDetail:this.validateForm.address, //详细地址
+                            province:this.province,
+                            city:this.city,
+                            district:this.district,
+                            monday: this.first0,
+                            tuesday: this.first1,
+                            wednesday: this.first2,
+                            thursday: this.first3,
+                            friday: this.first4,
+                            saturday: this.first5,
+                            sunday: this.first6,
+                            identityCardPic:this.validateForm.imageUrl,//身份证照片
+                            identityCardBackPic:this.validateForm.imageUrl2,//身份证照片
+                            healthCertificatePic:this.validateForm.imageUrlJ,//健康证
+                            medicalCertificatePic:this.validateForm.imageUrlY,//医疗照护证
+                        }).then(res=>{
+                            if(res.data.status==200){
+                                this.addStoreInfo()
+                                this.getStoreList(this.value)
+                                this.seeStoreInfo(this.indexId,this.numIndex)
+                                this.$notify({
+                                    title:"",//
+                                    message:"修改成功",
+                                    type: 'success',
+                                    position: 'bottom-right'
+                                });
+                            }else{
+                                this.$notify({
+                                    title:"",//
+                                    message: res.data.errorMessage,
+                                    type: 'error',
+                                    position: 'bottom-right'
+                                });
+                            }
+                        })
+                    }
+                })
+            },
+            //提交后的搜索当前的客户的状态
+             //GET /caregivers/query 护理员清单
+            getStoreListS(s) {
+               this.axios.get('/caregivers/query?length=30&uid=' + this.uid+'&status='+s).then((res) => {
+                let data = res.data;
+                    if(res.data.status == '200') {
+                        this.storeList = data.rows;
+                        this.pageSize = data.pageSize;
+                        this.total = data.total;
+                        this.storeList.forEach(x=>{
+                            if(x.gender==1){    
+                                x.gender="男"
+                            }else{
+                                x.gender="女"
+                            }
+                        })
+                        if(this.storeList.length!=0){
+                            this.seeStoreInfo(this.storeList[0].id,0)
+                        }
+                    }
+                })
+            },
+             //提交
+            comite(){
+                this.axios.get('/caregivers/enabled/'+this.indexId+'?uid='+this.uid).then(res=>{
+                    if(res.data.status==200){   
+                        this.$notify({
+                            title:"",//
+                            message:"已提交",
+                            type: 'success',
+                            position: 'bottom-right'
+                        });
+                       this.getStoreListS(this.value);
+                        // this.seeStoreInfo(this.indexId,this.numIndex)
+                    }else{
+                        this.$notify({
+                            title:"",//
+                            message:res.data.errorMessage,
+                            type: 'error',
+                            position: 'bottom-right'
+                        });
+                    }
+                })
+            },
+            //caregivers/disabled/{id}终止
+            stop(){
+                this.axios.get('/caregivers/disabled/'+this.indexId+'?uid='+this.uid).then(res=>{
+                    if(res.data.status==200){   
+                        this.$notify({
+                            title:"",//
+                            message:"已终止",
+                            type: 'success',
+                            position: 'bottom-right'
+                        });
+                        this.getStoreListS(this.value);
+                        // this.getStoreList(this.value);
+                        // this.seeStoreInfo(this.indexId,this.numIndex)
+                    }else{
+                        this.$notify({
+                            title:"",//
+                            message:res.data.errorMessage,
+                            type: 'error',
+                            position: 'bottom-right'
+                        });
+                    }
+                })
+            },
+            //派单跳转新建工单页面把当前数据带过去
+            pdUser(){
+                this.$router.push({
+                    name:"addWordOrder",
+                    params:{
+                        item:this.storeDetails
+                    }
+                })
+            },
+            //删除
+            delUser(){
+                this.$Modal.confirm({
+                    title: '删除护理员',
+                    content: '<p>确定要删除吗?删除后信息将不可恢复！</p>',
+                    onOk: () => {
+                        this.axios.delete('/caregivers/delete/'+this.indexId+'?uid='+this.uid).then(res=>{
+                            if(res.data.status==200){   
+                                this.$notify({
+                                    title:"",//
+                                    message:"已删除",
+                                    type: 'success',
+                                    position: 'bottom-right'
+                                });
+                                this.getStoreListS(this.value);
+                            }else{
+                                this.$notify({
+                                    title:"",//
+                                    message:res.data.errorMessage,
+                                    type: 'error',
+                                    position: 'bottom-right'
+                                });
+                            }
+                        })
+                    },
+                   
+                });
+                
+            },
+           
+            //点击差号
+            cancelHome(){
+                this.$router.push('/attendantIndex')
+            },
+            //下拉加载更多
+            handleReachEdge(){
+                this.current++//默认10条
+                this.axios.get('caregivers/query?length=30&offset='+this.current+'&uid='+this.uid+'&status='+this.value).then(res=>{
+                    if(this.current>Math.ceil(this.total/this.pageSize)){
+                        this.current=Math.ceil(this.total/this.pageSize)
+                    }
+                    if(res.data.status==200){
+                        res.data.rows.forEach(x=>{
+                            this.storeList.push(x)
+                            this.storeList.forEach(x=>{
+                                    if(x.gender==1){    
+                                        x.gender="男"
+                                    }else{
+                                        x.gender="女"
+                                    }
+                            })
+                        })
+                        
+                    }
+                })
+            },
+            //详情工单1GET /workOrder/query 工单清单
+            getOrderDetails(){
+                this.axios.get('/workOrder/query?uid='+this.uid,{
+                    params:{
+                        caregiversCode:this.storeTxt
+                    }
+                }).then(res=>{
+                    let data=res.data
+                    this.gdhistory=data.rows
+                    this.total1=data.total
+                    this.pageSize1=data.pageSize
+                    this.gdhistory.forEach(x=>{
+                        this.getWeek(x)
+                        if(x.reportType==0){
+                            x.reportType='系统'
+                        }else{
+                            x.reportType='手动'
+                        }
+                        x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+                        x.endTime=new Date(Number(x.endTime)).toTimeString().substring(0, 5)
+                        x.startTime=new Date(Number(x.startTime)).toTimeString().substring(0, 5)
+                         x.actEndTime= new Date(x.actEndTime).toTimeString().substring(0, 5)
+                        x.actStartTime= new Date(x.actStartTime).toTimeString().substring(0, 5)
+                    })
+                   
+                })
+            },
+            changeSize1(size){
+                this.current1=size
+                this.axios.get('/workOrder/query?uid='+this.uid,{
+                    params:{
+                        caregiversCode:this.storeTxt,
+                        offset:this.current1
+                    }
+                }).then(res=>{
+                    let data=res.data
+                    this.gdhistory=data.rows
+                    this.total1=data.total
+                    this.pageSize1=data.pageSize
+                    this.gdhistory.forEach(x=>{
+                        this.getWeek(x)
+                        if(x.reportType==0){
+                            x.reportType='系统'
+                        }else{
+                            x.reportType='手动'
+                        }
+                        x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+                        x.endTime=new Date(Number(x.endTime)).toTimeString().substring(0, 5)
+                        x.startTime=new Date(Number(x.startTime)).toTimeString().substring(0, 5)
+                         x.actEndTime= new Date(x.actEndTime).toTimeString().substring(0, 5)
+                        x.actStartTime= new Date(x.actStartTime).toTimeString().substring(0, 5)
+                    })
+                   
+                })
+            },
+            //GET /caregivers/AByC 护理员绑定客户列表
+            getaunt(){
+                this.axios.get('/caregivers/AByC?uid='+this.uid,{
+                    params:{
+                        id:this.indexId,
+                        status:3
+                    }
+                }).then(res=>{
+                    if(res.data.status==200){
+                        let data=res.data
+                        this.ZDhistory=data.rows
+                        this.total2=data.total
+                        this.pageSize2=data.pageSize
+                        this.ZDhistory.forEach(x=>{
+                            this.getWeek(x)
+                            x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+
+                            // x.purposeEndTime=new Date(x.purposeEndTime).toTimeString().substring(0, 5)
+                            // x.purposeStartTime=new Date(x.purposeStartTime).toTimeString().substring(0, 5)
+                            console.log(x.purposeEndTime)
+                           
+                        })
+                    }
+                })
+            },
+            //翻页
+            changeSize2(size){
+                this.current2=size
+                this.axios.get('/caregivers/AByC?uid='+this.uid,{
+                    params:{
+                        id:this.indexId,
+                        offset:this.current2
+                    }
+                }).then(res=>{
+                    if(res.data.status==200){
+                        let data=res.data
+                        this.ZDhistory=data.rows
+                        this.total2=data.total
+                        this.pageSize2=data.pageSize
+                        this.ZDhistory.forEach(x=>{
+                            this.getWeek(x)
+                            x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+                            x.purposeEndTime=new Date(Number(x.purposeEndTime)).toTimeString().substring(0, 5).replace('Inval','')
+
+                            x.purposeStartTime=new Date(Number(x.purposeStartTime)).toTimeString().substring(0, 5).replace('Inval','')
+                        })
+                    }
+                })
+            },
+            //转化星期
+        getWeek(x){
+            if(x.monday){
+                x.monday="服务"
+            }else{x.monday="休息"}
+            if(x.tuesday){
+                x.tuesday="服务"
+            }else{x.tuesday="休息"}
+            if(x.wednesday){
+                 x.wednesday="服务"
+            }else{x.wednesday="休息"}
+            if(x.thursday){
+                x.thursday="服务"
+            }else{x.thursday="休息"}
+            if(x.friday){
+                 x.friday="服务"
+            }else{x.friday="休息"}
+            if(x.saturday){
+                x.saturday="服务"
+            }else{x.saturday="休息"}
+            if(x.sunday){
+                x.sunday="服务"
+            }else{x.sunday="休息"}
+        },
+        },
+        mounted() {
+
+            if(this.$route.query.id){
+                this.indexId= this.$route.query.id;
+                this.numIndex = this.$route.query.index;
+                this.value=this.$route.query.s;
+                this.getStoreList(this.value);
+                this.seeStoreInfo(this.indexId,this.numIndex)
+                this.getStoreDetail(this.indexId)
+            }else{
+                this.getStoreList(1);
+            }
+            this.height = document.documentElement.clientHeight
+            window.onresize=function(){
+                this.height = document.documentElement.clientHeight
+            }
+        }
+    }
+</script>
+<style  scoped>
+.title-txt{
+    font-size:16px;
+    font-weight:600;
+    margin:10px 0;
+}
+.tot{
+    position:fixed;
+    bottom:10px;
+    left:15%;
+    z-index:12;
+}
+.lanrenLeft{
+    position: absolute;
+    text-align: center;
+    top: 0px;
+    right: 0px;
+    width: 0;
+    height: 0;
+    border-top:40px solid #d53c39;
+    border-left:40px solid transparent;
+}
+.lanrenLeft span{
+width: 40px;
+    height: 23px;
+    color: #fff;
+    display: block;
+    position: relative;
+    z-index: 9999999999999;
+    top: -36px;
+    right: 36px;
+    font-size: 12px;
+     font-weight: 100;
+    transform: rotate(46deg);
+}
+.bgd4{
+    border-top:40px solid #40ca98;
+}
+/*状态的颜色 新增*/
+.bgd5{
+    border-top:40px solid #3b77e3;
+}
+/*状态的颜色 已停用*/
+.bgd6{
+    border-top:40px solid #d53c39;
+}
+.bgd61{
+    border-top:40px solid #d53c39;
+}
+.top-left-btn{
+        background: #3B77E3;
+        margin-left: 10px;
+        color: #fff;
+        border: none;
+        width: 26px;
+        height: 26px;
+        border-radius: 26px;
+        display: inline-block;
+        position: relative;
+
+        top: 12px;
+    }
+    .top-left-btn1{
+        background: #FF7D16;
+    }
+    .top-left-btn:hover{
+        cursor:pointer;
+    }
+    .add-box {
+        width: 100%;
+        height:100%;
+        overflow: hidden!important;
+    }
+    .cheng{
+        width: 100%;
+        height: 40px;
+        /*margin-top: 10px;*/
+    }
+    .add-header{
+        width: 100%;
+        height: 60px;
+        line-height: 60px;
+        z-index: 1;
+        background: #ffffff;
+        display: flex;
+        justify-content: space-between;
+       border-bottom:1px solid #e4e4e4;
+    }
+    .main-btm{
+        margin-bottom: 180px
+    }
+    .top{
+        display:flex;
+        height:60px;
+        line-height: 60px;
+        position:fixed;
+        width:100%;
+        z-index:9;
+        background: #fff;
+       border-bottom:1px solid #eee;
+    }
+   .left-top{
+    border-right:1px solid #eee;
+   }
+    .left-top{
+        display:flex;
+        justify-content: space-between;
+        /* align-items: center; */
+        padding:0 10px;
+        /* height:60px; */
+        width:360px;
+        flex: 0 0 360px;
+        /* line-height: 60px; */
+    }
+    .imgBg{
+        position:absolute;top:0;left:0;width:100%;height:100%;text-align:center;margin:0 auto;background:#ccc;opacity:0.5
+    }
+    .cklogos{
+        width:178px;height:178px;display: flex;flex-wrap:wrap;margin:5px;position:relative;cursor:pointer
+    }
+.avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #20a0ff;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 300px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+  .avatar {
+    width: 290px;
+    height: 178px;
+    display: block;
+  }
+    .right-top{
+        display: flex;
+        justify-content: space-between;
+        width:100%;
+    }
+     .top button{
+
+        cursor:pointer;
+    }
+
+    .right-top button:hover{
+        color:#478FCA;
+    }
+    .right-top button img{
+        position:relative;
+        left:0px;
+        top:-2px;
+        vertical-align: middle
+    }
+
+    .add-box:after {
+        content: '';
+        display: block;
+        clear: both;
+    }
+
+    .add-left {
+        width:360px;
+        flex:0 0 360px;
+        display:flex;
+         background:#fff;
+    }
+    .left-content {
+        height:100%;
+        width:100%;
+        margin-bottom:100px;
+        border-right:1px solid #E6E6E6;
+    }
+    .page-box {
+
+        background: #fff;
+        position:fixed;
+        bottom:45px;
+    }
+
+    .ivu-icon-navicon {
+        font-size: 20px;
+    }
+.textbg1{
+    color:#40ca98
+    }
+    .textbg2{
+        color:#d53c39;
+    }
+  .detail-top{
+
+        margin-top:20px;
+    }
+
+.con-list {
+        display:flex;
+        align-items: center;
+        width: 100%;
+        word-wrap:break-word;
+
+        border-bottom: solid 1px #E6E6E6;
+        padding: 15px 25px;
+
+        cursor: pointer;
+        position:relative;
+    }
+    .con-list:hover{
+        cursor:pointer;
+    }
+    .con-list .date{
+        position:absolute;
+        right:5px;
+        top:50px;
+    }
+    .con-list .date1{
+        position:absolute;
+        right:70px;
+        top:50px;
+    }
+    .con-list .status{
+        width:100px;
+
+        text-align: center;
+        position: absolute;
+        right: 0px;
+        top: 47px;
+    }
+    .con-list .list-title {
+        color: #0d0d0d;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+    .con-list:last-child{
+       margin-bottom: 150px;
+    }
+
+
+.con-list .txt {
+    color: #585858;
+    font-size: 12px;
+    width: 180px;
+    position: absolute;
+    top: 40px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+    div.con-list:last-child{
+        margin-bottom:300px;
+    }
+
+    .add-right {
+        width:100%;
+        height: 100%;
+        /*padding-top:30px;*/
+        background: #fff;
+        overflow: auto;
+        position:relative;
+    }
+    .right-title p {
+        width: 150px;
+        font-size: 14px;
+        color: #585858;
+    }
+
+    .title-btn {
+        float: right;
+        width: auto;
+        height: 40px;
+        margin-top: -10px;
+    }
+
+    .title-btn button {
+        width: 80px;
+        border-radius: 8px;
+        font-size: 14px;
+        line-height: 40px;
+        border: 0;
+    }
+
+    .right-content {
+       width: 100%;
+    height: 100%;
+
+    padding: 25px;
+
+    margin-bottom: 280px;
+    }
+
+    .code-box {
+        width: 40%;
+        height: 40px;
+        /*float: left;*/
+        margin-bottom: 5px;
+        position: relative;
+    }
+
+    .code-box img {
+
+    }
+
+    .code-box:after {
+        content: '';
+        display: block;
+        clear: both;
+    }
+
+    .code-box p {
+        color: #585858;
+        font-size: 12px;
+        float: left;
+        width: auto;
+        height: 35px;
+        line-height: 35px;
+        text-align: left;
+    }
+
+    .code-box input {
+        /*width: 80%;*/
+        height: 35px;
+        border: 1px solid #ececec;
+        border-radius: 4px;
+        padding: 0 10px;
+        float: left;
+    }
+  .lanren {
+    position: absolute;
+    text-align: center;
+    top: 0px;
+    right: 0px;
+    width: 0;
+    height: 0;
+    border-top: 80px solid #d53c39;
+    border-left: 80px solid transparent;
+}
+.lanren span{
+    width: 60px;
+    height: 60px;
+    color: #fff;
+    display: block;
+    position: relative;
+
+    top: -70px;
+    right: 70px;
+    font-size: 16px;
+    font-weight: 900;
+    transform: rotate(46deg);
+}
+.bgd1{
+    border-top: 80px solid #3b77e3;
+}
+.bgd2{
+    border-top: 80px solid #d53c39;
+}
+.bgd21{
+    border-top:80px solid #40ca98;
+}
+/*状态的颜色 已停用*/
+.bgd22{
+    border-top:80px solid #d53c39;
+}
+ .title{
+        display:flex;justify-content: space-between;margin-top:20px
+    }
+    .title:hover{
+       }
+    .map-box {
+        width: 98%;
+        height: 180px;
+
+    }
+
+    button {
+        outline: none;
+    }
+
+    input {
+        outline: none;
+    }
+
+    option {
+        outline: none;
+    }
+
+
+     .btn-group{
+        display:flex;
+        margin:20px 0 0 43px;
+    }
+
+    .btns {
+        width: 80px;
+        height: 40px;
+        text-align: center;
+        line-height: 40px;
+        font-size: 14px;
+        color: #0d0d0d;
+        padding: 0 12px;
+        border: 1px solid #ececec;
+        border-radius: 6px;
+        margin-left: 12px;
+    }
+     .detail-title-mark{
+        display:flex;
+        justify-content: flex-start;
+        border-bottom:1px solid #eee;
+        margin-top:1px;
+        margin-left: 10px;
+    }
+    .detail-title{
+        padding:10px 40px;
+
+    }
+    .detail-public{
+        width:100%;
+        margin:10px;
+    }
+    .bor{
+       border-bottom:2px solid #086CA2;
+    }
+
+  .imgnifo{
+    width:80px;
+    display:block;
+   margin-top:63px;
+
+   height:30px;
+   text-align: right
+  }
+  .bg{
+    background-color: #dbe5f1
+  }
+.code-box .btn-group .week{
+    cursor:default;
+    position:relative;
+}
+.code-box .btn-group img{
+    position:absolute;
+    top:15px;
+    left:60px
+    }
+li{
+    list-style: none
+}
+ .detail-top li{
+    list-style: none;
+  margin:0 20px 0 0;
+}
+   
+.detail-top li span.blackinfo-left{
+	color: #2B8F8F;
+	/* margin: 0px 10px; */
+	font-weight: 600;
+	
+}
+</style>
+

@@ -1,0 +1,64 @@
+<template>
+	<div class='jxc'>
+		<v-user :data='data' :titleName='titleName'></v-user>
+	</div>
+</template>
+<script type="text/javascript">
+import user from '../components/common/publicUser'
+export default{
+	components:{
+		'v-user':user
+	},
+	data(){
+		return{
+			user:this.$store.state.common.user,
+			data:[
+				{
+					title:this.$t('public.overview'),//"概览",
+					url:"/purchase",
+					icon:"http://img.zsydian.com/icon/gl.png",
+					 icon1:"http://img.zsydian.com/icon/gl1.png",
+				},
+				{
+					title:this.$t('sideBar.purchase.supplier'),//"供应商",
+					url:"/supplier",
+					icon:"http://img.zsydian.com/icon/gys.png",
+          			icon1:"http://img.zsydian.com/icon/gys1.png",
+				},
+				{
+					title:"采购",//"采购订单",
+					url:"/purchasehome",
+					// url:"/purchase",
+					icon:"http://img.zsydian.com/icon/cg.png",
+					icon1:"http://img.zsydian.com/icon/cg1.png",
+				},
+				{
+					title:this.$t('sideBar.purchase.collect'),//"收货",
+					url:"/cgsend",
+					icon:"http://img.zsydian.com/icon/xx.png",
+					icon1:"http://img.zsydian.com/icon/xx1.png",
+				},
+				
+				// {
+				// 	title:"采购预测",
+				// 	url:"/prepo",
+				// 	icon:"http://img.zsydian.com/icon/cg.png",
+				// 	icon1:"http://img.zsydian.com/icon/cg1.png",
+				// },
+				
+				{
+		          title:this.$t('sideBar.manage.setting'),//"设置",
+		          icon:"http://img.zsydian.com/icon/setting.png",
+		          icon1:"http://img.zsydian.com/icon/setting1.png",
+		          url:"/purchaseSetting",
+		        },
+				
+
+			],
+			titleName:this.$t('sideBar.purchase.title'),//'采购'
+		}
+	}
+}
+</script>
+<style type="text/css">
+</style>

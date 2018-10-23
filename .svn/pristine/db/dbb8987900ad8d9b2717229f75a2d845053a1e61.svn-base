@@ -1,0 +1,358 @@
+<template>
+	<div class="addShopQuota">
+		<!--新增指标-->
+		<!--header-->
+		<div>
+			<div class="header-left">
+				<span >全部指标清单</span>
+				<div class="btns" style="margin-top:8px;background:#0d8abc;color:#fff;" type="ghost" @click="add"><Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>新增</div>
+			</div>
+			<div class="btngroup">
+				<div class="btns" type="ghost" @click="" v-if="addText" style="background:#0d8abc;color:#fff;">保存</div>
+				<div class="btns" type="ghost" @click="" v-if="!addText"  style="background:#0d8abc;color:#fff;">修改</div>
+				<Poptip placement="bottom-start">
+					<div class="btns" type="ghost" style="color:#0d8abc;font-size:14px;" width='60px'>更多
+						<span><i class="ivu-icon ivu-icon-chevron-down"></i></span>
+					</div>
+					<div slot="content" class="more-btn" style="width:60px;text-align:center">
+						<p @click="del" style="color:#0d8abc;font-size:14px;margin-top:10px;">删除</p>
+					</div>
+				</Poptip>
+			</div>
+		
+		</div>
+		<div style="height:60px;width:100%"></div>
+		<!--左边列表内容-->
+		<Row>
+			<Col span="8">
+				<div class="left">
+					<div class="left-brand-list" v-for="(item,index) in ShopQuotaList" @click="clickInfo(item.id,index)" :class="{bg:numIndex==index}">
+						<div>
+							<p>成交数：{{item.dealPeople}}</p>
+							<p style="margin-top:20px">销售量：{{item.salesNum}}</p>
+						</div>
+						<div>
+							<p>会员消费金额：{{item.crmmSalesAmount}}</p>
+							<p style="margin-top:20px">会员完成率：<span>{{item.crmRate }}</span></p>
+
+						</div>
+					</div>
+				</div>
+			</Col>
+			<!--右边详情-->
+			<Col span="16" v-if='addText'>
+				<div class="right-main">
+
+					<div class="right">
+						<a href="">kpi</a>
+						<div class="couponDiv" >
+							<span>销售量：</span>
+							<Input type="text" v-model="salesNum"></Input>
+						</div>
+						<div class="couponDiv" >
+							<span>成交数：</span>
+							<Input type="text" v-model="dealPeople"></Input>
+						</div>
+						<div class="couponDiv" >
+							<span>销售目标：</span>
+							<Input type="text" v-model="totalSales"></Input>
+						</div>
+						<div class="couponDiv" >
+							<span>试用数：</span>
+							<Input type="text" v-model="tryPeoople"></Input>
+						</div>
+						<div class="couponDiv" >
+							<span>目标销售额：</span>
+							<Input type="text" v-model="salesAmount"></Input>
+						</div>
+						
+						
+					</div>
+					<div class="right" style="margin-top:14px">
+						<div class="couponDiv" >
+							<span>目标会员数：</span>
+							<Input type="text" v-model="totalSales"></Input>
+						</div>
+						<div class="couponDiv" >
+							<span>会员消费金额：</span>
+							<Input type="text" v-model="crmmSalesAmount"></Input>
+						</div>
+						<div class="couponDiv" >
+							<span>会员消费人数：</span>
+							<Input type="text" v-model="crmSalesNum"></Input>
+						</div>
+						<div class="couponDiv" >
+							<span>开始时间：</span>
+							<Input type="text" v-model="startTime"></Input>
+						</div>
+						<div class="couponDiv" >
+							<span>结束时间：</span>
+							<Input type="text" v-model="endTime"></Input>
+						</div>
+					</div>
+				</div>
+			</Col>
+			<!--修改显示-->
+			<Col span="16" v-if='!addText'>
+				<div class="right">
+					sd
+					
+				</div>
+			</Col>
+		</Row>
+	
+	</div>
+</template>
+<script type="text/javascript">
+	export default{
+		name:"addShopQuota",
+		data(){
+			return{
+				uid: this.$store.state.common.token,
+				addText:true,
+				startDate:"",
+				stopDate:"",
+				numIndex:0,
+				ShopQuotaId:'',
+				ShopQuotaList:[],//指标清单数据
+
+				salesNum:'',//销售量
+				dealPeople:'',//成交数
+				totalSales:'',//销售目标
+				tryPeoople:'',//试用数
+				storeId:'',//商店id
+				salesAmount:'',//目标销售额
+				importCrm:"",//目标会员数
+				crmmSalesAmount:'',//会员消费金额
+				crmSalesNum:"",//会员消费人数
+				startTime:"",//开始时间
+				endTime:"",//结束时间
+				type:'',// 0-按照星期统计KPI;1-按照月统计 
+				week:'',//周
+				month:"",//月
+				year:'',//年
+
+				employeeKpiVoList:[],//员工KPI
+				employeeId:"",//员工id
+				crmRate:"",//会员完成率
+				CRMsalesAmount:'',//员工销售额
+				CRMsalesRate:"",//员工销售额完成率
+				CRMstartTime:"",//员工开始时间
+				CRMendTime:"",//员工结束时间
+				CRMimportCrm:"",//员工导入会员数
+				CRMtype:'',// 0-按照星期统计KPI;1-按照月统计 
+				CRMweek:'',//周
+				CRMmonth:"",//月
+				CRMyear:'',//年
+			}
+		},
+		methods:{
+			//点击新增
+			add(){
+				this.addText = false
+			},
+		
+			
+			//获取生效时间
+			getStartDate(date){
+				this.startDate = date
+			},
+			//获取到期时间
+			getStopDate(date){
+				this.stopDate = date
+			},
+			
+			//保存新增指标
+			saveShopQuota(){
+				
+				this.axios.post('zb/add?uid='+this.uid,{
+
+					}).then((res)=>{
+						if(res.data.status==200){
+							this.$Notice.success({
+                                title: '新增',
+                                desc: '新增成功'
+                            });
+                           	this.add()
+							this.getAllShopQuota()
+						}else{
+							this.$Message.error(res.data.errorMessage);
+						}
+					})
+				
+			},
+			
+			//单击查看详情
+			clickInfo(id,index){
+				//console.log(id)
+				this.ShopQuotaId= id
+				this.numIndex = index
+				this.addText = false
+				this.getShopQuotaInfo(id)
+			},
+			getShopQuotaInfo(id){
+				this.axios.get('zb/get/'+id+'?uid='+this.uid).then((res)=>{
+					if(res.data.status==200){
+						console.log(res.data.rows)
+					}
+				})
+			},
+			//删除
+			del(){
+				if(!this.ShopQuotaId){
+					this.$Message.error('请点击左侧选择要删除的优惠券！');
+					return
+				}
+				console.log(this.ShopQuotaId)
+				this.axios.get('zb/delete/'+this.ShopQuotaId+'?uid='+this.uid).then((res)=>{
+					if(res.data.status==200){
+						this.$Notice.success({
+                           title:"",//
+                            desc: '删除成功'
+                        });
+					}else{
+						this.$Message.error(res.data.errorMessage);
+					}
+				})
+			},
+			
+			//获取所有指标
+			getAllShopQuota(){
+				this.axios.get('/zb/query?uid='+this.uid).then((res)=>{
+					if(res.data.status==200){
+						console.log(res.data.rows.rows)
+
+						this.ShopQuotaList = res.data.rows.rows
+						this.ShopQuotaList.forEach((item,index)=>{
+							item.useDateFromLimit = new Date(item.useDateFromLimit).toLocaleString().replace(/\//g,'-')
+							item.useDateToLimit = new Date(item.useDateToLimit).toLocaleString().replace(/\//g,'-')
+						})
+					}else{
+						this.$Message.error(res.data.errorMessage);
+					}
+				})
+			},
+			//选择优惠券开始日期
+			getStartDate(date){
+				console.log(date)
+				this.useDateFromLimit= date
+			},
+			//选择优惠券到期日期
+			getStopDate(date){
+				console.log(date)
+				this.useDateToLimit= date
+			}
+		},
+		mounted(){
+			//id存在则加入查看详情，否则是点击了新增按钮
+			if(this.$route.query.id){
+				this.ShopQuotaId = this.$route.query.id//点击查看进来后，获取id
+				this.numIndex = this.$route.query.index//点击时哪一个
+				this.addText = false
+				this.getShopQuotaInfo(this.ShopQuotaId)//点击查看进来后，获取详情
+			}
+			this.getAllShopQuota()//获取所有优惠券
+		}
+	}
+</script>
+<style type="text/css" scoped>
+header{
+	display: flex;
+    height: 60px;
+    line-height: 60px;
+    position: fixed;
+    width: 87.5%;
+    z-index: 9;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    justify-content: space-between;
+}
+.header-left{
+	flex:1 0 auto;
+	text-align: right;
+	display:flex;
+	justify-content: space-around;
+	 height: 60px;
+    line-height: 60px;
+}
+
+.btngroup{
+	flex:3 0 auto;
+	text-align: right;
+	margin-right:30px;
+}
+.left,.right{
+	padding-top:20px;
+	
+} 
+.right-main{
+	display: flex
+}
+.right{
+	height:100%;
+	margin:0 0 0 20px
+}
+.left{
+	
+	margin-right:20px;
+	border-right:1px solid #eee;
+	overflow-y:hidden
+}
+.left-brand-list{
+	display:flex;
+	justify-content: space-between;
+	border-bottom:1px solid #eee;
+	
+	height:100px;
+	margin:0 auto;
+	padding:10px 20px;
+}
+.left-brand-list:hover{
+	cursor: pointer
+}
+.bg{
+	background:#f5f5f5;
+	/*border-color:#086CA2;*/
+}
+
+
+.btns {
+	display:inline-block;
+	height: 34px;
+	text-align: center;
+	line-height: 34px;
+	font-size: 14px;
+	color: #0d0d0d;
+	width:70px;
+	border: 1px solid #ececec;
+	border-radius: 6px;
+	margin-right:10px;
+}
+.page-box {
+	text-align: right;
+	margin:20px;
+}
+
+.input-row{
+	display:flex;
+	justify-content: space-around;
+	height:36px;
+	line-height: 36px;
+	margin-top:15px;
+	
+}
+
+.input-row span{
+	flex:0 0 auto;
+	letter-spacing: 1px
+}
+.couponDiv{
+	margin-top:10px;
+	display:flex;
+	justify-content: flex-start;
+	line-height: 26px
+}
+.couponDiv>span{
+	width:120px;
+}
+</style>

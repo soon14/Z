@@ -1,0 +1,52 @@
+<template>
+<div class="shophomepage">
+    <!-- <img src="../../../assets/addfirstbrand.jpg" alt="" class="shopLogo"> -->
+    <div class="text text1">创建第一个门店</div>
+    <div class="text text2">门店多多，流量多多</div>
+    <!--<router-link to="./ShopAdd" class="btn">立即添加</router-link>-->
+    <el-button type="primary" class="btn" @click="ShopAdd">立即添加</el-button>
+</div>
+</template>
+
+<script>
+    export default {
+        name: "ShopHomePage",
+        data(){
+            return{
+
+            }
+        },
+        methods:{
+            ShopAdd:function () {
+                this.$router.push('./ShopAdd');
+            }
+
+
+        }
+    }
+</script>
+
+<style scoped>
+    .shophomepage{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 130px;
+    }
+    .text{
+        text-align: center;
+    }
+    .text1{
+        color: #0d0d0d;
+        font-size: 16px;
+    }
+    .text2{
+        color: #bebebe;
+        font-size: 14px;
+        margin-bottom: 30px;
+    }
+    .btn{
+        width: 110px;
+        /*margin-left: 540px;*/
+    }
+</style>

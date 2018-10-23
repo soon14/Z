@@ -1,0 +1,514 @@
+<template>
+
+    <div class='login-box'>
+        <vue-particles
+        color="#fff"
+        :particleOpacity="0.7"
+        :particlesNumber="60"
+        shapeType="circle"
+        :particleSize="4"
+        linesColor="#fff"
+        :linesWidth="1"
+        :lineLinked="true"
+        :lineOpacity="0.4"
+        :linesDistance="150"
+        :moveSpeed="2"
+        :hoverEffect="true"
+        hoverMode="grab"
+        :clickEffect="true"
+        clickMode="push"
+        class="lizi"
+      >
+      </vue-particles>
+        <div class="position">
+            <div class='login-top'>
+                <div class='login-left'>
+                </div>
+                <div class='login-right'>
+                    <span style='color:#fff;margin-top:5px;font-size:16px;cursor:pointer' @click='regist'>
+                         <!--免费注册-->
+                         {{$t('login.free')}}
+                    </span>
+                     <!--语言选择-->
+                    <!-- <div style="margin-left:27px;cursor:pointer;margin-top:5px" >
+                        <Select size="small" style="width:100px;display:inline-block" @on-change="changeLangEvent" v-model='zh'>
+                            <Option v-for="(item,index) in storeType" :value='item.value' :key="index">{{ item.label }}</Option>
+                        </Select>
+                    </div> -->
+                   
+                </div>
+            </div>
+            <div class='login-center-top'>
+                <span class='top-title'>
+                    <a :href="backUrl" target="_blank"><img src="http://img.zsydian.com/icon/navigation_step_logo.png"></a>
+                    <b style="display:block;margin-top:5px">智胜云  助力零售数智化转型</b>
+                </span>
+            </div>
+            <div class='login-in'>
+                <div class='login-flex'>
+                <div class='login-l-title'>
+                    <span class='title-l'>{{act}}</span><!--账号登陆-->
+                    <div>
+                        <img :src="item" v-for='(item,index) in imgArr' v-if='index==numindex' :key='index' width='60' height='60'@click='clickImg(index)'>
+                    </div>
+                </div>
+                <div v-if='!isewm'>
+                    <div class='ewm' >
+                        <div class="erweima-box">
+                            <!--登录的二维码-->
+                            <!-- <div class="erweima" id="erweima">
+                                
+                            </div> -->
+                            <img src="http://img.zsydian.com/icon/androidCode.png" alt="">
+                        </div>
+                        <span style='color:#345C87;margin-top:10px;padding-bottom: 100px;'>用app扫描上放二维码登录到零链智能平台</span>
+                    </div>
+                </div>
+                <div v-if='isewm' style='width:100%;padding:0 30px'>
+                    <div class='login-l'  style=';border:none'>
+                       <mu-text-field  v-model="username"  :label="$t('login.Rmobile')" :placeholder="$t('login.RmobilePlaceholder')" style='width:100%'></mu-text-field><br/>
+                        
+                    </div>
+                    <div class='login-l' style='border:none;margin:0'>
+                        <mu-text-field v-model="pss" 
+                        :label="$t('login.loginPassword')" 
+                        :placeholder="$t('login.RpasswordPlaceholder')" 
+                        style='width:100%'
+                        autocomplete="new-password"
+                        :action-icon="visibility ? 'visibility' : 'visibility_off'" 
+                        :action-click="()=>{visibility = !visibility}" 
+                        :type="visibility ? 'text' : 'password'"
+                        @keyup.enter='enterLogin'
+                        ></mu-text-field><br/>
+                    </div>
+                    <div class="zdlogin">
+                        <div style='color:#989898'>
+                            <Checkbox v-model='autoLogin' @on-change='autoLoginChange'></Checkbox>
+                            <span  class='threeZD'>{{$t('login.threeZD')}}</span><!--三天内自动登陆-->
+                        </div>
+                        <div @click="forgetPass" style='color:#989898;cursor:pointer' >
+                           <span class='threezc'>{{$t('login.forgetPss')}}?</span>
+                        </div><!--忘记密码-->
+                    </div>
+                    <div style='width:460px;color:#ff0000' v-if='errorCode'>{{errortext}}</div>
+                    <div class='login-l' style='border:none'>
+                         <Button type="primary" class='loginBtn' @click='loginIn'>{{$t('login.login')}}</Button><!--登陆-->
+                    </div>
+                    <div class='login-b'>
+                         <span  style='cursor:pointer' @click='clickNowM'>{{$t('login.register')}}</span><!--注册-->
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        
+
+    </div>
+</template>
+<script>
+
+import {aesEncrypt,aesDecrypt} from '../components/md5'
+import * as types from '../store/types'
+import LoadUrl from '@/components/common/actionLoad'
+    export default {
+        data (){
+            return {
+                backUrl:LoadUrl.Website.OffProd,//官网
+                act:this.$t('login.loginTitle'),//账号登陆
+                labelPosition:"right",
+                visibility: false,
+                isewm:true,
+                numindex:0,
+                imgArr:[
+                    'http://img.zsydian.com/icon/login-07.png',
+                    'http://img.zsydian.com/icon/login-06.png',
+                    
+                    ],
+                errorCode:false,
+                errortext:"",
+                username:"",
+                pss:"",
+                zh:"zh",
+				storeType:[
+					{
+						label:"中文",
+						value:'zh'
+					},
+					{
+						label:"English",
+						value:'en'
+					}
+				],
+                autoLogin:false,
+            }
+        },
+        methods:{
+            clickImg(i){
+                this.numindex=!this.numindex
+                if(i==1){
+                    this.isewm=true
+                    this.act=this.$t('login.loginTitle')//账号登陆
+                    
+                }
+                if(i==0){
+                     this.isewm=false
+                     this.act=this.$t('login.smlogin')//账号登陆
+                }
+            },
+            //设置cookie
+            setCookie(c_name, c_pwd, exdays) {
+                var exdate = new Date(); //获取时间
+                exdate.setTime(exdate.getTime() + 24 * 60 * 60 * 1000 * exdays); //保存的天数
+                //字符串拼接cookie
+                window.document.cookie = "username" + "=" + c_name + ";path=/;expires=" + exdate.toGMTString();
+                window.document.cookie = "pss" + "=" + c_pwd + ";path=/;expires=" + exdate.toGMTString();
+
+            },
+            //读取cookie
+            getCookie() {
+                if (document.cookie.length > 0) {
+                	this.autoLogin=true
+                    var arr = document.cookie.split('; '); //这里显示的格式需要切割一下
+                    for (var i = 0; i < arr.length; i++) {
+                        var arr2 = arr[i].split('='); //再次切割
+                        //判断查找相对应的值
+                        if (arr2[0] == 'username') {
+                            console.log(arr2[1])
+                            this.username = arr2[1]; //保存到保存数据的地方
+                        } else if (arr2[0] == 'pss') {
+                            this.pss = arr2[1];
+                        }
+                    }
+                }
+            },
+            //清除cookie
+            clearCookie() {
+                this.setCookie("", "", -1); //修改2值都为空，天数为负1天就好了
+            },
+            //自动登陆
+			autoLoginChange(v){
+                this.autoLogin=v
+                if(v){
+                    this.setCookie(this.username, this.pss, 3);//缓存天数3天
+                }else{
+                    this.clearCookie();
+                }
+				
+            },
+            //回车登陆
+            enterLogin(){
+                this.loginIn()
+            },
+            //点击登录跳转到home页面 首页
+			loginIn() {
+				if(this.autoLogin==true){
+					this.setCookie(this.username, this.pss, 3);//缓存天数3天
+				}else{
+					this.clearCookie();
+				}
+				//点击登录之后 调登录接口
+				this.axios.post('/login?username='+this.username+'&password='+this.pss).then((res) => {
+					let data=res.data;
+					if(res.data.status == 200) { //登录成功 
+                        this.$store.commit(types.LOGIN, res.data.rows.uid);//登陆凭证uid
+                        this.$store.commit(types.USER, res.data.rows);//个人信息
+                        console.log(res.data.rows)
+                        //加密密码保存localStorage
+                        // this.pss=aesEncrypt(this.pss,"pss")
+                        // localStorage.setItem("username",this.username)
+                        // localStorage.setItem("pss",this.pss)
+                        //只有一个模块时自动跳转进入当前模块
+                        this.axios.get('getSystem?uid='+res.data.rows.uid).then((res)=>{
+                            if(res.data.status==200){
+                                this.getSystem=res.data.rows
+                                if(this.getSystem.length==1){
+                                    this.$router.replace({
+                                        name: this.getSystem[0].path
+                                    });
+                                }else{
+                                    //多个有权限是的模块跳转main
+                                    this.$router.replace({
+                                        name: 'main'
+                                    });
+                                }
+                            }
+                        })
+					}else{
+                        this.errorCode=true
+                        this.errortext=res.data.errorMessage
+                    }
+				})
+            },
+            //立即注册
+            regist(){
+                this.$router.push('/register')
+            },
+            //立即成为会员
+            clickNowM(){
+                this.$router.push('/register')
+            },
+            //语言切换
+             changeLangEvent(v) {
+             	this.zh=v
+             	this.$i18n.locale=this.zh
+             	sessionStorage.local=this.zh
+             	console.log(this.$i18n.local)
+			},
+            //点击忘记密码
+            forgetPass(){
+                this.$router.push({
+                    path:'/register',
+                    query:{
+                        f:1
+                    }
+                })
+            },
+            //自动登录
+            loginLocal(){
+                this.axios.post('/login?username='+this.username+'&password='+this.pss).then((res) => {
+                    let data=res.data;
+                    if(res.data.status == 200) { //登录成功 
+                        this.$store.commit(types.LOGIN, res.data.rows.uid);//登陆凭证uid
+                        this.$store.commit(types.USER, res.data.rows);//个人信息
+                        console.log(res.data.rows)
+                          this.pss=aesEncrypt(this.pss,"pss")
+                        localStorage.setItem("username",this.username)
+                        localStorage.setItem("pss",this.pss)
+                        //只有一个模块时自动跳转进入当前模块
+                        this.axios.get('getSystem?uid='+res.data.rows.uid).then((res)=>{
+                            if(res.data.status==200){
+                                this.getSystem=res.data.rows
+                                if(this.getSystem.length==1){
+                                    this.$router.replace({
+                                        name: this.getSystem[0].path
+                                    });
+                                }else{
+                                    //多个有权限是的模块跳转main
+                                    this.$router.replace({
+                                        name: 'main'
+                                    });
+                                }
+                            }
+                        })
+                    }else{
+                        this.errorCode=true
+                        this.errortext=res.data.errorMessage
+                    }
+                })
+            },
+        },
+        mounted() {
+            console.log(navigator)
+			this.getCookie(aesDecrypt);//获取
+            // if(localStorage.getItem("username")){
+            //     //取账号密码，解密，自动登录
+            //     this.pss=aesDecrypt(localStorage.getItem("pss"),"pss")
+            //     this.username=localStorage.getItem("username")
+            //     this.loginLocal()
+            // }
+            //判断浏览器所用语言
+			var language = navigator.browserLanguage?navigator.browserLanguage:navigator.language;
+			if(language=="zh-CN"){
+
+			  if(sessionStorage.local){
+			    this.zh=sessionStorage.local
+			  }else{
+			    this.zh='zh'
+			  }
+			}else{
+			  this.zh='en'
+			}
+		}
+    }
+</script>
+<style scoped>
+#particles-js{
+    background-color: #000;
+    height: 100%;
+}
+.position{
+    position: absolute;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    overflow: auto;
+}
+.login-box {
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+.login-top{
+    width:100%;
+    height:60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding:0 80px;
+     z-index:10;
+    top:0;
+    left:0
+}
+.login-left,.login-left-l{
+    display: flex;
+}
+.login-right{
+    display:flex
+}
+.ZeroAfter{
+    font-size: 14px;
+    letter-spacing: 10px;
+    margin-left: 15px;
+    margin-top: 10px;
+    color:#5DA7F4;
+}
+.Zero{
+    font-size:40px;
+    color:#5DA7F4
+}
+.ZeroAfteZ{
+    font-size:12px;
+    margin-left: 15px;
+    color:#5DA7F4;
+}
+.back{
+   border-left: 1px solid #5DA7F4;
+    height: 30px;
+    display: block;
+    text-align: center;
+    line-height: 30px;
+    margin-top: 15px;
+    margin-left:20px
+}
+.back span{
+     margin-left:20px
+}
+.login-in{
+    min-height: 574px;
+    width: 100%;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -ms-flex-align: center;
+    align-items: center;
+    
+   display: flex;
+   flex-direction: column
+    
+}
+.login-flex{
+    width: 480px;
+    padding: 40px 25px 0 25px;
+     display:flex;
+     flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    border-radius:6px;
+    font-size: 16px;
+    /*background: -webkit-linear-gradient(left, rgba(255,0,0,0), rgba(255,0,0,1)); 
+    background: -o-linear-gradient(right, rgba(255,0,0,0), rgba(255,0,0,1)); 
+    background: -moz-linear-gradient(right, rgba(255,0,0,0), rgba(255,0,0,1)); 
+    background: linear-gradient(to bottom, rgba(255,255,255,249), rgba(249,255,249,0.5));*/
+}
+.loginName{
+    outline: none;
+    border: none;
+    margin-left: 20px;
+    width:400px
+}
+.login-l{
+    border-bottom:1px solid #e4e4e4;
+    padding:10px 0;
+    display:flex;
+    text-align: left;
+}
+.login-l span{
+    width:40px
+}
+.zdlogin{
+   
+    display: -ms-flexbox;
+    display: flex;
+    justify-content: space-between;
+}
+.zdlogin p{
+    
+    text-align: right;
+}
+.loginBtn{
+    width:100%;
+    height:55px;
+    font-size:16px;
+    /* background: #5C8AD9 */
+}
+.login-b{
+    
+    border:none;
+    text-align: right;
+    color:#5C8AD9;
+    font-size:14px;
+     margin-bottom:20px;
+}
+.login-l-title{
+    width: 100%;
+    padding: 10px 30px 0 30px;
+    margin-bottom: 18px;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+  
+}
+.title-l{
+   font-size: 16px;
+    color: #333;
+    line-height: 42px;
+   
+}
+.ewm{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.login-center-top{
+    width:100%;
+    position:relative;
+    height:80px;
+    z-index:11;
+   
+    font-weight: 100;
+    color:#fff;
+    font-size:16px;
+}
+.threeZD,.threezc{
+    font-size:14px
+}
+.threeZD:hover{
+    cursor:pointer;
+    color:#5C8AD9
+}
+.threezc:hover{
+    color:#5C8AD9
+}
+.top-mark{
+	height:50px;
+	width:100%;
+	background: rgba(0,0,0,.3);
+}
+.top-title{
+    position: absolute;
+    top:0;
+    text-align: center;
+    width: 600px;
+    left:50%;
+    margin-left: -300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+</style>
+

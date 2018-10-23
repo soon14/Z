@@ -1,0 +1,15 @@
+let addZero=function(num){
+    if (num<10){
+        return "0"+num
+    }
+    else{
+        return num       
+    }
+}
+export function getLocalTime(s){
+    var myYear= new Date(s).getFullYear()
+    var myMonth= new Date(s).getMonth()+1
+    var myDay= new Date(s).getDate()
+    var showDate = myYear+"-"+addZero(myMonth)+'-'+addZero(myDay)   
+   return showDate
+};

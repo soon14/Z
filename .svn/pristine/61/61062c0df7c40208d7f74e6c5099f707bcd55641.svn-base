@@ -1,0 +1,20 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>智胜云店-让门店说话</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="keywords" content="智胜云店后台管理系统" />
+		<meta name="description" content="智胜云店后台管理系统" />
+    	<meta name="description " content="智胜云店产品全面覆 盖企业级B2B批发订货服务、B2C商城可视化搭建及管理服务、供货及分销服务,提供企业移动分销工具、O2O智能收银工具等。同时,针对不同行业特点智胜云店为厂商及分销商、连锁店、零售商、 批发市场、百货商场、跨境电商等业态提供专业的场景化电商解决方案。"/>
+		<body>
+			<div id="app"></div>
+		</body>
+<!-- <script src="http://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"></script> -->
+</html>
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+
+
+

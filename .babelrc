@@ -1,0 +1,24 @@
+{
+	"presets": [
+    	["es2015", { "modules": false }]
+  	],
+	  "plugins": [
+	    ["import", {
+	      "libraryName": "muse-ui",
+	      "libraryDirectory": "lib",
+	      "camel2DashComponentName": false
+	    },
+	    {
+		    "libraryName": "iview",
+		    "libraryDirectory": "src/components"
+		}
+	    ],
+	    ["component", [
+		    {
+		      "libraryName": "element-ui",
+		      "styleLibraryName": "theme-default"
+		    },
+		    
+		  ]]
+	  ]
+}

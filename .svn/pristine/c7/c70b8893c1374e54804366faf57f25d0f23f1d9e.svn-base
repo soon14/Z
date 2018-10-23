@@ -1,0 +1,237 @@
+<template>
+    <div class='storedevice'>
+	    <div class='dytitle'>
+	        <Breadcrumb class='dytitlespan'>
+	            <BreadcrumbItem :to="{name:'storemanage',params:{index:2}}">打印设置</BreadcrumbItem>
+	            <BreadcrumbItem to="/device">打印机</BreadcrumbItem>
+	        </Breadcrumb>
+	    </div>
+	    
+	    <div class='center'>
+		    <div class='title'>
+		    	<p>打印机设备可为您提供收银小票打印功能。未买打印机设备？前往新零售周边，选择适合你的打印机设备</p>
+		    </div>
+
+		    <div class='center-bottom'>
+                <div class='left'>
+                	<p v-if="deviceData.length==0" class='scrollFix'>
+	                    <Spin>
+	                        <div>{{$t('public.NoData')}}</div>
+	                    </Spin>
+	                </p>
+			    	<Scroll :on-reach-bottom="handleReachEdge"  :height="height" v-else >
+			    		<ul>
+			    			<li v-for='(item,index) in deviceData' :key='index'>
+			    				<span>{{item.name}}</span>
+			    			</li>
+			    		</ul>
+			    	</Scroll>
+		    	</div>
+		    	<div class="right">
+		    		<ul>
+		    			<li v-for='(item,index) in items'>
+		    				<img :src="item.icon">
+		    				<p>{{item.name}}</p>
+		    				<p class='print-text'>{{item.desc}}</p>
+		    				<Button type="primary" @click='clickBtn(item)'>{{item.btnTxt}}</Button>
+		    			</li>
+		    		</ul>
+		    	</div>
+		    </div>
+	    </div>
+		<Modal v-model="deviceisshow" width="400px">
+	    <p slot="header" style="height:30px;line-height:30px;text-align:center">
+	      <span>输入设备信息</span>
+	    </p>
+	     <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="60">
+	     	<FormItem label="机器号" prop="deviceNo">
+	            <Input v-model="formValidate.deviceNo" placeholder="请输入机器号"></Input>
+           	</FormItem>
+           	<FormItem label="密钥" prop="key">
+	            <Input v-model="formValidate.key" placeholder="请输入密钥"></Input>
+           	</FormItem>
+	     </Form>
+	    <div slot="footer">
+	      <div style='margin-top:-10px'>
+	        <Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='deviceCancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+			<Button shape="circle" type="ghost" 
+			style="display:inline-block;background:#3b77e3;color:#fff"
+			 @click="deviceSure('formValidate')">
+			 <Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+	      </div>
+	    </div>
+  		</Modal>
+    </div>
+</template>
+<script>
+export default {
+    data(){
+        return {
+        	deviceisshow:false,
+        	current:1,
+        	total:0,
+        	pageSize:0,
+        	deviceData:[],//打印机数组
+        	height:"",
+        	formValidate:{
+        		deviceNo:"",
+        		key:""
+        	},
+        	ruleValidate:{
+        		deviceNo:[
+        				{ required: true, message: '机器号不能为空', trigger: 'blur' },
+        				
+        			],
+        		key:[
+        				{ required: true, message: '密钥不能为空', trigger: 'blur' },
+        				
+        			]
+        	},
+           	items:[
+           		{
+           			name:"360wifi打印机",
+           			icon:"http://img.zsydian.com/icon/sprt_bluetooth.jpg",
+           			desc:"请输入打印机器背后的设备信息进行连接",
+           			btnTxt:"链接打印机"
+           		},
+           		{
+           			name:"3601wifi打印机",
+           			icon:"http://img.zsydian.com/icon/sprt_bluetooth.jpg",
+           			desc:"请输入打印机器背后的设备信息进行连接",
+           			btnTxt:"链接打印机"
+           		},
+           		{
+           			name:"3602wifi打印机",
+           			icon:"http://img.zsydian.com/icon/sprt_bluetooth.jpg",
+           			desc:"请输入打印机器背后的设备信息进行连接",
+           			btnTxt:"链接打印机"
+           		},
+           		{
+           			name:"3603wifi打印机",
+           			icon:"http://img.zsydian.com/icon/sprt_bluetooth.jpg",
+           			desc:"请输入打印机器背后的设备信息进行连接",
+           			btnTxt:"链接打印机"
+           		},
+           		
+           ],
+           uid: this.$store.state.common.token,
+        }
+    },
+    methods:{
+    	clickBtn(item){
+    		this.formValidate.deviceNo=''
+    		this.formValidate.key=''
+    		this.deviceisshow=true
+    	},
+    	//链接确认
+    	deviceSure(name){
+    		this.$refs[name].validate((valid) => {
+    			if(valid){
+    				this.axios.post(''+'?uid='+this.uid,{
+    					deviceNo:this.formValidate.deviceNo,
+    					key:this.formValidate.key
+    				}).then(res=>{
+		    			if(res.data.status==200){
+		    				this.deviceisshow=false
+		    				this.formValidate.deviceNo=''
+    						this.formValidate.key=''
+		    			}else{
+		    				this.$notify({
+		                        title:"",//错误
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+		    			}
+		    		})
+    			}
+    		})
+    	},
+    	//取消链接
+    	deviceCancel(){
+    		this.formValidate.deviceNo=''
+    		this.formValidate.key=''
+    		this.deviceisshow=false
+    	},
+    	 handleReachEdge(){
+            this.current++//默认10条
+            this.axios.get('?offset='+this.current+'&uid='+this.uid).then((res)=>{
+                if(this.current>Math.ceil(this.total/this.pageSize)){
+                        this.current=Math.ceil(this.total/this.pageSize)
+                    }
+               		res.data.rows.forEach((item)=>{
+                    this.deviceData.push(item)
+                })
+            })
+        },
+    	
+    },
+    mounted(){
+    	 this.height = document.documentElement.clientHeight
+    }
+}
+</script>
+<style scoped>
+li{
+    list-style-type: none;
+}
+.dytitle{
+	display: block;
+	height:50px;
+	line-height: 50px;
+	background: #F9F9F9;
+	margin-top:20px;
+
+}
+.dytitlespan{
+    margin-left:20px
+}
+.center{
+	margin:0 20px 120px 20px;
+}
+.title{
+	margin: 20px 0;
+}
+.title p{
+	width: 100%;
+    height: 34px;
+    padding-left: 15px;
+    background-color: #F2F8FF;
+    margin-bottom: 10px;
+    align-items: center;
+    display: flex;
+    border: 1px solid #e9e9e9;
+}
+.center-bottom{
+	height:100%;
+	display: flex;
+}
+.center-bottom .left{
+	height:660px;
+	width:400px;
+	flex: 0 0 400px;
+	border:1px solid #e4e4e4;
+
+}
+.right ul{
+	display: flex;
+	flex-wrap: wrap;
+}
+.right ul li{
+	width: 177px;
+    padding: 15px;
+    text-align: center;
+    border: 1px solid #e9e9e9;
+    margin: 15px;
+
+}
+.right ul li img{
+	width:100px;
+	height:100px;
+	margin:0 auto;
+}
+.print-text{
+	margin: 10px 0;
+}
+</style>
+

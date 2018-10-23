@@ -1,0 +1,2152 @@
+<template>
+	<div class="units-box">
+		<!--商品管理-->
+		<aside class='goods-left'>
+			<div class='left-top'><span style='font-size:14px;font-weight:600;'>{{$t('manage.sku.FL')}}</span>
+				<span><a @click='addfl'>编辑分类</a></span>
+			</div>
+				<div v-if="Allfl.length==0" style='width:100%;height:100%;color:blue;display: flex;justify-content: center;align-items: center;'>
+			    	{{$t('public.NoData')}}
+			    </div>
+				<Scroll :on-reach-bottom="handleReachEdge" :height="height" v-else>
+                    <li style='font-size:12px;margin-left:10px;cursor:pointer;height: 30px;line-height: 30px;' @click='getAllflTop'>全部分类</li>
+					<Tree :data="Allfl"  @on-select-change='seletChange' style='padding:0 10px'></Tree><!--:render="renderContent"-->
+				</Scroll>
+		</aside>
+		<div class='goods-right'>
+			<header class="btns-box" v-if='isshowtable'>
+				
+					<div class="wldw">
+						<div>
+                        <span style="width:42px;font-weight:900">{{$t('public.screen')}}：</span>
+	                        <Select style="width:100px" v-model='valueT'  :placeholder="$t('public.all')" @on-change="orderselected">
+	                            <Option v-for="item in orderListname" :value="item.value" :key="item.value">{{ item.label }}</Option>
+	                        </Select>
+                        </div>
+                        <Input style='margin-top:10px;width:400px;margin-left:20px' v-model='keyword' :placeholder="$t('public.codeandname')" @on-enter='entersSearch' >
+		                    <span slot="append"  @click='search' style='cursor:pointer'>{{$t('public.search')}}</span>
+		                </Input>
+                    </div>
+				
+				<div class="right">
+				<Button type="primary" style='background:#3b77e3' shape="circle" @click="goaddgoods">
+						 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.addnew')}}
+				</Button>
+				<Button type="ghost" shape="circle"
+				style="border:none;background:#3b77e3;color:#fff;"
+				@click="storeImport"><Icon type="document" style="margin-right:5px;color:#fff" ></Icon>
+				{{$t('public.import')}}</Button>
+				<!--更多-->
+				<Dropdown trigger="click">
+                    <Button shape="circle" type="ghost" style="background:#ff7d16;color:#fff;border:none">{{$t('public.more')}}
+                    <span><i class="ivu-icon ivu-icon-chevron-down"></i></span>
+                </Button>
+
+                <DropdownMenu slot="list">
+                    <!-- <span @click="start"><DropdownItem >{{$t('public.start')}}</DropdownItem></span>
+                    <span @click="stop"><DropdownItem >{{$t('public.stop')}}</DropdownItem></span> -->
+
+					<span @click="start"><DropdownItem >{{$t('manage.sku.Batchqy')}}</DropdownItem></span>
+                  	<span @click="stop"><DropdownItem >{{$t('manage.sku.Batchty')}}</DropdownItem></span>
+					<span  @click="del"><DropdownItem >{{$t('public.del')}}</DropdownItem></span>
+                </DropdownMenu>
+             </Dropdown>
+             
+			</div>
+
+			</header>
+            <div class="btns-box" v-if='!isshowtable'>
+                <div></div>
+                <div>
+                    <Button type="primary" style='background:#3b77e3;margin-right:10px' shape="circle" @click="addClass">
+                     <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.addnewLevle1')}}
+                    </Button>
+                    <span  @click="cancelHome" style="cursor:pointer;margin-right: 20px;"><Icon type="close" class="cha" ></Icon></span>
+                </div>
+            </div>
+			<!--表格数据-->
+			<div class="table" v-if='isshowtable'>
+				<Table border highlight-row :columns="columns" :data="goods" @on-select="checkedSjs" @on-row-dblclick="dbclick" @on-row-click='gebg' @on-select-all='checkedAllSjs' @on-select-cancel='cancelSelect' @on-selection-change='allSelectAndCancel'></Table>
+				<!--底部的分-->
+				<div class="page-box">
+					<Page show-sizer :page-size-opts="[10,20,30,40,50]" size='small' placement='top' :total="total" show-total  :pageSize='pageSize'  @on-change="getData" @on-page-size-change="changePageSize"></Page>
+				</div>
+			</div>
+            <div v-if='!isshowtable'>
+                <div style='width:98%;margin:10px auto;overflow:auto;height:100%'>
+                        <div>
+                            <ul>
+                                <ul class='levelTitle'>
+                                    <li v-for='(item,index) in AllflTitle' :key='index' style='margin-left: -50px;font-size:14px;font-weight:600'>{{item}}</li>
+                                </ul>
+                                <div v-if='Allfl.length==0' class='noDataTxt'>{{$t('public.NoData')}}</div>
+                                <li v-for='(item,index) in Allfl1' :key='index' v-else>
+                                    <div>
+                                        <ul class='level1ul'>
+                                            <li class='level1Name'>
+
+                                                <span class='crow' @click='clickAdd(item,index)' v-if='!item._check'>+</span>
+                                                <span class='crow' @click='clickReduce(item,index)' v-if='item._check'>-</span>
+                                                <div class='editInput' @focus='level1focus(item,index)' @blur='level1Blur(item,index)' contenteditable="true">{{item.title}}</div>
+
+                                            </li>
+                                            <a class='level1A'>
+                                                <img :src='item.icon'/>
+                                            </a>
+                                            <div class='action'>
+                                                <a @click.stop='EditLevel1(item)'>修改</a>
+                                                <a @click='delLevel1(item)'>删除</a>
+                                                <a @click='addlevel2(item)'>添加子分类</a>
+                                            </div>
+                                        </ul>
+                                        <div>
+                                            <li v-for='(i,n) in item.children' :key='n' v-if='item._check'>
+                                                <div>
+                                                    <ul class='level1ul'>
+                                                        <li class='level2NameT'>
+                                                            <span class='crow' @click='clickSubAdd(item,index)' v-if='!i._check'>+</span>
+                                                            <span class='crow' @click='clickSubReduce(item,index)' v-if='i._check'>-</span>
+                                                            <div class='level2Name' @focus='level2focus(i,item,n)' @blur='level2Blur(i,item,n)' contenteditable="true">{{i.title}}</div>
+                                                        </li>
+                                                        <a class='level1A level1B'>
+                                                            <img :src='i.icon'/>
+                                                        </a>
+                                                        <div class='action'>
+                                                            <a @click.stop='EditLevel2(i)'>修改</a>
+                                                            <a @click='delLevel2(i)'>删除</a>
+                                                            <a @click='addlevel3(i)'>添加子分类</a>
+                                                        </div>
+                                                    </ul>
+                                                    <div>
+                                                        <li v-for='(j,m) in i.children' :key='index'>
+                                                            <div>
+                                                                <ul class='level1ul'>
+                                                                    <li class='level3NameT ' >
+                                                                        <span class='crow' @click='clickSub3Add(item,index)' v-if='!j._check'>+</span>
+                                                                         <span class='crow' @click='clickSub3Reduce(item,index)' v-if='j._check'>-</span>
+                                                                        <div class='level3Name' @focus='level3focus(j,i,item,m)' @blur='level3Blur(j,i,item,m)' contenteditable="true">{{j.title}}</div>
+                                                                    </li>
+                                                                    <a class='level1A level1C'><img :src='j.icon' /></a>
+                                                                    <div class='action'>
+                                                                        <a @click.stop='EditLevel3(j)'>修改</a>
+                                                                        <a @click='delLevel3(j)'>删除</a>
+                                                                    </div>
+                                                                </ul>
+                                                            </div>
+                                                        </li>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                            <div style='margin-top:10px' class='page-box'>
+                                <Page :total="totalfl" size="small" show-total  :pageSize='pageSizefl'  @on-change="getDatafl" @on-page-size-change="changePageSizefl"></Page>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+		</div>
+	<!--导入-->
+    <Modal v-model="importisshow" width="700" :mask-closable='false' :closable='false' :title="$t('manage.warehouse.fileImport')"><!--文件导入-->
+        <el-steps  :active="active"  :align-center='true' style='margin-left:120px'>
+              <el-step :title="$t('manage.warehouse.fileImport')" ></el-step>
+              <el-step :title="$t('manage.warehouse.fileY')" ></el-step>
+              <el-step :title="$t('manage.warehouse.fileS')" ></el-step>
+            </el-steps>
+
+       <!--第一步-->
+        <div style='width:100%;margin:20px auto;text-align:center;' v-if='oneStep'>
+           <div style='width:100%;margin:20px auto;text-align:center;font-size:14px;font-weight:600;border-top:1px solid #e4e4e4'>
+				<span style='display:block;margin: 20px auto 30px 0;'>{{$t('manage.warehouse.fileImport')}}</span><!--文件导入-->
+			</div>
+            <div style='width:100%;margin:20px auto;text-align:center;position:relative'>
+                <div style='margin-left:-108px'>
+                	<span>{{$t('manage.warehouse.filechoose')}}：</span><!--选择文件-->
+                  	<Input  disabled style='width:202px' v-model='url'></Input>
+					<div style='position:absolute;top: 0px;right:175px;height: 35px;width: 80px;overflow: hidden;'>
+						<el-upload
+						ref="upload"
+						:show-file-list='false'
+						class="upload-demo"
+						:action="actionUrl"
+                        :on-progress='onprogress'
+						:on-success='success'
+                        :on-error="upError"
+						:before-upload='beforeAvatarUpload'
+						accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" >
+						<Button size="small" type="primary" style='background:#169BD5'>
+						{{$t('manage.warehouse.upload')}}</Button><!--点击上传-->
+
+						</el-upload>
+					</div>
+                    <div v-if='loadingisshow' >
+                        <Spin fix>
+                            <mu-icon value="rotate_right" color="blue"  class="demo-spin-icon-load"></mu-icon>
+                            
+                            <div>Loading...</div>
+                        </Spin>
+                    </div>
+                    <div v-if='errorisshow' class='importErrTxt'>{{error}}</div>
+                </div>
+            </div>
+            <div style='margin-top:40px;display: flex;justify-content:space-between;;margin-bottom:-40px;font-size:14px;cursor:pointer'>
+                <Button  type="ghost" style='margin-left:5px;border:none;background:#169BD5;color:#fff'>
+
+                     <a :href="skuLoad" style='color:#fff' @click.stop='stopsku($event)'>
+                     {{$t('manage.warehouse.fileD')}}</a>
+                </Button>
+                <span style="" @click="cancel">{{$t('public.cancel')}}</span><!--取消-->
+            </div>
+        </div>
+        <!--第二步-->
+         <div style='width:100%;margin:20px auto;text-align:center;' v-if='twoStep'>
+            <div style='width:100%;margin:20px auto;text-align:center;position:relative'>
+                <Table border height='300' ref="selection"  :columns="importstore" :data="importstoredataList"></Table>
+            </div>
+            <div style='margin-top:40px;display: flex;justify-content:space-between;;margin-bottom:-40px;font-size:14px'>
+                <div>共导入：<span style='color:blue'>{{importstoredataList.length}}</span> 条数据</div>
+                <div>
+                    <span style="" @click="cancel">{{$t('public.cancel')}}</span><!--取消-->
+                    <span style="display:inline-block;margin:0 10px;font-size:14px" @click="">|</span>
+                
+                    <span style="color:#448AFF;font-size:14px" @click="gothree"><a>{{$t('public.sureBtn')}}</a></span><!--确认-->
+                </div>
+            </div>
+         </div>
+         
+        <div slot="footer">
+
+        </div>
+    </Modal>
+    <!--新建一级分类-->
+    <Modal v-model="skuclassisshow" width="460px">
+            <p slot="header" style="height:30px;line-height:30px">
+                <span v-if='level1Editisshow'>{{$t('public.addnewLevle1')}}</span>
+                <span v-if='!level1Editisshow'>{{$t('public.editnewLevle1')}}</span>
+            </p>
+            <Row>
+            <Col span="4">
+                    <div class='right-left'>
+                        <el-upload
+                          class="avatar-uploader"
+                         :action="logoUrl"
+                            name='file'
+                          :show-file-list="false"
+
+                          :on-success="addClassImgSuccess"
+                          >
+                          <img v-if="skuclassphoto" :src="skuclassphoto" class="avatar" width='80' height='80'>
+                          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                        </el-upload>
+                    </div>
+                </Col>
+                <Col span="20">
+                    <Form ref="formValidateskuclass" :model="formValidateskuclass" :rules="ruleValidateskuclass" :label-width="140" v-if='level1Editisshow'>
+                        <div style='margin-top:40px'>
+                            <FormItem :label="$t('manage.setting.classname')" prop="skuclassName">
+                                <Input v-model='formValidateskuclass.skuclassName'></Input>
+                            </FormItem>
+                        </div>
+                    </Form>
+                    <Form ref="formValidateskuclassE" :model="formValidateskuclass" :rules="ruleValidateskuclass" :label-width="140" v-if='!level1Editisshow'>
+                        <div style='margin-top:40px'>
+                            <FormItem :label="$t('manage.setting.classname')" prop="skuclassName">
+                                <Input v-model='formValidateskuclass.skuclassName'></Input>
+                            </FormItem>
+                        </div>
+                    </Form>
+                </Col>
+            </Row>
+            <div slot="footer">
+                <div class='title'>
+                    <div style='color:#D15151;font-size:14px'>
+                        </div>
+                    <div style='margin-top:10px'>
+                        <Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='cancelClassLevel1'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+                        <Button type="primary" style='background:#3b77e3' shape="circle" @click="saveClassLevel1('formValidateskuclass')" v-if='level1Editisshow'>
+                             <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.SaveBtn')}}
+                        </Button>
+                        <Button type="primary" style='background:#40ca98;border:none' shape="circle" @click="EditClassLevel1('formValidateskuclassE')" v-if='!level1Editisshow'>
+                              <i class="el-icon-edit" style=";margin-right:5px;"></i>{{$t('public.EditBtn')}}
+                        </Button>
+                    </div>
+                </div>
+            </div>
+    </Modal>
+    <!--添加二级分类-->
+    <Modal v-model="level2Ml" width="460px">
+        <p slot="header" style="height:30px;line-height:30px">
+            <span v-if='level2Editisshow'>{{$t('public.classlevel2')}}</span><!--添加二级分类-->
+            <span v-if='!level2Editisshow'>{{$t('public.editeditclasslevel2')}}</span><!--修改二级分类-->
+        </p>
+        <Row>
+        <Col span="4">
+                <div class='right-left'>
+                    <el-upload
+                      class="avatar-uploader"
+                     :action="logoUrl"
+                        name='file'
+                      :show-file-list="false"
+                      :on-success="addlevel2Success"
+                      >
+                      <img v-if="level2photo" :src="level2photo" class="avatar" width='80' height='80'>
+                      <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                    </el-upload>
+                </div>
+            </Col>
+            <Col span="20">
+                <Form ref="level2class" :model="level2class" :rules="level2ruleclass" :label-width="140" v-if='level2Editisshow'>
+                    <div style='margin-top:40px'>
+                        <FormItem :label="$t('manage.setting.classname')" prop="level2Name">
+                            <Input v-model='level2class.level2Name'></Input>
+                        </FormItem>
+                    </div>
+                </Form>
+                <Form ref="Elevel2class" :model="level2class" :rules="level2ruleclass" :label-width="140" v-if='!level2Editisshow'>
+                    <div style='margin-top:40px'>
+                        <FormItem :label="$t('manage.setting.classname')" prop="level2Name">
+                            <Input v-model='level2class.level2Name'></Input>
+                        </FormItem>
+                    </div>
+                </Form>
+            </Col>
+        </Row>
+        <div slot="footer">
+           
+            <div class='title'>
+                <div style='color:#D15151;font-size:14px'>
+                    </div>
+                <div style='margin-top:10px'>
+                    <Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='cancelClassLevel2'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+                    <Button type="primary" style='background:#3b77e3' shape="circle" @click="saveClassLevel2('level2class')" v-if='level2Editisshow'>
+                         <Icon type="plus-round" style="margin-right:5px;color:#fff">
+                         </Icon>{{$t('public.SaveBtn')}}
+                    </Button>
+                    <Button type="primary" style='background:#40ca98;border:none' shape="circle" @click="EditClassLevel2('Elevel2class')" v-if='!level2Editisshow'>
+                          <i class="el-icon-edit" style=";margin-right:5px;"></i>{{$t('public.EditBtn')}}
+                    </Button>
+                </div>
+            </div>
+        </div>
+    </Modal>
+    <!--添加三级分类-->
+    <Modal v-model="level3Ml" width="460px">
+        <p slot="header" style="height:30px;line-height:30px">
+            <span v-if='level3Editisshow'>{{$t('public.classlevel3')}}</span><!--添加三级分类-->
+            <span v-if='!level3Editisshow'>{{$t('public.editclasslevel3')}}</span><!--添加三级分类-->
+        </p>
+        <Row>
+        <Col span="4">
+                <div class='right-left'>
+                    <el-upload
+                      class="avatar-uploader"
+                     :action="logoUrl"
+                        name='file'
+                      :show-file-list="false"
+                      :on-success="addlevel3Success"
+                      >
+                      <img v-if="level3photo" :src="level3photo" class="avatar" width='80' height='80'>
+                      <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                    </el-upload>
+                </div>
+            </Col>
+            <Col span="20">
+                <Form ref="level3class" :model="level3class" :rules="level3ruleclass" :label-width="140" v-if='level3Editisshow'>
+                    <div style='margin-top:40px'>
+                        <FormItem :label="$t('manage.setting.classname')" prop="level3Name">
+                            <Input v-model='level3class.level3Name'></Input>
+                        </FormItem>
+                    </div>
+                </Form>
+                <Form ref="level3classE" :model="level3class" :rules="level3ruleclass" :label-width="140" v-if='!level3Editisshow'>
+                    <div style='margin-top:40px'>
+                        <FormItem :label="$t('manage.setting.classname')" prop="level3Name">
+                            <Input v-model='level3class.level3Name'></Input>
+                        </FormItem>
+                    </div>
+                </Form>
+            </Col>
+        </Row>
+        <div slot="footer">
+            <div class='title'>
+                <div style='color:#D15151;font-size:14px'>
+                    </div>
+                <div style='margin-top:10px'>
+                    <Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='cancelClassLevel3'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+                    <Button type="primary" style='background:#3b77e3' shape="circle" @click="saveClassLevel3('level3class')" v-if='level3Editisshow'>
+                         <Icon type="plus-round" style="margin-right:5px;color:#fff">
+                         </Icon>{{$t('public.SaveBtn')}}
+                    </Button>
+                    <Button type="primary" style='background:#40ca98;border:none' shape="circle" @click="EditClassLevel3('Elevel2class')" v-if='!level3Editisshow'>
+                          <i class="el-icon-edit" style=";margin-right:5px;"></i>{{$t('public.EditBtn')}}
+                    </Button>
+                </div>
+            </div>
+        </div>
+    </Modal>
+		<div class='tot'>
+            <span>共<span style='color:#ff0000'> {{total1}} </span>条</span>
+            <span>当前第<span style='color:#ff0000'> {{current}} </span>页</span>
+     	</div>
+	</div>
+</template>
+<script type="text/javascript">
+import LoadUrl from '@/components/common/actionLoad'
+	export default {
+		data(){
+			return{
+                loading:true,
+                skuLoad:"",//商品导入模板
+                loadingisshow:false,
+                isshowtable:true,
+				errorisshow:false,
+                error:'',//导入失败的提示
+				        type:1,
+                oneStep:true,//第一步显示
+                twoStep:false,//第2步显示
+                threeStep:false,//第3步显示
+                active:1,//步数
+                importisshow:false,//导入显示
+                url:'',//选择文件后或名称
+                
+				//POST /sku/import 导入
+				actionUrl:LoadUrl.httpPrefix.Url+'initinventory/sku?uid='+this.$store.state.common.token,//导入地址
+                //导入的商品文件数据key
+                importstore:[
+                    {
+                        title: '商品条码',
+                        key:'skuCode',
+
+                        width:140
+                    },
+                    {
+                        title: '商品名称',
+                         width:180,
+                        key:'skuName',
+                    },
+
+                    {
+                        title: '最高库存',
+                        key:'inventoryUp',
+
+                        width:100,
+                       align:'center'
+                    },
+
+                    {
+                        title: '最低库存',
+                        key:'inventory',
+
+                        width:100,
+                        align:'center'
+                    },
+                    {
+                        title: '零售价',
+                        key:'price',
+
+                        width:80,
+                       align:'center'
+                    },
+                    {
+                        title: '批发价',
+                        key:'wholePrice',
+
+                       width:80,
+                        align:'center'
+                    },
+                     {
+                        title: '成本价',
+                        key:'costPrice',
+
+                        width:80,
+                       align:'center'
+                    },
+                    {
+                        title: '分类',
+                        key:'className',
+
+                        width:80,
+                        align:'center'
+                    },
+                ],
+				importstoredataList:[],//导入的仓库文件数据
+				selectAllStatus:true,
+                jshiArrStr:"",//商品id字符串链接
+                jshiArr:[],//商品id数组
+				classId:'',//分类id
+				keyword:'',
+				current:1,
+				total1:0,
+				pageSize1:0,
+				height:'',
+				flname2:'',//当前分类名
+				parentId:"",//上级分类id
+				flid:'',//当前分类id
+				cgtypeisshow2:false,
+				isLoading:true,
+				numIndex:0,
+				cgtypeisshow:false,
+				isshow:false,
+				isshow1:false,
+				total:0,
+				pageSize:0,
+				visible1: false,
+				visible2: false,
+				valueT:1,
+				orderListname:[
+					
+                    {
+                        label:this.$t('public.start'),//正常
+                        value:1
+                    },
+                    {
+                        label:this.$t('public.stop'),//"已停用",
+                        value:99
+                    },
+					
+				],
+				columns: [
+                    {
+                        type: 'selection',
+                        width: 60,
+                        align: 'center',
+                    },
+                    {
+                        title: this.$t('manage.sku.SkuCode'),//'货号',
+                        key:'skuCode',
+
+                       	width:160,
+                    },
+                     {
+                        title: this.$t('manage.sku.SkuName'),//'名称',
+                        key:'skuName',
+                   		ellipsis:true,
+                       	width:280,
+                    },
+                    {
+                        title: this.$t('manage.sku.SkuUnit'),//'单位',
+                        key:'unit',
+                        align: 'center',
+                        width:100,
+
+                    },
+                    
+                    {
+                    	title:this.$t('manage.sku.FL'),//"分类",
+                    	key:"className",
+                    	width:160,
+                        align:"center",
+                    },
+                    {
+                        title: this.$t('manage.sku.costprice'),//'成本价',
+                        key:'costPrice',
+                         width:120,
+                        align:"center",
+                        render:(h,params)=>{
+                        	return h('span',{
+                        		style:{
+                        			color:"#d53c39"
+                        		}
+                        	},params.row.costPrice)
+                        }
+                    },
+                     {
+                        title:this.$t('manage.sku.wholeprice'),// '批发价',
+                        key:'wholePrice',
+                         width:120,
+                        align:"center",
+                      	render:(h,params)=>{
+                        	return h('span',{
+                        		style:{
+                        			color:"#d53c39"
+                        		}
+                        	},params.row.wholePrice)
+                        }
+
+                    },
+                    {
+                        title: this.$t('manage.sku.price'),// '吊牌价',
+                        key:'price',
+                         width:120,
+                        align:"center",
+                      	render:(h,params)=>{
+                        	return h('span',{
+                        		style:{
+                        			color:"#d53c39"
+                        		}
+                        	},params.row.price)
+                        }
+
+                    },
+                    {
+                        title:  this.$t('manage.sku.inventory'),//'最低库存',
+                        key:'inventory',
+                        width:100,
+                        align:"center",
+                    },
+                    {
+                        title: this.$t('manage.sku.inventoryUp'),//'最高库存',
+                        key:'inventoryUp',
+                        width:120,
+                        align:"center",
+                    },
+                     {
+                        title: this.$t('manage.sku.issale'),//'可销售',
+                        key:'onlingSals',
+                         width:100,
+                        align:"center",
+                      	
+                       render:(h,params)=>{
+                            return h('span',{
+                                style:{
+                                    color:params.row.onlingSals==true?'#40ca98':'#ff0000'
+                                }
+                            },params.row.onlingSals==true?this.$t('manage.sku.issale'):this.$t('manage.sku.issale1'))
+                        }
+                    },
+                     {
+                        title: this.$t('public.status'),//'状态',
+                        key:'statusDesc',
+                      	width:80,
+                        align:"center",
+                      	render:(h,params)=>{
+                            return h('span',{
+                                style:{
+                                    color:params.row.status==1?'#40ca98':params.row.status==0?'#d53c39':params.row.status==99?'#d53c39':''
+                                }
+                            },params.row.statusDesc)
+                        }
+
+                    }
+
+                ],
+				goods:[],
+				dbinfo:{},
+				uid:this.$store.state.common.token,
+				valId:'',
+				flname:"",
+				Allfl:[],
+                // AllflTitle:["分类名称","分类图片","操作"],
+            AllflTitle:[this.$t('manage.setting.classname'),this.$t('manage.setting.img'),this.$t('public.action')],
+            Allfl1:[],//分类数组
+            level1Editisshow:true,//一级分类新增还是修改
+            level1classId:"",//一级分类id
+            level2Editisshow:true,//二级分类新增还是修改
+            level2classId:"",//二级分类id
+            level2photo:"",//二级分类图片
+            level2Ml:false,//二级分类弹框
+            level3Editisshow:true,//三级分类新增还是修改
+            level3classId:"",//三级分类id
+            level3photo:"",//三级分类图片
+            level3Ml:false,//三级分类弹框
+            skuclassisshow:false,//分类弹框
+            totalfl:0,
+            pageSizefl:0,
+            skuclassphoto:"",//一级分类图片
+            formValidateskuclass:{
+                skuclassName:"",//分类名称
+            },
+            ruleValidateskuclass:{
+                skuclassName:[{ required: true, message: '分类名称不能为空', trigger: 'blur' }]
+            },
+            logoUrl:LoadUrl.httpPrefix.Url+'file/action/upload/image/url?c=商品分类图片&uid='+this.$store.state.common.token,
+            uid: this.$store.state.common.token,
+            //添加二级分类
+            level2class:{
+                level2Name:"",
+            },
+            level2ruleclass:{
+                level2Name:[{ required: true, message: '分类名称不能为空', trigger: 'blur' }]
+            },
+            //添加三级分类
+            level3class:{
+                level3Name:"",
+            },
+            level3ruleclass:{
+                level3Name:[{ required: true, message: '分类名称不能为空', trigger: 'blur' }]
+            },
+            iconNumberIndex:-1,
+			}
+		},
+
+		methods:{
+			//导入
+            //下载阻止冒泡
+			stopsku(event){
+               event.stopPropagation()
+            },
+            //点击
+            storeImport(){
+                this.importisshow=true
+                this.active=1
+                this.oneStep=true//第一步显示
+                this.twoStep=false//第2步隐藏
+                this.threeStep=false//第3步隐藏
+                this.url=''
+                this.errorisshow=false
+                this.error=''
+                this.importstoredataList=[]
+
+            },
+            //取消
+            cancel(){
+                this.importisshow=false//弹框消失
+                this.oneStep=true//第一步显示
+                this.twoStep=false//第2步隐藏
+                this.threeStep=false//第3步隐藏
+                this.url=''
+                this.errorisshow=false
+                this.error=''
+                this.importstoredataList=[]
+                this.loadingisshow=false
+                this.$refs.upload.abort()
+            },
+            //第一步
+            importOne(){
+                if(this.url==''){
+                	this.errorisshow=true
+                    this.error=this.$t('manage.warehouse.upmb')
+                    return
+                }else{
+                    this.active=2
+                    this.oneStep=false
+					this.twoStep=true
+
+                }
+
+            },
+            //返回第一步
+            goOneStep(){
+                this.active=1
+                this.oneStep=true
+                this.twoStep=false
+            },
+            //进入第三
+            gothree(){
+                this.importisshow=false//弹框消失
+                this.oneStep=true//第一步显示
+                this.twoStep=false//第2步隐藏
+                this.threeStep=false//第3步隐藏
+                this.url=''
+                this.errorisshow=false
+                this.error=''
+            },
+            //继续编辑完成
+            sureimport(){
+                
+            },
+             //上传时
+            onprogress(event, file, fileList){
+            	
+            	this.loadingisshow=true
+            },
+             //上传之前类型之前
+            beforeAvatarUpload(file){
+               var fileName=new Array()
+                fileName =file.name.split('.');
+                const extension = fileName[fileName.length-1] === 'xls'
+                const extension2 =  fileName[fileName.length-1]=== 'xlsx'
+                const isLt2M = file.size / 1024 / 1024 < 10
+                if (!extension && !extension2) {
+                    this.$notify({
+				        title: "",
+				        message:this.$t('finance.upTemplate'),//'上传模板只能是xls、xlsx格式!',
+				        type: 'error',
+				        position: 'bottom-right'
+			        });
+                }
+                if (!isLt2M) {
+                    this.$notify({
+				        title: "",
+				        message: this.$t('finance.upTemplateB'),//'上传模板大小不能超过 10MB!',
+				        type: 'error',
+				        position: 'bottom-right'
+			        });
+                }
+
+             return extension || extension2 && isLt2M
+
+            },
+            upError(err, file, fileList){
+                this.errorisshow=true
+                this.loadingisshow=false
+                this.error=response.errorMessage
+            },
+            //成功后的会掉
+            success(response, file, fileList){
+                 if(response.status==200){
+                   	this.error=this.$t('finance.upTemplateS')
+                   	this.errorisshow=true
+                    this.url=file.name
+                    console.log(response)
+                    this.loadingisshow=false
+                    this.importstoredataList=response.rows
+                    this.active=2
+                    this.oneStep=false
+                    this.twoStep=true
+                    this.getAllGoods(this.valueT)
+                }else{
+                    this.errorisshow=true
+                    this.loadingisshow=false
+                    this.error=response.errorMessage
+                   //console.log(response)
+                }
+            },
+			//增加商品
+			goaddgoods(){
+				this.$router.push({
+					path:"/addgoods"
+				})
+			},
+
+			//表格选中时的数据，数组
+			checkedSjs(selection,row){
+				this.valId = row.id
+				row._checked=true
+				if(row._checked){
+					this.jshiArr.push(row.id)
+					this.jshiArrStr=this.jshiArr.join(',')
+
+				}
+			},
+			//全选
+			checkedAllSjs(selection){//已选项数据
+				selection.forEach((x,index)=>{
+					if(this.selectAllStatus){
+						this.jshiArr.push(x.id)
+						this.jshiArrStr=this.jshiArr.join(',')
+					}
+				})
+
+			},
+			//全选发生变化
+			allSelectAndCancel(selection){
+				this.jshiArrStr=''
+				this.jshiArr=[]
+				selection.forEach((x,index)=>{
+					this.jshiArr.push(x.id)
+					this.jshiArrStr=this.jshiArr.join(',')
+				})
+			},
+			//批量启用
+			Batchqy(){
+				console.log(this.jshiArrStr)
+			},
+			//批量启用
+			Batchty(){
+
+			},
+			//取消
+			cancelSelect(selection,row){//selection：已选项数据 row：取消选择的项数据
+				if(!row._checked){
+					this.jshiArr.splice(this.jshiArr.indexOf(row.id),1)
+					this.jshiArrStr=this.jshiArr.join(',')
+					console.log(this.jshiArrStr)
+				}
+			},
+			//单击某一行
+			gebg(data){
+                this.valId = data.id
+                this.jshiArrStr=data.id
+			},
+			//删除商品
+			del(){
+				if(this.jshiArrStr==''){
+						this.$notify({
+                        title:"",//
+                        message: this.$t('public.valid.chooseOneData'),//,//'请选择一条数据！',
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+					}else{
+						
+                        this.$Modal.confirm({
+                            title: '删除商品',
+                            content: '<p>确定要删除吗?</p>',
+                            onOk: () => {
+                                this.axios.delete('/sku/delete/'+this.jshiArrStr+'?uid=' + this.uid).then((res) => {
+                                    if(res.data.status == 200) {
+                                    this.$notify({
+                                        title:"",//
+                                        message: this.$t('public.deleteSuccess'),//
+                                        type: 'success',
+                                        position: 'bottom-right'
+                                    });
+                                    this.getAllGoods(this.valueT)
+                                    this.jshiArrStr=''
+                                    this.jshiArr=[]
+                                    }
+                                })
+                            },
+                           
+                        });
+					}
+
+			},
+
+		      //停用
+		      stop(){
+		      	if(this.jshiArrStr==''){
+		      		this.$notify({
+                        title:"",//
+                        message:this.$t('public.valid.chooseOneData'),
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+				}else{
+					this.axios.post('/sku/disabled/'+this.jshiArrStr+'?uid='+this.uid).then((res)=>{
+						if(res.data.status==200){
+							 this.$notify({
+		                        title:"",//
+		                        message:this.$t('public.normalT'),//
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+							this.getAllGoods(this.valueT)
+                            
+							this.jshiArrStr=''
+							this.jshiArr=[]
+						}else{
+							 this.$notify({
+		                        title:"",//
+		                        message: res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+		      		})
+				}
+
+		      },
+		      //启用
+		      start(){
+		      	if(this.jshiArrStr==''){
+					this.$notify({
+                        title:"",//
+                        message:this.$t('public.valid.chooseOneData'),
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+
+				}else{
+					this.axios.post('sku/enabled/'+this.jshiArrStr+'?uid='+this.uid).then((res)=>{
+						if(res.data.status==200){
+							 this.$notify({
+		                        title:"",//
+		                        message:this.$t('public.normalS'),//
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+							this.getAllGoods(this.valueT)
+
+							this.jshiArrStr=''
+							this.jshiArr=[]
+						}else{
+
+							 this.$notify({
+		                        title:"",//
+		                        message: res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+		      		})
+				}
+		      },
+			//双击一行单个商品详情
+			dbclick(row,index){
+                console.log(row)
+				this.dbinfo = row;
+				this.$router.push({
+					path:"/addgoods",
+					query:{
+						id:row.id,
+						index:index,
+                        s:row.status
+					}
+				})
+			},
+			//搜索
+			search(){
+				 this.axios.get('sku/query?keyword='+this.keyword+'&uid='+this.uid).then((res)=>{
+			 		if(res.data.status==200){
+						this.total = res.data.total
+						this.pageSize = res.data.pageSize
+						this.goods = res.data.rows
+						this.goods.forEach((x,index)=>{
+							if(x.status==1){
+								x.statusDesc=this.$t('public.normalS')
+							}
+							if(x.status==0){
+								x.statusDesc=this.$t('public.normalT')
+							}
+							if(x.status==99){
+								x.statusDesc=this.$t('public.normalT')
+							}
+						})
+					}else{
+	                    this.$notify({
+	                        title:"",//
+	                        message: res.data.errorMessage,
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+					}
+				 })
+			},
+			entersSearch(){
+				this.search()
+			},
+			//获取商品数据
+			getAllGoods(s){
+				this.axios.get('/sku/query?uid='+this.uid+'&status='+s).then((res)=>{
+					if(res.data.status==200){
+						this.total = res.data.total
+						this.pageSize = res.data.pageSize
+						this.goods = res.data.rows
+						console.log(res.data.rows)
+						this.goods.forEach((x,index)=>{
+							if(x.status==1){
+								x.statusDesc=this.$t('public.normalS')
+							}
+							if(x.status==0){
+								x.statusDesc=this.$t('public.normalT')
+							}
+							if(x.status==99){
+								x.statusDesc=this.$t('public.normalT')
+							}
+						})
+					}else{
+	                    this.$notify({
+	                        title:"",//
+	                        message: res.data.errorMessage,
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+					}
+
+				})
+			},
+			//添加分类
+			addfl(){
+                this.getAllfl1()
+                this.isshowtable=false
+			},
+            //返回分类
+            cancelHome(){
+                this.isshowtable=true
+            },
+			//切换一条页
+            getData(current){
+				if(this.classId==''){
+					this.axios.get('/sku/query?offset='+current+'&uid='+this.uid+'&status='+this.valueT).then((res)=>{
+						this.goods = res.data.rows
+						this.total = res.data.total
+						this.pageSize = res.data.pageSize
+						this.goods.forEach((x,index)=>{
+							if(x.status==1){
+								x.statusDesc=this.$t('public.normalS')
+							}
+							if(x.status==0){
+								x.statusDesc=this.$t('public.normalT')
+							}
+							if(x.status==99){
+								x.statusDesc=this.$t('public.normalT')
+							}
+						})
+					})
+				}else{
+					this.axios.get('/sku/query?offset='+current+'&uid='+this.uid+'&classId='+this.classId).then((res)=>{
+						this.goods = res.data.rows
+						this.total = res.data.total
+						this.pageSize = res.data.pageSize
+						this.goods.forEach((x,index)=>{
+							if(x.status==1){
+								x.statusDesc=this.$t('public.normalS')
+							}
+							if(x.status==0){
+								x.statusDesc=this.$t('public.normalT')
+							}
+							if(x.status==99){
+								x.statusDesc=this.$t('public.normalT')
+							}
+						})
+					})
+				}
+
+            },
+            //翻页
+            changePageSize(size){
+
+				if(this.classId==''){
+					this.axios.get('/sku/query?length='+size+'&uid='+this.uid+'&status='+this.valueT).then((res)=>{
+                        if(res.data.status==200){
+                            this.goods = res.data.rows
+                            this.total = res.data.total
+                            this.pageSize = res.data.pageSize
+                            this.goods.forEach((x,index)=>{
+                                if(x.status==1){
+                                    x.statusDesc=this.$t('public.normalS')
+                                }
+                                if(x.status==0){
+                                    x.statusDesc=this.$t('public.normalT')
+                                }
+                                if(x.status==99){
+                                    x.statusDesc=this.$t('public.normalT')
+                                }
+                            })
+                        }
+						
+						
+					})
+				}else{
+					this.axios.get('/sku/query?length='+size+'&uid='+this.uid+'&classId='+this.classId).then((res)=>{
+                        if(res.data.status==200){
+                            this.goods = res.data.rows
+                            this.total = res.data.total
+                            this.pageSize = res.data.pageSize
+                            this.goods.forEach((x,index)=>{
+                                if(x.status==1){
+                                    x.statusDesc=this.$t('public.normalS')
+                                }
+                                if(x.status==0){
+                                    x.statusDesc=this.$t('public.normalT')
+                                }
+                                if(x.status==99){
+                                    x.statusDesc=this.$t('public.normalT')
+                                }
+                            })
+                        }
+					})
+				}
+
+			},
+			//点击搜索分类商品
+			classSku(id){
+				this.axios.get('/sku/query?uid='+this.uid+'&classId='+id).then(res=>{
+            		if(res.data.status==200){
+            			this.total = res.data.total
+						this.pageSize = res.data.pageSize
+						this.goods = res.data.rows
+						this.goods.forEach((x,index)=>{
+							if(x.status==1){
+								x.statusDesc=this.$t('public.normalS')
+							}
+							if(x.status==0){
+								x.statusDesc=this.$t('public.normalT')
+							}
+							if(x.status==99){
+								x.statusDesc=this.$t('public.normalT')
+							}
+						})
+            		}
+            	})
+			},
+          
+            //获取所有付类
+            getAllfl(){
+            	this.axios.get('skuclass/query?uid='+this.uid).then(res=>{
+            		if(res.data.status==200){
+						let arr=[]
+						arr=res.data.rows
+            			this.total1=res.data.total
+            			this.pageSize1=res.data.pageSize
+            			console.log(this.total1)
+            			this.Allfl=arr.map(x=>{
+							let bj={
+								title:x.name,
+								id:x.id,
+								icon:x.photo,
+								children:x.childs
+							}
+							bj.children=bj.children.map(j=>{
+								let b={
+									title:j.name,
+									id:j.id,
+									parentId:x.id,
+									icon:j.photo,
+									children:j.childs
+								}
+								return b
+							})
+							bj.children.forEach(n=>{
+								n.children=n.children.map(m=>{
+									let c={
+										title:m.name,
+										id:m.id,
+										parentId:j.id,
+										icon:m.photo,
+									}
+									return m
+								})
+							})
+							return bj
+						})
+						console.log(this.Allfl)
+            		}
+            	})
+			},
+			//选中分类
+			seletChange(data){
+                this.isshowtable=true//选中返回table
+				this.classId=data[0].id
+				this.classSku(this.classId)
+				console.log(data)
+			},
+            //所有分类的商品
+            getAllflTop(){
+                this.getAllGoods(this.valueT)
+            },
+			//下拉加载更多
+            handleReachEdge(){
+				this.current++//默认10条
+    	 		this.axios.get('skuclass/query?offset='+this.current+'&uid='+this.uid+'&length=15').then((res)=>{
+	 				if(this.current>Math.ceil(this.total1/this.pageSize1)){
+                            this.current=Math.ceil(this.total1/this.pageSize1)
+                        }
+			 			let arr=[]
+						arr=res.data.rows
+            			let flArr=arr.map(x=>{
+							let bj={
+								title:x.name,
+								id:x.id,
+								icon:x.photo,
+								children:x.childs
+							}
+							bj.children=bj.children.map(j=>{
+								let b={
+									title:j.name,
+									id:j.id,
+									parentId:x.id,
+									icon:j.photo,
+									children:j.childs
+								}
+								return b
+							})
+							bj.children.forEach(n=>{
+								n.children=n.children.map(m=>{
+									let c={
+										title:m.name,
+										id:m.id,
+										parentId:j.id,
+										icon:m.photo,
+									}
+									return m
+								})
+							})
+							return bj
+						})
+						//合并数组，并再次赋值给原来的分类数组
+						let concatArr=this.Allfl.concat(flArr)
+						console.log(concatArr)
+						this.Allfl=concatArr
+
+			 	})
+
+            },
+	
+        //商品分类i
+        //增加一级分类
+        addClass(){
+            this.skuclassisshow=true
+            this.level1Editisshow=true
+            this.skuclassphoto=''
+            this.formValidateskuclass.skuclassName=''
+        },
+        //商品一级分类上传图片成功
+        addClassImgSuccess(res,file){
+            this.skuclassphoto=res.rows.url
+        },
+        addsucessSunclass(res,file){
+            this.skuclassphotoSunclass=res.rows.url
+        },
+        //保存一级分类
+        saveClassLevel1(name){
+             this.$refs[name].validate((valid) => {
+                if(valid){
+                    this.axios.post('skuclass/add?uid='+this.uid,{
+                        name:this.formValidateskuclass.skuclassName,
+                        photo:this.skuclassphoto,
+                        childs:[]
+                    }).then(res=>{
+                        if(res.data.status==200){
+                            this.$notify({
+                            title:"",//
+                            message:this.$t('public.SaveSuccess'),//
+                            type: 'success',
+                            position: 'bottom-right'
+                        });
+                            this.skuclassisshow=false
+                            this.formValidateskuclass.skuclassName=''
+                            this.skuclassphoto=''
+                            this.getAllfl1()
+                        }else{
+                            this.$notify({
+                                title:"",//
+                                message:res.data.errorMessage,
+                                type: 'error',
+                                position: 'bottom-right'
+                            });
+                        }
+                    })
+                }
+             })
+        },
+        //取消
+        cancelClassLevel1(){
+            this.skuclassisshow=false
+            this.formValidateskuclass.skuclassName=''
+            this.skuclassphoto=''
+            
+        },
+        //一级分类获取焦点
+       level1focus (item,index){
+            $('.editInput').eq(index).text(item.title)
+            console.log($('.editInput').eq(index).text())
+        },
+        //一级分类失去焦点{{$t('public.EditBtn')}}一级分类PUT /skuclass/update {{$t('public.EditBtn')}}
+        level1Blur(item,index){
+            if($('.editInput').eq(index).text()==''){
+                this.$notify({
+                    title:"",//
+                    message:this.$t('public.classNameEmpty'),//'分类名称不能为空',
+                    type: 'error',
+                    position: 'bottom-right'
+                });
+            }else if($('.editInput').eq(index).text()==item.title){
+                return
+            }else{
+                this.axios.put('/skuclass/update?uid='+this.uid,{
+                    id:item.id,
+                    name:$('.editInput').eq(index).text()
+                }).then(res=>{
+                    if(res.data.status==200){
+                        this.$notify({
+                            title:"",//
+                            message:this.$t('public.editSuccess'),//
+                            type: 'success',
+                            position: 'bottom-right'
+                        });
+                        this.getAllfl1()
+                    }else{
+                        this.$notify({
+                            title:"",//
+                            message:res.data.errorMessage,
+                            type: 'error',
+                            position: 'bottom-right'
+                        });
+                    }
+                })
+            }
+            
+        },
+        //点击{{$t('public.EditBtn')}}一级分类
+        EditLevel1(item){
+            this.skuclassisshow=true
+            this.level1Editisshow=false
+            this.level1classId=item.id
+            this.skuclassphoto=item.icon
+            this.formValidateskuclass.skuclassName=item.title
+        },
+        //{{$t('public.EditBtn')}}一级分类
+        EditClassLevel1(){
+            this.axios.put('/skuclass/update?uid='+this.uid,{
+                id:this.level1classId,
+                name:this.formValidateskuclass.skuclassName,
+                photo:this.skuclassphoto
+            }).then(res=>{
+                if(res.data.status==200){
+                    this.$notify({
+                        title:"",//
+                        message:this.$t('public.editSuccess'),//
+                        type: 'success',
+                        position: 'bottom-right'
+                    });
+                    this.skuclassisshow=false
+                    this.skuclassphoto=''
+                    this.level1classId=''
+                    this.formValidateskuclass.skuclassName=''
+                    this.getAllfl1()
+                }else{
+                    this.$notify({
+                        title:"",//
+                        message:res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+            })
+        },
+        //{{$t('public.del')}}一级分类
+        delLevel1(item){
+            this.axios.delete('skuclass/delete/'+item.id+'?uid='+this.uid).then(res=>{
+               if(res.data.status==200){
+                    this.$notify({
+                        title:"",//
+                        message:this.$t('public.deleteSuccess'),//
+                        type: 'success',
+                        position: 'bottom-right'
+                    });
+                    this.getAllfl1()
+                }else{
+                    this.$notify({
+                        title:"",//
+                        message:res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+            })
+        },
+
+        //二级分类获取焦点
+        level2focus(i,item,index){
+
+            $('.level2Name').eq(index).text(i.title)
+            console.log($('.level2Name').eq(index).text())
+            console.log(i)
+        },
+        //二级分类失去焦点{{$t('public.EditBtn')}}一级分类PUT /skuclass/update {{$t('public.EditBtn')}}
+        level2Blur(i,item,index){
+            if($('.level2Name').eq(index).text()==''){
+                this.$notify({
+                    title:"",//
+                    message:this.$t('public.classNameEmpty'),//'分类名称不能为空',
+                    type: 'error',
+                    position: 'bottom-right'
+                });
+            }else if($('.level2Name').eq(index).text()==i.title){
+                return
+            }else{
+                this.axios.put('/skuclass/update?uid='+this.uid,{
+                    id:i.id,
+                    parentId:item.id,
+                    name:$('.level2Name').eq(index).text()
+                }).then(res=>{
+                    if(res.data.status==200){
+                        this.$notify({
+                            title:"",//
+                            message:this.$t('public.editSuccess'),//
+                            type: 'success',
+                            position: 'bottom-right'
+                        });
+                        this.getAllfl1()
+                    }else{
+                        this.$notify({
+                            title:"",//
+                            message:res.data.errorMessage,
+                            type: 'error',
+                            position: 'bottom-right'
+                        });
+                    }
+                })
+            }
+            
+        },
+        //点击{{$t('public.EditBtn')}}二级分类
+        EditLevel2(item){
+            this.level2Ml=true
+            this.level2Editisshow=false
+            this.level1classId=item.parentId//上级id
+            this.level2classId=item.id//当前id
+            this.level2photo=item.icon
+            this.level2class.level2Name=item.title
+        },
+        //{{$t('public.EditBtn')}}二级分类
+        EditClassLevel2(){
+            this.axios.put('/skuclass/update?uid='+this.uid,{
+                id:this.level2classId,
+                parentId:this.level1classId,
+                name:this.level2class.level2Name,
+                photo:this.level2photo
+            }).then(res=>{
+                if(res.data.status==200){
+                    this.$notify({
+                        title:"",//
+                        message:this.$t('public.editSuccess'),//
+                        type: 'success',
+                        position: 'bottom-right'
+                    });
+                    this.level2Ml=false
+                    this.level2classId=''
+                    this.level1classId=''
+                    this.level2class.level2Name=''
+                    this.level2photo=''
+                    this.getAllfl1()
+                }else{
+                    this.$notify({
+                        title:"",//
+                        message:res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+            })
+        },
+        //{{$t('public.del')}}二级分类
+        delLevel2(item){
+            this.axios.delete('skuclass/delete/'+item.id+'?uid='+this.uid).then(res=>{
+               if(res.data.status==200){
+                    this.$notify({
+                        title:"",//
+                        message:this.$t('public.deleteSuccess'),//
+                        type: 'success',
+                        position: 'bottom-right'
+                    });
+                    this.getAllfl1()
+                }else{
+                    this.$notify({
+                        title:"",//
+                        message:res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+            })
+        },
+        //三级分类获取焦点
+        level3focus(j,i,item,index){
+
+            $('.level3Name').eq(index).text(i.title)
+            
+        },
+        //三级分类失去焦点{{$t('public.EditBtn')}}一级分类PUT /skuclass/update {{$t('public.EditBtn')}}
+        level3Blur(j,i,item,index){
+            if($('.level3Name').eq(index).text()==''){
+                this.$notify({
+                    title:"",//
+                    message:this.$t('public.classNameEmpty'),//'分类名称不能为空',
+                    type: 'error',
+                    position: 'bottom-right'
+                });
+            }else if($('.level3Name').eq(index).text()==j.title){
+                return
+            }else{
+                this.axios.put('/skuclass/update?uid='+this.uid,{
+                    id:j.id,
+                    parentId:i.id,
+                    name:$('.level3Name').eq(index).text()
+                }).then(res=>{
+                    if(res.data.status==200){
+                        this.$notify({
+                            title:"",//
+                            message:this.$t('public.editSuccess'),//
+                            type: 'success',
+                            position: 'bottom-right'
+                        });
+                        this.getAllfl1()
+                    }else{
+                        this.$notify({
+                            title:"",//
+                            message:res.data.errorMessage,
+                            type: 'error',
+                            position: 'bottom-right'
+                        });
+                    }
+                })
+            }
+            
+        },
+        //点击{{$t('public.EditBtn')}}二级分类
+        EditLevel3(item){
+            this.level3Ml=true
+            this.level3Editisshow=false
+            this.level2classId=item.parentId//上级id
+            this.level3classId=item.id//当前id
+            this.level3photo=item.icon
+            this.level3class.level3Name=item.title
+        },
+        //{{$t('public.EditBtn')}}二级分类
+        EditClassLevel3(){
+            this.axios.put('/skuclass/update?uid='+this.uid,{
+                id:this.level3classId,
+                parentId:this.level2classId,
+                name:this.level3class.level3Name,
+                photo:this.level3photo
+            }).then(res=>{
+                if(res.data.status==200){
+                    this.$notify({
+                        title:"",//
+                        message:this.$t('public.editSuccess'),//
+                        type: 'success',
+                        position: 'bottom-right'
+                    });
+                    this.level3Ml=false
+                    this.level3classId=''
+                    this.level2classId=''
+                    this.level3class.level3Name=''
+                    this.level3photo=''
+                    this.getAllfl1()
+                }else{
+                    this.$notify({
+                        title:"",//
+                        message:res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+            })
+        },
+        //{{$t('public.del')}}三级分类
+        delLevel3(item){
+            this.axios.delete('skuclass/delete/'+item.id+'?uid='+this.uid).then(res=>{
+               if(res.data.status==200){
+                    this.$notify({
+                        title:"",//
+                        message:this.$t('public.deleteSuccess'),//
+                        type: 'success',
+                        position: 'bottom-right'
+                    });
+                    this.getAllfl1()
+                }else{
+                    this.$notify({
+                        title:"",//
+                        message:res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+            })
+        },
+        //添加二级分类
+        addlevel2(item){
+            this.level2Ml=true
+            this.level2Editisshow=true
+            this.level1classId=item.id//一级分类id
+            this.level2photo=''
+            this.level2class.level2Name=''
+        },
+         //添加图片二级分类
+        addlevel2Success(res,file){
+            this.level2photo=res.rows.url
+        },
+        //保存二级分类
+        saveClassLevel2(name){
+             this.$refs[name].validate((valid) => {
+                if(valid){
+                    this.axios.post('skuclass/add?uid='+this.uid,{
+                        parentId:this.level1classId,
+                        name:this.level2class.level2Name,
+                        photo:this.level2photo
+                    }).then(res=>{
+                        if(res.data.status==200){
+                            this.$notify({
+                                title:"",//
+                                message:this.$t('public.SaveSuccess'),//
+                                type: 'success',
+                                position: 'bottom-right'
+                            });
+                            this.getAllfl1()
+                            this.level2Ml=false
+                            this.level2photo=''
+                            this.level1classId=''
+                            this.level2class.level2Name=''
+                        }else{
+                            this.$notify({
+                                title:"",//
+                                message:res.data.errorMessage,
+                                type: 'error',
+                                position: 'bottom-right'
+                            });
+                        }
+                    })
+                }
+             })
+        },
+        //取消
+        cancelClassLevel2(){
+            this.level2Ml=false
+            this.level2photo=''
+            this.level1classId=''
+            this.level2class.level2Name=''
+        },
+        //点击添加三级分类
+        addlevel3(item){
+            this.level3Ml=true
+            this.level3Editisshow=true
+            this.level2classId=item.id//二级分类id
+            this.level3photo=''
+            this.level3class.level3Name=''
+        },
+        //添加图片三级分类
+        addlevel3Success(res,file){
+            this.level3photo=res.rows.url
+        },
+        //保存三级分类
+        saveClassLevel3(name){
+            this.$refs[name].validate((valid) => {
+                if(valid){
+                    this.axios.post('skuclass/add?uid='+this.uid,{
+                        parentId:this.level2classId,
+                        name:this.level3class.level3Name,
+                        photo:this.level3photo
+                    }).then(res=>{
+                        if(res.data.status==200){
+                            this.$notify({
+                                title:"",//
+                                message:this.$t('public.SaveSuccess'),//
+                                type: 'success',
+                                position: 'bottom-right'
+                            });
+                            this.getAllfl1()
+                            this.level3Ml=false
+                            this.level2classId=''
+                            this.level3photo=''
+                            this.level3class.level3Name=''
+                        }else{
+                            this.$notify({
+                                title:"",//
+                                message:res.data.errorMessage,
+                                type: 'error',
+                                position: 'bottom-right'
+                            });
+                        }
+                    })
+                }
+             })
+        },
+        cancelClassLevel3(){
+            this.level3Ml=false
+            this.level2classId=''
+            this.level3photo=''
+            this.level3class.level3Name=''
+        },
+        //1展开
+        clickAdd(item,index){
+            item._check=true
+        },
+        //1收起
+        clickReduce(item,index){
+            item._check=false
+        },
+        //2展开
+        clickSubAdd(item,index){
+            item._check=true
+        },
+        //2收起
+        clickSubReduce(item,index){
+            item._check=false
+        },
+        //3展开
+        clickSub3Add(item,index){
+            item._check=true
+        },
+        //3收起
+        clickSub3Reduce(item,index){
+            item._check=false
+        },
+        //获取所有付类
+        getAllfl1(){
+            this.axios.get('skuclass/query?uid='+this.uid).then(res=>{
+
+                if(res.data.status==200){
+                    let arr=[]
+                    arr=res.data.rows
+                    this.totalfl=res.data.total
+                    this.pageSizefl=res.data.pageSize
+                    console.log(this.total1)
+                    this.Allfl1=arr.map(x=>{
+                        let bj={
+                            title:x.name,
+                            id:x.id,
+                            icon:x.photo,
+                            children:x.childs,
+                            _check:false,
+
+                        }
+                        bj.children=bj.children.map(j=>{
+                            let b={
+                                title:j.name,
+                                id:j.id,
+                                parentId:x.id,
+                                icon:j.photo,
+                                children:j.childs,
+                                _check:false,
+                            }
+                            return b
+                        })
+                        bj.children.forEach(n=>{
+                            n.children=n.children.map(m=>{
+                                let c={
+                                    title:m.name,
+                                    id:m.id,
+                                    parentId:j.id,
+                                    icon:m.photo,
+                                }
+                                return m
+                            })
+                        })
+                        return bj
+                    })
+                    console.log(this.Allfl1)
+                }
+            })
+        },
+        //付类翻页
+        changePageSizefl(size){
+            this.pageSizefl = size
+        },
+        //切换分类一条页
+        getDatafl(current){
+            this.axios.get('skuclass/query?offset='+current+'&uid='+this.uid).then((res)=>{
+
+                if(res.data.status==200){
+                        let arr=[]
+                        arr=res.data.rows
+                        this.Allfl1=arr.map(x=>{
+                            let bj={
+                                title:x.name,
+                                id:x.id,
+                                icon:x.photo,
+                                children:x.childs,
+                                _check:false,
+                            }
+                            bj.children=bj.children.map(j=>{
+                                let b={
+                                    title:j.name,
+                                    id:j.id,
+                                    parentId:x.id,
+                                    icon:j.photo,
+                                    children:j.childs,
+                                    _check:false,
+                                }
+                                return b
+                            })
+                            bj.children.forEach(n=>{
+                                n.children=n.children.map(m=>{
+                                    let c={
+                                        title:m.name,
+                                        id:m.id,
+                                        parentId:j.id,
+                                        icon:m.photo,
+                                    }
+                                    return m
+                                })
+                            })
+                            return bj
+                        })
+                        
+                    }
+            })
+
+        },
+            //下拉框选择
+            orderselected(value){
+				this.classId=''
+                this.valueT = value
+                console.log(value)
+                this.getAllGoods(this.valueT);
+            },
+		},
+		 created(){
+            	this.$nextTick(()=>{
+
+			})
+        },
+		mounted(){
+			this.getAllGoods(this.valueT)
+			this.getAllfl()
+			this.height = document.documentElement.clientHeight
+            this.skuLoad=LoadUrl.actionLoad.SKU//商品导入模板
+           
+	},
+}
+</script>
+<style scoped>
+	.units-box {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		background: rgb(230,233,236);
+		overflow:hidden;
+	}
+	.tot{
+    position:fixed;
+    bottom:10px;
+    left:10%;
+    z-index:12;
+}
+	.search-box {
+		width: 300px;
+		height: auto;
+		position: fixed;
+		top: 15px;
+		left: 250px;
+		z-index: 9999;
+	}
+
+	.search-box .add {
+		width: 32px;
+		height: 32px;
+		border-radius: 50%;
+		background: #00a8ff;
+		line-height: 28px;
+		text-align: center;
+		color: #fff;
+		font-size: 22px;
+		float: left;
+		margin-right: 10px;
+	}
+
+	.btns-box {
+		width: 100%;
+		height: 50px;
+		border-bottom:1px solid #e4e4e4;
+		display:flex;
+		justify-content: space-between;
+
+		line-height: 50px;
+
+		background: #fff;
+	}
+	 .wldw{
+    	margin-left:10px;
+    	display: flex;
+    }
+	.right{
+		margin-right:10px;
+		margin-bottom:10px;
+	}
+
+	.ivu-icon-chevron-down {
+		font-size: 10px;
+	}
+	.goods-left li.flclass:last-child{
+		margin-bottom:360px;
+	}
+	.flclass{
+		padding:10px 0;
+		display:flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+	.cName{
+		width: 85px;
+	    display: block;
+	    overflow: hidden;
+	    text-overflow: ellipsis;
+	    white-space: nowrap;
+	}
+	.className{
+		  margin-left:10px;
+		  margin-right:10px;
+		/* overflow: hidden;
+		text-overflow:ellipsis;
+		white-space: nowrap;
+		width:100px */
+	}
+	.btns img {
+		width: 16px;
+		height: 16px;
+		vertical-align: middle;
+	}
+
+	.table {
+		margin: 10px 0px 10px 10px;
+		background:#fff;
+		height:100%;
+
+	}
+
+	.page-box {
+		text-align: center;
+		margin-top:5px;
+		margin-bottom:220px
+	}
+
+	.page-box1 {
+		text-align: center;
+		margin-top:15px;
+	}
+	/***气泡提示样式设置***/
+
+	.qp-con {
+		width: 100%;
+		height: 30px;
+		color: #0d0d0d;
+		font-size: 14px;
+		line-height: 30px;
+		padding:0 10px;
+		cursor: pointer;
+	}
+
+	.qp-con img {
+		width: 16px;
+		height: 16px;
+		vertical-align: middle;
+
+	}
+	.goods-left{
+		 width: 200px;
+        margin-right: 3px;
+        flex: 0 0 200px;
+        font-size: 14px;
+        background: #fff;
+		border-right:1px solid #eee;
+	}
+	.goods-right{
+
+	    background: #fff;
+	    height: 100%;
+	    width: 100%;
+		overflow: auto
+
+	}
+	.left-top{
+		height:50px;
+		line-height: 50px;
+		display:flex;
+		/*position:fixed;
+		width:12%;
+		z-index:9;*/
+		background: #fff;
+		padding:0 10px;
+		border-bottom:1px solid #e4e4e4;
+		justify-content: space-between;
+
+	}
+
+	.goods-left li{
+		list-style: none;
+		width:100%;
+	}
+
+	.goods-left li span{
+
+		margin-right:10px;
+	}
+	.bg{
+		background:rgb(241,245,247);
+		color:rgb(59,119,227);
+	}
+.crow{
+    cursor: pointer;
+    display: inline-block;
+    width: 17px;
+    height: 17px;
+    text-align: center;
+    line-height: 14px;
+    border: 1px solid #e9e9e9;
+    user-select: none;
+    background: #fff;
+    margin-right: 10px;
+}
+.levelTitle{
+    display: flex;
+    justify-content: space-around;
+    padding:10px 0;
+    background:#f5f5f5;
+}
+.level1A{
+    width:48px;
+    height: 48px;
+}
+.level1A img{
+    width: 100%;
+    height:100%;
+}
+.level1ul{
+    display: flex;
+    justify-content: space-around;
+    padding:10px 0;
+    border-bottom: 1px solid #e4e4e4;
+
+}
+.level1ul:hover{
+    background: #f4f4f4
+}
+.level1Name,.level2NameT,.level3NameT{
+    height:50px;
+    width:150px;
+    line-height: 50px;
+    display: flex;
+   align-items: center;
+}
+.level2NameT,.level3Name{
+    margin-left:50px;
+}
+.level3Name{
+    margin-left:100px;
+}
+.editInput,.level2Name,.level3Name{
+    width:100%;
+    height: 30px;
+    line-height: 30px;
+    overflow: hidden;
+}
+.level1B{
+    margin-left:-50px;
+}
+.level1C{
+    margin-left:-100px;
+}
+.action{
+    line-height: 50px
+}
+.action a{
+    margin-left:5px;
+}
+ .editInput{
+    display: inline-block;
+    text-indent: 10px;
+    color: #555;
+    background-image: none;
+    /*border: 1px solid #eee;*/
+    /*-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);*/
+    /*box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);*/
+    /*-webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;*/
+}
+ .editInput:focus{
+    border-color: #66afe9;
+    outline: 0;
+     border: 1px solid #eee;
+     border-color:rgba(102, 175, 233, .6);
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 4px rgba(102, 175, 233, .6);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 4px rgba(102, 175, 233, .6);
+}
+.avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    text-align: center;
+  }
+  .avatar {
+    width: 100px;
+    height: 100px;
+    display: block;
+  }
+.right-left{
+width: 104px;
+height:100px;
+border:1px dashed #e1e1e1;
+}
+</style>
+<style type="text/css">
+	.ivu-table .demo-table-info-row td{
+        background-color: #2db7f5;
+        color: #fff;
+    }
+
+  .ivu-scroll-content{
+  	height:100%;
+  }
+  /*.ivu-scroll-wrapper,.ivu-scroll-container{
+  	height:100%!important;
+  }*/
+</style>

@@ -1,0 +1,3792 @@
+<template>
+	<!--商品报表-->
+	<div class="units-box">
+		<div style='display:flex;height:100%;overflow:hidden' >
+			<div class='main-left'>
+				<h4 style='height:50px;border-bottom:1px solid #e4e4e4;font-size:18px;font-weight:900;line-height:50px'>
+					<div style='margin-left:10px;'>会员</div>	
+				</h4>
+				<li class="flclass" v-for='(item,index) in fhlist' @click='getfhlistbg(index)' :class="{bor:index==fhindex}">
+					<span style='margin-left:20px'>{{item.label}}</span>
+				</li>
+			</div>
+			<!--全部会员-->
+			<div class="table" v-if='fhindex==0'>
+				<div style='display:flex;border-bottom:1px solid #e4e4e4'>
+					<span  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+						<div style='margin:0 10px;'>全部会员</div>	
+					</span>
+				</div>
+				<div style='margin:10px' class="AllMain">
+					<div class="inputSearchAll">
+						<Input class="searchGoods" style='margin-top:10px;width:80%;' v-model='kckeywordAll' placeholder='请输入会员编号/名称/手机号' @on-enter='entersSearchkcAll' >
+	                    	
+	            		</Input>
+	            		
+	            		<Button @click='searchkcAll' size="large" type="primary" icon="ios-search" style="margin-top: 8px;">搜索</Button>
+	            		
+            		</div>
+            		<div v-if='loadingisshow' style="margin-top:40px"><!--rotate_right-->
+						<Spin>
+							<mu-icon value="rotate_right" color="blue"  class="demo-spin-icon-load"></mu-icon>
+							
+							<div>Loading...</div>
+						</Spin>
+		            </div>
+            		<div v-if='kcdata1.length' style="margin: 20px 0 0 0;">
+						<Table border  :columns="kcKey1" :data="kcdata1" @on-row-dblclick='dblclickrowAllCrm'></Table>
+						<div class="page-box">
+							 <Page size='small' show-sizer placement='top' :page-size-opts="[10,20,30,40,50]" v-if='kctotal1!=0' :total="kctotal1" show-total  :pageSize='kcpageSize1'  @on-change="kcgetData1" @on-page-size-change="kcchangePageSize1"></Page>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!--会员清单-->
+			<div class="table" v-if='fhindex==1'>
+				<div style='height:50px;border-bottom:1px solid #e4e4e4;width:100%;line-height:50px;display:flex;justify-content: space-between;'>
+					<div style='display:flex'>
+						<div style='display:flex'>
+							<span  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+								<div style='margin:0 10px;'>会员中心</div>	
+							</span>
+							<!-- <div>
+								 <Select style="width:100px" v-model='valueTT' placeholder="全部"  @on-change="orderselected">
+							        <Option v-for="item in orderListname" :value="item.value" :key="item.value">{{ item.label }}</Option>
+							    </Select>
+							</div> -->
+						</div>
+						<Input style='margin-top:10px;width:400px' v-model='jtkeyword' :placeholder="$t('public.nameandphone')" @on-enter='entersSearchJtCrm' >
+                        	<span slot="append"  @click='searchJtCrm' style='cursor:pointer'>搜索</span>
+                		</Input>
+					</div>
+					<div style='display:flex'>
+						<div style='margin-right:10px'>
+							<Button type="primary" shape="circle" @click="addCrm"  style="background:#3b77e3;color:#fff;border:none">
+							 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>新建
+							</Button>
+						</div>
+						<div style='margin-right:10px'>
+							<Button type="primary" shape="circle" @click="addcz"  style="background:#3b77e3;margin-right:5px;color:#fff;border:none">
+							 <Icon type="social-usd" style="margin-right:5px;color:#fff"></Icon>充值
+							</Button>
+						</div>
+		           </div>
+				</div>
+				<div style='margin:10px'>
+
+					<Table border highlight-row  @on-row-dblclick="dbl" ref="selection"  :columns="crmKey" :data="crmdata" @on-row-click='clickrow'></Table>
+					<div class="page-box">
+						 <Page v-if='crmtotal!=0' size='small' show-sizer :page-size-opts="[10,20,30,40,50]" :total="crmtotal" show-total  :pageSize='crmpageSize'  @on-change="crmgetData" @on-page-size-change="crmchangePageSize"></Page>
+					</div>
+				</div>
+			</div>
+			<!--会员卡-->
+			<div class="table" v-if='fhindex==2'>
+				<div style='height:50px;border-bottom:1px solid #e4e4e4;width:100%;line-height:50px;display:flex;justify-content: space-between;'>
+					<span  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+						<div style='margin:0 10px;'>会员卡</div>	
+					</span>
+				</div>
+				<div style=''>
+					<div class='cradList'>
+						<div v-if='cardData.length==0' style='margin-top:20px'>暂无会员卡</div>
+						<div class='cradList1' v-for='(item,index) in cardData' :key='index' v-else>
+							<div class='viptopmain'>
+								<div class='viptop'>
+									<span style='font-size:35px;font-weight:900;color:#fff'>VIP</span>
+								</div>
+								<div style='color:#fff'>
+									<div style='font-size:20px;color:#fff'>{{item.name}}</div>
+									<div style='font-size:12px;;color:#e4e4e4;text-align:right'>{{item.name}}</div>
+								</div>
+							</div>
+							<div class='viptopmain-bottom'>
+								<div >
+									<div>{{item.useTypeDesc}}</div>
+									<div>积分比例：1：10</div>
+								</div>
+								<div>
+									<span style='font-size:25px;font-weight:900;color:#E1A271'>{{item.discount}}折</span>
+								</div>
+							</div>
+							<div class='viptopmain-b'>
+								<div style='width:100%;height:50px;text-align:center;line-height:50px;border-bottom:1px solid #e4e4e4;font-size:14px;font-weight:600'>{{item.name}}</div>
+								<div>
+									<li class='remarkli'>
+										<span class='remarkli-span'>开卡金额</span>
+										<span class='twospan'>{{item.deposit}}元</span>
+									</li>
+									<li class='remarkli'>
+										<span class='remarkli-span'>开卡赠送</span>
+										<span class='twospan'></span>
+									</li>
+									<li class='remarkli'>
+										<span class='remarkli-span'>购物折扣</span>
+										<span class='twospan'></span>
+									</li>
+									<li class='remarkli'>
+										<span class='remarkli-span'>能否升级</span>
+										<span class='twospan'></span>
+									</li>
+									<li class='remarkli'>
+										<span class='remarkli-span'>生日赠送</span>
+										<span class='twospan'></span>
+									</li>
+									<li class='remarkli'>
+										<span class='remarkli-span'>有效期限</span>
+										<span class='twospan'>{{item.timeLimit==0?"永久有效":item.timeMonth+'个月'}}</span>
+									</li>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="page-box" style='margin-bottom:120px' v-if='cardtotal>0'>
+						 <Page :total="cardtotal" size='small' show-total  :pageSize='cardpageSize'  @on-change="cardgetData" @on-page-size-change="cardchangePageSize"></Page>
+					</div>
+				</div>
+			</div>
+			<!--充值活动GET /mrechargea/query 充值活动清单-->
+			<div class="table" v-if='fhindex==3' >
+				<div style='display:flex'>
+						<span  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+							<div style='margin:0 10px;'>充值活动</div>	
+						</span>
+						<Input style='margin-top:10px;width:400px' v-model='mrechargeakeyword' :placeholder="$t('public.nameandphone')" @on-enter='entersSearchmrechargea' >
+                        	<span slot="append"  @click='searchmrechargea' style='cursor:pointer'>搜索</span>
+                		</Input>
+					</div>
+				<Table border  :columns="mrechargeakey" :data="mrechargeadata"></Table>
+				<div class="page-box">
+					 <Page size='small' show-sizer placement='top' :page-size-opts="[10,20,30,40,50]" v-if='mrechargeatotal!=0' :total="mrechargeatotal" show-total  :pageSize='mrechargeapageSize'  @on-change="mrechargeagetData" @on-page-size-change="mrechargeachangePageSize"></Page>
+				</div>
+			</div>
+			<!--黑名单-->
+			<!-- <div class="table" v-if='fhindex==4'>
+				<div style='display:flex'>
+						<span  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+							<div style='margin:0 10px;'>黑名单</div>	
+						</span>
+						<Input style='margin-top:10px;width:400px' v-model='blackkeyword' :placeholder="$t('public.nameandphone')" @on-enter='entersSearblack' >
+                        	<span slot="append"  @click='searblack' style='cursor:pointer'>搜索</span>
+                		</Input>
+					</div>
+				<Table border  :columns="blackkey" :data="blackdata"></Table>
+				<div class="page-box">
+					 <Page size='small' show-sizer placement='top' :page-size-opts="[10,20,30,40,50]" v-if='blacktotal!=0' :total="blacktotal" show-total  :pageSize='blackpageSize'  @on-change="blackgetData" @on-page-size-change="blackchangePageSize"></Page>
+				</div>
+			</div> -->
+			<!--生命周期-->
+			<div class="table" v-if='fhindex==4'>
+				<div style="margin:10px">
+		            <Tabs :animated='false' @on-click="clickNomsg">
+		                <!--消费者-->
+		    	        <TabPane :label="label0">
+		                    <Table border :columns="crmdatakey0" :data="crmdataList0" ></Table>
+		                    <!--底部的分页-->
+		                    <div class="page-box" v-if='crmtotal0>10'>
+		                         <Page :total="crmtotal0" size='small' show-sizer placement='top' :page-size-opts="[10,20,30,40,50]" show-total  :pageSize='crmpageSize0'  @on-change="jfgetData" @on-page-size-change="jfchangePageSizeCrm"></Page>
+		                    </div>
+		                </TabPane>
+		                 <!--顾客-->
+		    	        <TabPane :label="label1" >
+		                    <Table border :columns="crmdatakey1" :data="crmdataList1" ></Table>
+		                    <!--底部的分页-->
+		                    <div class="page-box" v-if='crmtotal1>10'>
+		                         <Page :total="crmtotal1" size='small' show-sizer placement='top' :page-size-opts="[10,20,30,40,50]" show-total  :pageSize='crmpageSize1'  @on-change="jfgetData" @on-page-size-change="jfchangePageSizeCrm"></Page>
+		                    </div>
+		                </TabPane>
+		                <!--新会员-->
+		    	        <TabPane :label="label2" >
+		                    <Table border :columns="crmdatakey2" :data="crmdataList2" ></Table>
+		                    <!--底部的分页-->
+		                    <div class="page-box" v-if='crmtotal2>10'>
+		                         <Page :total="crmtotal2" size='small' show-sizer placement='top' :page-size-opts="[10,20,30,40,50]" show-total  :pageSize='crmpageSize2'  @on-change="jfgetData" @on-page-size-change="jfchangePageSizeCrm"></Page>
+		                    </div>
+		                </TabPane>
+		                <!--活跃会员-->
+		    	        <TabPane :label="label3" >
+		                    <Table border :columns="crmdatakey3" :data="crmdataList3" ></Table>
+		                    <!--底部的分页-->
+		                    <div class="page-box" v-if='crmtotal3>10'>
+		                         <Page :total="crmtotal3" size='small' show-sizer placement='top' :page-size-opts="[10,20,30,40,50]" show-total  :pageSize='crmpageSize3'  @on-change="jfgetData" @on-page-size-change="jfchangePageSizeCrm"></Page>
+		                    </div>
+		                </TabPane>
+		                <!--沉默会员-->
+		    	        <TabPane :label="label4" >
+		                     <Table border :columns="crmdatakey4" :data="crmdataList4" ></Table>
+		                    <!--底部的分页-->
+		                    <div class="page-box" v-if='crmtotal4>10'>
+		                         <Page :total="crmtotal4" size='small' show-sizer placement='top' :page-size-opts="[10,20,30,40,50]" show-total  :pageSize='crmpageSize4'  @on-change="jfgetData" @on-page-size-change="jfchangePageSizeCrm"></Page>
+		                    </div>
+		                </TabPane>
+		                <!--睡眠会员-->
+		    	        <TabPane :label="label5" >
+		                    <Table border :columns="crmdatakey5" :data="crmdataList5" ></Table>
+		                    <!--底部的分页-->
+		                    <div class="page-box" v-if='crmtotal5>10'>
+		                         <Page :total="crmtotal5" size='small' show-sizer placement='top' :page-size-opts="[10,20,30,40,50]" show-total  :pageSize='crmpageSize5'  @on-change="jfgetData" @on-page-size-change="jfchangePageSizeCrm"></Page>
+		                    </div>
+		                </TabPane>
+		                <!--流失会员-->
+		    	        <TabPane :label="label6" >
+		                    <Table border :columns="crmdatakey6" :data="crmdataList6" ></Table>
+		                    <!--底部的分页-->
+		                    <div class="page-box" v-if='crmtotal6>10'>
+		                         <Page :total="crmtotal6" size='small' show-sizer placement='top' :page-size-opts="[10,20,30,40,50]" show-total  :pageSize='crmpageSize6'  @on-change="jfgetData" @on-page-size-change="jfchangePageSizeCrm"></Page>
+		                    </div>
+		                </TabPane>
+		        	</Tabs>
+		        </div>
+			</div>
+			<!--近期生日-->
+			<div class="table" v-if='fhindex==5'>
+				<div style='display:flex'>
+						<span  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+							<div style='margin:0 10px;'>近期生日</div>	
+						</span>
+						<Select v-model="valueT" style="width:100px;margin-top:10px;margin-right:10px" @on-change="changeBirthday">
+					        <Option v-for="item in BList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+					    </Select>
+						<Input style='margin-top:10px;width:400px' v-model='birthdaykeyword' :placeholder="$t('public.nameandphone')" @on-enter='entersSearbirthday' >
+                        	<span slot="append"  @click='searbirthday' style='cursor:pointer'>搜索</span>
+                		</Input>
+					</div>
+				<Table border  :columns="birthdaykey" :data="birthdaydata"></Table>
+				<div class="page-box">
+					 <Page size='small' show-sizer placement='top' :page-size-opts="[10,20,30,40,50]" v-if='birthdaytotal!=0' :total="birthdaytotal" show-total  :pageSize='birthdaypageSize'  @on-change="birthdaygetData" @on-page-size-change="birthdaychangePageSize"></Page>
+				</div>
+			</div>
+			<!--会员分析-->
+			<div class="table" v-if='fhindex==6'>
+				会员分析
+			</div>
+		</div>
+		<!--收款三步-->
+	<el-dialog :visible.sync="alertch" ><!--:close-on-click-modal='false'-->
+		<div class='paydialog'>
+		<el-steps  :active="active"  align-center finish-status="success" class='step'>
+		  <el-step title="支付方式"></el-step>
+		  <el-step title="充值信息"></el-step>
+		  <el-step title="交易完成"></el-step>
+		</el-steps>	
+		</div>	
+		<!--下-->
+		<div v-if='one'>
+			<div class='dialog-bottom'>
+				<div class="dialog-left">
+					<div class='left-info'>
+						<li ><span class='span'>会员编号：</span><span>{{item.code}}</span></li>
+			        	<li ><span class='span'>会员：</span><span>{{item.name}}</span></li>
+			          
+			        	<li ><span class='span'>余额：</span><span style='color:#d53c39'>{{item.chargeMoney}}</span><span>元</span></li>
+					</div>
+					
+					<div v-if='HdData.lenght==0'>暂无活动</div>
+		            <div class='czmian' v-else>
+		            	<div class='cztitle'>充值活动</div>
+		              <div class='right-list' v-for='(item,index) in HdData' :class="{bg:numIndex==index}" @click='clickLi(item,index)' :key='index'>
+		                    <div style='margin-bottom:5px'>活动名称：<span style='font-size:14px;font-weight:600;color:#4C6DDE'>{{item.title}}</span></div>
+		                    <div>
+		                      <div>充值金额：<span style='color:#d53c39'>{{item.charge}}</span> 元</div>
+		                      <div>赠送金额：<span style='color:#d53c39'>{{item.giftCharge}}</span> 元</div>
+		                      <div>赠送积分：<span style='color:#d53c39'>{{item.giftIntegral}}</span> 积分</div>
+		                    </div>
+		              </div>
+		              <div class="page-box44">
+	                   <Page :total="hdtotal" show-total  :pageSize='hdpagesize'  @on-change="hdgetData" @on-page-size-change="hdchangePageSize">
+	                   </Page>
+	                  </div>
+		            </div>
+					
+				</div>
+				<div class="dialog-right">
+					<li style='width:100%'>
+						<div class='payWay-dialog'>
+							<img src="http://img.zsydian.com/icon/payWayzfb.png" style='margin:0 5px'><span>支付宝</span>
+							<span><Icon type="plus-circled" style=''></Icon></span>
+							<img src="http://img.zsydian.com/icon/payWaywx.png" style='margin:0 5px'><span>微信</span>
+							<span>等第三方</span>
+						</div>
+						<span style='margin-top:15px'>
+							<Input v-model.lazy='zfbmoney'  @on-change='moneychangezfb' @on-focus='zfbfocus'></Input>
+						</span>
+					</li>
+					
+					<li >
+						<div class='payWay-dialog'>
+							<img src="http://img.zsydian.com/icon/payWaysk.png" >
+							<span>刷卡支付</span>
+						</div>
+						<span style='margin-top:15px' >
+							<Input v-model.lazy='skmoney'  @on-change='moneychangesk' @on-focus='skfocus' ></Input>
+						</span>
+					</li>
+					<li style='border-right:1px solid #e4e4e4'>
+						<div class='payWay-dialog'>
+							<img src="http://img.zsydian.com/icon/payWayxj.png" ><span>现金支付</span>
+						</div>
+						<span style='margin-top:15px' >
+							<Input v-model.lazy='xjmoney'  @on-change='moneychangexj' @on-focus='xjfocus'></Input>
+						</span>
+					</li>
+					<li style='border-right:1px solid #e4e4e4'>
+						<div class='payWay-dialog'>
+							<img src="http://img.zsydian.com/icon/payWayxj.png" ><span>线下支付</span>
+						</div>
+						<span style='margin-top:15px' >
+							<Input v-model.lazy='xxmoney'  @on-change='moneychangexx' @on-focus='xxfocus'></Input>
+						</span>
+					</li>
+					<!-- <li style='border-right:1px solid #e4e4e4'>
+						<div class='payWay-dialog'>
+							<img src="http://img.zsydian.com/icon/payWayxj.png" ><span>储值卡支付</span>
+						</div>
+						<span style='margin-top:15px' >
+							<Input v-model.lazy='czkmoney'  @on-change='moneychangeczk' @on-focus='czkfocus'></Input>
+						</span>
+					</li> -->
+					<!-- <li style='border-right:1px solid #e4e4e4'>
+						<div class='payWay-dialog'>
+							<img src="http://img.zsydian.com/icon/payWayxj.png" ><span>DOCU</span>
+						</div>
+						<span style='margin-top:15px' >
+							<Input v-model.lazy='DOCUmoney'  @on-change='moneychangeDOCU' @on-focus='DOCUfocus'></Input>
+						</span>
+					</li> -->
+					<li style='border-right:1px solid #e4e4e4'>
+						<div class='payWay-dialog'>
+							<img src="http://img.zsydian.com/icon/payWaymore.png" ><span>其他支付</span>
+						</div>
+						<span style='margin-top:15px' >
+							<Input v-model.lazy='othermoney'  @on-change='othermoney1' @on-focus='otherfocus'></Input>
+						</span>
+					</li>
+					<div class='dialog-btn1'>
+			            <span style='margin-top:15px;margin-left:5px'><span>充值金额：</span ><span style='color:#FB9961;font-size:25px;'>{{Allp}}</span></span>
+			            <div>
+			            <span class='payBtn' @click='skCancel' style='background:#999;'>取消</span>
+			            <span class='payBtn' @click="oneStep">收款</span>
+			            </div>
+			          </div>
+				</div>
+			</div>
+		</div>
+		<div v-if='two'>
+			<div class='dialog-bottom'>
+				<div class="dialog-left" style='margin-top:10px;padding: 0px 0 30px 10px;'>
+					
+					<div class='left-info'>
+						<li ><span class='span'>会员编号：</span><span>{{item.code}}</span></li>
+			        	<li ><span class='span'>会员：</span><span>{{item.name}}</span></li>
+			          
+			        	<li ><span class='span'>余额：</span><span style='color:#d53c39'>{{item.chargeMoney}}</span><span>元</span></li>
+			        	<li v-if='itemhd.title'><span class='span'>参与活动：</span><span style='color:#d53c39'>{{itemhd.title}}</span><span></span></li>
+					</div>
+					<div style='font-weight:600;font-size:16px;padding: 10px;'>
+			            <li style='display:flex;height: 35px;line-height: 35px;'>
+			              <span class='span'>充值金额 &nbsp;</span>
+			              <span style='color:#FB9961;font-size:25px'>{{payPrice}}</span>
+			              <span>&nbsp;元</span>
+			            </li>
+			          </div>
+
+
+				</div>
+				<div class="dialog-right">
+					<div style='width:100%;text-align:center;margin-top:10px' v-if='zfbmoney!=0'>
+						<Input style='width:70%' placeholder='输入付款码' v-model='fkmcode' ref='fkm'></Input>
+					</div>
+					<div style='width:100%;text-align:center;margin-top:10px'>
+						 
+						<div>
+
+						 <Col class="demo-spin-col" span="24">
+				            <Spin fix>
+								
+								<div>支付中...</div>
+							</Spin>
+				        </Col>
+				        <!--  <Col class="demo-spin-col" span="24">
+				           
+				           <strong style='color:#3B77E3;font-size:16px'>支付成功!</strong>
+				        </Col> -->
+				        </div>
+					</div>
+					
+					<div class='dialog-btn'>
+						<span class='payBtn' style='background:#ccc;' @click="twocancel">返回</span>
+						<span class='payBtn payBtn1' style='background:#3B77E3;;margin-left:20px' @click="twoStep">收款确认</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div v-if='three'>
+			<div class='dialog-bottom'>
+				<div class="dialog-left1">
+					<div class='left-info'>
+					<li style='font-weight:600'>充值明细:</li>
+					<li v-if='zfbmoney!=0' style='margin-top:10px'><span style='color:#999'>支付宝支付：</span><span style='margin-left:5px;color:#278A8B'><strong>{{zfbmoney}}</strong>元</span></li>
+					
+					<!-- <li v-if='crmmoney!=0'><span style='color:#999'>会员卡支付：</span><span style='margin-left:5px;color:#278A8B'><strong>{{crmmoney}}</strong>元</span></li> -->
+					<li v-if='xjmoney!=0' style='margin-top:10px'><span style='color:#999'>现金支付：</span><span style='margin-left:5px;color:#d53c39'><strong>{{xjmoney}}</strong>元</span></li>
+					<li v-if='skmoney!=0' style='margin-top:10px'><span style='color:#999'>刷卡支付：</span><span style='margin-left:5px;color:#d53c39'><strong>{{skmoney}}</strong>元</span></li>
+					<li v-if='othermoney!=0' style='margin-top:10px'><span style='color:#999'>其他支付：</span><span style='margin-left:5px;color:#d53c39'><strong>{{othermoney}}</strong>元</span></li>
+					<li v-if='xxmoney!=0' style='margin-top:10px'><span style='color:#999'>线下支付：</span><span style='margin-left:5px;color:#d53c39'><strong>{{xxmoney}}</strong>元</span></li>
+					<li v-if='czkmoney!=0' style='margin-top:10px'><span style='color:#999'>储值卡支付：</span><span style='margin-left:5px;color:#d53c39'><strong>{{czkmoney}}</strong>元</span></li>
+					<li v-if='DOCUmoney!=0' style='margin-top:10px'><span style='color:#999'>DOCU：</span><span style='margin-left:5px;color:#d53c39'><strong>{{DOCUmoney}}</strong>元</span></li>
+					</div>
+					
+				</div>
+				<div class="dialog-right">
+					<div style='width:100%;text-align:center;margin-top:10px'>
+						<Icon type="ios-checkmark-outline" size='160' style='color:#13CE66'></Icon>
+					</div>
+					<div class='dialog-btn'>
+						
+						<span class='payBtn payBtn1' style='background:#13CE66;padding:0 4px' @click="goOn">充值完成</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</el-dialog>
+	<!--导入-->
+    <Modal v-model="importisshow" width="700" :mask-closable='false' :closable='false' :title="$t('manage.warehouse.fileImport')"><!--文件导入-->
+        <el-steps  :active="activeI"  :align-center='true' style='margin-left:120px'>
+              <el-step :title="$t('manage.warehouse.fileImport')" ></el-step>
+              <el-step :title="$t('manage.warehouse.fileY')" ></el-step>
+              <el-step :title="$t('manage.warehouse.fileS')" ></el-step>
+            </el-steps>
+
+       <!--第一步-->
+        <div style='width:100%;margin:20px auto;text-align:center;' v-if='oneStepI'>
+           <div style='width:100%;margin:20px auto;text-align:center;font-size:14px;font-weight:600;border-top:1px solid #e4e4e4'>
+				<span style='display:block;margin: 20px auto 30px 0;'>{{$t('manage.warehouse.fileImport')}}</span><!--文件导入-->
+			</div>
+            <div style='width:100%;margin:20px auto;text-align:center;position:relative'>
+                <div style='margin-left:-108px'>
+                	<span>{{$t('manage.warehouse.filechoose')}}：</span><!--选择文件-->
+                  	<Input  disabled style='width:202px' v-model='urlI'></Input>
+					<div style='position:absolute;top: 0px;right:175px;height: 35px;width: 80px;overflow: hidden;'>
+						<el-upload
+						ref="upload"
+						:show-file-list='false'
+						class="upload-demo"
+						:action="actionUrl"
+                        :on-progress='onprogress'
+						:on-success='success'
+						:before-upload='beforeAvatarUpload'
+						accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+						<Button size="small" type="primary" style='background:#169BD5'>
+						{{$t('manage.warehouse.upload')}}</Button><!--点击上传-->
+
+						</el-upload>
+					</div>
+                    <div v-if='loadingisshow' >
+                        <Spin fix>
+                            <mu-icon value="rotate_right" color="blue"  class="demo-spin-icon-load"></mu-icon>
+                            
+                            <div>Loading...</div>
+                        </Spin>
+                    </div>
+                    <div v-if='errorisshow' class='importErrTxt'>{{error}}</div>
+                </div>
+            </div>
+            <div style='margin-top:40px;display: flex;justify-content:space-between;;margin-bottom:-40px;font-size:14px;cursor:pointer'>
+                <Button  type="ghost" style='margin-left:5px;border:none;background:#169BD5;color:#fff'>
+
+                     <a :href="ygUrl" style='color:#fff' @click.stop='stopsku($event)'>
+                     {{$t('manage.warehouse.fileD')}}</a>
+                </Button>
+                <span style="" @click="cancel">{{$t('public.cancel')}}</span><!--取消-->
+            </div>
+        </div>
+        <!--第二步-->
+         <div style='width:100%;margin:20px auto;text-align:center;' v-if='twoStepI'>
+            <div style='width:100%;margin:20px auto;text-align:center;position:relative'>
+                <Table border  stripe ellipsis ref="selection"  :columns="importstore" :data="importstoredataList"></Table>
+            </div>
+            <div style='margin-top:40px;display: flex;justify-content:space-between;;margin-bottom:-40px;font-size:14px'>
+                <div>共导入：<span style='color:blue'>{{importstoredataList.length}}</span> 条数据</div>
+                <div>
+                    <span style="color:#448AFF;font-size:14px" @click="gothree"><a>{{$t('public.sureBtn')}}</a></span><!--确认-->
+                </div>
+            </div>
+         </div>
+         
+        <div slot="footer">
+
+        </div>
+    </Modal>
+
+    <!--会员详情-->
+      <Modal v-model="Crmdetailsisshow" width="860px" @on-visible-change="changeStatus">
+        <p slot="header" style="height:30px;line-height:30px">
+          <span>会员详情-{{detailsName}}</span>
+        </p>
+        	<div >
+        		<Tabs @on-click="clickmsg" v-model="numIndexmsg" :animated="false">
+			        <TabPane label="基本信息">
+			        <div >
+						<div style='display:inline-block;margin: 0 20px;border-radius:50%;overflow:hidden;vertical-align: middle;'>
+
+							<img :src="detailsData.photo" width='120' height='120' style='vertical-align:middle'>
+						</div>
+						<div style='display:inline-block;vertical-align:middle;margin-left:20px'>
+						<div  style='display:inline-block'>
+							<div class="list-box list-box1">
+								<span>姓名 : </span><div>{{detailsData.name}}</div>
+							</div>
+							<div class="list-box list-box1">
+							<span>性别 : </span><div>{{detailsData.gender}}</div>
+							</div>
+							<div class="list-box list-box1">
+								<span> 手机 : </span><div>{{detailsData.mobile}}</div>
+							</div>
+						</div>
+						<div style='display:inline-block;margin-left:20px'>
+							<div class="list-box list-box1">
+									<span>账户余额 : </span>
+									<div style='color:#FF934D'>{{detailsData.chargeMoney}}</div><span>元</span>
+							</div>
+							<div class="list-box list-box1" >
+								<span>会员积分:</span> <div style='color:#FF934D'>{{detailsData.dqjf}}</div>
+
+							</div>
+							<div class="list-box list-box1">
+								<span>{{$t('member.DG')}} : </span><div>{{detailsData.employeeName}}</div><!--导购-->
+							</div>
+							
+
+						</div>
+						<div style='display:inline-block;margin-left:20px;vertical-align:top'>
+
+							<div class="list-box list-box1" >
+								<span>会员卡等级 : </span><div>{{detailsData.level}}</div>
+
+							</div>
+							<div class="list-box list-box1">
+								<span>备注 : </span><div>{{detailsData.remark}}</div>
+							</div>
+
+						</div>
+						</div>
+					</div>
+			        </TabPane>
+			        <TabPane label="会员订单">
+			        	<Table border height="300" :columns="orderDateKey" :data="orderdataList" ></Table>
+						<!--底部的分页-->
+						<div class="page-box44" v-if='ordertotal>10'>
+							 <Page :total="ordertotal" show-total size='small' :pageSize='orderpageSize'  @on-change="ordergetData" @on-page-size-change="orderchangePageSize"></Page>
+						</div>
+			        </TabPane>
+			        <TabPane label="积分历史">
+			        	<Table border height="300" :columns="jfDateKey" :data="jfdataList" ></Table>
+						<!--底部的分页-->
+						<div class="page-box44" v-if='jftotal>10'>
+							 <Page :total="jftotal" show-total size='small' :pageSize='jfpageSize'  @on-change="jfgetData" @on-page-size-change="jfchangePageSize"></Page>
+						</div>
+			        </TabPane>
+			        <TabPane label="充值历史">
+			        	<Table border height="300"  :columns="czDateKey" :data="czdataList" ></Table>
+						<!--底部的分页-->
+						<div class="page-box44" v-if='cztotal>10'>
+							 <Page :total="cztotal" show-total size='small' :pageSize='czpageSize'  @on-change="czgetData" @on-page-size-change="czchangePageSize"></Page>
+						</div>
+			        </TabPane>
+			        <TabPane label="会员地址">
+			        	<Table border height="300"  :columns="addressDateKey" :data="addressdataList" ></Table>
+						<!--底部的分页-->
+						<div class="page-box44" v-if='addresstotal>10'>
+							 <Page :total="addresstotal" show-total size='small' :pageSize='addresspageSize'  @on-change="addressgetData" @on-page-size-change="addresschangePageSize"></Page>
+						</div>
+			        </TabPane>
+		    	</Tabs>
+        	</div>
+        <div slot="footer">
+
+          <div class='title'>
+            <div style='color:#D15151;font-size:14px'>
+              </div>
+            <div style='margin-top:10px'>
+              <Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='cancelCrmdetails'><Icon type="close" style="margin-right:5px;" ></Icon>关闭</Button>
+            </div>
+          </div>
+        </div>
+      </Modal>
+	</div>
+</template>
+<script>
+import LoadUrl from '@/components/common/actionLoad'
+	export default {
+		data() {
+			return {
+				valueTT:1,
+				orderListname:[
+					
+                    {
+                        label:this.$t('public.normal'),//正常
+                        value:1
+                    },
+                    {
+                        label:this.$t('public.normalT'),//"已停用",
+                        value:7
+                    },
+
+				],
+				loadingisshow:false,
+				numIndexmsg:0,
+				
+				//会员地址
+				addresstotal:0,
+				addresspageSize:0,
+				addressDateKey:[
+					{
+						title:"省",
+						key:"province"
+					},
+					{
+						title:"市",
+						key:"city"
+					},
+					{
+						title:"区",
+						key:"country"
+					},
+					{
+						title:"详细地址",
+						key:"address"
+					},
+					{
+						title:"联系人",
+						key:"name"
+					},
+					{
+						title:"手机号",
+						key:"mobile"
+					},
+				],
+				addressdataList:[],
+				 //订单历史
+				ordertotal:0,
+				orderpageSize:0,
+				orderdataList:[],
+				orderDateKey:[
+					{
+						title:"单号",
+
+						key:"orderNo"
+					},
+					{
+						title:"消费金额",
+
+						key:"amount"
+					},
+					{
+						title:"消费时间",
+
+						key:"createTime"
+					},
+					{
+						title:"状态",
+
+						key:"statusDesc"
+					},
+				],
+				//积分
+				jfpageSize:0,
+				jftotal:0,
+				jfdataList:[],
+				//积分历史
+				jfDateKey:[
+					{
+						title:"会员编码",
+
+						key:"crmCode"
+					},
+					{
+						title:"店铺",
+
+						key:"storeName"
+					},
+					{
+						title:"会员名",
+
+						key:"crmName"
+					},
+					{
+						title:"jf",
+
+						key:"jf"
+					},
+					{
+						title:"qcsl",
+
+						key:"qcsl"
+					},
+					{
+						title:"qcje",
+
+						key:"qcje"
+					},
+					{
+						title:"zjfx",
+
+						key:"zjfx"
+					},
+					{
+						title:"zj",
+
+						key:"zj"
+					},
+					{
+						title:"sl",
+
+						key:"sl"
+					},
+				],
+				 //充值历史
+				cztotal:0,
+				czpageSize:0,
+				czDateKey:[
+				 	{
+				 		title:"会员编码",
+
+				 		key:"crmCode"
+				 	},
+				 	{
+				 		title:"充值金额",
+				 		key:"amount"
+				 	},
+				 	{
+				 		title:"充值积分",
+				 		key:"giftIntegral"
+				 	},
+				 	{
+				 		title:"赠送金额",
+				 		key:"giftAmount"
+				 	},
+				 	{
+				 		title:"状态",
+				 		key:"statusDesc"
+				 	},
+				 	{
+				 		title:"充值时间",
+				 		key:"createTime"
+				 	},
+				 ],
+				czdataList:[],
+				Crmdetailsisshow:false,//详情弹框
+				detailsData:{},//详情
+				detailsName:"",
+				//会员生命周期
+				indexNum:0,
+				 uid: this.$store.state.common.token,
+	            //消费者
+		            crmdataList0:[],
+		            crmdatakey0:[
+		                    {
+		                        title:this.$t('member.avt'),//"头像",
+		                        key:'photo',
+		                        width:80,
+		                        render:(h, params) =>{
+		                          return h('div',[
+		                              h('img',{
+		                                attrs:{
+		                                  src:params.row.photo
+		                                },
+		                                style:{
+		                                  width:'40px',
+		                                  height:'40px'
+		                                }
+		                              })
+		                            ])
+		                        }
+		                    },
+		                    {
+		                        title:this.$t('member.code'),//'编号',
+		                        key:'code'
+		                    },
+		                    {
+		                        title:this.$t('member.name'),//"姓名",
+		                        align:"center",
+		                        key:"name",
+		                    },
+		                    {
+		                        title:this.$t('public.gender'),//"性别",
+		                        align:"center",
+		                        key:"gender",
+		                        render:(h,params)=>{
+		                        return h('div',{
+		                            style:{
+		                              color:params.row.gender=='男'?'#40ca98':params.row.gender=='女'?'#FF934D':'未知'
+		                            }
+		                          },params.row.gender)
+		                        }
+		                    },
+		                    {
+		                        title:this.$t('member.mobile'),//'手机',
+		                        align:"center",
+		                        key:'mobile'
+		                    },
+		                     {
+		                        title:this.$t('member.birsday'),//'生日',
+		                        align:"center",
+		                        key:'birthday',
+		                        render:(h,params)=>{
+		                            return h("span",{
+		                            },params.row.birthday?this.getLocalTime(params.row.birthday):"")
+		                        }
+		                    },
+		                    {
+		                        title:this.$t('member.ye'),//'余额',
+		                        align:"center",
+		                        key:'chargeMoney'
+		                    },
+		                    {
+		                        title:this.$t('member.jf'),//'积分',
+		                      
+		                        align:"center",
+		                        key:'dqjf'
+		                    },
+		                    {
+		                        title:"等级",//'积分',
+		                      
+		                        align:"center",
+		                        key:'level'
+		                    },
+		                    
+		                    {
+		                        title:this.$t('public.status'),//'状态',
+		                        align:"center",
+		                        width:120,
+		                        key:'statusDesc',
+		                        render:(h,params)=>{
+		                          return h('span',{
+		                              style:{
+		                                  color:params.row.status==1?'#40ca98':'#d53c39'
+		                              }
+		                          },params.row.statusDesc)
+		                      }
+		                    }
+		            ],
+		            crmtotal0:0,
+		            crmtotal00:0,
+		            crmpageSize0:0,
+		            //顾客
+		            crmdataList1:[],
+		            crmdatakey1:[
+		                {
+		                        title:this.$t('member.avt'),//"头像",
+		                        key:'photo',
+		                        width:80,
+		                        render:(h, params) =>{
+		                          return h('div',[
+		                              h('img',{
+		                                attrs:{
+		                                  src:params.row.photo
+		                                },
+		                                style:{
+		                                  width:'40px',
+		                                  height:'40px'
+		                                }
+		                              })
+		                            ])
+		                        }
+		                    },
+		                    {
+		                        title:this.$t('member.code'),//'编号',
+		                        key:'code'
+		                    },
+		                    {
+		                        title:this.$t('member.name'),//"姓名",
+		                        align:"center",
+		                        key:"name",
+		                    },
+		                    {
+		                        title:this.$t('public.gender'),//"性别",
+		                        align:"center",
+		                        key:"gender",
+		                        render:(h,params)=>{
+		                        return h('div',{
+		                            style:{
+		                              color:params.row.gender=='男'?'#40ca98':params.row.gender=='女'?'#FF934D':'未知'
+		                            }
+		                          },params.row.gender)
+		                        }
+		                    },
+		                    {
+		                        title:this.$t('member.mobile'),//'手机',
+		                        align:"center",
+		                        key:'mobile'
+		                    },
+		                     {
+		                        title:this.$t('member.birsday'),//'生日',
+		                        align:"center",
+		                        key:'birthday',
+		                        render:(h,params)=>{
+		                            return h("span",{
+		                            },params.row.birthday?this.getLocalTime(params.row.birthday):"")
+		                        }
+		                    },
+		                    {
+		                        title:this.$t('member.ye'),//'余额',
+		                        align:"center",
+		                        key:'chargeMoney'
+		                    },
+		                    {
+		                        title:this.$t('member.jf'),//'积分',
+		                      
+		                        align:"center",
+		                        key:'dqjf'
+		                    },
+		                    {
+		                        title:"等级",//'积分',
+		                      
+		                        align:"center",
+		                        key:'level'
+		                    },
+		                    
+		                    {
+		                        title:this.$t('public.status'),//'状态',
+		                        align:"center",
+		                        width:120,
+		                        key:'statusDesc',
+		                        render:(h,params)=>{
+		                          return h('span',{
+		                              style:{
+		                                  color:params.row.status==1?'#40ca98':'#d53c39'
+		                              }
+		                          },params.row.statusDesc)
+		                      }
+		                    }
+		            ],
+		            crmtotal1:0,
+		            crmtotal11:0,
+		            crmpageSize1:0,
+		            //新会员
+		            crmdataList2:[],
+		            crmdatakey2:[
+		                {
+		                        title:this.$t('member.avt'),//"头像",
+		                        key:'photo',
+		                        width:80,
+		                        render:(h, params) =>{
+		                          return h('div',[
+		                              h('img',{
+		                                attrs:{
+		                                  src:params.row.photo
+		                                },
+		                                style:{
+		                                  width:'40px',
+		                                  height:'40px'
+		                                }
+		                              })
+		                            ])
+		                        }
+		                    },
+		                    {
+		                        title:this.$t('member.code'),//'编号',
+		                        key:'code'
+		                    },
+		                    {
+		                        title:this.$t('member.name'),//"姓名",
+		                        align:"center",
+		                        key:"name",
+		                    },
+		                    {
+		                        title:this.$t('public.gender'),//"性别",
+		                        align:"center",
+		                        key:"gender",
+		                        render:(h,params)=>{
+		                        return h('div',{
+		                            style:{
+		                              color:params.row.gender=='男'?'#40ca98':params.row.gender=='女'?'#FF934D':'未知'
+		                            }
+		                          },params.row.gender)
+		                        }
+		                    },
+		                    {
+		                        title:this.$t('member.mobile'),//'手机',
+		                        align:"center",
+		                        key:'mobile'
+		                    },
+		                     {
+		                        title:this.$t('member.birsday'),//'生日',
+		                        align:"center",
+		                        key:'birthday',
+		                        render:(h,params)=>{
+		                            return h("span",{
+		                            },params.row.birthday?this.getLocalTime(params.row.birthday):"")
+		                        }
+		                    },
+		                    {
+		                        title:this.$t('member.ye'),//'余额',
+		                        align:"center",
+		                        key:'chargeMoney'
+		                    },
+		                    {
+		                        title:this.$t('member.jf'),//'积分',
+		                      
+		                        align:"center",
+		                        key:'dqjf'
+		                    },
+		                    {
+		                        title:"等级",//'积分',
+		                      
+		                        align:"center",
+		                        key:'level'
+		                    },
+		                    
+		                    {
+		                        title:this.$t('public.status'),//'状态',
+		                        align:"center",
+		                        width:120,
+		                        key:'statusDesc',
+		                        render:(h,params)=>{
+		                          return h('span',{
+		                              style:{
+		                                  color:params.row.status==1?'#40ca98':'#d53c39'
+		                              }
+		                          },params.row.statusDesc)
+		                      }
+		                    }
+		            ],
+		            crmtotal2:0,
+		            crmtotal22:0,
+		            crmpageSize2:0,
+		            //活跃会员
+		            crmdataList3:[],
+		            crmdatakey3:[
+		                {
+		                        title:this.$t('member.avt'),//"头像",
+		                        key:'photo',
+		                        width:80,
+		                        render:(h, params) =>{
+		                          return h('div',[
+		                              h('img',{
+		                                attrs:{
+		                                  src:params.row.photo
+		                                },
+		                                style:{
+		                                  width:'40px',
+		                                  height:'40px'
+		                                }
+		                              })
+		                            ])
+		                        }
+		                    },
+		                    {
+		                        title:this.$t('member.code'),//'编号',
+		                        key:'code'
+		                    },
+		                    {
+		                        title:this.$t('member.name'),//"姓名",
+		                        align:"center",
+		                        key:"name",
+		                    },
+		                    {
+		                        title:this.$t('public.gender'),//"性别",
+		                        align:"center",
+		                        key:"gender",
+		                        render:(h,params)=>{
+		                        return h('div',{
+		                            style:{
+		                              color:params.row.gender=='男'?'#40ca98':params.row.gender=='女'?'#FF934D':'未知'
+		                            }
+		                          },params.row.gender)
+		                        }
+		                    },
+		                    {
+		                        title:this.$t('member.mobile'),//'手机',
+		                        align:"center",
+		                        key:'mobile'
+		                    },
+		                     {
+		                        title:this.$t('member.birsday'),//'生日',
+		                        align:"center",
+		                        key:'birthday',
+		                        render:(h,params)=>{
+		                            return h("span",{
+		                            },params.row.birthday?this.getLocalTime(params.row.birthday):"")
+		                        }
+		                    },
+		                    {
+		                        title:this.$t('member.ye'),//'余额',
+		                        align:"center",
+		                        key:'chargeMoney'
+		                    },
+		                    {
+		                        title:this.$t('member.jf'),//'积分',
+		                      
+		                        align:"center",
+		                        key:'dqjf'
+		                    },
+		                    {
+		                        title:"等级",//'积分',
+		                      
+		                        align:"center",
+		                        key:'level'
+		                    },
+		                    
+		                    {
+		                        title:this.$t('public.status'),//'状态',
+		                        align:"center",
+		                        width:120,
+		                        key:'statusDesc',
+		                        render:(h,params)=>{
+		                          return h('span',{
+		                              style:{
+		                                  color:params.row.status==1?'#40ca98':'#d53c39'
+		                              }
+		                          },params.row.statusDesc)
+		                      }
+		                    }
+		            ],
+		            crmtotal3:0,
+		            crmtotal33:0,
+		            crmpageSize3:0,
+		            //沉默会员
+		            crmdataList4:[],
+		            crmdatakey4:[
+		                {
+		                        title:this.$t('member.avt'),//"头像",
+		                        key:'photo',
+		                        width:80,
+		                        render:(h, params) =>{
+		                          return h('div',[
+		                              h('img',{
+		                                attrs:{
+		                                  src:params.row.photo
+		                                },
+		                                style:{
+		                                  width:'40px',
+		                                  height:'40px'
+		                                }
+		                              })
+		                            ])
+		                        }
+		                    },
+		                    {
+		                        title:this.$t('member.code'),//'编号',
+		                        key:'code'
+		                    },
+		                    {
+		                        title:this.$t('member.name'),//"姓名",
+		                        align:"center",
+		                        key:"name",
+		                    },
+		                    {
+		                        title:this.$t('public.gender'),//"性别",
+		                        align:"center",
+		                        key:"gender",
+		                        render:(h,params)=>{
+		                        return h('div',{
+		                            style:{
+		                              color:params.row.gender=='男'?'#40ca98':params.row.gender=='女'?'#FF934D':'未知'
+		                            }
+		                          },params.row.gender)
+		                        }
+		                    },
+		                    {
+		                        title:this.$t('member.mobile'),//'手机',
+		                        align:"center",
+		                        key:'mobile'
+		                    },
+		                     {
+		                        title:this.$t('member.birsday'),//'生日',
+		                        align:"center",
+		                        key:'birthday',
+		                        render:(h,params)=>{
+		                            return h("span",{
+		                            },params.row.birthday?this.getLocalTime(params.row.birthday):"")
+		                        }
+		                    },
+		                    {
+		                        title:this.$t('member.ye'),//'余额',
+		                        align:"center",
+		                        key:'chargeMoney'
+		                    },
+		                    {
+		                        title:this.$t('member.jf'),//'积分',
+		                      
+		                        align:"center",
+		                        key:'dqjf'
+		                    },
+		                    {
+		                        title:"等级",//'积分',
+		                      
+		                        align:"center",
+		                        key:'level'
+		                    },
+		                   
+		                    {
+		                        title:this.$t('public.status'),//'状态',
+		                        align:"center",
+		                        width:120,
+		                        key:'statusDesc',
+		                        render:(h,params)=>{
+		                          return h('span',{
+		                              style:{
+		                                  color:params.row.status==1?'#40ca98':'#d53c39'
+		                              }
+		                          },params.row.statusDesc)
+		                      }
+		                    }
+		            ],
+		            crmtotal4:0,
+		            crmtotal44:0,
+		            crmpageSize4:0,
+		            //睡眠会员
+		            crmdataList5:[],
+		            crmdatakey5:[
+		                {
+		                        title:this.$t('member.avt'),//"头像",
+		                        key:'photo',
+		                        width:80,
+		                        render:(h, params) =>{
+		                          return h('div',[
+		                              h('img',{
+		                                attrs:{
+		                                  src:params.row.photo
+		                                },
+		                                style:{
+		                                  width:'40px',
+		                                  height:'40px'
+		                                }
+		                              })
+		                            ])
+		                        }
+		                    },
+		                    {
+		                        title:this.$t('member.code'),//'编号',
+		                        key:'code'
+		                    },
+		                    {
+		                        title:this.$t('member.name'),//"姓名",
+		                        align:"center",
+		                        key:"name",
+		                    },
+		                    {
+		                        title:this.$t('public.gender'),//"性别",
+		                        align:"center",
+		                        key:"gender",
+		                        render:(h,params)=>{
+		                        return h('div',{
+		                            style:{
+		                              color:params.row.gender=='男'?'#40ca98':params.row.gender=='女'?'#FF934D':'未知'
+		                            }
+		                          },params.row.gender)
+		                        }
+		                    },
+		                    {
+		                        title:this.$t('member.mobile'),//'手机',
+		                        align:"center",
+		                        key:'mobile'
+		                    },
+		                     {
+		                        title:this.$t('member.birsday'),//'生日',
+		                        align:"center",
+		                        key:'birthday',
+		                        render:(h,params)=>{
+		                            return h("span",{
+		                            },params.row.birthday?this.getLocalTime(params.row.birthday):"")
+		                        }
+		                    },
+		                    {
+		                        title:this.$t('member.ye'),//'余额',
+		                        align:"center",
+		                        key:'chargeMoney'
+		                    },
+		                    {
+		                        title:this.$t('member.jf'),//'积分',
+		                      
+		                        align:"center",
+		                        key:'dqjf'
+		                    },
+		                    {
+		                        title:"等级",//'积分',
+		                      
+		                        align:"center",
+		                        key:'level'
+		                    },
+		                   
+		                    {
+		                        title:this.$t('public.status'),//'状态',
+		                        align:"center",
+		                        width:120,
+		                        key:'statusDesc',
+		                        render:(h,params)=>{
+		                          return h('span',{
+		                              style:{
+		                                  color:params.row.status==1?'#40ca98':'#d53c39'
+		                              }
+		                          },params.row.statusDesc)
+		                      }
+		                    }
+		            ],
+		            crmtotal5:0,
+		            crmtotal55:0,
+		            crmpageSize5:0,
+		            //流失会员
+		            crmdataList6:[],
+		            crmdatakey6:[
+		                {
+		                        title:this.$t('member.avt'),//"头像",
+		                        key:'photo',
+		                        width:80,
+		                        render:(h, params) =>{
+		                          return h('div',[
+		                              h('img',{
+		                                attrs:{
+		                                  src:params.row.photo
+		                                },
+		                                style:{
+		                                  width:'40px',
+		                                  height:'40px'
+		                                }
+		                              })
+		                            ])
+		                        }
+		                    },
+		                    {
+		                        title:this.$t('member.code'),//'编号',
+		                        key:'code'
+		                    },
+		                    {
+		                        title:this.$t('member.name'),//"姓名",
+		                        align:"center",
+		                        key:"name",
+		                    },
+		                    {
+		                        title:this.$t('public.gender'),//"性别",
+		                        align:"center",
+		                        key:"gender",
+		                        render:(h,params)=>{
+		                        return h('div',{
+		                            style:{
+		                              color:params.row.gender=='男'?'#40ca98':params.row.gender=='女'?'#FF934D':'未知'
+		                            }
+		                          },params.row.gender)
+		                        }
+		                    },
+		                    {
+		                        title:this.$t('member.mobile'),//'手机',
+		                        align:"center",
+		                        key:'mobile'
+		                    },
+		                     {
+		                        title:this.$t('member.birsday'),//'生日',
+		                        align:"center",
+		                        key:'birthday',
+		                        render:(h,params)=>{
+		                            return h("span",{
+		                            },params.row.birthday?this.getLocalTime(params.row.birthday):"")
+		                        }
+		                    },
+		                    {
+		                        title:this.$t('member.ye'),//'余额',
+		                        align:"center",
+		                        key:'chargeMoney'
+		                    },
+		                    {
+		                        title:this.$t('member.jf'),//'积分',
+		                      
+		                        align:"center",
+		                        key:'dqjf'
+		                    },
+		                    {
+		                        title:"等级",
+		                      
+		                        align:"center",
+		                        key:'level'
+		                    },
+		                    
+		                    {
+		                        title:this.$t('public.status'),//'状态',
+		                        align:"center",
+		                        width:120,
+		                        key:'statusDesc',
+		                        render:(h,params)=>{
+		                          return h('span',{
+		                              style:{
+		                                  color:params.row.status==1?'#40ca98':'#d53c39'
+		                              }
+		                          },params.row.statusDesc)
+		                      }
+		                    }
+		            ],
+		            crmtotal6:0,
+		            crmtotal66:0,
+		            crmpageSize6:0,
+		    		label0: (h) => {
+		                return h('div', [
+		                    h('span', '消费者'),
+		                    h('Badge', {
+		                        props: {
+		                            count: this.crmtotal00
+		                        }
+		                    })
+		                ])
+		            },
+		            label1: (h) => {
+		                return h('div', [
+		                    h('span', '顾客'),
+		                    h('Badge', {
+		                        props: {
+		                            count: this.crmtotal11
+		                        }
+		                    })
+		                ])
+		            },
+		            label2: (h) => {
+		                return h('div', [
+		                    h('span', '新会员'),
+		                    h('Badge', {
+		                        props: {
+		                            count: this.crmtotal22
+		                        }
+		                    })
+		                ])
+		            },
+		            label3: (h) => {
+		                return h('div', [
+		                    h('span', '活跃会员'),
+		                    h('Badge', {
+		                        props: {
+		                            count: this.crmtotal33
+		                        }
+		                    })
+		                ])
+		            },
+		            label4: (h) => {
+		                return h('div', [
+		                    h('span', '沉默会员'),
+		                    h('Badge', {
+		                        props: {
+		                            count: this.crmtotal44
+		                        }
+		                    })
+		                ])
+		            },
+		            label5: (h) => {
+		                return h('div', [
+		                    h('span', '睡眠会员'),
+		                    h('Badge', {
+		                        props: {
+		                            count: this.crmtotal55
+		                        }
+		                    })
+		                ])
+		            },
+		            label6: (h) => {
+		                return h('div', [
+		                    h('span', '流失会员'),
+		                    h('Badge', {
+		                        props: {
+		                            count: this.crmtotal66
+		                        }
+		                    })
+		                ])
+		            },
+				//生日
+				valueT:0,
+				BList:[
+					{
+						label:"当天",
+						value:0
+					},
+					{
+						label:"三天以内",
+						value:3
+					},
+					{
+						label:"本周以内",
+						value:7
+					},
+					{
+						label:"两周以内",
+						value:14
+					},
+				],
+				birthdaykeyword:"",
+				birthdaykey:[
+					{
+		              title:this.$t('member.avt'),//"头像",
+		              key:'photo',
+		               width:80,
+		              render:(h, params) =>{
+		                  return h('div',[
+		                      h('img',{
+		                        attrs:{
+		                          src:params.row.photo
+		                        },
+		                        style:{
+		                          width:'40px',
+		                          height:'40px'
+		                        }
+		                      })
+		                    ])
+		                }
+		            },
+		             {
+		               title:this.$t('member.code'),//'编号',
+		             
+		               key:'code'
+		            },
+		            {
+		              title:this.$t('member.name'),//"姓名",
+		              
+		             align:"center",
+		              key:"name",
+		            },
+		           
+		            {
+		              title:this.$t('public.gender'),//"性别",
+		               align:"center",
+		              key:"gender",
+		              render:(h,params)=>{
+		                return h('div',{
+		                    style:{
+		                      color:params.row.gender=='男'?'#40ca98':params.row.gender=='女'?'#FF934D':'未知'
+		                    }
+		                  },params.row.gender)
+		                }
+		            },
+		            {
+		              title:this.$t('member.mobile'),//'手机',
+		               
+		                align:"center",
+		              key:'mobile'
+		            },
+		             {
+		              title:this.$t('member.birsday'),//'生日',
+		             
+		               align:"center",
+		             
+		              key:'birthday'
+		            },
+		            {
+		              title:this.$t('member.ye'),//'余额',
+		             
+		               align:"center",
+		            
+		              key:'chargeMoney'
+		            },
+		            {
+		              title:this.$t('member.jf'),//'积分',
+		              
+		               align:"center",
+		              key:'dqjf'
+		            },
+		            {
+		              title:"等级",
+		              
+		               align:"center",
+		              key:'level'
+		            },
+		            {
+		               title:this.$t('member.time'),//'注册时间',
+		              
+		               key:'createTime',
+		                align:"center",
+		            },
+		            {
+		               title:this.$t('public.status'),//'状态',
+		               align:"center",
+		                width:120,
+		               key:'statusDesc',
+		               render:(h,params)=>{
+		                  return h('span',{
+		                      style:{
+		                          color:params.row.statusDesc=='正常'?'#40ca98':'#d53c39'
+		                      }
+		                  },params.row.statusDesc)
+		              }
+		            }
+				],
+				birthdaydata:[],
+				birthdaytotal:0,
+				birthdaypageSize:0,
+				//充值活动
+				mrechargeakeyword:"",
+				mrechargeakey:[
+					{
+                        title: this.$t('operation.czhds.hdname'),//'活动名称',
+                        key:'title',
+                        align:"center"
+                    },
+                    {
+                        title: this.$t('operation.czhds.hdMonery'),//'奖励金额',
+                        
+                        key:'giftCharge',
+                        align:"center"
+                 
+                    },
+                   	
+                    {
+                        title: this.$t('operation.czhds.uselimt'),//'使用限制',
+                        key:'charge',
+                        align:"center"
+                     	
+                        
+                    },
+                    {
+                    	title:this.$t('operation.czhds.beginTime'),//"生效日期",
+                    	align:"center",
+                    	key:'begin_time',
+                    	
+                    },
+                  
+                    {
+                        title:this.$t('operation.czhds.endTime'),// '截止日期',
+                        align:"center",
+                        key:'end_time',
+                    },
+                    {
+                        title: this.$t('public.status'),//'状态',
+                        key:'statusDesc',
+                      	 align:"center",
+                      	width:80,
+                      	render:(h,params)=>{
+                            return h('span',{
+                                style:{
+                                    color:params.row.status==1?'#40ca98':params.row.status==99?'#ff0000':params.row.status==0?"#278fa3":""
+                                }
+                            },params.row.statusDesc)
+                        }
+                        
+                    }
+				],
+				mrechargeapageSize:0,
+				mrechargeatotal:0,
+				mrechargeadata:[],
+
+				kckeywordAll:"",
+		        kctotal1: 0,
+				kcpageSize1: 0,
+		        kcdata1: [], //全部会员
+				kcKey1:[ 
+		            
+		            {
+		              title:"头像",
+		              key:'photo',
+		               width:80,
+		               fixed:"left",
+		              render:(h, params) =>{
+		                  return h('div',[
+		                      h('img',{
+		                        attrs:{
+		                          src:params.row.photo
+		                        },
+		                        style:{
+		                          width:'40px',
+		                          height:'40px',
+		                          borderRadius:"50%"
+		                        }
+		                      })
+		                    ])
+		                }
+		            },
+		             {
+		               title:'编号',
+		            	
+		               key:'code'
+		            },
+		            {
+		              title:"姓名",
+		            
+		              key:"name",
+		            },
+		           
+		            {
+		              title:"性别",
+		            
+		              key:"gender",
+		              width:70,
+		              render:(h,params)=>{
+		              return h('div',{
+		                  style:{
+		                    color:params.row.gender=='男'?'#40ca98':params.row.gender=='女'?'#FF934D':'未知'
+		                  }
+		                },params.row.gender)
+		              }
+		            },
+		            {
+		              title:'手机',
+		            
+		              key:'mobile'
+		            },
+		            
+		            {
+		              title:'余额',
+		              
+		              
+		              key:'chargeMoney'
+		            },
+		            {
+		              title:'积分',
+		              
+		             
+		              key:'dqjf'
+		            },
+		             {
+		              title:'折扣',
+		              
+		             
+		              key:'discount'
+		            },
+		            {
+		               title:'注册时间',
+		               
+		               key:'createTime'
+		            },{
+		               title:'状态',
+		               
+		                width:70,
+		                fixed:"right",
+		               key:'statusDesc',
+		               render:(h,params)=>{
+		                  return h('span',{
+		                      style:{
+		                          color:params.row.status==1?'#40ca98':'#d53c39'
+		                      }
+		                  },params.row.statusDesc)
+		              }
+		            }
+		        ],
+				ygUrl:"",//导入地址
+				loadingisshow:false,
+                isshowtable:true,
+				errorisshow:false,
+                error:'',//导入失败的提示
+				        type:1,
+                oneStepI:true,//第一步显示
+                twoStepI:false,//第2步显示
+                threeStepI:false,//第3步显示
+                activeI:1,//步数
+                importisshow:false,//导入显示
+                urlI:'',//选择文件后或名称
+				//POST /sku/import 导入http://dev.zsydian.com:9003/pss/employee/import
+				actionUrl:LoadUrl.httpPrefix.Url+'employee/import?uid='+this.$store.state.common.token,//导入地址
+                //导入的商品文件数据key
+                importstore:[],
+				importstoredataList:[],//导入的仓库文件数据
+				Allp:0,
+				//活动列表
+				HdData:[],
+		        hdtotal:0,
+		        hdpagesize:0,
+		        numIndex:-1,
+		        itemhd:{},
+		        ///
+				discountPrice:10,
+				alertch:false,
+				totalCount:0,
+				totalAmount:0,
+				zfbmoney:0,//支付宝//微信
+				crmmoney:0,//会员余额
+				skmoney:0,////刷卡
+				xjmoney:0,//现金
+				othermoney:0,//其他
+				DOCUmoney:0,//DOCU
+				czkmoney:0,//储值卡
+				xxmoney:0,//线下
+				payPrice:0,
+				active:1,
+				one:true,
+				two:false,
+				three:false,
+				fkmcode:'',//收款码
+				details:[],//订单明细
+				payVos:[],//支付订单订单明细
+				orderNumber:'',//订单号 
+				type:1,//1聚合支付// 9现金支 ,//11;刷卡支付 ;//25其他支付 ;//5 BISHOP储值卡支付 //18线下付款 //15 DOCU
+				time:null,
+				
+				///
+				cz:false,
+				crmid:"",
+				crmn:"",
+				czisshow:false,//会员列表充值
+				item:{},//会员列表一行数据
+				//充值
+				
+				
+				crmId:'',//会员id
+				employeeID:'',//导购id
+				remark:'',
+				jtkeyword:"",//集团会员查询关键字
+				keyword:"",//店铺会员查询
+				
+				ygtotal:0,
+				ygpageSize:0,
+				storestotal:0,
+				storespageSize:0,
+				dataList:[],
+				
+				
+				//会员卡
+				cardData:[],
+				cardKey:[
+					{
+						title:"会员卡",
+						key:"name"
+					},
+					{
+						title:"押金",
+						key:"deposit"
+					},
+					{
+						title:"使用范围",
+						key:"useType"
+					},
+					
+					{
+						title:"时间限制",
+						key:"timeLimit"
+					},
+					{
+						title:"限制月份",
+						key:"timeMonth"
+					},
+					{
+						title:"使用须知",
+						key:"remark"
+					},
+				],
+				cardtotal: 0,
+				cardpageSize: 0,
+				fhindex:0,
+				row:{},
+				visible: false,
+				fhlist:[
+					{
+						label:"全部会员",
+						value:0
+					},
+					{
+						label:"会员中心",
+						value:1
+					},
+					
+					{
+						label:"会员卡",
+						value:2
+					},
+					{
+						label:"充值活动",
+						value:3
+					},
+					// {
+					// 	label:"黑名单",
+					// 	value:4
+					// },
+					{
+						label:"生命周期",
+						value:4
+					},
+					{
+						label:"近期生日",
+						value:5
+					},
+					// {
+					// 	label:"会员分析",
+					// 	value:6
+					// },
+					
+				],
+				payType:"",
+				valId:"",
+				type:'',//下拉选中
+				crmtotal: 0,
+				crmpageSize: 0,
+				uid: this.$store.state.common.token,
+				crmdata: [], //客户对账单列表
+				crmKey:[ 
+		            
+		            {
+		              title:"头像",
+		              key:'photo',
+		               width:80,
+		               fixed:"left",
+		              render:(h, params) =>{
+		                  return h('div',[
+		                      h('img',{
+		                        attrs:{
+		                          src:params.row.photo
+		                        },
+		                        style:{
+		                          width:'40px',
+		                          height:'40px',
+		                          borderRadius:"50%"
+		                        }
+		                      })
+		                    ])
+		                }
+		            },
+		             {
+		               title:'编号',
+		            	
+		               key:'code'
+		            },
+		            {
+		              title:"姓名",
+		            
+		              key:"name",
+		            },
+		           
+		            {
+		              title:"性别",
+		            
+		              key:"gender",
+		              width:70,
+		              render:(h,params)=>{
+		              return h('div',{
+		                  style:{
+		                    color:params.row.gender=='男'?'#40ca98':params.row.gender=='女'?'#FF934D':'未知'
+		                  }
+		                },params.row.gender)
+		              }
+		            },
+		            {
+		              title:'手机',
+		            
+		              key:'mobile'
+		            },
+		            
+		            {
+		              title:'余额',
+		              
+		              
+		              key:'chargeMoney'
+		            },
+		            {
+		              title:'积分',
+		              
+		             
+		              key:'dqjf'
+		            },
+		             {
+		              title:'折扣',
+		              
+		             
+		              key:'discount'
+		            },
+		            {
+		              title:'地址',
+		              
+		              key:'address'
+		            },
+		            {
+		               title:'注册时间',
+		               
+		               key:'createTime'
+		            },{
+		               title:'状态',
+		               
+		                width:70,
+		                fixed:"right",
+		               key:'statusDesc',
+		               render:(h,params)=>{
+		                  return h('span',{
+		                      style:{
+		                          color:params.row.status==1?'#40ca98':'#d53c39'
+		                      }
+		                  },params.row.statusDesc)
+		              }
+		            }
+		        ],
+		        nowTime:null,//点击确认充值时的时间
+        		nextTime:null,//轮询的时间超脱5分钟自动关闭
+			}
+		},
+		methods: {
+			//导入
+            //下载阻止冒泡
+			stopsku(event){
+               event.stopPropagation()
+            },
+            //点击
+            storeImport(){
+                this.importisshow=true
+                this.activeI=1
+                this.oneStepI=true//第一步显示
+                this.twoStepI=false//第2步隐藏
+                this.threeStepI=false//第3步隐藏
+                this.urlI=''
+                this.errorisshow=false
+                this.error=''
+                this.importstoredataList=[]
+            },
+            //取消
+            cancel(){
+                this.importisshow=false//弹框消失
+                this.oneStepI=true//第一步显示
+                this.twoStepI=false//第2步隐藏
+                this.threeStepI=false//第3步隐藏
+                this.urlI=''
+                this.errorisshow=false
+                this.error=''
+                this.importstoredataList=[]
+            },
+            //第一步
+            importOne(){
+                if(this.urlI==''){
+                	this.errorisshow=true
+                    this.error=this.$t('manage.warehouse.upmb')
+                    return
+                }else{
+                    this.activeI=2
+                    this.oneStepI=false
+					this.twoStepI=true
+                }
+            },
+            //返回第一步
+            goOneStep(){
+                this.activeI=1
+                this.oneStepI=true
+                this.twoStepI=false
+            },
+            //进入第三
+            gothree(){
+                this.importisshow=false//弹框消失
+                this.oneStepI=true//第一步显示
+                this.twoStepI=false//第2步隐藏
+                this.threeStepI=false//第3步隐藏
+                this.urlI=''
+                this.errorisshow=false
+                this.error=''
+                this.importstoredataList=[]
+            },
+            //继续编辑完成
+            sureimport(){
+                
+            },
+             //上传时
+            onprogress(event, file, fileList){
+            	
+            	this.loadingisshow=true
+            },
+             //上传之前类型之前
+            beforeAvatarUpload(file){
+               var fileName=new Array()
+                fileName =file.name.split('.');
+                const extension = fileName[fileName.length-1] === 'xls'
+                const extension2 =  fileName[fileName.length-1]=== 'xlsx'
+                const isLt10M = file.size / 1024 / 1024 < 10
+                if (!extension && !extension2) {
+                    this.$notify({
+				        title: "",
+				        message:this.$t('finance.upTemplate'),//'上传模板只能是xls、xlsx格式!',
+				        type: 'error',
+				        position: 'bottom-right'
+			        });
+                }
+                if (!isLt10M) {
+                    this.$notify({
+				        title: "",
+				        message: this.$t('finance.upTemplateB'),//'上传模板大小不能超过 10MB!',
+				        type: 'error',
+				        position: 'bottom-right'
+			        });
+                }
+
+             return extension || extension2 && isLt10M
+
+            },
+            //成功后的会掉
+            success(response, file, fileList){
+                 if(response.status==200){
+                   	this.error=this.$t('finance.upTemplateS')
+                   	this.errorisshow=true
+                    this.urlI=file.name
+                    console.log(response)
+                    this.loadingisshow=false
+                    this.importstoredataList=response.rows
+                    this.activeI=2
+                    this.oneStepI=false
+                    this.twoStepI=true
+                    this.importstoredataList.forEach((x)=>{
+                        
+                        x.createTime = this.getLocalTime(x.createTime)
+                       })
+                    this.getMentList()//所有会员
+                }else{
+                    this.errorisshow=true
+                    this.loadingisshow=false
+                    this.error=response.errorMessage
+                   //console.log(response)
+                }
+            },
+			//充值
+			addcz(){
+				if(this.crmid==''){
+					this.$notify({
+                        title:"",//
+                        message:'请选择会员！',
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+				}else{
+					this.active=1
+					this.alertch=true
+					this.one=true
+					this.two=false
+					this.three=false
+					this.numIndex=-1
+				}
+			},
+			//收款的取消
+			skCancel(){
+				this.alertch=false
+				this.payPrice=0
+				this.zfbmoney=0
+				this.crmmoney=0
+				this.skmoney=0
+				this.xjmoney=0
+				this.xxmoney=0
+				 this.Allp=0
+				this.othermoney=0
+				this.numIndex=-1
+				this.crmid=''
+			},
+			//返回
+			twocancel(){
+				this.two=false
+				this.one=true
+				this.active=1
+				this.three=false
+			},
+			//点击收款第一步
+			oneStep(){
+				
+				var test=/^\d{1,14}(\.\d{1,2})?$///验证输入只能时数字且小数点后两位
+				this.payPrice=Number(this.zfbmoney)+Number(this.xjmoney)+Number(this.skmoney)+Number(this.othermoney)+Number(this.xxmoney)
+
+				if(this.zfbmoney==0  && this.xjmoney==0 && this.skmoney==0 && this.othermoney==0  && this.xxmoney==0 ){
+					this.$notify({
+	                    title:"",//
+	                    message: '请输入金额！',
+	                    type: 'error',
+	                    position: 'bottom-right'
+	                });
+				}else if(!test.test(this.zfbmoney) || !test.test(this.xjmoney) || !test.test(this.skmoney) || !test.test(this.othermoney) ||!test.test(this.xxmoney)){
+					this.$notify({
+	                    title:"",//
+	                    message: '金额出错！',
+	                    type: 'error',
+	                    position: 'bottom-right'
+	                });
+					
+				}else if(this.numIndex!=-1&&this.payPrice<this.itemhd.charge){
+					this.$notify({
+		                  title:"",//
+		                  message:'充值金额与参与活动金额不符！',
+		                  type: 'error',
+		                  position: 'bottom-right'
+		                });
+				}else{
+					//总金额
+					this.active=2
+					this.one=false
+					this.two=true
+					this.nowTime=+new Date()//充值时间戳
+				}
+			},
+			 //第二步收款完成POST POST /recharge/add 新增充值
+      twoStep(){//1聚合支付// 9现金支 ,//11;刷卡支付 ;//25其他支付 ;//5 BISHOP储值卡支付 //18线下付款 //15 DOCU
+        
+          if(this.zfbmoney!=0){
+            this.payType=1//1聚合支付
+          }else if(this.xjmoney!=0){
+            this.payType=9// 9现金支
+          }else if(this.skmoney!=0){
+            this.payType=11//11;刷卡支付
+          }else if(this.othermoney!=0){
+            this.payType=25//其他支付
+          }else if(this.xxmoney!=0){
+            this.payType=18//线下付款
+          }
+          if(this.payType==1&&this.fkmcode==''){
+              this.$notify({
+                    title:"",//
+                    message: '请输入付款码！',
+                    type: 'error',
+                    position: 'bottom-right'
+                  });
+          }else{//POST /mrecharge/add 新增充值
+              this.axios.post('/mrecharge/add?uid='+this.uid,{
+                  crmId:this.item.id,
+                  crmCode:this.item.code,
+                  amount:this.payPrice,
+                  actId:this.itemhd.id,
+                  actName:this.itemhd.name,
+                  authCode:this.fkmcode,
+                  payType:this.payType
+                }).then(res=>{
+                 if(res.data.status==200){
+                        if(this.payType!=1){
+                          this.active=3
+                          this.two=false
+                          this.three=true
+                          this.fkmcode=''//付款码
+                          this.payType=''
+                          this.payPrice=0
+                          this.itemhd={}
+                          this.item={}
+                          this.getMentList()//所有会员
+                        }else{
+                            this.orderNumber=res.data.rows.payNo
+                          //订单轮询页面
+                            this.time=setInterval((res)=>{
+                              this.lunxun(this.orderNumber)
+                            },2000)//2秒调一次轮询
+                        }
+                  }else{
+                  	this.$notify({
+                        title:"",//
+                        message:res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                  }
+            })
+          }
+      },
+      //轮询结果GET /recharge/searchby/{ordreNo} 订单支付结果轮询
+      lunxun(num){
+        this.axios.get('/mrecharge/searchby/'+num+'?uid='+this.uid).then(res=>{
+          if(res.data.status==200){
+            this.$notify({
+                title:"",//
+                message: '收款成功',
+                type: 'success',
+                position: 'bottom-right'
+            });
+            this.active=3
+            this.two=false
+            this.three=true
+            this.fkmcode=''//付款码
+            this.payType=''
+            this.payPrice=0
+            this.Allp=0
+            this.itemhd={}
+            this.item={}
+            clearInterval(this.time)
+            this.getMentList()//所有会员
+          }else{
+          	//轮询超过5分钟自动关闭
+            	this.nextTime=+new Date()
+              if(this.nextTime-this.nowTime>500000){
+                clearInterval(this.time)
+                this.active=1
+                this.alertch=false
+                this.one=true
+                this.two=false
+                this.three=false
+                this.numIndex=-1
+            }
+          }
+        })
+      },
+			//继续收银
+			goOn(){
+				this.active=1
+				this.three=false
+				this.alertch=false
+				this.payPrice=0
+				this.zfbmoney=0
+				this.crmmoney=0
+				this.skmoney=0
+				this.xjmoney=0
+				this.xxmoney=0
+				 this.Allp=0
+				this.othermoney=0
+				this.numIndex=-1
+				this.crmid=''
+			},
+			//支付宝或微信支付输入
+		      moneychangezfb(e){
+		        this.zfbmoney=Number(e.target.value)
+		        this.Allp=this.zfbmoney
+		      },
+		     
+		      //刷卡支付输入
+		      moneychangesk(e){
+		        this.skmoney=Number(e.target.value)
+		        this.Allp=this.skmoney
+		      },
+		      //现金支付输入
+		      moneychangexj(e){
+		        this.xjmoney=Number(e.target.value)
+		        this.Allp=this.xjmoney
+		      },
+		      //线下支付输入
+		      moneychangexx(e){
+		        this.xxmoney=Number(e.target.value)
+		        this.Allp=this.xxmoney
+		      },
+		      //其他支付输入
+		      othermoney1(e){
+		        this.othermoney=Number(e.target.value)
+		        this.Allp=this.othermoney
+		      },
+			//支付宝获取焦点
+		      zfbfocus(){
+		      	if(this.numIndex!=-1){
+		      		this.Allp=this.zfbmoney=this.itemhd.charge
+		      	}else{
+		      		
+			        this.Allp=0
+		      	}
+		        this.skmoney=0////刷卡
+		        this.xjmoney=0//现金
+		        this.othermoney=0//其他
+		        this.xxmoney=0//其他
+		      },
+		      // //刷卡
+		      skfocus(){
+		        this.zfbmoney=0//支付宝//微信
+		        this.xjmoney=0//现金
+		        this.othermoney=0//其他
+		        this.xxmoney=0//其他
+		        this.Allp=0
+		      },
+		      xjfocus(){
+		        this.zfbmoney=0//支付宝//微信
+		        
+		        this.skmoney=0////刷卡
+		        // this.xjmoney=0//现金
+		        this.othermoney=0//其他
+		        this.xxmoney=0//其他
+		        
+		        this.Allp=0
+		      },
+		      //线下
+		      xxfocus(){
+		        this.zfbmoney=0//支付宝//微信
+		        
+		        this.skmoney=0////刷卡
+		        this.xjmoney=0//现金
+		        this.othermoney=0//其他
+		       
+		        this.Allp=0
+		      },
+
+		      otherfocus(){
+		        this.zfbmoney=0//支付宝//微信
+		        this.skmoney=0////刷卡
+		        this.xjmoney=0//现金
+		        // this.othermoney=0//其他
+		        this.xxmoney=0//其他
+		        this.Allp=0
+		      },
+			//双击会员表格一行
+		      dbl(row,index){
+		        this.$router.push({
+		          path:'/addStoreCrm',
+		          query:{
+		            id:row.id,
+		            index:index,
+		            s:row.status,
+		            item:row
+		          }
+		        })
+		      },
+		      //新建会员
+			addCrm(){
+				this.$router.push("addStoreCrm")
+			},
+			//点击查询店铺会员GET /mcrm/query 门店会员清单
+			searchNewSku(){
+				this.fhindex=1
+				this.axios.get('mcrm/list?keyword='+this.keyword+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.crmdata = res.data.rows
+		                this.crmtotal=res.data.total
+		                this.crmpageSize=res.data.pageSize
+					}
+				})
+			},
+			//回车查询店铺会员
+			entersSearchNewSku(){
+				this.searchNewSku()
+			},
+			//查询集团会员GET /mcrm/all 查询集团会员
+			searchJtCrm(){
+				this.axios.get('/mcrm/list?keyword='+this.jtkeyword+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.crmdata = res.data.rows
+		                this.crmtotal=res.data.total
+		                this.crmpageSize=res.data.pageSize
+		                this.crmdata.forEach((x)=>{
+		               	
+			               	x.createTime = this.getLocalTime(x.createTime)
+			               	if(x.birthday==null){
+			               		x.birthday='未知'
+			               	}else{
+			               		x.birthday = this.getLocalTime(x.birthday)
+			               	}
+			               	if(x.gender=='1'){
+			               		x.genderDes='男'
+			               	}else if(x.gender=='0'){
+			               		x.genderDes='女'
+			               	}else{
+			               		x.genderDes='未知'
+			               	}
+		               
+		               })
+					}
+				})
+			},
+			//回车查询集团会员
+			entersSearchJtCrm(){
+				this.searchJtCrm()
+			},
+            //单击会员一行
+            clickrow(data,index){
+            	this.item=data
+            	this.crmid=data.id
+            	
+            	console.log(data)
+            },
+            
+			//切换
+			getfhlistbg(index){
+				this.fhindex=index
+				switch(this.fhindex){
+					case 0:
+					break;
+
+					//会员清单
+					case 1:
+						this.getMentList()//所有会员
+						this.getHd()
+					break;
+
+					//会员卡
+					case 2:
+						this.getCard()
+					break;
+
+					//充值活动
+					case 3:
+						this.getAllmrechargea()
+					break;
+					//生命周期
+					case 4:
+						this.getTotal00('/mcrmdata/today',2)
+			            this.getTotal00('/mcrmdata/active',3)
+			            this.getTotal00('/mcrmdata/silence',4)//GET /crm/silence 沉默会员
+			            this.getTotal00('/mcrmdata/sleep',5)//GET /crm/sleep 睡眠会员
+			            this.getTotal00('/mcrmdata/loss',6)//GET /crm/loss 流失会员
+					break;
+					//近期生日
+					case 5:
+						this.getbirthday(this.valueT)
+					break;
+					//会员分析
+					case 6:
+					break;
+				}
+				
+			},
+			//表格选中时的数据，数组
+			selected(selection,row){
+				this.valId = row.id
+				this.row = row
+			},
+            //员工
+			clickradio(i,index){
+				this.url=i.qrcodeUrl
+				this.ygewmIndex=index
+			},
+			//店铺
+			clickradio1(i,index){
+				this.url1=i.qrcodeUrl
+				this.ygewmIndex1=index
+			},
+			
+			//获取所有会员
+	        getMentList(){
+	            this.axios.get('mcrm/list?uid='+this.uid).then((res)=>{
+	                if(res.data.status==200){
+		                	this.crmdata = res.data.rows
+		                	this.crmtotal=res.data.total
+		                	console.log(this.crmdata)
+		                	this.crmpageSize=res.data.pageSize
+		                	this.crmdata.forEach((x)=>{
+		               	
+			               	x.createTime = this.getLocalTime(x.createTime)
+			               	if(x.birthday==null){
+			               		x.birthday='未知'
+			               	}else{
+			               		x.birthday = this.getLocalTime(x.birthday)
+			               	}
+			               	if(x.gender=='1'){
+			               		x.genderDes='男'
+			               	}else if(x.gender=='0'){
+			               		x.genderDes='女'
+			               	}else{
+			               		x.genderDes='未知'
+			               	}
+		               
+		               })
+	                }
+	            })
+	        },
+	         //会员切换一条页
+            crmgetData(current){
+                this.axios.get('/mcrm/list?offset='+current+'&uid='+this.uid).then((res)=>{
+                 
+                    this.crmdata = res.data.rows
+	                this.crmtotal=res.data.total
+	                this.crmpageSize=res.data.pageSize
+	                this.crmdata.forEach((x)=>{
+	               	
+		               	x.createTime = this.getLocalTime(x.createTime)
+		               	if(x.birthday==null){
+			               		x.birthday='未填写'
+			               	}else{
+			               		x.birthday = this.getLocalTime(x.birthday)
+			               	}
+		            })
+                })
+            },
+            //翻页
+            crmchangePageSize(size){
+                this.crmpageSize = size
+                this.axios.get('/mcrm/list?length='+size+'&uid='+this.uid).then((res)=>{
+                 
+                    this.crmdata = res.data.rows
+	                this.crmtotal=res.data.total
+	                this.crmpageSize=res.data.pageSize
+	                this.crmdata.forEach((x)=>{
+	               	
+		               	x.createTime = this.getLocalTime(x.createTime)
+		               	if(x.birthday==null){
+			               		x.birthday='未填写'
+			               	}else{
+			               		x.birthday = this.getLocalTime(x.birthday)
+			               	}
+		            })
+                })
+            },
+           
+            //获取会员卡
+			getCard(){
+				this.axios.get('mcrmlevel/query?length=2'+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.cardData=res.data.rows
+						this.cardtotal=res.data.total
+						this.cardpageSize=res.data.pageSize
+					}
+				})
+			},
+            //会员卡翻页
+            cardgetData(current){
+            	this.axios.get('/mcrmlevel/query?length=2'+'&offset='+current+'&uid='+this.uid).then((res)=>{
+                 	this.cardData=res.data.rows
+					this.cardtotal=res.data.total
+					this.cardpageSize=res.data.pageSize
+					
+                })
+            },
+            //翻页
+            cardchangePageSize(size){
+                this.cardpageSize = size
+            },
+            //获取充值活动
+	      getHd(){
+	        this.axios.get('rechargea/query?uid='+this.uid).then(res=>{
+	          if(res.data.status==200){
+	            this.HdData=res.data.rows
+	            this.hdtotal=res.data.total
+	            this.hdpagesize=res.data.pageSize
+	          }
+	        })
+	      },
+	      //单击活动
+	      clickLi(item,index){
+	        this.numIndex=index
+          	this.itemhd=item
+          	this.Allp=this.zfbmoney=item.charge//选择活动默认支付宝微信
+           	this.skmoney=0////刷卡
+          	this.xjmoney=0//现金
+          	this.othermoney=0//其他
+          	this.xxmoney=0//其他
+	       
+	      },
+	      //取消选中
+	      clickcancel(){
+	        this.numIndex=-1
+	        this.itemhd={}
+	      },
+	      hdgetData(current){
+	      	this.axios.get('rechargea/query?offset='+current+'&uid='+this.uid).then(res=>{
+	          if(res.data.status==200){
+	            this.HdData=res.data.rows
+	            this.hdtotal=res.data.total
+	            this.hdpagesize=res.data.pageSize
+	          }
+	        })
+	      },
+	      hdchangePageSize(size){
+	      	this.hdpagesize=size
+	      },
+
+	      //全部会员GET /mcrm/all 查询集团会员
+	      //查询全部会员
+	      searchkcAll(){
+	      	this.loadingisshow=true
+	      		this.axios.get('/mcrm/all?keyword='+this.kckeywordAll+'&uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					let data=res.data
+					this.loadingisshow=false
+					this.kcdata1=data.rows
+					this.kctotal1=data.total
+					this.kcpageSize1=data.pageSize
+					this.kcdata1.forEach(x=>{
+						x.createTime=this.getLocalTime(x.createTime)
+						
+					})
+
+				}else{
+					this.loadingisshow=false
+				}
+			})
+	      },
+	      //详情弹框
+	      //双击
+	      dblclickrowAllCrm(data){
+	      	this.detailsData=data
+	      	console.log(data)
+	      	this.detailsName=this.detailsData.name
+      		this.Crmdetailsisshow=true
+	      },
+	      //关闭
+	      cancelCrmdetails(){
+	      	this.Crmdetailsisshow=false
+	      },
+	      //状态改变时
+	      changeStatus(status){
+	      	if(!status){
+	      		this.detailsData={}
+	      		this.numIndexmsg=0
+	      		console.log(this.numIndexmsg)
+	      	}
+	      },
+	      //翻页
+	      kcgetData1(current){
+	      		this.axios.get('/mcrm/all?offset='+current+'&keyword='+this.kckeywordAll+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						let data=res.data
+						this.loadingisshow=false
+						this.kcdata1=data.rows
+						this.kctotal1=data.total
+						this.kcpageSize1=data.pageSize
+						this.kcdata1.forEach(x=>{
+							x.createTime=this.getLocalTime(x.createTime)
+							
+						})
+					}
+				})
+		      },
+		    kcchangePageSize1(size){
+		      	this.kcpageSize1=size
+		      	this.axios.get('/mcrm/all?length='+size+'&keyword='+this.kckeywordAll+'&uid='+this.uid).then(res=>{
+						if(res.data.status==200){
+							let data=res.data
+							this.loadingisshow=false
+							this.kcdata1=data.rows
+							this.kctotal1=data.total
+							this.kcpageSize1=data.pageSize
+							this.kcdata1.forEach(x=>{
+								x.createTime=this.getLocalTime(x.createTime)
+								
+							})
+						}
+					})
+		      },
+	      	entersSearchkcAll(){
+	      		this.searchkcAll()
+	      	},
+	      
+	      //充值活动
+	      //获取活动数据GET /mrechargea/query 充值活动清单
+			getAllmrechargea(){
+				this.axios.get('/mrechargea/query?uid='+this.uid).then((res)=>{
+					if(res.data.status==200){
+						this.mrechargeadata=res.data.rows
+						this.mrechargeatotal = res.data.total
+						this.mrechargeapageSize = res.data.pageSize
+						this.mrechargeadata.forEach(x=>{
+							if(x.status==1){
+								x.statusDesc='已启用'
+							}
+							if(x.status==0){
+								x.statusDesc='新增'
+							}
+							if(x.status==99){
+								x.statusDesc='已停用'
+							}
+						})
+					}
+					
+				})
+			},
+			//切换一条页
+            mrechargeagetData(current){
+                this.axios.get('/mrechargea/query?offset='+current+'&uid='+this.uid).then((res)=>{
+                    if(res.data.status==200){
+						this.mrechargeadata=res.data.rows
+						this.mrechargeatotal = res.data.total
+						this.mrechargeapageSize = res.data.pageSize
+						this.mrechargeadata.forEach(x=>{
+							if(x.status==1){
+								x.statusDesc='已启用'
+							}
+							if(x.status==0){
+								x.statusDesc='新增'
+							}
+							if(x.status==99){
+								x.statusDesc='已停用'
+							}
+						})
+					}
+                })
+                
+            },
+            //翻页
+            mrechargeachangePageSize(size){
+                this.mrechargeapageSize = size
+            },
+            //搜索
+            searchmrechargea(){
+            	this.axios.get('/mrechargea/query?keyword='+this.mrechargeakeyword+'&uid='+this.uid).then((res)=>{
+                    if(res.data.status==200){
+						this.mrechargeadata=res.data.rows
+						this.mrechargeatotal = res.data.total
+						this.mrechargeapageSize = res.data.pageSize
+						this.mrechargeadata.forEach(x=>{
+							if(x.status==1){
+								x.statusDesc='已启用'
+							}
+							if(x.status==0){
+								x.statusDesc='新增'
+							}
+							if(x.status==99){
+								x.statusDesc='已停用'
+							}
+						})
+					}
+                })
+            },
+            entersSearchmrechargea(){
+            	this.searchmrechargea()
+            },
+            
+            //搜索 blackkeyword
+            searblack(){
+            	this.axios.get('mcrm/query?keyword='+this.blackkeyword+'&uid='+this.uid+'&status=7').then((res)=>{
+	                if(res.data.status==200){
+	                    let data=res.data
+		            	this.blackdata=data.rows
+						this.blacktotal=data.total
+						this.blackpageSize=data.pageSize
+	                  	this.blackdata.forEach((x)=>{
+	                    	x.createTime=this.getLocalTime(x.createTime)
+			                    if(x.birthday==null){
+			                      x.birthday=''
+			                    }else{
+			                      x.birthday=this.getLocalTime(x.birthday)
+			                    }
+	                  	})
+	                }
+	            })
+            	
+            },
+            //回车搜索
+            entersSearblack(){
+            	this.searblack()
+            },
+            //翻页
+            blackgetData(current){
+   				this.axios.get('mcrm/query?offset='+current+'&uid='+this.uid+'&status=7').then((res)=>{
+	                if(res.data.status==200){
+	                    let data=res.data
+		            	this.blackdata=data.rows
+						this.blacktotal=data.total
+						this.blackpageSize=data.pageSize
+	                  	this.blackdata.forEach((x)=>{
+	                    	x.createTime=this.getLocalTime(x.createTime)
+			                    if(x.birthday==null){
+			                      x.birthday=''
+			                    }else{
+			                      x.birthday=this.getLocalTime(x.birthday)
+			                    }
+	                  	})
+	                }
+	            })
+            },
+            blackchangePageSize(size){
+            	this.blackpageSize=size
+ 				this.axios.get('mcrm/query?length='+size+'&uid='+this.uid+'&status=7').then((res)=>{
+	                if(res.data.status==200){
+	                    let data=res.data
+		            	this.blackdata=data.rows
+						this.blacktotal=data.total
+						this.blackpageSize=data.pageSize
+	                  	this.blackdata.forEach((x)=>{
+	                    	x.createTime=this.getLocalTime(x.createTime)
+			                    if(x.birthday==null){
+			                      x.birthday=''
+			                    }else{
+			                      x.birthday=this.getLocalTime(x.birthday)
+			                    }
+	                  	})
+	                }
+	            })
+            },
+           
+            //近期生日GET /mcrm/birthday/{t} 生日会员
+            getbirthday(s){
+            	this.axios.get('/mcrm/birthday/'+s+'?uid='+this.uid).then(res=>{
+            		if(res.data.status==200){
+            			let data=res.data
+		            	this.birthdaydata=data.rows
+						this.birthdaytotal=data.total
+						this.birthdaypageSize=data.pageSize
+						this.birthdaydata.forEach((x)=>{
+		                    x.createTime=this.getLocalTime(x.createTime)
+		                    console.log( x.createTime)
+		                    if(x.birthday==null){
+		                      x.birthday=''
+		                    }else{
+		                      x.birthday=this.getLocalTime(x.birthday)
+
+		                    }
+		                    
+		                  })
+            		}
+            	})
+            },
+            changeBirthday(value){
+            	this.valueT=value
+            	this.getbirthday(this.valueT)
+            },
+            //搜索
+            searbirthday(){
+            	this.axios.get('/mcrm/birthday/0?uid='+this.uid+'&keyword='+this.birthdaykeyword).then(res=>{
+            		if(res.data.status==200){
+            			let data=res.data
+		            	this.birthdaydata=data.rows
+						this.birthdaytotal=data.total
+						this.birthdaypageSize=data.pageSize
+						this.birthdaydata.forEach((x)=>{
+		                    x.createTime=this.getLocalTime(x.createTime)
+		                    console.log( x.createTime)
+		                    if(x.birthday==null){
+		                      x.birthday=''
+		                    }else{
+		                      x.birthday=this.getLocalTime(x.birthday)
+
+		                    }
+		                    
+		                  })
+            		}
+            	})
+            },
+            entersSearbirthday(){
+            	this.searbirthday()
+            },
+            birthdaygetData(current){
+ 				this.axios.get('/mcrm/birthday/'+this.valueT+'?uid='+this.uid+'&offset='+current).then(res=>{
+            		if(res.data.status==200){
+            			let data=res.data
+		            	this.birthdaydata=data.rows
+						this.birthdaytotal=data.total
+						this.birthdaypageSize=data.pageSize
+						this.birthdaydata.forEach((x)=>{
+		                    x.createTime=this.getLocalTime(x.createTime)
+		                    console.log( x.createTime)
+		                    if(x.birthday==null){
+		                      x.birthday=''
+		                    }else{
+		                      x.birthday=this.getLocalTime(x.birthday)
+
+		                    }
+		                    
+		                  })
+            		}
+            	})
+            },
+            birthdaychangePageSize(size){
+   				this.axios.get('/mcrm/birthday/'+this.valueT+'?uid='+this.uid+'&length='+size).then(res=>{
+            		if(res.data.status==200){
+            			let data=res.data
+		            	this.birthdaydata=data.rows
+						this.birthdaytotal=data.total
+						this.birthdaypageSize=data.pageSize
+						this.birthdaydata.forEach((x)=>{
+		                    x.createTime=this.getLocalTime(x.createTime)
+		                    console.log( x.createTime)
+		                    if(x.birthday==null){
+		                      x.birthday=''
+		                    }else{
+		                      x.birthday=this.getLocalTime(x.birthday)
+
+		                    }
+		                    
+		                  })
+            		}
+            	})
+            },
+            //详情
+            clickmsg(num){
+            	this.numIndexmsg=num
+            	switch(num){
+            		case 0:
+	        			
+	        		break;
+	        		//订单
+	        		case 1:
+	        			this.getorderCrm()
+	        		break;
+	        		//积分历史
+	        		case 2:
+	        			this.getjf()
+	        		break;
+	        		//充值
+	        		case 3:
+	        			this.getcz()
+	        		break;
+	        		//地址
+	        		case 4:
+	        			this.getCrmAddress()
+	        		break;
+            	}
+            },
+            //订单
+            getorderCrm(){
+            	this.axios.get('mcrm/order/'+this.detailsData.id+'?uid='+this.uid).then((res)=>{
+                    //console.log(res)
+                    this.orderdataList = res.data.rows
+                    this.ordertotal=res.data.total;
+					this.orderpageSize = res.data.pageSize
+                    this.orderdataList.forEach((x,index)=>{
+							x.createTime=this.getLocalTime(x.createTime)
+						})
+                })
+            },
+			 //切换一条页
+            ordergetData(current){
+                this.axios.get('mcrm/order/'+this.detailsData.id+'?offset='+current+'&uid='+this.uid).then((res)=>{
+                    //console.log(res)
+                    this.orderdataList = res.data.rows
+                    this.ordertotal=res.data.total;
+					this.orderpageSize = res.data.pageSize
+                    this.orderdataList.forEach((x,index)=>{
+							x.createTime=this.getLocalTime(x.createTime)
+						})
+                })
+            },
+
+            //翻页
+            orderchangePageSize(size){
+                this.orderpageSize = size
+            },
+            //积分历史
+            getjf(){
+            	this.axios.get('mcrm/integral/'+this.detailsData.id+'?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.jfdataList=res.data.rows
+						this.jftotal = res.data.total
+						this.jfpageSize =res.data.pageSize
+					}
+				})
+            },
+            jfgetData(current){
+                this.axios.get('mcrm/integral/'+this.detailsData.id+'?offset='+current+'&uid='+this.uid).then((res)=>{
+                    //console.log(res)
+                    this.jfdataList = res.data.rows
+                    this.jftotal = res.data.total
+					this.jfpageSize =res.data.pageSize
+                    this.jfdataList.forEach((x,index)=>{
+
+							x.createTime=this.getLocalTime(x.createTime)
+						})
+                })
+            },
+            //翻页
+            jfchangePageSize(size){
+                this.jfpageSize = size
+            },
+            //充值历史
+            getcz(){
+            	this.axios.get('mcrm/recharge/'+this.detailsData.id+'?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.czdataList=res.data.rows
+						this.cztotal=res.data.total
+						this.czpageSize=res.data.pageSize
+						this.czdataList.forEach(x=>{
+							x.createTime=this.getLocalTime(x.createTime)
+						})
+					}
+
+				})
+            },
+            //充值翻页
+            czgetData(current){
+                this.axios.get('mcrm/recharge/'+this.detailsData.id+'?offset='+current+'&uid='+this.uid).then((res)=>{
+                    //console.log(res)
+                    this.czdataList = res.data.rows
+                    this.cztotal=res.data.total
+					this.czpageSize=res.data.pageSize
+                    this.czdataList.forEach((x,index)=>{
+
+							x.createTime=this.getLocalTime(x.createTime)
+						})
+                })
+            },
+            //翻页
+            czchangePageSize(size){
+                this.czpageSize = size
+            },
+            //会员地址GET /mcrmaddress/query/{id} 清单  this.detailsData.id
+            getCrmAddress(){
+            	this.axios.get('/mcrmaddress/query/'+this.detailsData.id+'?uid='+this.uid).then(res=>{
+            		if(res.data.status==200){
+	            		let data=res.data
+		            	this.addresstotal=data.total
+						this.addresspageSize=data.pageSize
+						this.addressdataList=data.rows
+	            	}
+            	})
+            },
+            addressgetData(current){
+            	this.axios.get('/mcrmaddress/query/'+this.detailsData.id+'?offset='+current+'&uid='+this.uid).then(res=>{
+            		if(res.data.status==200){
+	            		let data=res.data
+		            	this.addresstotal=data.total
+						this.addresspageSize=data.pageSize
+						this.addressdataList=data.rows
+	            	}
+            	})
+            },
+            addresschangePageSize(size){
+            	this.addresspageSize=size
+            },
+         //GET /crm/life 会员生命周
+        //1:消费者 2：顾客 3：会员 4：活跃会员 5：沉默会员 6：睡眠会员 7：流失会员
+        clickNomsg(num){
+            this.indexNum=num
+            
+            switch(num){
+                //1:消费者
+                case 0:
+                   
+                break;
+                //2：顾客
+                case 1:
+                    
+                break;
+                //新会员
+                case 2:
+                    this.getTotal00('/mcrmdata/today',2)
+            
+                break;
+                case 3:
+                  this.getTotal00('/mcrmdata/active',3)
+            
+                break;
+                case 4:
+                 this.getTotal00('/mcrmdata/silence',4)//GET /crm/silence 沉默会员
+            
+                break;
+                case 5:
+                   this.getTotal00('/mcrmdata/sleep',5)//GET /crm/sleep 睡眠会员
+            
+                break;
+                case 6:
+                  this.getTotal00('/mcrmdata/loss',6)//GET /crm/loss 流失会员
+                break;
+            }
+        },
+        
+        //翻页
+        jfgetData(current){
+            switch(this.indexNum){
+                case 0:
+                break;
+                case 1:
+                break;
+                case 2:
+                    this.getPage('/mcrmdata/today',current,2)
+                break;
+                case 3:
+                    this.getPage('/mcrmdata/active',current,3)
+                break;
+                case 4:
+                    this.getPage('/mcrmdata/silence',current,4)
+                break;
+                case 5:
+                    this.getPage('/mcrmdata/sleep',current,5)
+                break;
+                case 6:
+                    this.getPage('/mcrmdata/loss',current,6)
+                break;
+            }
+        },
+        //翻页
+        getPage(path,current,day){
+            this.axios.get(path+'?uid='+this.uid+'&offset='+current).then(res=>{
+                if(res.data.status==200){
+                    let data=res.data
+                    switch(day){
+                        case 0:
+                            this.indexNum=0
+                            this.crmtotal00=data.total
+                            this.crmdataList0=data.rows
+                            this.crmtotal0=data.total
+                            this.crmpageSize0=data.pageSize
+                        break;
+                        case 1:
+                            this.indexNum=21
+                            this.crmtotal11=data.total
+                            this.crmdataList1=data.rows
+                            this.crmtotal1=data.total
+                            this.crmpageSize1=data.pageSize
+                        break;
+                        //今日会员
+                        case 2:
+                            this.indexNum=2
+                            this.crmtotal22=data.total
+                            this.crmdataList2=data.rows
+                            this.crmtotal2=data.total
+                            this.crmpageSize2=data.pageSize
+                        break;
+                        //活跃会员
+                        case 3:
+                            this.indexNum=3
+                            this.crmtotal33=data.total
+                            this.crmdataList3=data.rows
+                            this.crmtotal3=data.total
+                            this.crmpageSize3=data.pageSize
+                        break;
+                        //沉默
+                        case 4:
+                            this.indexNum=4
+                            this.crmtotal44=data.total
+                            this.crmdataList4=data.rows
+                            this.crmtotal4=data.total
+                            this.crmpageSize4=data.pageSize
+                        break;
+                        //睡眠
+                        case 5:
+                            this.indexNum=5
+                            this.crmtotal55=data.total
+                            this.crmdataList5=data.rows
+                            this.crmtotal5=data.total
+                            this.crmpageSize5=data.pageSize
+                        break;
+                        //流失
+                        case 6:
+                            this.indexNum=6
+                            this.crmtotal66=data.total
+                            this.crmdataList6=data.rows
+                            this.crmtotal6=data.total
+                            this.crmpageSize6=data.pageSize
+                        break;
+                    }
+                    
+                }
+            })
+        },
+        getPageSize(path,size,day){
+            this.axios.get(path+'?uid='+this.uid+'&length='+size).then(res=>{
+                if(res.data.status==200){
+                    let data=res.data
+                    switch(day){
+                        case 0:
+                            this.indexNum=0
+                            this.crmtotal00=data.total
+                            this.crmdataList0=data.rows
+                            this.crmtotal0=data.total
+                            this.crmpageSize0=data.pageSize
+                        break;
+                        case 1:
+                            this.indexNum=21
+                            this.crmtotal11=data.total
+                            this.crmdataList1=data.rows
+                            this.crmtotal1=data.total
+                            this.crmpageSize1=data.pageSize
+                        break;
+                        //今日会员
+                        case 2:
+                            this.indexNum=2
+                            this.crmtotal22=data.total
+                            this.crmdataList2=data.rows
+                            this.crmtotal2=data.total
+                            this.crmpageSize2=data.pageSize
+                        break;
+                        //活跃会员
+                        case 3:
+                            this.indexNum=3
+                            this.crmtotal33=data.total
+                            this.crmdataList3=data.rows
+                            this.crmtotal3=data.total
+                            this.crmpageSize3=data.pageSize
+                        break;
+                        //沉默
+                        case 4:
+                            this.indexNum=4
+                            this.crmtotal44=data.total
+                            this.crmdataList4=data.rows
+                            this.crmtotal4=data.total
+                            this.crmpageSize4=data.pageSize
+                        break;
+                        //睡眠
+                        case 5:
+                            this.indexNum=5
+                            this.crmtotal55=data.total
+                            this.crmdataList5=data.rows
+                            this.crmtotal5=data.total
+                            this.crmpageSize5=data.pageSize
+                        break;
+                        //流失
+                        case 6:
+                            this.indexNum=6
+                            this.crmtotal66=data.total
+                            this.crmdataList6=data.rows
+                            this.crmtotal6=data.total
+                            this.crmpageSize6=data.pageSize
+                        break;
+                    }
+                    
+                }
+            })
+        },
+        jfchangePageSizeCrm(size){
+        	switch(this.indexNum){
+                case 0:
+                break;
+                case 1:
+                break;
+                case 2:
+                    this.getPageSize('/mcrmdata/today',size,2)
+                break;
+                case 3:
+                    this.getPageSize('/mcrmdata/active',size,3)
+                break;
+                case 4:
+                    this.getPageSize('/mcrmdata/silence',size,4)
+                break;
+                case 5:
+                    this.getPageSize('/mcrmdata/sleep',size,5)
+                break;
+                case 6:
+                    this.getPageSize('/mcrmdata/loss',size,6)
+                break;
+            }
+        },
+        //会员
+        getTotal00(path,day){
+            this.axios.get(path+'?uid='+this.uid).then(res=>{
+                if(res.data.status==200){
+                    let data=res.data
+                    switch(day){
+                        //今日会员
+                        case 2:
+                            this.indexNum=2
+                            this.crmtotal22=data.total
+                            this.crmdataList2=data.rows
+                            this.crmtotal2=data.total
+                            this.crmpageSize2=data.pageSize
+                        break;
+                        //活跃会员
+                        case 3:
+                            this.indexNum=3
+                            this.crmtotal33=data.total
+                            this.crmdataList3=data.rows
+                            this.crmtotal3=data.total
+                            this.crmpageSize3=data.pageSize
+                        break;
+                        //沉默
+                        case 4:
+                            this.indexNum=4
+                            this.crmtotal44=data.total
+                            this.crmdataList4=data.rows
+                            this.crmtotal4=data.total
+                            this.crmpageSize4=data.pageSize
+                        break;
+                        //睡眠
+                        case 5:
+                            this.indexNum=5
+                            this.crmtotal55=data.total
+                            this.crmdataList5=data.rows
+                            this.crmtotal5=data.total
+                            this.crmpageSize5=data.pageSize
+                        break;
+                        //流失
+                        case 6:
+                            this.indexNum=6
+                            this.crmtotal66=data.total
+                            this.crmdataList6=data.rows
+                            this.crmtotal6=data.total
+                            this.crmpageSize6=data.pageSize
+                        break;
+                    }
+                    
+                }
+            })
+        },
+        //下拉框选择
+			orderselected(value){
+				this.valueT = value
+				this.getMentList(this.valueTT)
+			},
+		},
+		created(){
+
+		},
+		mounted() {
+			if(this.$route.query.index){
+				this.fhindex=this.$route.query.index
+				this.getMentList()//所有会员
+				this.getHd()
+			}
+		}
+	}
+</script>
+
+<style lang="css" scoped>
+.inputSearchAll{
+width: 100%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+p.edit:hover{
+	color:blue;
+}
+	.units-box {
+		width: 100%;
+		background: rgb(230,233,236);
+	}
+.right-list{
+    display: flex;
+    flex-direction: column;
+    padding: 10px 20px;
+    border: 1px solid #e4e4e4;
+    border-radius: 6px;
+    margin:10px;
+    background-color: #fff
+  }
+  .right-list span{
+    margin-top:5px;
+  }
+  .cztitle{
+  	width:100%;
+  	text-align: center;
+  	height:40px;
+  	line-height: 40px;
+  	font-size:16px;
+  	
+  	border-bottom:1px solid #e4e4e4;
+  	background-color: #fff
+  }
+  .bg{
+    background:#dbe5f1
+  }
+  .czmian{
+  	height:355px;overflow:auto;width:100%;background:#f5f5f5;
+  	border-top:1px solid #e4e4e4;
+  }
+  .czmian::-webkit-scrollbar{
+	width: 2px;
+	height: 4px;
+	background-color: #f5f5f5;
+}
+.czmian::-webkit-scrollbar-track{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	border-radius: 10px;
+	background-color: #f5f5f5;
+}
+.czmian::-webkit-scrollbar-thumb{
+	
+	height: 2px;
+	border-radius: 18px;
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	background-color: #ccc;
+}
+  /*.right-list:last-child{
+    margin-bottom:140px;
+  }*/
+	.right{
+		margin-right:10px;
+		margin-bottom:10px;
+	}
+	.ivu-icon-chevron-down {
+		font-size: 10px;
+	}
+	.btns img {
+		width: 14px;
+		height: 14px;
+		vertical-align: middle;
+	}
+	.crmlist{
+		display:flex;margin-top: 30px;justify-content: space-around;align-items:center;border-bottom: 1px solid #e4e4e4;
+	}
+	.main-left{
+		 width: 120px;
+		margin-right: 3px;
+		flex: 0 0 120px;
+		font-size: 14px;
+		background: #fff;
+	}
+	.main-left li{
+		list-style: none;
+		padding:10px 0;
+		width:100%;
+		
+	}
+	.main-left li span{
+		margin-left:10px;
+	}
+	.cradList{
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.cradList1{
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-direction: column;
+		border:1px solid #e4e4e4;
+		width:40%;
+		margin:20px;
+	}
+	.viptopmain{
+		width: 90%;
+	    height: 100px;
+	    border-top-left-radius:6px;
+	    border-top-right-radius:6px;
+	   
+	    margin: 20px 0 0 0;
+	    display: flex;
+	    background:#E1A271;
+	    justify-content: space-around;
+	    align-items: center;
+	}
+	.viptopmain-b{
+		width: 90%;
+	   
+	    border:1px solid #e4e4e4;
+	    border-bottom: none;
+	    margin: 20px;
+	    display: flex;
+	    flex-direction: column;
+	}
+	.viptop{
+		display: flex;
+		justify-content: space-around;
+
+	}
+	.viptopmain-bottom{
+		width: 90%;
+	    height: 100px;
+	    
+	    display: flex;
+	    border:1px solid #e4e4e4;
+	    border-bottom-left-radius: 6px;
+	    border-bottom-right-radius: 6px;
+	    border-top:none;
+	    justify-content: space-around;
+	    align-items: center;
+	}
+	.left-info li{
+		display: flex;
+		margin:10px 0;
+	}
+	.left-info div{
+		width:200px;
+		margin:5px 0;
+		/*text-align: right*/
+	}
+	.left-info li .span{
+	  width:90px;
+	  text-align: right
+	}
+	/*.el-step__title.is-process, .el-step__title.is-finish, .el-step__title.is-wait{
+		margin-left: -30px!important;
+	}*/
+	.remarkli{
+		list-style: none;
+		border-bottom:1px solid #e4e4e4;
+		display: flex;
+		height:40px;
+		line-height: 40px;
+		
+	}
+	.remarkli-span{
+		flex:0 0 100px;
+		width:100px;
+		text-align: center;
+		border-right:1px solid #e4e4e4;
+		
+	}
+	.twospan{
+		flex:2 0 auto;
+		text-align: center;
+	}
+	.table {
+		width: 100%;
+		height: 100%;
+		overflow: auto;
+		
+		background: #fff;
+	}
+	.bor{
+		background: #f2f7ff;
+        color:rgb(59,119,227);
+	}
+.dialog-btn1{
+  width:100%;
+  line-height: 60px;
+    height: 60px;
+}
+.dialog-btn1 span{
+  display: inline-block;
+}
+.dialog-btn1 div{
+display: inline-block;
+ 
+   width: 200px;
+   float: right;
+   margin-right:-30px;
+   margin-top:20px;
+}
+.mtewm{
+width: 100%;
+
+display:flex;
+padding: 0px 200px 0 200px;
+
+justify-content: center;
+align-items: center;
+flex-direction: column;
+    	
+}
+.mtewm1{
+text-align: center;
+    	
+}
+.mtewm span{
+	width:260px;
+	height:30px;
+	line-height: 30px;
+	font-weight:600;
+	text-align: center
+}
+.mtewm div{
+	width:260px;
+	height:60px;
+	line-height: 35px;
+	
+}
+
+.ygewm{
+	 padding:10px;
+	width:100%;
+	height:100%;
+	/*border:1px solid red;*/
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+    text-align: center;
+	
+	background: #fff
+}
+.ygewm-list{
+	margin:10px;
+    width:16%;
+    padding:10px 0;
+    justify-content: center;
+    text-align: center;
+    border: 1px solid #ccc;
+}
+.page-box{
+	width:100%;
+	/*margin-right:56px;*/
+	margin-top:15px;
+	margin-bottom:120px;
+	text-align: center
+}
+.page-box1{
+	width:100%;
+	text-align: left;
+	margin-top:15px;
+	justify-content: space-between;
+	
+}
+.paydialog{
+	width:100%;
+	border-bottom:1px solid #E4E4E4;
+	padding:10px 0;
+	text-align: center;
+	margin: 20px auto 0 auto;
+}
+.step{
+	margin-left:25%;
+}
+.dialog-bottom{
+	display:flex;
+	justify-content:space-between;
+	
+}
+.dialog-left{
+	width:40%;
+	display:flex;
+	justify-content: flex-start;
+	
+	flex-direction: column;
+	/*text-align: right;*/
+	/*padding-bottom:30px;*/
+}
+.left-infoli{
+	margin:10px;
+	font-size:16px;
+}
+.dialog-right{
+	width:60%;
+	display:flex;
+	flex-wrap: wrap;
+	border-left:1px solid #E4E4E4;
+	/*padding-bottom:30px;*/
+}
+.dialog-right li{
+	/*height:80px;*/
+	width:50%;
+	padding:5px 0;
+	display:flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	border-bottom:1px solid #E4E4E4;
+	border-right:1px solid #E4E4E4;
+	text-align: center
+}
+.dialog-right li:nth-child(2n){
+	border-right:none;
+}
+.dialog-btn{
+	display:flex;
+	width:100%;
+	padding:20px 0;
+	justify-content: center;
+	align-items: center
+}
+.payWay-dialog img{
+	vertical-align: middle;
+	margin-right:20px;
+}
+.payBtn{
+	display:inline-block;
+	width:80px;
+	height:36px;
+	line-height: 36px;
+	text-align: center;
+	font-size:18px;
+	background-color: #13CE66;
+	color:#fff;
+	border-radius:4px;
+}
+.payBtn:hover{
+	cursor:pointer;
+}
+.payBtn1{
+	width:140px;
+}
+li{
+	list-style: none;
+}
+.page-box2{
+	width:100%;
+	text-align: center;
+	margin-top:10px;
+	justify-content: space-between;
+	
+}
+ .demo-spin-icon-load{
+        animation: ani-demo-spin 1s linear infinite;
+    }
+    @keyframes ani-demo-spin {
+        from { transform: rotate(0deg);}
+        50%  { transform: rotate(180deg);}
+        to   { transform: rotate(360deg);}
+    }
+    .demo-spin-col{
+        height: 100px;
+        position: relative;
+        /*border: 1px solid #eee;*/
+    }
+.bottom-btn{
+	width:100%;
+	height:80px;
+	/*border:1px solid red;*/
+	margin-top:10px;
+	background: #f8f8f8;
+	line-height: 80px;
+	margin-right:56px;
+	margin-bottom:90px;
+	text-align:right;
+
+}
+.list-box{
+	display: flex;
+	height:35px;
+	line-height: 35px;
+	margin:25px 10px;
+}
+.list-box1{
+	margin:4px 10px;
+}
+.list-box2{
+	margin:10px 0;
+}
+.list-box span{
+	height:40px;
+	width:120px;
+	text-align: center;
+	padding:0 10px;
+	
+}
+.list-box input.ivu-input{
+	height:40px!important;
+}
+.list-box1{
+	margin-left:20px;
+}
+.list-box1 span{
+	width:auto;
+	text-align: left
+}
+.dialog-left1{
+  width:40%;
+ font-size: 16px;
+}
+.dialog-left1 li{
+  display: flex;
+  justify-content: center;
+}
+.page-box44{
+	width: 100%;
+    margin: 10px 0;
+    text-align: center;
+}
+
+</style>

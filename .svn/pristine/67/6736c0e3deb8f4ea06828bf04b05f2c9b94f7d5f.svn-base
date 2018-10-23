@@ -1,0 +1,848 @@
+<template>
+	<div class="wrap">
+		<!-- <div class="operationHome"> -->
+			
+			<!--促销工具-->
+			<div class="promotionalTools public">
+				<div>
+					<h1>{{$t('operation.cxtool')}}</h1>
+					<div class="main">
+						<li v-for="(item,index) in promotionalTools" :key='index' @click="gotopromotionalToolsPath(index)">
+							<div class="img-icon">
+								<img :src="item.icon"/>
+							</div>
+							<div class="li-right">
+								<span style="display:block;font-weight:900;margin-bottom:4px">{{item.name}}</span>
+								<span>{{item.des}}</span>
+							</div>
+							<Icon type="chevron-right" style='position: relative;right: -10px;'></Icon>
+						</li>
+					</div>
+				</div>
+			</div>
+			<!--经营渠道-->
+			<div class="managementChannel public">
+				<div>
+					<h1>经营渠道</h1>
+					<div class="main">
+						<li @click="gotomanagementChannelPath(0)">
+							<div class="img-icon">
+								<img src="http://img.zsydian.com/icon/yy_wx.png">
+							</div>
+							<div class="li-right">
+								<span style="display:block;font-weight:900;margin-bottom:4px">微信公众号</span>
+								<span v-if='status==false'>链接公众号</span>
+								<span v-else>已授权：{{user_name}}</span>
+							</div>
+							<Icon type="chevron-right" style='position: relative;right: -10px;'></Icon>
+						</li>
+						<!--小程序-->
+						<li @click="gotomanagementChannelPath(1)">
+							<div class="img-icon">
+								<img src="http://img.zsydian.com/icon/yy_xcx.png">
+							</div>
+							<div class="li-right">
+								<span style="display:block;font-weight:900;margin-bottom:4px">微信小程序</span>
+								<span v-if='status1==false'>一键生成微信小程序</span>
+								<span v-else>已授权：{{wxxcx_user_name}}</span>
+							</div>
+							<Icon type="chevron-right" style='position: relative;right: -10px;'></Icon>
+						</li>
+						<li  @click="gotomanagementChannelPath(2)">
+							<div class="img-icon">
+								<img src="http://img.zsydian.com/icon/hhr.png">
+							</div>
+							<div class="li-right">
+								<span style="display:block;font-weight:900;margin-bottom:4px">合伙人</span>
+								<span >设置每个门店运营数量</span>
+							</div>
+							<Icon type="chevron-right" style='position: relative;right: -10px;'></Icon>
+						</li>
+						<li  @click="gotomanagementChannelPath(3)">
+							<div class="img-icon">
+								<img src="http://img.zsydian.com/icon/ysb.png">
+							</div>
+							<div class="li-right">
+								<span style="display:block;font-weight:900;margin-bottom:4px">友商宝</span>
+								<span >设置每个门店运营数量</span>
+							</div>
+							<Icon type="chevron-right" style='position: relative;right: -10px;'></Icon>
+						</li>
+					</div>
+				</div>
+			</div>
+			<!--会员运营-->
+			<div class="CrmTools public">
+				<div>
+					<h1>会员运营</h1>
+					<div class="main">
+						<li v-for="(item,index) in CrmTools" @click="gotoCrmToolsPath(index)">
+							<div class="img-icon">
+								<img :src="item.icon"/>
+							</div>
+							<div class="li-right">
+								<span style="display:block;font-weight:900;margin-bottom:4px">{{item.name}}</span>
+								<span>{{item.des}}</span>
+							</div>
+							<Icon type="chevron-right" style='position: relative;right: -10px;'></Icon>
+						</li>
+					</div>
+				</div>
+			</div>
+			<!--营销工具-->
+			<div class="marketingTools public">
+				<div>
+					<h1>营销工具</h1>
+					<div class="main">
+						<li v-for="(item,index) in marketingTools" @click="gotomarketingToolsPath(index)">
+							<div class="img-icon">
+								<img :src="item.icon"/>
+							</div>
+							<div class="li-right">
+								<span style="display:block;font-weight:900;margin-bottom:4px">{{item.name}}</span>
+								<span>{{item.des}}</span>
+							</div>
+							<Icon type="chevron-right" style='position: relative;right: -10px;'></Icon>
+						</li>
+					</div>
+				</div>
+			</div>
+			<!--店铺扩展-->
+			<div class="shopExtend public">
+				<div>
+					<h1>暂未开放</h1>
+					<div class="main">
+						<li v-for="(item,index) in shopExtend" @click="gotoshopExtendPath(index)">
+							<div class="img-icon">
+								<span><img :src="item.icon"></span>
+								
+							</div>
+							<div class="li-right">
+								<span style="display:block;font-weight:900;margin-bottom:4px">{{item.name}}</span>
+								<span>{{item.des}}</span>
+							</div>
+							<Icon type="chevron-right" style='position: relative;right: -10px;'></Icon>
+						</li>
+					</div>
+				</div>
+			</div>
+		<!-- </div> -->
+		<div class='addHot'>
+    		<div class='addHot-head'>
+    			<span style='margin-left:20px'>促销工具</span>
+    			<div>
+	                <span @click="cancelhot" style='margin-right:20px;cursor:pointer'><Icon type="close"></Icon></span>
+    			</div>
+    		</div>
+    		<div class='top-info'>
+    			<div style='background:#03CC6D;width:150px;height:150px;margin-right:20px'>
+    				<img src="http://img.zsydian.com/icon/hhr.png" width='150' height='150'>
+    			</div>
+    			<div>
+    				<span style='font-size:18px;font-weight:bold'>股东&合伙人</span>
+    				<div style='color:#B8B8B8;line-height:25px'>
+    					xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx sadfasdddd啊手动阀手动阀撒旦顶顶顶顶顶顶顶顶顶顶阿三地方反反复复烦烦烦烦烦烦阿三地方烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶
+    				</div>
+    				<div style='color:#B8B8B8;margin-top:10px'>
+    					<del>原服务价￥1999/年</del> 
+    				</div>
+    				<div style='color:#B8B8B8;margin-top:10px;display:flex;justify-content: space-between;'>
+    					<div>
+    						<span style='font-size:18px;'>活动价：</span> 
+    						<span style='color:#CD3434;font-size:25px;'>￥9.00/年</span> 
+    					</div>
+    					<span class='ktbtn'>立即开通</span>
+    				</div>
+    			</div>
+    		</div>
+    		<div style='color:#B8B8B8;padding: 10px 0 0 10px;'>产品描述</div>
+    		<div style='margin:10px;border:1px solid #e4e4e4;background:#FCFCFC;padding:10px'>
+    			<li>
+    				<span style='font-size:18px;font-weight:bold'>股东&合伙人</span>
+    				<div style='color:#B8B8B8'>
+    					<span>功能简介：</span><span>xxxxxxxxx</span>
+    				</div>
+    			</li>
+    			<li>
+    				<span style='font-size:18px;font-weight:bold'>股东&合伙人</span>
+    				<div style='color:#B8B8B8'>
+    					<span>功能简介：</span><span>xxxxxxxxx</span>
+    				</div>
+    			</li>
+    			<li>
+    				<span style='font-size:18px;font-weight:bold'>股东&合伙人</span>
+    				<div style='color:#B8B8B8'>
+    					<span>功能简介：</span><span>xxxxxxxxx</span>
+    				</div>
+    			</li>
+    		</div>
+    	</div>
+    	<!--友商宝开通-->
+    	<div class='addHot1'>
+    		<div class='addHot-head'>
+    			<span style='margin-left:20px'>促销工具</span>
+    			<div>
+	                <span @click="cancelhot1" style='margin-right:20px;cursor:pointer'><Icon type="close"></Icon></span>
+    			</div>
+    		</div>
+    		<div class='top-info'>
+    			<div style='background:#03CC6D;width:150px;height:150px;margin-right:20px'>
+    				<img src="http://img.zsydian.com/icon/hhr.png" width='150' height='150'>
+    			</div>
+    			<div>
+    				<span style='font-size:18px;font-weight:bold'>友商宝</span>
+    				<div style='color:#B8B8B8;line-height:25px'>
+    					xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx sadfasdddd啊手动阀手动阀撒旦顶顶顶顶顶顶顶顶顶顶阿三地方反反复复烦烦烦烦烦烦阿三地方烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶
+    				</div>
+    				<!-- <div style='color:#B8B8B8;margin-top:10px'>
+    					<del>原服务价￥1996.00/年</del> 
+    				</div> -->
+    				<div style='color:#B8B8B8;margin-top:10px;display:flex;justify-content: space-between;'>
+    					<div>
+    						<span style='font-size:18px;'>服务价格：</span> 
+    						<span style='color:#CD3434;font-size:25px;'>￥1996.00</span> 
+    					</div>
+    					<span class='ktbtn'>立即开通</span>
+    				</div>
+    			</div>
+    		</div>
+    		<div style='color:#B8B8B8;padding: 10px 0 0 10px;'>产品描述</div>
+    		<div style='margin:10px;border:1px solid #e4e4e4;background:#FCFCFC;padding:10px'>
+    			<li>
+    				<span style='font-size:18px;font-weight:bold'>友商宝</span>
+    				<div style='color:#B8B8B8'>
+    					<span>功能简介：</span><span>xxxxxxxxx</span>
+    				</div>
+    			</li>
+    			<li>
+    				<span style='font-size:18px;font-weight:bold'>友商宝</span>
+    				<div style='color:#B8B8B8'>
+    					<span>功能简介：</span><span>xxxxxxxxx</span>
+    				</div>
+    			</li>
+    			<li>
+    				<span style='font-size:18px;font-weight:bold'>友商宝</span>
+    				<div style='color:#B8B8B8'>
+    					<span>功能简介：</span><span>xxxxxxxxx</span>
+    				</div>
+    			</li>
+    		</div>
+    	</div>
+    	<div class="mark1"></div>
+	</div>
+</template>
+<script type="text/javascript">
+	export default{
+		name:"shopExtend",
+		data(){
+			return{
+				iskt:true,//判断是否开通合伙人
+				iskt1:true,//判断是否开通友商宝
+				status:false,
+				status1:false,
+				user_name:'',//授权后获取的名称
+				wxxcx_user_name:'',//授权后获取的小程序名称
+				uid: this.$store.state.common.token,
+				//店铺扩展
+				shopExtend:[
+					{
+						icon:'http://img.zsydian.com/icon/yy_zhibiao.png',
+						name:"门店指标",
+						des:"门店指标"
+					},
+					{
+						icon:'http://img.zsydian.com/icon/yy_saoma.png',
+						name:"扫码支付",
+						des:"扫描二维码"
+					},
+					{
+						icon:'http://img.zsydian.com/icon/yy_fxiao.png',
+						name:"门店分销",
+						des:"让员工和客户来推广店铺获得佣金"
+					},
+					{
+						icon:'http://img.zsydian.com/icon/yy_pt.png',
+						name:this.$t('operation.pt'),//"拼团",
+						des:this.$t('operation.ptinfo'),//"由会员邀请朋友一起购买"
+					},
+					
+				],
+				//经营渠道
+				managementChannel:[
+					// {
+					// 	icon:'http://img.zsydian.com/icon/yy_wx.png',
+					// 	name:"微信公众号",
+					// 	des:"已授权：",
+					// 	no:'链接公众号，玩转微信生态'
+					// },
+					// {
+					// 	icon:'http://img.zsydian.com/icon/yy_xcx.png',
+					// 	name:"微信小程序",
+					// 	des:"已授权：",
+					// 	no:"一键生成微信小程序",
+					// },
+					{
+						icon:'http://img.zsydian.com/icon/hhr.png',
+						name:"合伙人",
+						des:"运营支付宝生活",
+						no:"设置每个门店运营数量",
+					},
+					{
+						icon:'http://img.zsydian.com/icon/ysb.png',
+						name:"友商宝",
+						des:"运营支付宝生活",
+						no:"设置每个门店运营数量",
+					}
+				],
+				//促销工具
+				promotionalTools:[
+					{
+						icon:'http://img.zsydian.com/icon/yy_yhq.png',
+						name:this.$t('operation.yhq'),//"优惠券",
+						des:this.$t('operation.sendyhq'),//"向客户发送优惠券"
+					},
+					{
+						icon:'http://img.zsydian.com/icon/yy_jian.png',
+						name:this.$t('operation.mj'),//"满减",
+						des:this.$t('operation.mjinfo'),//"消费500送300"
+					},
+					{
+						icon:'http://img.zsydian.com/icon/yy_zhe.png',
+						name:this.$t('operation.mz'),//"满折",
+						des:this.$t('operation.mzinfo'),//"消费300送打9折"
+					},
+					{
+						icon:'http://img.zsydian.com/icon/yy_song.png',
+						name:this.$t('operation.ms'),//"满送",
+						des:this.$t('operation.msinfo'),//"消费500送礼品"
+					},
+					// {
+					// 	icon:'http://img.zsydian.com/icon/yd_cz.png',
+					// 	name:this.$t('operation.czhd'),//"充值活动",
+					// 	des:this.$t('operation.czhdinfo'),//"充值送现金"
+					// },
+					{
+						icon:'http://img.zsydian.com/icon/yy_ms.png',
+						name:this.$t('operation.msha'),//"限时秒杀",
+						des:this.$t('operation.mshainfo'),//"设置商品限时折扣"
+					},
+					{
+						icon:'http://img.zsydian.com/icon/yy_new.png',
+						name:this.$t('operation.newshop'),//"新品上市",
+						des:this.$t('operation.newshopinfo'),//"新品推荐给客户"
+					},
+					
+					{
+						icon:'http://img.zsydian.com/icon/yy_hot.png',
+						name:this.$t('operation.hot'),//"热门推荐",
+						des:this.$t('operation.hotinfo'),//"销售量好的推荐给客户"
+					},
+					{
+						icon:'http://img.zsydian.com/icon/hx.png',
+						name:this.$t('operation.hex'),//"核销",
+						des:this.$t('operation.hexinfo'),//"核销优惠券"
+					},
+					{
+						icon:'http://img.zsydian.com/icon/Voucher.png',
+						name:"代金券",
+						des:"购买商品抵扣金额",
+					},
+					
+				],
+				CrmTools:[
+					{
+						icon:'http://img.zsydian.com/icon/crmVip.png',
+						name:"会员卡",
+						des:"办理会员卡",
+					},
+					{
+						icon:'http://img.zsydian.com/icon/yd_cz.png',
+						name:"充值活动",
+						des:"充值送现金",
+					},
+					{
+						icon:'http://img.zsydian.com/icon/lunbo.png',
+						name:"新会员",
+						des:"注册奖励代金券、积分、消费打折",
+					},
+					
+					{
+						icon:'http://img.zsydian.com/icon/birsday.png',
+						name:"生日配置",
+						des:"消费折扣、送积分",
+					},
+
+				],
+				//营销工具
+				marketingTools:[
+				
+					{
+						icon:'http://img.zsydian.com/icon/yy_jf.png',
+						name:this.$t('operation.jfshop'),//"积分商城",
+						des:this.$t('operation.jfshopinfo'),//"积分商城页面设置",
+						
+					},
+					{
+						icon:'http://img.zsydian.com/icon/lunbo.png',
+						name:this.$t('operation.lunbo'),//"广告轮播",
+						des:this.$t('operation.lunboinfo'),//"设置广告轮播"
+					},
+
+				],
+
+				
+			}
+		},
+		methods:{
+			//点击差号
+			cancelhot(){
+				$('.addHot').animate({right:"-570px"});
+				$('.mark1').css('display','none')
+			},
+			//点击差号
+			cancelhot1(){
+				$('.addHot1').animate({right:"-570px"});
+				$('.mark1').css('display','none')
+			},
+			//暂未开放
+			gotoshopExtendPath(i){
+				switch(i){
+					case 0:
+						this.$router.push({
+							// path:"/shopQuota"
+						})
+					break;
+					case 1:
+						this.$router.push({
+							
+						})
+					break;
+					case 2:
+						this.$router.push({
+							
+						})
+					break;
+					case 3:
+						this.$router.push({
+							// path:"/shopyyHome"
+						})
+					break;
+				}
+			},
+			//经营渠道
+			gotomanagementChannelPath(i){
+				switch(i){
+					case 0:
+						//微信公众号
+						this.getInfo()
+					break;
+					//小程序
+					case 1:
+						// this.getxcxsy()
+						this.getxcx()
+					break;
+					//合伙人
+					case 2:
+						if(this.iskt){
+							this.$router.push({
+								path:"hhrhome"
+							})
+						}else{
+							$('.addHot').animate({right:"0px"});
+							$('.mark1').css('display','block')
+						}
+						
+						
+					break;
+					//友商宝
+					case 3:
+						
+					if(this.iskt1){
+							this.$router.push({
+								path:"ysbhome"
+							})
+						}else{
+							$('.addHot1').animate({right:"0px"});
+							$('.mark1').css('display','block')
+						}
+					break;
+				}
+			},
+			//会员运营  会员卡、积分规则、充值活动、新会员、代金券、生日配置
+			gotoCrmToolsPath(index){
+				switch(index){
+					//会员卡
+					case 0:
+						this.$router.push("/updateCrm")
+					break;
+					
+					//充值活动
+					case 1:
+						this.$router.push({
+							path:"/mrechargea"
+						})
+					break;
+					// //新会员
+					case 2:
+						this.$router.push("/newCrm")
+					break;
+					
+					//生日配置
+					case 3:
+						this.$router.push("/marketingHome")
+					break;
+
+				}
+			},
+			//促销工具
+			gotopromotionalToolsPath(i){
+				switch(i){
+					//优惠券
+					case 0:
+						this.$router.push({
+							path:"operationCoupon"
+						})
+					break;
+					//满减送
+					case 1:
+						this.$router.push({
+							path:'/mjs'
+						})
+					break;
+					//满折
+					case 2:
+						this.$router.push({
+							path:'/mz'
+						})
+					break;
+					//满送
+					case 3:
+						this.$router.push({
+							path:'/ms'
+						})
+					break;
+					// //充值活动
+					// case 4:
+					// 	this.$router.push({
+					// 		path:"/mrechargea"
+					// 	})
+					// break;
+					//秒杀
+					case 4:
+						this.$router.push({
+							path:'/mshome'
+						})
+					break;
+					//新品上市
+					case 5:
+						this.$router.push({
+							path:'/newskuhome'
+						})
+					break;
+					//热门推荐
+					case 6:
+						this.$router.push({
+							path:"/hothome"
+						})
+					break;
+					//核销
+					case 7:
+						this.$router.push({
+							path:'/hx'
+						})
+					break;
+					//代金券
+					case 8:
+						this.$router.push({
+							path:"/Voucher"
+						})
+					break;
+				}
+			},
+			//营销工具
+			gotomarketingToolsPath(i){
+				switch(i){
+					//积分商城
+					case 0:
+						this.$router.push({
+							path:'/jfhome'
+						})
+					break;
+					case 1:
+						this.$router.push({
+							path:'/lunbohome'
+						})
+					break;
+					case 2:
+						this.$router.push({
+							
+						})
+					break;
+					case 3:
+						this.$router.push({
+							
+						})
+					break;
+					case 4:
+						this.$router.push({
+							
+						})
+					break;
+					case 5:
+						this.$router.push({
+							
+						})
+					break;
+					case 6:
+						this.$router.push({
+							
+						})
+					break;
+				}
+			},
+			//获取微信公众号授权信息判断是否授权
+			getInfo(){
+				this.axios.get('wxapp/app?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						//授权跳转详情页面
+						this.$router.push('/wxHome')
+					}else{
+						//未授权跳转到授权页面
+						this.$router.push({path:'/wxsetting'})
+					}
+				})
+			},
+			//小程序获取授权信息判断是否授权
+			getxcx(){
+				this.axios.get('wxa/app?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						//授权跳转设置页面
+						this.status1=false//有绑定的小程序显示
+						this.axios.get('acommit/wxaapp?uid='+this.uid).then(res=>{
+							if(res.data.status==200){
+								let data=res.data.rows
+								if(data.status==3 || data.status==7 || data.status==8){
+									//有审核小程序
+									this.$router.push('/wxxcxSubmit')
+								}
+							}else{
+								//没有审核小程序
+								this.$router.push('/wxxcxsh')
+							}
+						})
+					}else{
+						this.$router.push('/wxxcxhome')
+					}
+				})
+			},
+			//判断当前是否有审核的小程序获取小程序名称
+			getxcxsyname(){
+				this.axios.get('wxa/app?uid='+this.uid).then(res=>{
+					if(res.data.status!=200){
+						this.status1=false
+					}else{
+						this.axios.get('acommit/wxaapp?uid='+this.uid).then(res=>{
+							if(res.data.status==200){
+								//页面实现授权小程序名称
+								this.status1=true
+								this.wxxcx_user_name=res.data.rows.templeteName//小程序名称
+							}else{
+								this.status1=false
+							}
+						})
+					}
+				})
+				
+			},
+			//公众号只是获取状态和信息
+			getinfo(){
+				this.axios.get('wxapp/app?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.status=true
+						this.user_name=res.data.rows.nick_name//微信用户名
+					}else{
+						this.status=false
+					}
+				})
+			},
+		},
+		created(){
+			this.$nextTick(()=>{
+				this.getinfo()////公众号只是获取状态和信息
+				this.getxcxsyname()//判断当前是否有商用小程序获取小程序名称
+			
+			})
+		},
+		mounted(){
+		}
+	}
+</script>
+
+<style type="text/css" scoped>
+.wrap{
+	 width: 100%;
+
+}
+.top-info{
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding:10px;
+	background:#F4F4F4;
+	margin:10px;
+}
+li{
+	list-style: none
+}
+.ktbtn{
+	width:120px;
+	height:30px;
+	background: #0085FF;
+	display: block;
+	line-height: 30px;
+	color:#fff;
+	font-size:16px;
+	letter-spacing: 5px;
+	text-align: center;
+	margin-top:5px;
+	margin-left:30px;
+}
+.addHot{
+	position:fixed;
+	z-index:99;
+	height:89%;
+	width:570px;
+	right:-870px;
+	top:48px;
+	background: #fff;
+	z-index:10;
+	overflow:auto;
+	box-shadow: 0 0 20px #ccc
+	/*border:1px solid red;*/
+}
+.addHot1{
+	position:fixed;
+	z-index:99;
+	height:89%;
+	width:570px;
+	right:-870px;
+	top:48px;
+	background: #fff;
+	z-index:10;
+	overflow:auto;
+	box-shadow: 0 0 20px #ccc
+	/*border:1px solid red;*/
+}
+.addHot-head{
+	width:100%;
+	height:50px;
+	line-height: 50px;
+	display: flex;
+	justify-content: space-between;
+	border-bottom: 1px solid #e4e4e4;
+}
+.addHot-head span{
+	font-size:14px;
+	font-weight:600;
+	
+}
+.mark1{
+	position:fixed;
+	display:none;
+	width:100%;
+	height:100%;
+	background: #B2B2B2;
+	opacity:0.4;
+	z-index:99;
+}
+h1{
+	width:100%;
+	height:40px;
+	line-height: 40px;
+	font-size:18px;
+	padding-left:20px;
+}
+.main{
+	width:100%;
+	padding-left:20px;
+	display:flex;
+	flex-wrap: wrap;
+	
+}
+.main li{
+	cursor:pointer
+}
+
+.main li{
+	display:flex;
+	align-items: center;
+	justify-content: flex-start;
+	margin:10px 8px;
+	/*background: #F8F7F6;*/
+	border: 1px solid #f5f5f5;
+	width:285px;
+}
+.marketingTools{
+	margin-bottom:30%;
+}
+
+.li-right{
+	padding-left:15px;
+	width:200px;
+	overflow: hidden;
+text-overflow:ellipsis;
+white-space: nowrap;
+}
+.img-icon{
+    width: 60px;
+    height: 60px;
+    position: relative;
+    background: #F38C40;
+    text-align: center;
+    padding: 10px 0;
+    line-height: 60px;
+}
+.public{
+	margin-bottom:20px;
+}
+div.shopExtend{
+	margin-bottom:160px;
+}
+.managementChannel .main .img-icon img:nth-child(1){
+	margin-left:2px;
+	margin-top:2px;
+}
+/*.shopExtend {
+	margin-bottom:330px;
+}*/
+.shopExtend .img-icon span{
+	top:10px;
+}
+.shopExtend .img-icon{
+	background: #ccc;
+}
+.managementChannel .img-icon{
+	background: #0ECC6E;
+}
+.marketingTools .img-icon{
+	background: #F38C40;
+}
+.promotionalTools .img-icon{
+	background: #ED4E2E;
+}
+.CrmTools .img-icon{
+	background: #3F5E99;
+}
+
+/*.promotionalTools li:last-child .img-icon{
+	background: #ccc;
+}*/
+.img-icon span{
+	position:absolute;
+	font-size:24px;
+	color:#fff;
+	left:11px;
+	top:8px;
+}
+
+</style>

@@ -1,0 +1,708 @@
+<template>
+	<div class='order'>
+			<div class='head-bottom1'>
+				<li class='head-bottom1-li'>
+					<div class="car-body">
+						<span >7天内下单笔数</span>
+						<h3 class="f-50 font-weight-100">{{order1}}</h3>
+					</div>
+				</li>
+				<li class='head-bottom1-li'>
+					<div class="car-body">
+						<span >待付款</span>
+						<h3 class="f-50 font-weight-100">{{order2}}</h3>
+					</div>
+				</li>
+				<li class='head-bottom1-li'>
+					<div class="car-body">
+						<span >待发货</span>
+						<h3 class="f-50 font-weight-100">{{order3}}</h3>
+					</div>
+				</li>
+				<li class='head-bottom1-li'>
+					<div class="car-body">
+						<span >积压维权</span>
+						<h3 class="f-50 font-weight-100">{{order4}}</h3>
+					</div>
+				</li>
+				
+		</div>
+		
+		<!--中间-->
+		<div class='center-main' style='position:relative'>
+			<div class='center-main-left' style='position:relative'>
+				 <Tabs value="name1">
+			        <TabPane :label="$t('orders.gl.Yjy')" name="name1"><!--昨日交易-->
+			        	<div style='display:flex;flex-direction:column'>
+				        	<div style='display:flex;justify-content: space-around;'>
+				        		<div>
+				        			<div>{{$t('orders.orderAmount')}}</div><!--订单金额-->
+				        			<div>0</div>
+				        		</div>
+				        		
+				        		<div>
+				        			<div>{{$t('orders.gl.Oprice')}}</div><!--笔单价-->
+				        			<div>0</div>
+				        		</div>
+				        	</div>
+				        	<div style='display:flex;justify-content: space-around;margin-top:20px'>
+				        		<div>
+				        			<div>{{$t('orders.gl.orderNum')}}</div><!--订单笔数-->
+				        			<div>0</div>
+				        		</div>
+				        		
+				        		<div>
+				        			<div>{{$t('orders.TKmoney')}}</div><!--退款金额-->
+				        			<div>0</div>
+				        		</div>
+				        	</div>
+
+				        	<div style='width:80%;margin:20px auto'>
+				        		<Input icon="ios-search"></Input>
+				        	</div>
+			        	</div>
+			        </TabPane>
+			        <TabPane :label="$t('orders.gl.Ysz')" name="name2">
+			        	<div style='display:flex;flex-direction:column'>
+				        	<div style='display:flex;justify-content: space-around;'>
+				        		<div>
+				        			<div>{{$t('orders.gl.Samount')}}</div><!--收支金额-->
+				        			<div>0</div>
+				        		</div>
+				        		
+				        		<div>
+				        			<div>{{$t('orders.gl.Oprice')}}</div><!--笔单价-->
+				        			<div>0</div>
+				        		</div>
+				        	</div>
+				        	<div style='display:flex;justify-content: space-around;margin-top:20px'>
+				        		<div>
+				        			<div>{{$t('orders.gl.orderNum')}}</div><!--订单笔数-->
+				        			<div>0</div>
+				        		</div>
+				        		
+				        		<div>
+				        			<div>{{$t('orders.TKmoney')}}</div><!--退款金额-->
+				        			<div>0</div>
+				        		</div>
+				        	</div>
+
+				        	<div style='width:80%;margin:20px auto'>
+				        		<Input icon="ios-search"></Input>
+				        	</div>
+			        	</div>
+			        </TabPane>
+			       
+			    </Tabs>
+			    <!--<a style='position:absolute;right:5px;top:10px'></a>查看更多-->
+			</div>
+			<div id="myEcharts" style="width: 100%;margin:10px;border:1px solid #ccc;"></div>
+			<div style='width:200px;position:absolute;left:25%;top:22px'>
+        		<Select v-model="model1" >
+				        <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+				</Select>
+				
+        	</div>
+        	<div v-if='len1==0'  style="position:absolute;left:50%;;top:25%">{{$t('public.NoData')}}</div>
+		</div>
+		<!--商品看板-->
+    	<!-- <div class='shop'>
+			<span>&nbsp;&nbsp;&nbsp;{{$t('orders.gl.SHOP')}}</span>
+			<span>{{$t('orders.gl.SHOPAnalysis')}}</span>
+		</div> -->
+		<!--商品排行数据-->
+		<div class='zj'>
+			<div class='zj-style'>
+				<span><span style='margin-left:10px'>TOP10{{$t('orders.gl.Access')}}</span></span>
+				<!--表格数据-->
+				<div class="table">
+					<Table border  :columns="columns" :data="dataList"></Table>
+					<!--底部的分页-->
+					<!-- <div class="page-box">
+						 <Page :total="total" show-total  :pageSize='pageSize'  @on-change="getData" @on-page-size-change="changePageSize"></Page>
+					</div> -->
+				</div>
+			</div>
+			<div class='zj-style'>
+				<span><span style='margin-left:10px'>TOP10{{$t('orders.gl.Pccess')}}</span></span>
+				<div class="table">
+					<Table  border :columns="columns1" :data="dataList1"></Table>
+					<!--底部的分页-->
+					<!-- <div class="page-box">
+						 <Page :total="total" show-total  :pageSize='pageSize'  @on-change="getData" @on-page-size-change="changePageSize"></Page>
+					</div> -->
+				</div>
+			</div>
+		</div>
+		<!--成交客户-->
+		<div class='shop1'>
+		<span>&nbsp;&nbsp;&nbsp;{{$t('orders.gl.Ckh')}}</span>
+		</div>
+		<!--成交客户图表-->
+		<div class='echarts echarts1' style="position:relative;margin-bottom:120px">
+			<div id="myEchartkh" style="width: 100%;margin:0 10px;border:1px solid #ccc;"></div>
+			<div id="myEchartnum" style="width: 100%;margin:0 10px;border:1px solid #ccc;"></div>
+			<!-- <div class='echarts-right' style="width: 50%;margin:20px 10px;">
+				<span style='font-size:14px;font-weight:600'>{{$t('orders.gl.khfg')}}</span>
+				<div>
+					<span>{{$t('orders.gl.bZ')}}</span>
+					<div style='font-size:16px;font-weight:600'>25%</div>
+				</div>
+				<div>
+					<span>{{$t('orders.gl.bzP')}} <span style='font-size:16px;font-weight:600'>--</span></span>
+				</div>
+				<div>
+					<span>{{$t('orders.gl.bY')}}</span>
+					<div style='font-size:16px;font-weight:600'>65.8%</div>
+				</div>
+				<div>
+					<span>{{$t('orders.gl.bYP')}} <span style='font-size:16px;font-weight:600'>--</span></span>
+				</div>
+			</div> -->
+			<div v-if='len2==0'  style="position:absolute;left:25%;;top:25%">{{$t('public.NoData')}}</div>
+			<div v-if='len3==0'  style="position:absolute;left:75%;;top:25%">{{$t('public.NoData')}}</div>
+		</div>
+	</div>
+</template>
+<script type="text/javascript">
+import echarts from 'echarts'
+export default {
+	data (){
+		return{
+			len1:0,
+			len2:0,
+			len3:0,
+			txisshow:false,//提现
+			order1:0,
+			order2:0,
+			order3:0,
+			order4:0,
+			uid: this.$store.state.common.token,
+			columns:[
+				{
+					type:"",
+					width:60,
+					render:(h,params)=>{
+						return h('span',{
+							style:{
+								
+								fontFamily:"Impact, Charcoal, sans-serif"
+							}
+						},params.index+1)
+					}
+				},
+				{
+					title:"货号",
+					key:"skuCode"
+				},
+				{
+					title:"条码",
+					key:"barcode"
+				},
+				{
+					title:"商品",
+					ellipsis:true,
+					key:"skuName"
+				},
+				{
+					title:"销售量",
+					key:"salesCount"
+				},
+				{
+					title:"成本价",
+					key:"costPrice"
+				},
+				{
+					title:"批发价",
+					key:"wholePrice"
+				},
+				{
+					title:"吊牌价",
+					key:"price"
+				},
+				{
+					title:"单位",
+					key:"unit"
+				},
+				// {
+				// 	title:this.$t('orders.gl.sku'),//"商品",
+				// 	align:'center',
+				// 	ellipsis:true,
+				// 	key:"skuName"
+				// },
+				// {
+				// 	title:this.$t('orders.gl.fknum'),//"访客数",
+				// 	align:'center',
+				// 	ellipsis:true,
+				// 	key:"num",
+				// 	render:(h,params)=>{
+				// 		return h('div',[
+				// 				h('a',{
+				// 					style:{
+				// 						marginRight:"10px"
+				// 					}
+				// 				},params.row.num),
+				// 				h('span',{
+				// 					style:{
+				// 						display:'inline-block',
+				// 						height:'10px',
+				// 						maxWidth:"100%",
+				// 						width:params.row.num+'%',
+				// 						background:"#3388FF"
+				// 					}
+				// 				})
+								
+				// 			])
+				// 	}
+				// },
+				// {
+				// 	title:this.$t('orders.gl.Conversion'),//"单品转化率",
+				// 	align:'center',
+				// 	ellipsis:true,
+				// 	key:"r",
+				// }
+			],
+			dataList:[],
+			columns1:[
+				{
+					type:"",
+					width:60,
+					render:(h,params)=>{
+						return h('span',{
+							style:{
+								
+								fontFamily:"Impact, Charcoal, sans-serif"
+							}
+						},params.index+1)
+					}
+				},
+				{
+					title:"货号",
+					key:"skuCode"
+				},
+				{
+					title:"条码",
+					key:"barcode"
+				},
+				{
+					title:"商品",
+					ellipsis:true,
+					key:"skuName"
+				},
+				{
+					title:"销售量",
+					key:"salesCount"
+				},
+				{
+					title:"成本价",
+					key:"costPrice"
+				},
+				{
+					title:"批发价",
+					key:"wholePrice"
+				},
+				{
+					title:"吊牌价",
+					key:"price"
+				},
+				{
+					title:"单位",
+					key:"unit"
+				},
+			],
+			dataList1:[],
+			model1:"",
+			cityList:[
+				{
+					value:0,
+					label:this.$t('orders.gl.S'),//"最近7天"
+				},
+				{
+					value:1,
+					label:this.$t('orders.gl.SM'),//"最近一月"
+				},
+				{
+					value:2,
+					label:this.$t('orders.gl.SSM'),//"最近半年"
+				},
+				{
+					value:3,
+					label:this.$t('orders.gl.SOY'),//"最近一年"
+				},
+			],
+	
+		}
+	},
+	methods:{
+		draw(){
+			let myChart = echarts.init(document.getElementById('myEcharts'),'shine')
+			this.len1=0
+			let option={
+				    tooltip : {},
+				    legend: {
+				    	tyle:"scroll",
+				        // data:['订单金额','订单笔数','笔单价','退款金额'],
+				        data:[this.$t('orders.orderAmount'),this.$t('orders.gl.orderNum'),this.$t('orders.gl.Oprice'),this.$t('orders.TKmoney')],
+
+				    },
+				     xAxis: {
+		                data:[]
+		            },
+		            yAxis: {},
+		            series: [
+			            {
+			                name: this.$t('orders.orderAmount'),//'订单金额',
+			                type: 'line',
+			                data:[]
+			            },
+			            {
+			            	 name: this.$t('orders.gl.orderNum'),//'订单笔数',
+			                type: 'line',
+			                 data:[]
+			            },
+			            {
+			            	 name:this.$t('orders.gl.Oprice'),// '笔单价',
+			                type: 'line',
+			                 data:[]
+			            },
+			            {
+			            	 name: this.$t('orders.TKmoney'),//'退款金额',
+			                type: 'line',
+			                 data:[]
+			            }
+		            ]
+				};
+				 myChart.setOption(option);
+		},
+		//成交客户
+		drawkh(){
+				let myEchartkh = echarts.init(document.getElementById('myEchartkh'),'shine')
+				this.len2=0
+				let option = {
+					title:{
+						text:this.$t('orders.gl.amountS'),//"成交金额占比",
+						x:"center"
+					},
+				    tooltip : {
+				        trigger: 'item',
+				        formatter: "{a} <br/>{b} : {c} ({d}%)"
+				    },
+				    legend: {
+				        orient : 'vertical',
+				        x : 'left',
+				        // data:['新成交客户付款金额','老成交客户付款金额'],
+				        data:[this.$t('orders.gl.NewCkh'),this.$t('orders.gl.OldCkh')],
+				    },
+				    toolbox: {
+				        show : true,
+				        feature : {
+				            mark : {show: true},
+				            dataView : {show: true, readOnly: false},
+				            magicType : {
+				                show: true, 
+				                type: ['pie', 'funnel'],
+				                option: {
+				                    funnel: {
+				                        // x: '25%',
+				                        width: '50%',
+				                        funnelAlign: 'center',
+				                        max: 1548
+				                    }
+				                }
+				            },
+				            restore : {show: true},
+				            saveAsImage : {show: true}
+				        }
+				    },
+				    calculable : true,
+				    series : [
+				        {
+				            name:this.$t('orders.gl.scale'),//'比例',
+				            type:'pie',
+				             center : ['35%', '50%'],
+				            radius : ['30%', '50%'],
+				         
+				            itemStyle : {
+				                normal : {
+				                    label : {
+				                        show : false
+				                    },
+				                    labelLine : {
+				                        show : false
+				                    }
+				                },
+				                emphasis : {
+				                    label : {
+				                        show : true,
+				                        position : 'top',
+				                        textStyle : {
+				                            fontSize : '14',
+				                            fontWeight : 'bold',
+
+				                        }
+				                    }
+				                }
+				            },
+				            data:[]
+				            // data:[
+				            //     {value:335, name:this.$t('orders.gl.NewCkh')},//'新成交客户付款金额'},
+				            //     {value:310, name:this.$t('orders.gl.OldCkh')}//'老成交客户付款金额'}
+				            // ]
+				        },
+				        
+				    ]
+				};
+				 myEchartkh.setOption(option);
+		},
+		//
+		drawnum(){
+				let myEchartnum = echarts.init(document.getElementById('myEchartnum'),'shine')
+				this.len3=0
+				let option = {
+					title:{
+						text:this.$t('orders.gl.numS'),//"成交人数占比",
+						x:"center"
+					},
+				    tooltip : {
+				        trigger: 'item',
+				        formatter: "{a} <br/>{b} : {c} ({d}%)"
+				    },
+				    legend: {
+				    	show:true,
+				        orient : 'vertical',
+				        x : 'left',
+				        // data:['新成交客户数','老成交客户数'],
+				        data:[this.$t('orders.gl.NewnumS'),this.$t('orders.gl.OldnumS')],
+				       
+				    },
+				    toolbox: {
+				        show : true,
+				        feature : {
+				            mark : {show: true},
+				            dataView : {show: true, readOnly: false},
+				            magicType : {
+				                show: true, 
+				                type: ['pie', 'funnel'],
+				                option: {
+				                    funnel: {
+				                        // x: '25%',
+				                        width: '50%',
+				                        funnelAlign: 'center',
+				                        max: 1548
+				                    }
+				                }
+				            },
+				            restore : {show: true},
+				            saveAsImage : {show: true}
+				        }
+				    },
+				    calculable : true,
+				    series : [
+				        {
+				            name:this.$t('orders.gl.scale'),//'比例',
+				            type:'pie',
+				            center : ['35%', '50%'],
+				            radius : ['30%', '50%'],//圆环大小
+				            itemStyle : {
+				                normal : {
+				                    label : {
+				                        show : false
+				                    },
+				                    labelLine : {
+				                        show : false
+				                    }
+				                },
+				                emphasis : {
+				                    label : {
+				                        show : true,
+				                        position : 'top',
+				                        textStyle : {
+				                            fontSize : '14',
+				                            fontWeight : 'bold',
+
+				                        }
+				                    }
+				                }
+				            },
+				            data:[]
+				            // data:[
+				            //     {value:335, name:this.$t('orders.gl.NewnumS')},//'新成交客户数'},
+				            //     {value:310, name:this.$t('orders.gl.OldnumS')}//'老成交客户数'}
+				            // ]
+				        },
+				        
+				    ]
+				};
+				 myEchartnum.setOption(option);
+		},
+		//提现
+		clickTX(){
+			this.txisshow=true
+		},
+		//top10访问dataListGET /orderdata/vistor 访问TOP10
+		gettop10F(){
+			this.axios.get('/orderdata/vistor?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					this.dataList=res.data.rows
+				}
+			})
+		},
+		//GET /orderdata/sales 销售TOP10
+		gettop10S(){
+			this.axios.get('/orderdata/sales?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					this.dataList1=res.data.rows
+				}
+			})
+		},
+	},
+	created(){
+		this.$nextTick(()=>{
+			this.draw()
+			this.drawkh()
+			this.drawnum()
+			this.gettop10F()//访问10
+			this.gettop10S()//销售10
+		})
+	},
+	mounted(){
+
+	}
+}
+</script>
+<style type="text/css" scoped>
+.head-bottom1{
+	display:flex;
+	flex-wrap: wrap;
+	margin: 10px;
+}
+.head-bottom1-li{
+    position: relative;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background: #fff;
+    background-clip: border-box;
+    border: 1px solid rgba(0,0,0,.125);
+    border-radius: .25rem;
+   	width:260px;
+    margin:10px 10px 0 10px;
+
+}
+li{
+	list-style: none
+}
+.car-body{
+	padding: 1.25rem;
+
+}
+.car-body span{
+	color:#666f73;
+
+}
+.f-50{
+	font-size:35px;
+}
+.font-weight-100{
+	font-weight:100;
+}
+.order{
+	width:100%;
+}
+.order-top{
+	display:flex;
+	justify-content: space-around;
+	background: #F8F8F8;
+	height:80px;
+	
+}
+.top-list{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column
+}
+.center-main{
+	display:flex;
+	margin:10px;
+	border-bottom:1px solid #ccc;
+	border-top:1px solid #ccc;
+}
+.center-main-left{
+	width:350px;
+	border-right:1px solid #ccc;
+}
+.center-main-right{
+	width:100%;
+	height:300px;
+	border:1px solid red;
+}
+li{
+	list-style: none
+}
+.echarts{
+	width:100%;
+	display:flex;
+	justify-content: space-around;
+	
+	
+}
+.shop{
+	
+	display:flex;
+	margin:0 10px;
+	height:40px;
+	line-height: 40px;
+	background: #F8F8F8;
+	justify-content: space-between;
+}
+.shop1{
+	display:flex;
+	margin-top:20px;
+	height:40px;
+	padding-bottom:10px;
+	line-height: 40px;
+	background: #F8F8F8;
+	
+}
+.echarts1{
+	margin-bottom:60px;
+}
+.shop span{
+	height:20px;
+	margin:0 20px;
+	line-height: 20px
+}
+.shop span:nth-child(1){
+	margin-top:10px;
+	border-left:3px solid #FF7700;
+}
+.shop span:nth-child(2){
+	margin-top:10px;
+
+}
+.zj{
+	width:100%;
+	display:flex;
+	margin-top: 10px;
+	justify-content: space-around;
+}
+.zj-style{
+	width:100%;
+	margin:0 10px;
+}
+.zj-style>span{
+	display:block;
+	width:100%;
+	height:40px;
+	background: #F8F8F8;
+	line-height: 40px;
+	text-align: left
+}
+.echarts-right div{
+	margin-top:10px;
+}
+</style>

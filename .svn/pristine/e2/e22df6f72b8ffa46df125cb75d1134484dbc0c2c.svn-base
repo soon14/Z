@@ -1,0 +1,744 @@
+<template>
+	<!--运营-->
+	<div class="units-box">
+		
+		<div style='display:flex;height:100%;overflow:hidden'>
+			<div class='main-left'>
+				<div style='height: 50px; border-bottom: 1px solid rgb(228, 228, 228); font-size: 18px; font-weight: 900; line-height: 50px;'>
+					<div style='margin-left:10px'>运营</div>
+				</div>
+				<li class="flclass" v-for='(item,index) in fhlist' @click='getfhlistbg(index)' :class="{bor:index==fhindex}">
+					<span>{{item.label}}</span>
+				</li>
+			</div>
+			<!--表格数据-->
+			<!--优惠券-->
+			<div class="table" v-if='fhindex==0'>
+				<div class='right-top'>
+					<div style='font-size: 18px; font-weight: 900;margin-left:10px'>{{title}}</div>
+					 <Select style="width:100px;margin-top:8px;margin-left:10px" v-model="valueT" placeholder="全部" @on-change="yhqselected" v-if='fhindex==0'>
+                    	<Option v-for="item in yhqListname" :value="item.value" :key="item.value">{{ item.label }}</Option>
+               		 </Select>
+					<Input style='width:400px;margin-top:7px;margin-left:10px' v-model='yhqkeyword' @on-enter='entersSearchyhq' >
+	                	<span slot="append"  @click='clickyhq' style='cursor:pointer'>搜索</span>
+	        		</Input>
+        		</div>
+				<div style='margin:10px'>
+					<Table border :columns="yhqkey" :data="yhqdata" @on-row-dblclick='dblclickRow'></Table>
+					<div class="page-box">
+						 <Page v-if='yhqtotal!=0' show-sizer placement='top' size='small' :page-size-opts="[10,20,30,40,50]" :total="yhqtotal" show-total  :pageSize='yhqpageSize'  @on-change="yhqgetData" @on-page-size-change="yhqchangePageSize"></Page>
+					</div>
+				</div>
+			</div>
+			<!--热门新品-->
+			<div class="table" v-if='fhindex==1'>
+				<div class='right-top'>
+					<div style='font-size: 18px; font-weight: 900;margin-left:10px'>{{title}}</div>
+        		</div>
+				<div style='margin:10px'>
+					<div class='ygewm'><!--AllHotSku-->
+						<div v-for='(item,index) in AllHotSku' class='ygewm-list' @click='clickradio(index,item)' :class='{bor:ygewmIndex==index}'>
+	        				<div style='width:80%;height:80%;margin: 10px auto 0 auto;'>
+		        				<img :src="item.mainPhoto" width='100%' height='100%'>
+		        			</div>
+		        			<div class='skuname'>
+		        				{{item.skuName}}22
+		        			</div>
+		        			<div style='display:flex;justify-content: space-between;'>
+		        				<span style='color:#ccc'>编码 {{item.barcode}}</span>
+		        				<span style='color:#ff0000'>￥{{item.price}}</span>
+		        			</div>
+		                    <div class="lanren" :class='{hotbg:item.status==1,hotbg1:item.status==99}'>
+		                       <span>{{item.statusDesc}}</span> 
+		                    </div>​
+	        			</div>
+        			</div>
+					<div class="page-box">
+						 <Page v-if='newtotal!=0' show-sizer placement='top' size='small' :page-size-opts="[10,20,30,40,50]" :total="newtotal" show-total  :pageSize='newpageSize'  @on-change="newgetData" @on-page-size-change="newchangePageSize"></Page>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+	<div class='detailsYHQ'>
+		<div class='addyhqhead'>
+			<span style='font-size:14px;font-weight:600;margin-left:10px'>优惠券详情</span>
+			<div>
+				<Button shape="circle"  @click="canceldetails"  style="background:#999999;color:#fff;margin-right:10px;" ><Icon type="close" style="margin-right:5px;"></Icon>{{$t('public.cancel')}}</Button>
+			</div>
+		</div>
+	 	<div style="padding:10px">
+	 		<Tabs  :animated="false" @on-click="changeTabs">
+		        <TabPane label="已使用">
+		        	<Table border ref="selection" highlight-row :columns="couponstatus1" :data="couponListstatus1"></Table>
+		        	<div class="page-box" v-if='couponstatus1total!=0' style="margin-bottom:120px">
+						 <Page :total="couponstatus1total" show-total  :pageSize='couponstatus1pageSize'  @on-change="couponstatus1getData" @on-page-size-change="couponstatus1changePageSize"></Page>
+					</div>
+		        </TabPane>
+		        <TabPane label="未使用">
+		        	<Table border ref="selection" highlight-row :columns="couponstatus2" :data="couponListstatus2"></Table>
+		        	<div class="page-box" v-if='couponstatus2total!=0' style="margin-bottom:120px">
+						 <Page :total="couponstatus2total" show-total  :pageSize='couponstatus2pageSize'  @on-change="couponstatus2getData" @on-page-size-change="couponstatus2changePageSize"></Page>
+					</div>
+		        </TabPane>
+		    </Tabs>
+	 	</div>
+	</div>
+	<div class="markDetails" @click="canceldetails"></div>
+	</div>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				couponstatus1:[
+				{
+					title:this.$t('operation.yhqHome.yhqname'),//"优惠券",
+					align: 'center',
+				
+					key:"name"
+				},
+				{
+					title:this.$t('operation.yhqHome.xfje'),//"消费金额",
+					align: 'center',
+					key:"orderAmount"
+				},
+				{
+					title:"折扣",
+					align: 'center',
+					key:"amount",
+				},
+				{
+					title:this.$t('operation.yhqHome.xl'),//"限领",
+					align: 'center',
+					key:"perCount"
+				},
+				{
+					title:this.$t('operation.yhqHome.beginTime'),//"开始时间",
+
+					key:"beginTime",
+					align: 'center',
+			
+				},
+				{
+					title:this.$t('operation.yhqHome.endTime'),//"结束时间",
+		
+					key:"endTime",
+					align: 'center',
+			
+				},
+				{
+					title:this.$t('operation.yhqHome.ylnum'),//"已领数量",
+				
+					align: 'center',
+					key:"useCount"
+				},
+				
+				{
+					title:this.$t('operation.yhqHome.yfnum'),//"已发数量",
+		
+					align: 'center',
+					key:"sendCount"
+				},
+				
+				{
+					title:"状态",
+					align: 'center',
+					key:"statusDesc",
+					
+				},
+			],
+			couponstatus1total:0,
+			couponstatus1pageSize:0,
+			couponListstatus1:[],
+
+			couponstatus2:[
+				{
+					title:this.$t('operation.yhqHome.yhqname'),//"优惠券",
+					align: 'center',
+				
+					key:"name"
+				},
+				{
+					title:this.$t('operation.yhqHome.xfje'),//"消费金额",
+					align: 'center',
+					key:"orderAmount"
+				},
+				{
+					title:"折扣",//'抵扣金额',
+					align: 'center',
+					key:"amount",
+				},
+				{
+					title:this.$t('operation.yhqHome.xl'),//"限领",
+					align: 'center',
+					key:"perCount"
+				},
+				{
+					title:this.$t('operation.yhqHome.beginTime'),//"开始时间",
+
+					key:"beginTime",
+					align: 'center',
+			
+				},
+				{
+					title:this.$t('operation.yhqHome.endTime'),//"结束时间",
+		
+					key:"endTime",
+					align: 'center',
+			
+				},
+				{
+					title:this.$t('operation.yhqHome.ylnum'),//"已领数量",
+				
+					align: 'center',
+					key:"useCount"
+				},
+				
+				{
+					title:this.$t('operation.yhqHome.yfnum'),//"已发数量",
+		
+					align: 'center',
+					key:"sendCount"
+				},
+				
+				{
+					title:"状态",
+					align: 'center',
+					key:"statusDesc",
+					
+				},
+			],
+			couponstatus2total:0,
+			couponstatus2pageSize:0,
+			couponListstatus2:[],
+				detailsisshow:false,
+				yhqObj:{},
+				title:"活动状态",
+				valueT:0,
+				yhqListname:[
+					{
+						label:"全部",
+						value:0
+					},
+					{
+						label:"满减",
+						value:1
+					},
+					{
+						label:"满减送",
+						value:2
+					},
+					{
+						label:"满件折",
+						value:3
+					},
+					
+				],
+				fhindex:0,
+				fhlist:[
+					{
+						label:"当前优惠券",
+						value:0
+					},
+					// {
+					// 	label:"热门新品",
+					// 	value:1
+					// },
+				],
+				value:0,//下拉项
+				uid: this.$store.state.common.token,
+				//优惠券
+				yhqkeyword:'',
+				yhqtotal:0,
+				yhqpageSize:0,
+				yhqdata:[],
+				yhqkey:[
+					{
+						title:"优惠券",
+						
+						key:"name"
+					},
+					{
+						title:"消费金额",
+						
+						align:"center",
+						key:"orderAmount"
+					},
+					{
+						title:"抵扣 / 折扣",
+						
+						key:"amount"
+					},
+					{
+						title:"卡券总数",
+						
+						align:"center",
+						key:"allCountD"
+					},
+					{
+						title:"限领",
+						
+						align:"center",
+						key:"perCount"
+					},
+					{
+						title:"生效日期",
+						
+						align:"center",
+						key:"beginTime"
+					},
+					{
+						title:"截止日期",
+						
+						align:"center",
+						key:"endTime"
+					},
+					{
+						title:"使用说明",
+						
+						
+						key:"description"
+					},
+					{
+						title:"状态",
+						width:80,
+						align:"center",
+						key:"statusDesc"
+					},
+				],
+				
+				//新品
+				ygewmIndex:0,
+				newpageSize:0,
+				newtotal:0,
+				AllHotSku:[],
+			}
+		},
+		methods: {
+			//双击表格一行
+            dblclickRow(data){
+            	this.yhqObj=data
+            	$('.detailsYHQ').animate({right:"0px"});
+				$('.markDetails').css('display','block')
+				this.getDetails(this.yhqObj.id,1)
+            },
+            getDetails(id,status){
+            	this.axios.get('/myhj/query/'+this.valueT+'?uid='+this.uid+'&status='+status).then(res=>{
+            		if(res.data.status==200){
+            			//使用中
+            			if(status==1){
+            				this.couponListstatus1=res.data.rows
+	            			this.couponstatus1total=res.data.total
+	            			this.couponstatus1pageSize=res.data.pageSize
+            			}
+            			//未使用
+            			if(status==0){
+            				this.couponListstatus2=res.data.rows
+	            			this.couponstatus2total=res.data.total
+	            			this.couponstatus2pageSize=res.data.pageSize
+            			}
+            			
+            		}
+            	})
+            },
+           	//使用中
+            couponstatus1getData(current){
+            	this.axios.get('/myhj/query/'+this.valueT+'?offset='+current+'&uid='+this.uid+'&status='+1).then(res=>{
+            		if(res.data.status==200){
+            			this.couponListstatus1=res.data.rows
+            			this.couponstatus1total=res.data.total
+            			this.couponstatus1pageSize=res.data.pageSize
+            		}
+            	})
+            },
+            couponstatus1changePageSize(size){
+            	this.couponstatus1pageSize=size
+            },
+            //未使用
+            couponstatus2getData(current){
+            	this.axios.get('/myhj/query/'+this.valueT+'?offset='+current+'&uid='+this.uid+'&status='+0).then(res=>{
+            		if(res.data.status==200){
+            			this.couponListstatus2=res.data.rows
+            			this.couponstatus2total=res.data.total
+            			this.couponstatus2pageSize=res.data.pageSize
+            		}
+            	})
+            },
+            couponstatus2changePageSize(size){
+            	this.couponstatus2pageSize=size
+            },
+            //详情取消
+			canceldetails(){
+				$('.detailsYHQ').animate({right:"-800px"});
+				$('.markDetails').css('display','none')
+			},
+            //详情切换
+            changeTabs(n){
+            	console.log(n)
+            	switch(n){
+            		//使用中
+            		case 0:
+            			this.getDetails(this.yhqObj.id,1)
+            		break;
+            		//未使用
+            		case 1:
+            			this.getDetails(this.yhqObj.id,0)
+            		break;
+            	}
+            },
+
+			//切换
+			getfhlistbg(index){
+				this.fhindex=index
+				if(this.fhindex==0){
+					this.title='活动状态'
+					this.getStoreyhq(this.valueT)
+				}
+				if(this.fhindex==1){
+					this.title='热门新品'
+					// this.getStorenew()
+				}
+			},
+			//下拉框选择
+			yhqselected(v){
+				this.valueT=v
+				this.getStoreyhq(this.valueT)
+			},
+			//门店优惠券myhj/query/
+			getStoreyhq(value){
+				this.axios.get('myhj/query/'+value+'?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.yhqdata=res.data.rows
+						this.yhqtotal=res.data.total
+						this.yhqpageSize=res.data.pageSize
+						this.yhqdata.forEach(x=>{
+							if(x.allCount==0){
+								x.allCountD='不限制'
+							}else{
+								x.allCountD=x.allCount
+							}
+							if(x.type==3){
+								x.amount=x.amount+'折'
+							}
+							if(x.type==1){
+								x.amount='抵扣'+x.amount+'元'
+							}
+							if(x.perCount==0){
+								x.perCount='不限制'
+							}
+						})
+					}
+				})
+			},
+			
+			//搜索优惠券
+			clickyhq(){
+				this.axios.get('myhj/query/'+this.valueT+'?keyword='+this.yhqkeyword+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.yhqdata=res.data.rows
+						this.yhqtotal=res.data.total
+						this.yhqpageSize=res.data.pageSize
+						this.yhqdata.forEach(x=>{
+							if(x.allCount==0){
+								x.allCountD='不限制'
+							}else{
+								x.allCountD=x.allCount
+							}
+							if(x.type==3){
+								x.amount=x.amount+'折'
+							}
+							if(x.type==1){
+								x.amount='抵扣'+x.amount+'元'
+							}
+							if(x.perCount==0){
+								x.perCount='不限制'
+							}
+						})
+					}else{
+						this.$notify({
+							title:"",//
+							message:res.data.errorMessage,
+							type: 'error',
+							position: 'bottom-right'
+						});
+					}
+				})
+			},
+			//回车搜索
+			entersSearchyhq(){
+				this.clickyhq()
+			},
+			//优惠券翻页
+			yhqgetData(current){
+				this.axios.get('myhj/query/'+this.valueT+'?offset='+current+'?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.yhqdata=res.data.rows
+						this.yhqtotal=res.data.total
+						this.yhqpageSize=res.data.pageSize
+						this.yhqdata.forEach(x=>{
+							if(x.allCount==0){
+								x.allCountD='不限制'
+							}else{
+								x.allCountD=x.allCount
+							}
+							if(x.type==3){
+								x.amount=x.amount+'折'
+							}
+							if(x.type==1){
+								x.amount='抵扣'+x.amount+'元'
+							}
+							if(x.perCount==0){
+								x.perCount='不限制'
+							}
+						})
+					}
+				})
+			},
+			yhqchangePageSize(size){
+				this.yhqpageSize=size
+				this.axios.get('myhj/query/'+this.valueT+'?length='+size+'?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.yhqdata=res.data.rows
+						this.yhqtotal=res.data.total
+						this.yhqpageSize=res.data.pageSize
+						this.yhqdata.forEach(x=>{
+							if(x.allCount==0){
+								x.allCountD='不限制'
+							}else{
+								x.allCountD=x.allCount
+							}
+							if(x.type==3){
+								x.amount=x.amount+'折'
+							}
+							if(x.type==1){
+								x.amount='抵扣'+x.amount+'元'
+							}
+							if(x.perCount==0){
+								x.perCount='不限制'
+							}
+							
+						})
+					}
+				})
+			},
+			//新品
+			//点击某一个
+			clickradio(index,item){
+				this.vid=item.id
+				this.ygewmIndex=index
+			},
+			//新品
+			getStorenew(){
+				
+			},
+			newgetData(current){
+				
+			},
+			newchangePageSize(size){
+				this.newpageSize=size
+			},
+		},
+		mounted() {
+			//全部优惠券
+			this.getStoreyhq(this.valueT)
+			// //新品
+			// this.getStorenew()
+		}
+	}
+</script>
+
+<style lang="css" scoped>
+p.edit:hover{
+	color:blue;
+}
+	.units-box {
+		width: 100%;
+		background: rgb(230,233,236);
+	}
+	/*.btns-box {
+		width: 16%;
+		height: 50px;
+		display:flex;
+		justify-content: space-between;
+		background: #fff;
+		line-height: 50px;
+		margin-left: 7px;
+		margin-right: 7px;
+	}
+	 .wldw{
+    	margin-left: 15px;
+    	font-size:18px;font-weight:bold;
+    }*/
+	.right{
+		margin-right:10px;
+		margin-bottom:10px;
+	}
+	.ivu-icon-chevron-down {
+		font-size: 10px;
+	}
+	.btns img {
+		width: 14px;
+		height: 14px;
+		vertical-align: middle;
+	}
+	.main-left{
+		width: 120px;
+		margin-right: 3px;
+		flex: 0 0 120px;
+		font-size: 14px;
+		background: #fff;
+	}
+	.main-left li{
+		list-style: none;
+		padding:10px 0;
+		width:100%;
+		
+	}
+	.main-left li span{
+		margin-left:20px;
+	}
+	.table {
+		width: 100%;
+		height: 100%;
+		
+		overflow: auto;
+		background: #fff;
+	}
+	.bor{
+		background:rgb(241,245,247);
+        color:rgb(59,119,227);
+	}
+.mtewm{
+width:100%;
+
+display:flex;
+padding: 0px 200px 0 200px;
+
+justify-content: center;
+align-items: center;
+flex-direction: column;
+    	
+}
+.mtewm span{
+	width:260px;
+	height:30px;
+	line-height: 30px;
+	font-weight:600;
+	text-align: center
+}
+.mtewm div{
+	width:260px;
+	height:60px;
+	line-height: 35px;
+	
+}
+.right-top{
+	height:50px;
+	width:100%;
+	line-height: 50px;
+	display: flex;
+	border-bottom:1px solid #e4e4e4;
+}
+
+.page-box{
+	width:100%;
+	margin-bottom:120px;
+	margin-top:15px;
+	text-align: center;
+}
+.bottom-btn{
+	width:100%;
+	height:80px;
+	/*byhq:1px solid red;*/
+	margin-top:10px;
+	background: #f8f8f8;
+	line-height: 80px;
+	margin-right:56px;
+	text-align:right;
+
+}
+.ygewm{
+	 padding:10px;
+	width:100%;
+	
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-around;
+    text-align: center;
+	
+	background: #fff
+}
+.ygewm-list{
+	margin:12px;
+    height: 240px;
+    width: 18%;
+    padding:10px;
+    position:relative;
+    justify-content: center;
+    text-align: center;
+    border: 1px solid #f4f4f4;
+    cursor:pointer;
+}
+.hotbg1{
+	border-color: transparent transparent transparent #d53c39;
+}
+.bor{
+	border-color:#d53c39;
+}
+ .lanren {
+    position: absolute;
+    text-align: center;
+    top: -23px;
+    left: -5px;
+    width: 0;
+    height: 0;
+    border-width: 35px 0 35px 35px;
+    border-style: solid;
+    transform: rotate(-135deg);
+    border-color: transparent transparent transparent #40ca98;
+}
+.lanren span{
+   width: 60px;
+    height: 60px;
+    color: #fff;
+    display: block;
+    position: relative;
+    z-index: 9999999999999;
+    top: -29px;
+    right: 75px;
+    font-size: 12px;
+    font-weight: 900;
+    transform: rotate(85deg);
+}
+.addyhqhead{
+	height:50px;
+	line-height: 50px;
+	border-bottom:1px solid #e4e4e4;
+	display: flex;
+	justify-content: space-between;
+}
+.markDetails{
+	position:fixed;
+	display:none;
+	width:100%;
+	height:100%;
+	background: #B2B2B2;
+	opacity:0.4;
+	z-index:9;
+	top: 49px;
+	left:0;
+}
+.detailsYHQ{
+	position:fixed;
+	height:100%;
+	width:800px;
+	right:-800px;
+	top:48px;
+	background: #fff;
+	z-index:10;
+	overflow: scroll;
+	box-shadow: 0 0 20px #ccc;
+}
+</style>

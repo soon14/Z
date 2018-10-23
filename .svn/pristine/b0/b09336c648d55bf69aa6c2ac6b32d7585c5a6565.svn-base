@@ -1,0 +1,871 @@
+<template>
+	<!--预约-->
+	<div class="employee-box">
+		
+		<div class='employee-right'>
+			<!--顶部的按钮-->
+			<div class="btns-box">
+				<!-- <p class="wldw">
+					<Input  name="" style='padding: 0 40px 0 0;'></Input>
+					<span><a >搜索</a></span>
+				</p> -->
+				<a href=""></a>
+				<div>
+					<Button type="ghost" shape="circle" style="margin-right:5px;border:none;background:#169BD5;color:#fff"  @click="gotoAdd"><Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>添加预约</Button>
+					
+					<!-- 更多-->
+					<Poptip placement="bottom-end">
+		        		<!-- <div >
+		        			<Button shape="circle" type="ghost" style="border:none;margin-right:10px;background:#FF7D16;color:#fff">
+						更多
+							<span><i class="ivu-icon ivu-icon-chevron-down"></i></span>
+						</Button>
+		        		</div> -->
+		        		<!-- <div slot="content">
+		        			<p class="edit" style="font-size:14px;cursor:pointer;color:#0d0d0d;margin-bottom:10px;" @click=""><Icon type="edit" style="position:relative;right:5px"></Icon>修改</p>
+		        			<p style="font-size:14px;cursor:pointer;color:#0d0d0d;margin-bottom:10px;" @click=""><Icon type="close" style="margin-right:5px;"></Icon>删除</p>
+						</div> -->
+					</Poptip>
+					<span @click="cancelHome" style="cursor:pointer;margin-left:5px" ><Icon type="close" class="cha" ></Icon></span>
+				</div>
+			
+			
+			</div>
+
+			表格数据
+			<div style='height:100%'>
+				<Table border ref="selection" size="small" :columns="columns" :data="dataList" @on-row-dblclick="dbl"></Table>
+				
+			
+				 <Page :total="total" show-total  :pageSize='pageSize' show-sizer @on-change="getData" @on-page-size-change="changePageSize"></Page>
+		
+			</div>
+		</div>
+			<!--添加预约弹框-->
+		<Modal v-model='yyisshow' width="660px">
+			<div >
+				<div class='modelmain'>
+					<div style='margin:10px 0;display:flex;height:34px;line-height:34px'><span><i style='color:red'> * </i> 手机号：</span> <Input style='margin-left:10px;width:300px' v-model='mobile'></Input>
+					</div>
+					<div style='margin:10px 0;display:flex;height:34px;line-height:34px'><span><i style='color:red'> * </i> 预约人：</span> <Input style='margin-left:10px;width:300px' v-model='name'></Input>
+					</div>
+
+					<div style='margin:10px 0;height:34px;line-height:34px;'><span><i style='color:red'> * </i> 预约门店:</span>
+					<Select  @on-change="getdztype" style='width:297px;text-align:center'>
+						<Option v-for="(item,index) in stores" :label-in-value='true' :value='item.value' :key='item.value'>{{item.label}}</Option>
+					
+					</Select>
+					</div>
+					<div style='margin:10px 0;display:flex;height:34px;line-height:34px'><span><i style='color:red'> * </i> 预约到店时间：</span> 
+						 <DatePicker placement='top-start' type="datetime"  placeholder="Select date and time" style="width:300px" v-model='appDate' @on-change='getyyData'></DatePicker>
+
+						 
+					</div>
+
+					<div style='margin:10px 0;'><span><i style='color:red'> * </i> 预约服务：</span> 
+						<Button type="ghost"  style="margin-right:5px;border:none;background:#169BD5;color:#fff"  @click="addserver"><Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>添加</Button>
+
+
+						<div class="table" v-if='addisshow' style='margin-top:5px'>
+							<Table  border width="550" height='150'  :columns="goodskey" :data="goods" @on-select="clickgoodsrow">
+							</Table>
+							<div class="page-box">
+								<Page :total="total1" show-total  :pageSize='pageSize1'  @on-change="getData" @on-page-size-change="changePageSize"></Page>
+							</div>
+							<!--服务商品-->
+							<!-- <div v-for='item in goods' class='selectableinfo' @click='selecgoods(item)'>
+						  		<span class='skuname'>{{item.skuName}}</span> 
+						  		<span>价格：<span style='color:red'>{{item.price}}</span></span> 
+						  		
+
+						  	</div> -->
+			           	</div>
+			           	<!--选择技师后的数据-->
+						  <div v-if='getTableData'>
+						  	<div class='selectableinfo3'>
+						  		<span>预约服务</span>
+						  		<span>选择技师</span>
+						  	</div>
+						  	<div v-for='(item,index) in selectedTableData' class='selectableinfo2' >
+						  		<span class='skuname2'>{{item.skuName}}</span> 
+						  		<div >
+						  		<!-- <span @click='jsshow(index)' style=';display:inline-block;margin-left:10px'>
+						  			<a >选择技师
+						  				{{selectejs}}
+						  			</a>
+						  		</span> -->
+						  		<Select  @on-change="getcgType" style='width:200px' :label-in-value='true'>
+										<Option v-for="(item,index) in jsdata" :value='item.value' :key='index'>
+											{{item.label}}
+
+										</Option>
+									</Select>
+						  		<span @click='canceljs(index)' style='cursor:pointer;font-size:14px;display:inline-block;margin-left:10px'>×</span>
+						  		</div>
+						  	</div>
+						  	<!-- <div style='margin-top:5px'>
+							  	<Table  border width="550" height='150'  :columns="getTableDatakey" :data="selectedTableData" >
+								</Table>
+							</div> -->
+						  </div>
+					</div>
+				</div>
+			</div>
+			
+				<div><Input type='textarea' v-model='remark' placeholder='备注'></Input></div>
+				<div style='display:flex;justify-content: space-between;margin:20px'>
+					<s></s>
+					<div>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='elcancel'><Icon type="close" style="margin-right:5px;" ></Icon>取消</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#00A7F5;color:#fff" @click="saveserver"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>保存</Button>
+					</div>
+				</div>
+			<div  slot="footer"></div>
+		</Modal>
+		<!--选择商品-->
+	
+	</div>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				total1:1,
+				pageSize1:1,
+				skulist:[],
+				selectedjs:[],
+				remark:'',
+				//技师
+				jsindex:0,
+				selectejs:"选择技师",
+				tableIndex:0,
+				jsisshow:false,
+				jskey:[
+					// {
+					// 	type:'selection',
+					// 	width:60
+					// },
+					 {
+                        title: '头像',
+                        key:'headPic',
+                         width: 120,
+                        align: 'center',
+                        render:(h, params) =>{
+                        	return h('div',[
+                        			h('img',{
+                        				attrs:{
+                        					src:params.row.headPic
+                        				},
+                        				style:{
+                        					width:'40px',
+                        					height:'40px',
+                        					marginTop:'4px'
+                        				}
+                        			})
+                        		])
+                        }
+                    },
+					{
+						title:"技师",
+						key:"name"
+					},
+					{
+						title:"性别",
+						key:"gender"
+					},
+					{
+						title:"电话",
+						key:"phone"
+					}
+				],
+				jsdata:[],
+				//选中后的数据
+				selectedTableData:[],
+				// getTableDatakey:[
+				// 	{
+				// 		title:'预约服务',
+				// 		key:"name"
+				// 	},
+				// 	{
+				// 		title:'预约技师',
+				// 		key:"jsname",
+				// 		render:(h,params)=>{
+				// 			return h('span',{
+				// 				style:{
+				// 					display:'inline-block',
+				// 					width:"100%",
+									
+				// 					height:"30px",
+				// 					lineHeight:"30px"
+				// 				},
+				// 				on:{
+				// 					'click':()=>{
+				// 						this.jsisshow=true
+				// 						this.tableIndex=params.row._index;
+				// 						console.log(this.tableIndex)
+				// 						this.axios.get('technician/query?uid='+this.uid).then(res=>{
+				// 							this.jsdata=res.data.rows
+				// 							this.jsdata.forEach(item=>{
+				// 								if(item.gender==1){
+				// 									item.gender='男'
+				// 								}else{
+				// 									item.gender='女'
+				// 								}
+				// 							})
+				// 						})
+				// 					}
+				// 				}
+				// 			},[
+				// 				h('Icon',{
+				// 					props:{
+				// 					type:"arrow-down-b"
+				// 				},
+								
+				// 				})
+				// 			])
+				// 		}
+				// 	},
+				// 	{
+				// 		title:"操作",
+				// 		align:'center',
+				// 		key:"action",
+				// 		render:(h,params)=>{
+				// 			return h('div',[
+				// 				h('a',{
+				// 					style:{
+				// 						marginLeft:'10px'
+				// 					},
+				// 					on:{
+				// 						'click':()=>{
+				// 							this.selectedTableData.splice(params.row,1)
+				// 						}
+				// 					}
+				// 				},'取消'),
+								
+				// 			])
+				// 		}
+				// 	}
+				// ],
+				getTableData:false,
+				goodsinshow:false,
+				goodskey:[
+
+					 {
+                        type: 'selection',
+                        width: 60,
+                        
+                    },
+                    {
+                        title: '图片',
+                        key:'mainPhoto',
+                         width: 120,
+                        align: 'center',
+                        render:(h, params) =>{
+                        	return h('div',[
+                        			h('img',{
+                        				attrs:{
+                        					src:params.row.mainPhoto
+                        				},
+                        				style:{
+                        					width:'40px',
+                        					height:'40px',
+                        					marginTop:'4px'
+                        				}
+                        			})
+                        		])
+                        }
+                    },
+                     
+                    {
+                        title: '商品名称',
+                        ellipsis:true,
+                        key:'skuName'
+                 
+                    },
+                 
+                   
+                     {
+                        title: '零售价',
+                        key:'price',
+                      	ellipsis:true
+                       
+                    },
+                     {
+                        title: '状态',
+                        key:'statusDesc',
+                      	ellipsis:true,
+                      	render:(h,params)=>{
+                            return h('span',{
+                                style:{
+                                    color:params.row.statusDesc=='正常'?'#5789E6':params.row.statusDesc=='新增'?'#ff0000':params.row.statusDesc=='已停用'?'#278A8B':''
+                                }
+                            },params.row.statusDesc)
+                        }
+                        
+                    }
+                
+                  
+				],
+				goods:[
+					
+				],
+				addisshow:false,
+				storeList:[],//店铺
+				storeName:'',
+				stores:[],
+				mobile:'',//手机号
+				name:'',//预约人
+				appDate:'',//预约时间
+				yyisshow:false,
+				visible: false,
+				dataList: [], //员工列表
+				total: 1,
+				pageSize: 1,
+				valId:"",
+				uid: this.$store.state.common.token,
+				orderListname:[
+					{
+						label:"全部",
+						value:0
+					},
+					{
+						label:"未审核",
+						value:1
+					},
+					{
+						label:"未签收",
+						value:3
+					},
+					{
+						label:"进货单",
+						value:5
+					},
+					{
+						label:"退货单",
+						value:7
+					}
+				],
+				columns: [
+					
+					{
+						title:"预约人",
+						key:"name",
+						width: 120,
+                        align: 'center',
+                        render:(h, params) =>{
+                        	return h('div',[
+                        			h('img',{
+                        				attrs:{
+                        					src:params.row.headPic
+                        				},
+                        				style:{
+                        					width:'40px',
+                        					height:'40px',
+                        					marginTop:'4px'
+                        				}
+                        			})
+                        		])
+                        }
+					},
+					{
+						title: '预约门店',
+						ellipsis:true,
+						align:'center',
+						key: 'name'
+					},
+					{
+						title: '预约内容',
+						ellipsis:true,
+						align:'center',
+						key: 'code'
+					},
+					{
+						title: '技师',
+						ellipsis:true,
+						align:'center',
+						key: 'gender',
+						
+					},
+					{
+						title: '预约到店时间',
+						ellipsis:true,
+						align:'center',
+						key: 'appDate'
+					},
+					{
+						title: '备注',
+						ellipsis:true,
+						align:'center',
+						key: 'remark'
+					},
+					
+					{
+						title:"操作",
+						align:'center',
+						key:"action",
+						render:(h,params)=>{
+							return h('div',[
+								h('a',{
+									style:{
+										marginLeft:'10px'
+									}
+								},'取消'),
+								h('a',{
+									style:{
+										marginLeft:'10px'
+									}
+								},'修改'),
+								h('a',{
+									style:{
+										marginLeft:'10px'
+									}
+								},'开单'),
+							])
+						}
+					}
+					
+				]
+				
+			}
+		},
+		methods: {
+			//关闭批处理气泡提示框
+			close: function() {
+				this.visible = false;
+			},
+			//点击增加  跳转到 新增加员工页面
+			gotoAdd: function() {
+				this.yyisshow=true
+				this.selectedTableData=[]
+				// this.addisshow=true
+
+				// this.$router.push({
+				// 	path: '/addyy',
+				// 	query: {
+				// 		id: ''
+				// 	}
+				// });
+			},
+			//双击表格一行
+			dbl(row,index){
+				// this.$router.push({
+				// 	path:'/addyy',
+				// 	query:{
+				// 		id:row.id,
+				// 		index:index
+				// 	}
+				// })
+			},
+			//获取预约列表信息
+		getEmployeeList(){
+				this.axios.get('yy/query?uid='+this.uid).then((res)=>{
+					if(res.data.status==200){
+						let data = res.data;
+						console.log(res.data.rows)
+						this.isLoading = false
+						this.dataList = res.data.rows
+						this.pageSize = data.pageSize;
+						this.total = data.total;
+						this.dataList.forEach((x)=>{
+								// if(x.gender==1){
+				    //                 x.gender='男'
+				    //               }else{
+				    //                  x.gender='女'
+				    //               }
+							x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+							
+							
+						})
+					}
+				})
+			},
+			//点击删除
+			delEmployee: function(id) {
+				this.axios.delete('/yy/delete/' + id + '?uid=' + this.uid).then((res) => {
+					
+					if(res.data.status == '200') {
+						
+						this.$Notice.success({
+							title: '删除',
+							desc: '删除成功'
+						});
+                        this.getemployeeList();
+					}
+				})
+			},
+			//点击停用
+			stopEmployee:function(id){
+				this.axios.post('/yy/disabled/'+id+'?uid='+this.uid).then((res)=>{
+					 if(res.data.status=='200'){
+					 	this.$Notice.success({
+							title:"",//
+							desc: '停用成功'
+						});
+						this.getemployeeList();
+					 }
+				})
+			},
+			//点击启用
+			startEmployee:function(row){
+				this.axios.post('/yy/enabled/'+row.id+'?uid='+this.uid).then((res)=>{
+					 if(res.data.status=='200'){
+					 	this.$Notice.success({
+							title:"",//
+							desc: '启用成功'
+						});
+					 }
+				})
+			},
+			 //切换一条页
+            getData(current){
+                this.axios.get('/yy/list?offset='+current+'&uid='+this.uid).then((res)=>{
+                    console.log(res)
+                    this.dataList = res.data.rows
+                })
+            },
+            //翻页
+            changePageSize(size){
+                this.pageSize = size
+            },
+            //点击差号
+			cancelHome(){
+				this.$router.push('/operationHome')
+			},
+			//获取店铺
+			getStoreList: function() {
+                this.axios.get('/store/query?uid='+this.uid).then((res) => {
+                    if(res.data.status==200){
+                       
+                        let data = res.data;
+                        this.storeList = data.rows;
+                        this.storeList.forEach((item,index)=>{
+                        	let arr={
+                        		value:this.storeList[index].id,
+                        		label:this.storeList[index].name
+                        	}
+                        	this.stores.push(arr)
+                        })
+                        
+                    }
+                    
+                })
+            },
+            //查找店铺
+			getdztype(label){
+				this.storeName=label
+				console.log(label)
+			},
+			//获取服务商品
+			getgoodsList: function() {
+                this.axios.get('/sku/query?uid='+this.uid).then((res) => {
+                    if(res.data.status==200){
+                       
+                      
+                        this.goods =  res.data.rows;
+                        this.total1=res.data.total
+                        this.pageSize1=res.data.pageSize
+                    }
+                    
+                })
+            },
+
+			//添加服务
+			addserver(){
+				this.addisshow=true
+
+			},
+			getjs(){
+				//获取技师
+				this.axios.get('technician/query?uid='+this.uid).then(res=>{
+					
+					res.data.rows.forEach((item,index)=>{
+						let arr={
+							value:res.data.rows[index].id,
+							label:res.data.rows[index].name
+						}
+						this.jsdata.push(arr)
+					})
+				})
+			},
+			//选中下拉技师
+			getcgType(value){
+				let arr={
+					id:value.value,
+					name:value.label
+				}
+				this.selectedjs.push(arr)
+				
+			},
+			elcancel(){
+				this.yyisshow=false
+			},
+			//选中服务商品
+			// selecgoods(item){
+			// 	console.log(item)
+			// 	this.selectedTableData.push(item)
+			// 	this.addisshow=false
+			// 	this.getTableData=true
+			// 	console.log(this.selectedTableData)
+			// },
+			clickgoodsrow(elect,row){
+				this.selectedTableData.push(row)
+				this.addisshow=false
+				this.getTableData=true
+			},
+			
+			//取消服务
+			canceljs(index){
+				this.selectedTableData.splice(index,1)
+			},
+			//保存服务
+			saveserver(){
+				this.axios.post('yy/add?uid='+this.uid,{
+					name:this.name,
+					middle:this.mobile,
+					actTechnician:this.selectedjs,
+					serviceList:this.selectedTableData,
+					appDate:this.appDate,
+					remark:this.remark
+				}).then(res=>{
+					if(res.data.status==200){
+						console.log(res)
+						this.getEmployeeList();
+					}
+				})
+			},
+			getyyData(date){
+				this.appDate=date
+				console.log(this.appDate)
+			},
+			//切换一条页
+            getData(current){
+                this.axios.get('/sku/query?offset='+current+'&uid='+this.uid).then((res)=>{
+                    console.log(res)
+                    this.goods = res.data.rows
+                })
+                
+            },
+            //翻页
+            changePageSize(size){
+                this.pageSize = size
+            },
+            //下拉框选择
+			orderselected(value){
+				this.value = value
+				// this.axios.get('/po/query/'+value+'?uid=' + this.uid).then((res) => {
+				// 	if(res.data.status == '200') {
+					
+				// 		let data = res.data
+				// 		this.dataList = data.rows;
+				// 		this.isLoading = false
+				// 		this.dataList.forEach((x)=>{
+				// 			x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+				// 			switch(x.status){
+				// 				case 77:
+				// 					x.statusDesc='签收完成'
+				// 				break;
+				// 				case 1:
+				// 					x.statusDesc='未审核'
+				// 				break;
+				// 				case 15:
+				// 					x.statusDesc='已审核'
+				// 				break;
+				// 				case 88:
+				// 					x.statusDesc='已完成'
+				// 				break;
+				// 				case 19:
+				// 					x.statusDesc='已作废'
+				// 				break;
+				// 			}
+							
+				// 		})
+						
+				// 	} else {
+				// 		this.$Notice.success({
+				// 			title: '删除',
+				// 			desc: res.data.errorMessage
+				// 		});
+						
+				// 	}
+				// })
+			},
+		},
+		mounted() {
+			this.getEmployeeList();
+			 this.getStoreList();
+			 this.getjs();
+			 this.getgoodsList()
+		}
+	}
+</script>
+
+<style lang="css" scoped>
+	.employee-box {
+		width: 100%;
+		height: 100%;
+		background: #fff;
+		display:flex;
+	}
+	.btns-box {
+		width: 100%;
+		height: 50px;
+		display:flex;
+		justify-content: space-between;
+		
+		line-height: 50px;
+	}
+	.wldw {
+		width:300px;
+		position:relative;
+		font-size: 14px;
+		color: #585858;
+		
+		
+	}
+	.wldw span{
+		position:absolute;
+		right:50px;
+		top:2px;
+		font-size:12px;
+		
+	}
+	.skuname{
+		display:inline-block;
+		width:200px;
+		overflow: hidden;
+text-overflow:ellipsis;
+white-space: nowrap;
+	}
+	.skuname2{
+		display:inline-block;
+		width:100px;
+		overflow: hidden;
+text-overflow:ellipsis;
+white-space: nowrap;
+	}
+	.left-top{
+		height:50px;
+		line-height: 50px;
+		display:flex;
+		background: #fff;
+		border-bottom:1px solid #DDDEE1;
+		justify-content: space-around;
+	}
+	li{
+		list-style: none;
+		height:40px;
+		line-height: 40px;
+		width:100%;
+	
+
+	}
+	li span{
+		margin-left:20px;
+	}
+	.modelmain{
+		display:flex;
+		flex-direction: column;
+		justify-content: center;align-items: center;
+		
+		padding:30px;
+	}
+	.bg{
+		background: #f5f5f5
+	}
+	.wldw input{
+		padding:0 30px;
+	}
+	.employee-left{
+		width:20%;
+		margin:0 10px;
+		height:auto;
+		background: #f5f5f5;
+		border-left:1px solid #DDDEE1;
+		border-right:1px solid #DDDEE1;
+	}
+	.employee-right{
+		height:100%;
+		width:100%;
+	}
+	.right{
+		margin-right:10px;
+		margin-bottom:10px;
+	}
+	.ivu-icon-chevron-down {
+		font-size: 10px;
+	}
+	.btns img {
+		width: 14px;
+		height: 14px;
+		vertical-align: middle;
+	}
+	.table {
+		width: 100%;
+		height: 100%;
+		
+	}
+	.cha{
+		margin-right:10px;
+	}
+	.page-box {
+		text-align: center;
+		margin-top:5px;
+	}
+	/***气泡提示样式设置***/
+
+	.qp-con {
+		width: 100%;
+		height: 30px;
+		color: #0d0d0d;
+		font-size: 14px;
+		line-height: 30px;
+		cursor: pointer;
+	}
+
+	.qp-con img {
+		width: 16px;
+		height: 16px;
+		vertical-align: middle;
+	}
+	.selectableinfo{
+		display:flex;
+		justify-content: space-between;
+		padding:0 10px;
+	width:100%;
+		height:44px;
+		line-height: 41px;
+		background: #F8F8F8;
+		margin-bottom:5px;
+	}
+	.selectableinfo2{
+		display:flex;
+		justify-content: space-around;
+		padding:0 10px;
+		width:100%;
+		height:44px;
+		line-height: 41px;
+		background: #EFF4F7;
+			margin-bottom:5px;
+	}
+	.selectableinfo3{
+		display:flex;
+		justify-content: space-around;
+		border-bottom:1px solid #ccc;
+		width:100%;
+		height:44px;
+		margin-top:5px;
+		line-height: 41px;
+		background: #EFF4F7;
+		
+	}
+</style>
+<style type="text/css" >
+	.ivu-table-border th{
+		background:transparent!important;
+		height: 40px;
+	}
+	.ivu-table-border td{
+		height:36px;
+	}
+</style>

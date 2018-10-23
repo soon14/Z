@@ -1,0 +1,2019 @@
+<template>
+	<div class="units-box">
+		<!--优惠券-->
+		<div class='goods-right'>
+			<Tabs :animated="false"  style="background:#fff;width:100%;height:100%" @on-click="addBg">
+		        <TabPane label="优惠券">
+				    <div>
+						<div class="btns-box">
+							<div style='display:flex'>
+									<!-- <p class="wldw">
+			                            <span style="width:42px;font-weight:900">{{$t('operation.yhqHome.hdstatus')}}</span>
+			                             <Select style="width:100px" :placeholder="$t('public.all')" @on-change="orderselected">
+			                                <Option v-for="item in orderListname" :value="item.value" :key="item.value">{{ item.label }}</Option>
+			                            </Select>
+			                        </p> -->
+			                        <Input style='margin-top:10px;margin-left:10px;width:300px' v-model='keyword' :placeholder="$t('public.codeandname')" @on-enter='entersSearchNewSku'>
+					                    <span slot="append"  @click='searchNewSku' style='cursor:pointer'>{{$t('public.search')}}</span>
+					                </Input><!--搜索-->
+							</div>
+							<div class="right">
+								<Button v-if="isAdd" type="primary" style='background:#3b77e3;border:none' shape="circle" @click="goaddgoods">
+										 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.addnew')}}<!--添加-->
+								</Button>
+								<Button v-if="isEdit" type="primary" style='background:#40ca98;color:#fff;border:none' shape="circle" @click="edityhq">
+									 <i class="el-icon-edit" style=";margin-right:5px;"></i>修改
+							</Button>
+								<!--更多-->
+								<Dropdown trigger="click" >
+				                    <Button shape="circle" type="ghost" style="background:#ff7d16;color:#fff;border:none">{{$t('public.more')}}
+				                    <span><i class="ivu-icon ivu-icon-chevron-down"></i></span>
+				                </Button>
+				                <DropdownMenu slot="list">
+				                    <span  @click="start"><DropdownItem >{{$t('public.start')}}</DropdownItem></span>
+				                    <span  @click="stop"><DropdownItem >{{$t('public.stop')}}</DropdownItem></span>
+				                    <span  @click="del"><DropdownItem >{{$t('public.del')}}</DropdownItem></span>
+				                </DropdownMenu>
+				             </Dropdown>
+				             <span @click="cancelHome" style="cursor:pointer; margin-left: 10px;"><Icon type="close" class="cha" ></Icon></span>
+							</div>
+						</div>
+						<!-- <div style='height:50px'></div> -->
+						<!--表格数据-->
+						<div class="table" v-if='numIndex==0'>
+							<Table border ref="selection" highlight-row :columns="coupon" :data="couponList"  @on-row-click='clickRow' @on-row-dblclick='dblclickRow'></Table>
+							<!--底部的分页-->
+							<div class="page-box" v-if='total!=0'>
+								 <Page :total="total" show-total size="small" :pageSize='pageSize'  @on-change="getData" @on-page-size-change="changePageSize"></Page>
+							</div>
+						</div>
+
+						<!--新建优惠券-->
+						<div class='addyhqmodel'>
+							<div class='addyhqhead'>
+								<span style='font-size:14px;font-weight:600;margin-left:10px'>{{$t('operation.yhqHome.addyhq')}}</span>
+								<div>
+									<Button shape="circle"  style="background:#3b77e3;margin-right:5px;color:#fff;border:none" @click="saveyhq" v-if='isEdit1'>
+									<Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.SaveBtn')}}</Button><!--保存-->
+
+									<Button shape="circle"  style="background:#3b77e3;margin-right:5px;color:#fff;border:none" @click="saveyhqE" v-if='!isEdit1'>
+									<Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>保存</Button>
+									<Button shape="circle"  @click="canceladd"  style="background:#999999;color:#fff;margin-right:10px;" ><Icon type="close" style="margin-right:5px;"></Icon>{{$t('public.cancel')}}</Button>
+								</div>
+							</div>
+							<div class='yhq-content'>
+								
+								<div class='yhq-content-right'>
+									<div style=';margin:10px 20px;padding:20px;border:1px solid #EEEEF1;background:#FCFCFC'>
+										<div class='yhq-content-right-list'>
+											<span style="width:80px">{{$t('operation.yhqHome.yhqnameS')}}：</span><!--卡券名称-->
+											<Input v-model='name' type="text" :placeholder="$t('operation.yhqHome.yhqnameS')" style="width:90%"></Input>
+										</div>
+										<!--优惠方式：-->
+										<div style='margin:10px 0;padding-bottom:20px;border-bottom:1px solid #e4e4e4'>
+											<RadioGroup v-model="dk" @on-change='dkchange'>
+											<div style='display:flex;line-height:35px'>
+												<span style="width:80px">{{$t('operation.yhqHome.yhtype')}}：</span><!--优惠方式-->
+												<div style='margin-right:40px'>
+													<Radio :label="$t('operation.yhqHome.DK')"></Radio><!--抵扣-->
+													<Input v-model='dkou' number style="width:90px" :placeholder="$t('operation.yhqHome.dkje')"></Input> 
+													<span>{{$t('operation.yhqHome.yuan')}}</span>
+												</div>
+												<div>
+													<Radio  :label="$t('operation.yhqHome.gwu')"></Radio><!--购物-->
+												<!-- 	<Input v-model='zhekouamount' number style="width:90px" :placeholder="$t('operation.yhqHome.DK')"> -->
+													<InputNumber :max="1" :min="0.1" :step="0.1" v-model="zhekouamount" style="width:90px" :placeholder="$t('operation.yhqHome.DK')"></InputNumber>
+												</Input> <span>{{$t('operation.yhqHome.Z')}}</span><!--折-->
+												</div>
+
+											</div>
+											<div style='display:flex;line-height:35px;margin-left:80px;margin-top:20px'>
+												<Radio  :label="$t('operation.yhqHome.gwus')"></Radio><!--购物送-->
+												<span @click='getsku'>
+													<Input v-model='skuname' :disabled='dkdisabled' style="width:90%" :placeholder="$t('operation.yhqHome.skuname')"></Input><!--商品名称-->
+												</span>
+												
+											</div>
+										</RadioGroup>
+										</div>
+										<!--使用限制：-->
+										<RadioGroup v-model="xf" @on-change='xfchange'>
+										<div style='display:flex;line-height:35px'>
+											<span style="width:80px">{{$t('operation.yhqHome.uselimt')}}：</span><!--使用限制-->
+											<Radio  :label="$t('operation.yhqHome.man')"></Radio><!--消费满-->
+											<Input v-model='orderAmount' number :placeholder="$t('operation.yhqHome.man')" style="width:90px"></Input>  
+											<span>{{$t('operation.yhqHome.yuan')}}</span>
+											<div style="margin-left:35px;">
+												<Radio :label="$t('public.Nolimt')"></Radio><!--无限制-->
+											</div>
+										</div>
+										</RadioGroup>
+										<!--有效时间：-->
+										<RadioGroup v-model="yxsj" @on-change='yxsjchange'>
+										<div style="display:flex;height:36px;line-height:36px;margin:10px 0">
+											<span style="width:80px">{{$t('operation.yhqHome.vaildTime')}}：</span><!--有效时间-->
+											<div style="display:flex">
+												<Radio :label="$t('operation.yhqHome.beginTime')"></Radio><!--开始时间-->
+												<DatePicker type="date" :options="optionsB" :value='beginTime' @on-change="getStartDate" ></DatePicker>
+											</div>
+										</div>
+										<div  style="margin-left:120px;">
+											<span style='width:80px;margin-left:-14px;'>{{$t('operation.yhqHome.endTime')}}</span><!--结束时间-->
+											<DatePicker type="date" :options="optionsB" :value='endTime' @on-change="getStopDate1" ></DatePicker>
+										</div>
+										<!-- <div style="margin-left:80px;margin-top:20px">
+											<Radio :label="$t('operation.yhqHome.getH')"></Radio>
+											<Input v-model='useDateLimit' number  style="width:90px"></Input>  <span>{{$t('operation.yhqHome.getHYX')}}</span>
+											<span style="margin-left:30px;">
+												<Radio :label="$t('public.Nolimt')"></Radio>
+											</span>
+										</div> -->
+										</RadioGroup>
+										<RadioGroup v-model="hydj" @on-change='hydjchange'>
+										<!--会员等级-->
+										<div style="display:flex;height:36px;line-height:36px;margin:10px 0">
+											<span style="width:80px">{{$t('operation.yhqHome.limitget')}}：</span><!--领取限制-->
+											<Radio :label="$t('operation.yhqHome.crmlevel')"></Radio><!--会员等级-->
+											
+											<Select style="width:120px;margin-top:5px;margin-left:5px" size="small"  @on-change="hyselected">
+			                               	 	<Option v-for="item in hydata" :value="item.value" :key="item.value">{{ item.label }}
+			                               	 	</Option>
+			                            	</Select>
+			                            	<span style="margin-left:30px;">
+			                            		<Radio :label="$t('public.Nolimt')"></Radio><!--无限制-->
+											</span>
+										</div>
+										</RadioGroup>
+										<!--发放数量-->
+										<RadioGroup v-model="fsl" @on-change='fslchange'>
+										<div  style="display:flex;height:36px;line-height:36px;margin:10px 0">
+											<span style="width:80px">{{$t('public.num')}}：</span><!--发放数量-->
+											<Radio :label="$t('operation.yhqHome.yhqname')"></Radio><!--发放优惠券-->
+											<Input v-model='allCount' number :placeholder="$t('public.num')" style="width:90px"></Input>  
+											<span>{{$t('operation.yhqHome.zhang')}}</span><!--张-->
+											<span style="margin-left:33px;">
+												
+												<span>{{$t('operation.yhqHome.limitget')}}</span><Input number v-model='allCount1' :placeholder="$t('public.num')" style="width:90px"></Input>  <span>{{$t('operation.yhqHome.zhang')}}</span>
+											</span>
+											
+										</div>
+										<div style="margin-left:80px;margin-top:20px;">
+											<Radio :label="$t('public.Nolimt')"></Radio><!--无限制-->
+											
+											<span style="margin-left:17px;">{{$t('operation.yhqHome.limitget')}}</span><!--领取限制-->
+											<Input v-model='allCount2' number :placeholder="$t('public.num')" style="width:90px"></Input>  
+											<span>{{$t('operation.yhqHome.zhang')}}</span>
+										</div>
+										</RadioGroup>
+										
+										<div  style="display:flex;height:36px;line-height:36px;margin:10px 0">
+											<span style="width:80px">渠道限制：</span>
+											<Select style="width:120px;margin-top:5px;margin-left:5px" size="small" v-model="channelValue"  @on-change="channelSelected">
+			                               	 	<Option v-for="item in channeldata" :value="item.value" :key="item.value">{{ item.label }}
+			                               	 	</Option>
+			                            	</Select>
+										</div>
+										
+										<!--活动商品：-->
+										<div style="display:flex;height:36px;line-height:36px;margin:10px 0;border-top:1px solid #e4e4e4;margin:30px 0">
+											<span style="width:80px">{{$t('operation.yhqHome.hdsku')}}：</span><!--活动商品-->
+											<RadioGroup v-model="shops" @on-change="getshopsname">
+										        <Radio :label="$t('operation.yhqHome.hdsku')"></Radio><!--活动商品-->
+										        <Radio :label="$t('operation.yhqHome.ZDsku')"></Radio><span> 
+										        ({{$t('member.crmCard.ys')}}
+										        {{selectedGoods.length}}{{$t('member.crmCard.ge')}})
+										    	</span>
+										        <!--指定商品-->
+										    </RadioGroup>
+										</div>
+										<div class="table1" v-if='goodsinshow'>
+											<Tabs value="name1" :animated='false'>
+										        <TabPane :label="$t('operation.yhqHome.choosesku')" name='name1'><!--选择商品-->
+										        	<Input style='margin-bottom:15px;' v-model='searchKeyword' :placeholder="$t('public.codeandname')" @on-enter='enterSearch'>
+										                <span slot="append"  @click='search' style='cursor:pointer;'>{{$t('public.search')}}</span>
+										            </Input>
+										        	<Table size="small" border  height="300"  :columns="goodskey" :data="goods" >
+													</Table>
+													<div class="page-box">
+														 <Page :total="goodstotal1" show-total  :pageSize='goodspageSize1'  @on-change="getData1" @on-page-size-change="changePageSize1"></Page>
+													</div>
+										        </TabPane>
+										        <TabPane :label="$t('operation.yhqHome.yschoosesku')" ><!--已选商品-->
+										        	<Table size="small" border  height="300"  :columns="goodskey1" :data="selectedGoods" >
+													</Table>
+										        </TabPane>
+										        
+										    </Tabs>
+										     
+										</div>
+										<!--活动店铺：-->
+										<div style="display:flex;height:36px;line-height:36px;margin:10px 0">
+											<span style="width:80px">{{$t('operation.yhqHome.hdstore')}}：</span>
+											<RadioGroup v-model="stores" @on-change="getstoresname">
+										        <Radio :label="$t('operation.yhqHome.hdstore')"></Radio><!--活动店铺：-->
+										        <Radio :label="$t('operation.yhqHome.ZDstore')"></Radio><span>({{$t('member.crmCard.ys')}}{{selectedstores.length}}{{$t('member.crmCard.ge')}})</span><!--指定店铺：-->
+										    </RadioGroup>
+										</div>
+										<div class="table1" v-if='storesinshow'>
+											<Tabs value="name1" :animated='false'>
+										        <TabPane :label="$t('operation.yhqHome.choosestore')" name='name1'><!--选择店铺-->
+										        	<Input style='margin-bottom:15px;' v-model='searchKeyword1' :placeholder="$t('public.codeandname')" @on-enter='enterSearch1'>
+										                <span slot="append"  @click='search1' style='cursor:pointer;'>{{$t('public.search')}}</span>
+										            </Input>
+										        	<Table size="small" border  height="300"  :columns="storeskey1" :data="Allstores" >
+													</Table>
+													<div class="page-box">
+														 <Page :total="storetotal" show-total  :pageSize='storepageSize'  @on-change="storegetData" @on-page-size-change="storechangePageSize"></Page>
+													</div>
+										        </TabPane>
+										        <TabPane :label="$t('operation.yhqHome.yxstore')" ><!--已选店铺-->
+										        	<Table size="small" border  height="300"  :columns="storeskey2" :data="selectedstores" >
+													</Table>
+										        </TabPane>
+										    </Tabs>
+										</div>
+										<div  style='margin-bottom: 250px;margin-top:20px;width:98%'>
+											<Input type='textarea' v-model='description' :placeholder="$t('operation.yhqHome.sm')"></Input>
+										</div>
+									</div>
+									
+								</div>
+							</div>
+						</div>
+					</div>
+		        </TabPane>
+		        <Button type="ghost" @click="cancelHome" size="small" slot="extra" style='margin-top:3px;margin-right:20px'>返回</Button>
+		    </Tabs>
+		</div>
+	<!--选择商品-->
+	<Modal v-model="skuisshow" width="760px">
+		<p slot="header" style="height:30px;line-height:30px">
+			
+			<span>{{$t('public.search')}}</span><!--商品搜索-->
+		</p>
+		<div style="position:relative;text-align:center;width:100%;height:35px;line-height:35px;display:flex;">
+			<Input   :placeholder="$t('public.codeandname')" style="padding:2px 0" v-model="goodskeyword" @on-enter='enterSearch'></Input>
+			<span @click="searchInput">
+			<Icon type="search" size="16" style="display:inline-block;position:absolute;top:10px;right:18px;z-index:9" ></Icon>
+			</span>
+		</div>
+		<!--商品数据-->
+		<div slot="footer" style='margin-top:-10px'>
+			<div class="table1">
+				<Table  border  height='300' highlight-row :columns="goodskeyModel" :data="goodsModel" @on-row-click="clickgoodsrow">
+				</Table>
+				<div class="page-box1">
+				 <Page :total="goodsModeltotal" show-total  :pageSize='goodsModelpageSize'  @on-change="goodsModelgetData" @on-page-size-change="goodsModelchangePageSize"></Page>
+				</div>
+           	</div>
+			
+			<div class='title' style='margin:0px'>
+				<div style='color:#D15151;font-size:14px'>
+						<!-- <Icon type="plus" style='margin-right:5px'></Icon>
+					<span >添加商品</span> -->
+					</div>
+				<div>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='cancelsure'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#3b77e3;color:#fff" @click="suresku"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+	<div class="mark" @click="canceladd"></div>
+	
+	<div class='detailsYHQ'>
+		<div class='addyhqhead'>
+			<span style='font-size:14px;font-weight:600;margin-left:10px'>优惠券详情</span>
+			<div>
+				<Button shape="circle"  @click="canceldetails"  style="background:#999999;color:#fff;margin-right:10px;" ><Icon type="close" style="margin-right:5px;"></Icon>{{$t('public.cancel')}}</Button>
+			</div>
+		</div>
+	 	<div style="padding:10px">
+	 		<Tabs  :animated="false" @on-click="changeTabs">
+	 			<TabPane label="详细">
+		        	<Card>
+		                <p slot="title">{{yhqObj.name}}</p>
+		                <p><span>名称：</span><span>{{yhqObj.name}}</span></p>
+		                <p><span>限制：</span><span>消费满{{yhqObj.orderAmount}} 元</span></p>
+		                <p>
+		                	<span>{{yhqObj.type==1?"满减":yhqObj.type==3?"折扣":yhqObj.type==4?"赠送":""}}：</span>
+
+		                	<span>{{yhqObj.type==1?yhqObj.amount:yhqObj.type==3?yhqObj.amount:yhqObj.type==4?yhqObj.skuName:""}}</span>
+		                </p>
+		                <p><span>限制领取：</span><span>{{yhqObj.perCount}}</span>张</p>
+		                <p><span>已领取：</span><span>{{yhqObj.useCount}}</span>张</p>
+		                <p><span>已发放：</span><span>{{yhqObj.sendCount}}</span>张</p>
+		                <p><span>使用状态：</span><span>{{yhqObj.statusDesc}} </span></p>
+		                <p><span>领取状态：</span><span>{{yhqObj.obtainStatusDesc}} </span></p>
+		                <p><span>会员范围：</span><span>{{yhqObj.allCrm==0?"全会员":"部分会员"}} </span></p>
+		                <p><span>店铺范围：</span><span>{{yhqObj.allStore==0?"全店铺":"部分店铺"}} </span></p>
+		                <p><span>使用时间：</span><span>{{yhqObj.beginTime}} </span> - <span>{{yhqObj.endTime}} </span></p>
+		            </Card>
+		        </TabPane>
+	 			<TabPane label="已领取">
+		        	<Table border  highlight-row :columns="couponstatus10" :data="couponListstatus10"></Table>
+		        	<div class="page-box" v-if='couponstatus10total!=0' style="margin-bottom:120px">
+						<Page :total="couponstatus10total" show-total  :pageSize='couponstatus10pageSize'></Page>
+					</div>
+		        </TabPane>
+		        <TabPane label="已消费">
+		        	<Table border ref="selection" highlight-row :columns="couponstatus1" :data="couponListstatus1"></Table>
+		        	<div class="page-box" v-if='couponstatus1total!=0' style="margin-bottom:120px">
+						<Page :total="couponstatus1total" show-total  :pageSize='couponstatus1pageSize'  @on-change="couponstatus1getData" ></Page>
+					</div>
+		        </TabPane>
+		        <TabPane label="未使用">
+		        	<Table border ref="selection" highlight-row :columns="couponstatus2" :data="couponListstatus2"></Table>
+		        	<div class="page-box" v-if='couponstatus2total!=0' style="margin-bottom:120px">
+						<Page :total="couponstatus2total" show-total  :pageSize='couponstatus2pageSize'  @on-change="couponstatus2getData" ></Page>
+					</div>
+		        </TabPane>
+		    </Tabs>
+	 	</div>
+	</div>
+	<div class="markDetails" @click="canceldetails"></div>
+</div>
+</template>
+<script type="text/javascript">
+export default{
+	name:"coupon",
+	data(){
+		return{
+			optionsB:this.optionsB,
+
+			isEdit:false,
+			isAdd:true,
+
+			isEdit1:true,
+			//已领取
+			couponstatus10total:0,
+			couponstatus10pageSize:0,
+			couponstatus10:[
+				{
+					title:"优惠券编号 ",
+					align: 'center',
+					key:"couponNo"
+				},
+				{
+					title:"会员",
+					align: 'center',
+					key:"crmName"
+				},
+				{
+					title:"生效时间",
+					align: 'center',
+					key:"activateTime",
+				},
+				{
+					title:"失效时间",
+					align: 'center',
+					key:"expiredTime"
+				},
+				{
+					title:"领取时间",
+					align: 'center',
+					key:"createTime",
+				},
+				{
+					title:"状态",
+					align: 'center',
+					key:"obtainStatusDesc",
+					
+				},
+			],
+			couponListstatus10:[],
+			//已使用
+			couponstatus1:[
+				{
+					title:"优惠券编号 ",
+					align: 'center',
+					key:"couponNo"
+				},
+				{
+					title:"会员",
+					align: 'center',
+					key:"crmName"
+				},
+				{
+					title:"生效时间",
+					align: 'center',
+					key:"activateTime",
+				},
+				{
+					title:"失效时间",
+					align: 'center',
+					key:"expiredTime"
+				},
+				{
+					title:"状态",
+					align: 'center',
+					key:"obtainStatusDesc",
+					
+				},
+			],
+			couponstatus1total:0,
+			couponstatus1pageSize:0,
+			couponListstatus1:[],
+			//未使用
+			couponstatus2:[
+				{
+					title:"优惠券编号 ",
+					align: 'center',
+					key:"couponNo"
+				},
+				{
+					title:"会员",
+					align: 'center',
+					key:"crmName"
+				},
+				{
+					title:"生效时间",
+					align: 'center',
+					key:"activateTime",
+				},
+				{
+					title:"失效时间",
+					align: 'center',
+					key:"expiredTime"
+				},
+				{
+					title:"状态",
+					align: 'center',
+					key:"obtainStatusDesc",
+					
+				},
+			],
+			couponstatus2total:0,
+			couponstatus2pageSize:0,
+			couponListstatus2:[],
+			yhqObj:{},
+			detailsisshow:false,
+			searchKeyword:"",
+			searchKeyword1:"",
+			dkdisabled:false,
+			active:0,//优惠券核销步数
+			keyword:'',//搜索优惠券的关键字
+			hxyhqrow:{},//搜索优惠券对象
+			hxkeyword:'',//核销的搜索关键字
+			height:'',
+			current:1,
+			
+			skuisshow:false,
+			goodskeyword:'',
+			goodsModeltotal:0,
+			goodsModelpageSize:0,
+			goodsModel:[],
+			goodskeyModel:[
+		                {
+		                	title:"",
+		                	width:100,
+		                	key:"mainPhoto",
+		                	 render:(h, params) =>{
+	                        	return h('div',[
+	                        			h('img',{
+	                        				attrs:{
+	                        					src:params.row.mainPhoto
+	                        				},
+	                        				style:{
+	                        					width:'40px',
+	                        					height:'40px'
+	                        				}
+	                        			})
+	                        		])
+	                        }
+		                },
+		                {
+		                	title:this.$t('manage.sku.SkuName'),//"商品名称",
+		             		width:180,
+		             		ellipsis:true,
+		                	key:"skuName"
+		                },
+		                {
+		                	title: this.$t('manage.sku.SkuCode'),//'商品编码',
+		                	key:'skuCode',
+		               		width:180,
+		                	align: 'center'
+		                },
+		              	{
+		                	title: this.$t('manage.sku.price'),//'吊牌价',
+		                	key:'price',
+							width:100,
+		                	align: 'center'
+		                },
+		                {
+		                	title: this.$t('manage.sku.costprice'),//'成本价',
+		                	key:'costPrice',
+							width:100,
+		                	align: 'center'
+		                },
+		                {
+		                	title: this.$t('manage.sku.wholeprice'),//'批发价',
+		                	key:'wholePrice',
+		                	width:100,
+		                	
+		                	align: 'center'
+		                },
+		                 {
+                        title: this.$t('public.status'),//'状态',
+                        key:'statusDesc',
+                        width:80,
+                      	
+	                      	render:(h,params)=>{
+	                            return h('span',{
+	                                style:{
+	                                    color:params.row.status==1?'#40ca98':'#d53c39'
+	                                }
+	                            },params.row.statusDesc)
+	                        }
+                        
+                    	}
+	                ],
+			skuisshow:false,//购物送商品
+			dk:this.$t('operation.yhqHome.DK'),//'抵扣',//抵扣
+			yxsj:this.$t('operation.yhqHome.beginTime'),//'生效日期',//有效时间
+			xf:this.$t('operation.yhqHome.man'),//'消费满',//消费满
+			hydj:this.$t('public.Nolimt'),//'无限制',
+			fsl:this.$t('operation.yhqHome.yhqname'),//''发放优惠券',
+			channelValue:0,
+			channeldata:[
+				{
+					label:"不限渠道",
+					value:0
+				},
+				{
+					label:"线上使用",
+					value:1
+				},
+				{
+					label:"线下使用",
+					value:2
+				},
+
+			],
+			hydata:[],//会员数组
+			selectedGoods:[],//商品数组
+			allStore:0,//全店通用
+			allSku:0,//全部商品
+			goodsinshow:false,//商品弹框默认影藏
+			description:'',//使用说明
+			levelIds:'',//会员卡id
+			storeList:[],//店铺
+			skuVoList:[],//商品
+			skuIds:'',//商品id组合
+			storeIds:'',//店铺id组合
+			shops:this.$t('operation.yhqHome.hdsku'),//'全部商品',
+			goodstotal:0,
+			goodspageSize:0,
+			goodstotal1:0,
+			goodspageSize1:0,
+			storetotal:0,
+			storepageSize:0,
+			goods:[],
+			goodskey:[
+           			
+	                {
+	                	title:this.$t('manage.sku.SkuName'),//"商品名称",
+	                	ellipsis:true,
+	                	width:180,
+	                	key:"skuName"
+	                },
+	                {
+		                	title: this.$t('manage.sku.price'),//'吊牌价',
+		                	key:'price',
+							width:100,
+		                	align: 'center'
+		                },
+		                {
+		                	title: this.$t('manage.sku.costprice'),//'成本价',
+		                	key:'costPrice',
+							width:100,
+		                	align: 'center'
+		                },
+		                {
+		                	title: this.$t('manage.sku.wholeprice'),//'批发价',
+		                	key:'wholePrice',
+		                	width:100,
+		                	
+		                	align: 'center'
+		                },
+	                {
+	                	title: this.$t('public.action'),//'操作',
+	                	width:100,
+	                	key:"actiion",
+	                	render:(h,params)=>{
+	                		return h('Button',{
+	                			props:{
+	                				type:"primary"
+	                			},
+	                			on:{
+	                				'click':()=>{
+	                					this.selectedGoods.push(params.row)
+	                				}
+	                			}
+	                		},this.$t('public.choosed'))//选取
+	                	}
+	                }
+                ],
+                //已选商品
+             selectedGoods:[],
+                goodskey1:[
+           			
+           			{
+	                	title:this.$t('manage.sku.SkuName'),//"商品名称",
+	                	ellipsis:true,
+	                	width:180,
+	                	key:"skuName"
+	                },
+	                {
+	                	title: this.$t('manage.sku.price'),//'吊牌价',
+	                	key:'price',
+						width:100,
+	                	align: 'center'
+	                },
+	                {
+	                	title: this.$t('manage.sku.costprice'),//'成本价',
+	                	key:'costPrice',
+						width:100,
+	                	align: 'center'
+	                },
+	                {
+	                	title: this.$t('manage.sku.wholeprice'),//'批发价',
+	                	key:'wholePrice',
+	                	width:100,
+	                	
+	                	align: 'center'
+	                },
+	                {
+	                	title: this.$t('public.action'),//'操作',
+	                	width:100,
+	                	key:"actiion",
+	                	render:(h,params)=>{
+	                		return h('Button',{
+	                			props:{
+	                				type:"primary"
+	                			},
+	                			on:{
+	                				'click':()=>{
+	                					this.selectedGoods.splice(params.row.index,1)
+	                				}
+	                			}
+	                		},this.$t('public.cancel'))
+	                	}
+	                }
+                ],
+            stores:this.$t('operation.yhqHome.hdstore'),//'全部店铺',
+			storesNum:0,
+			storesinshow:false,//店铺弹框默认影藏
+			//弹出框店铺data
+           		 storeskey1:[
+	                	
+	                	{
+	                		title:this.$t('manage.store.Name'),//"店铺名",
+	                		width:160,
+	                		key:"name"
+	                	},
+	                	{
+	                		title:this.$t('manage.store.Code'),//"店铺编号",
+	                		width:160,
+	                		key:"code"
+	                	},
+	                	{
+	                		title:this.$t('manage.store.Person'),//"联系人",
+	                		width:100,
+	                		key:"person"
+	                	},
+	                	{
+	                	title: this.$t('public.action'),//'操作',
+	                	width:100,
+	                	key:"actiion",
+	                	render:(h,params)=>{
+	                		return h('Button',{
+	                			props:{
+	                				type:"primary"
+	                			},
+	                			on:{
+	                				'click':()=>{
+	                					this.selectedstores.push(params.row)
+	                				}
+	                			}
+	                		},this.$t('public.choosed'))//选取
+	                	}
+	                }
+	                	
+                ],
+                Allstores:[],//弹框店铺列表
+                selectedstores:[],//弹框店铺列表
+                storeskey2:[
+	                	{
+	                		title:this.$t('manage.store.Name'),//"店铺名",
+	                		width:160,
+	                		key:"name"
+	                	},
+	                	{
+	                		title:this.$t('manage.store.Code'),//"店铺编号",
+	                		width:160,
+	                		key:"code"
+	                	},
+	                	{
+	                		title:this.$t('manage.store.Person'),//"联系人",
+	                		width:100,
+	                		key:"person"
+	                	},
+	                	{
+	                	title: this.$t('public.action'),//'操作',
+	                	width:100,
+	                	key:"actiion",
+	                	render:(h,params)=>{
+	                		return h('Button',{
+	                			props:{
+	                				type:"primary"
+	                			},
+	                			on:{
+	                				'click':()=>{
+	                					this.selectedstores.splice(params.row.index,1)
+	                				}
+	                			}
+	                		},this.$t('public.cancel'))//取消
+	                	}
+	                }
+	                	
+                ],
+
+			Allfl:[
+					{
+						label:this.$t('operation.yhqHome.yhqlist'),//'优惠券列表',
+						value:0
+					},
+					// {
+					// 	label:'优惠券核销',
+					// 	value:1
+					// },
+					// {
+					// 	label:'已领取优惠券',
+					// 	value:1
+					// },
+				],
+				height:'',
+			pageSize:0,
+			total:0,
+			uid: this.$store.state.common.token,
+			coupon:[
+
+				{
+					title:this.$t('operation.yhqHome.yhqname'),//"优惠券",
+					align: 'center',
+				
+					key:"name"
+				},
+				{
+					title:this.$t('operation.yhqHome.xfje'),//"消费金额",
+					align: 'center',
+					key:"orderAmount"
+				},
+				{
+					title:"抵扣 / 折扣",//'抵扣金额',
+					
+					align: 'center',
+					key:"amount",
+					
+				},
+				{
+					title:this.$t('operation.yhqHome.xl'),//"限领",
+
+		
+					align: 'center',
+					key:"perCount"
+				},
+				
+				
+				{
+					title:this.$t('operation.yhqHome.beginTime'),//"开始时间",
+
+					key:"beginTime",
+					align: 'center',
+			
+				},
+				{
+					title:this.$t('operation.yhqHome.endTime'),//"结束时间",
+		
+					key:"endTime",
+					align: 'center',
+			
+				},
+				{
+					title:this.$t('operation.yhqHome.ylnum'),//"已领数量",
+				
+					align: 'center',
+					key:"useCount"
+				},
+				
+				{
+					title:this.$t('operation.yhqHome.yfnum'),//"已发数量",
+		
+					align: 'center',
+					key:"sendCount"
+				},
+				
+				{
+					title:"状态",
+					align: 'center',
+					key:"statusDesc",
+					
+				},
+				
+			],
+			numIndex:0,
+			//优惠券数据
+			couponList:[],
+			valId:'',
+			isLoading:true,
+			msgisshow:true,
+			orderListname:[
+				{
+					label:this.$t('public.all'),//"全部",
+					value:1
+				},
+				
+			],
+			dkou:0,//抵扣
+			beginTime:'',
+			endTime:'',
+			name:'',//卡券名称
+			allCount:0,//卡券总数量
+			amount:0,//抵扣金额
+			zhekouamount:1,//折扣金额
+			limitAmount:'',//订单金额限制
+			orderAmount:0,//消费满
+			perCount:0,//限领几张
+			skuname:'',//购物送商品
+			skuid:'',//购物送商品id
+			useDateLimit:'',//领取后有效天数 0：无限制 非0有限制
+			type:'',//类型 1.满x元减x元 2 满x件减免x件金额 3.满x元x折 4.满x元赠x ,
+			perCount:1,// 限领几张 0：不限制 默认为1 
+			allCount1:1,//限制领取1
+			allCount2:1,////限制领取2
+			allCrm:0,
+			selecV:'',
+			type:''//类型 1.满x元减x元 2 满x件减免x件金额 3.满x元x折 4.满x元赠x ,
+		}
+	},
+	methods:{
+		
+		//添加背景
+        addBg(index){
+        	this.numIndex=index
+        },
+		//新增优惠券
+		goaddgoods(){
+			// if(this.msgisshow){
+				$('.addyhqmodel').animate({right:"0px"});
+				 $('.mark').css('display','block')
+				 this.msgisshow=false
+			// }else{
+				 // $('.addyhqmodel').animate({right:"-70%"});
+				 // this.msgisshow=true
+			// }
+			this.getDate()
+		},
+		//取消
+		canceladd(){
+			$('.addyhqmodel').animate({right:"-600px"});
+			$('.mark').css('display','none')
+				this.msgisshow=true
+		},
+		
+		//表格选中时的数据，数组
+		selected(selection,row){
+			this.valId = row.id
+			this.row = row
+			console.log(this.valId)
+		},
+		//删除
+		del(){
+			if(this.valId==''){
+				this.$notify({
+					title:  "",//'错误',
+					message: this.$t('public.valid.chooseOneData'),//'请选择一条数据！',
+					type: 'error',
+					position: 'bottom-right'
+				});
+			}else{
+				this.$Modal.confirm({
+                    title: '删除',
+                    content: '<p>确定要删除吗?</p>',
+                    onOk: () => {
+                        this.axios.delete('yhj/delete/'+this.valId+'?uid='+this.uid).then((res)=>{
+							if(res.data.status==200){
+								this.$notify({
+									title:"",//
+									message:this.$t('public.deleteSuccess'),//
+									type: 'success',
+									position: 'bottom-right'
+								});
+								this.getAllcoupon()
+							}else{
+								this.$notify({
+									title:"",//
+									message:res.data.errorMessage,
+									type: 'error',
+									position: 'bottom-right'
+								});
+							}
+						})
+                    },
+                });
+				
+			}
+		},
+		//获取生效时间
+		getStartDate(date){
+			console.log(date)
+			this.beginTime = date
+		},
+		//获取到期时间
+		getStopDate1(date){
+			this.endTime = date
+		},
+		//获取单选框
+			getshopsname(s){
+				
+				if(s==this.$t('operation.yhqHome.ZDsku')){//'指定商品'
+					this.allStore=1,//全店通用
+					this.allSku=1,//全部商品
+					// this.allCrm=1,//全会员通用
+						this.axios.get('/sku/query?uid='+this.uid).then((res)=>{
+						console.log(res.data)
+						this.goods= res.data.rows
+						this.goodstotal1=res.data.total
+						this.goodspageSize1=res.data.pageSize
+					})
+						this.goodsinshow = true 
+				}else if(s==this.$t('operation.yhqHome.hdsku')){//'全部商品'
+					this.allStore=0,//全店通用
+					this.allSku=0,//全部商品
+					// this.allCrm=0,//全会员通用
+					this.goodsinshow = false
+					this.axios.get('/sku/query?uid='+this.uid).then((res)=>{
+							console.log(res.data)
+						this.goods= res.data.rows
+						
+					})
+				}
+			},
+			//商品编号逗号分隔 
+			selectMore(){
+				this.shopsNum = this.selectedGoods.length
+				this.skuVoList=this.selectedGoods
+				let str=[]
+				for(let i =0;i<this.selectedGoods.length;i++){
+					str.push(this.selectedGoods[i].id)
+				}
+				let s = str.join(',')
+				this.skuIds = s
+				console.log(this.skuIds)
+			},
+			 //切换一条页
+            getData1(current){
+                this.axios.get('/sku/query?offset='+current+'&uid='+this.uid).then((res)=>{
+                    //console.log(res)
+                    this.goods = res.data.rows
+                    this.goodstotal1=res.data.total
+					this.goodspageSize1=res.data.pageSize
+                })
+            },
+            //翻页
+            changePageSize1(size){
+                this.goodspageSize1 = size
+            },
+		//获取店铺单选框
+			getstoresname(s){
+				if(s==this.$t('operation.yhqHome.hdstore')){//'全部店铺'
+					this.allStore=0,//全店通用
+					this.allSku=0,//全部商品
+					this.allCrm=0,//全会员通用
+					this.storesinshow = false
+					this.axios.get('/store/query?uid='+this.uid).then((res)=>{
+						this.storesNum=res.data.total
+					})
+				}else if(s==this.$t('operation.yhqHome.ZDstore')){//'指定店铺'
+					this.allStore=1,//全店通用
+					this.allSku=1,//全部商品
+					// this.allCrm=1,//全会员通用
+						this.storesinshow = true 
+						this.axios.get('/store/query?uid='+this.uid).then((res)=>{
+						this.Allstores= res.data.rows
+						this.storepageSize=res.data.pageSize
+						this.storetotal=res.data.total
+					})
+				}
+			},
+			//店铺编号逗号分隔
+			selectStoreMore(){
+				this.storesNum = this.selectedstores.length
+				this.storeList=this.selectedstores
+				let str=[]
+				for(let i =0;i<this.selectedstores.length;i++){
+					str.push(this.selectedstores[i].id)
+				}
+				let s = str.join(',')
+				this.storeIds = s
+
+				console.log(this.storeIds)
+				
+			},
+		  //切换一条页
+            storegetData(current){
+                this.axios.get('/store/query?offset='+current+'&uid='+this.uid).then((res)=>{
+                    //console.log(res)
+                    this.Allstores = res.data.rows
+                    
+                })
+            },
+            //翻页
+            storechangePageSize(size){
+                this.storepageSize = size
+            },
+		//获取会员卡
+		getAllHYK(){
+			this.axios.get('crmlevel/query?uid='+this.uid).then((res)=>{
+				
+				res.data.rows.forEach((x,index)=>{
+					let arr={
+						label:res.data.rows[index].name,
+						value:res.data.rows[index].id,
+
+					}
+					this.hydata.push(arr)
+				})
+			})
+		},
+		//选中会员等级
+		hyselected(value){
+			console.log(value)
+			this.levelIds=value
+		},
+
+		//获取所有优惠券
+		getAllcoupon(){
+			this.axios.get('/yhj/query?uid='+this.uid).then((res)=>{
+				if(res.data.status==200){
+					console.log(res.data.rows)
+					this.couponList = res.data.rows
+					this.total=res.data.total
+					this.pageSize=res.data.pageSize
+					this.couponList.forEach((item,index)=>{
+						item.useDateFromLimit = new Date(item.useDateFromLimit).toLocaleString().replace(/\//g,'-')
+						item.useDateToLimit = new Date(item.useDateToLimit).toLocaleString().replace(/\//g,'-')
+						if(item.type==3){
+							item.amount=item.amount+'折'
+						}
+						if(item.type==1){
+							item.amount='抵扣'+item.amount+'元'
+						}
+						if(item.type==4){
+							item.amount="赠送"+item.skuName
+							
+						}
+					})
+				}
+			})
+		},
+			 //切换一条页
+            getData(current){
+                this.axios.get('/yhj/query?offset='+current+'&uid='+this.uid).then((res)=>{
+                  
+                   if(res.data.status==200){
+					console.log(res.data.rows)
+					this.couponList = res.data.rows
+					this.total=res.data.total
+					this.pageSize=res.data.pageSize
+					this.couponList.forEach((item,index)=>{
+						item.useDateFromLimit = new Date(item.useDateFromLimit).toLocaleString().replace(/\//g,'-')
+						item.useDateToLimit = new Date(item.useDateToLimit).toLocaleString().replace(/\//g,'-')
+						if(item.type==3){
+							item.amount=item.amount+'折'
+						}
+						if(item.type==1){
+							item.amount='抵扣'+item.amount+'元'
+						}
+						if(item.type==4){
+							item.amount="赠送"+item.skuName
+						}
+					})
+				}
+                })
+            },
+            //翻页
+            changePageSize(size){
+                this.pageSize = size
+            },
+            //购物送商品
+            getsku(){
+            	if(this.dk==this.$t('operation.yhqHome.gwus')){//'购物送'
+
+            		this.skuisshow=true
+            		
+            		this.axios.get('/sku/query?uid='+this.uid).then((res)=>{
+						this.goodsModel = res.data.rows
+						this.goodsModeltotal=res.data.total
+						this.goodsModelpageSize=res.data.pageSize
+					})
+            	}
+            	
+            },
+              //商品模糊搜索
+            searchInput(){
+				this.axios.get('sku/query?keyword='+this.goodskeyword+'&uid='+this.uid).then((res)=>{
+					////////console.log(res)
+					if(res.data.status==200){
+						this.goodsModel = res.data.rows
+						this.goodsModeltotal=res.data.total
+						this.goodsModelpageSize=res.data.pageSize
+					}
+				})
+			
+            },
+            //回车搜索商品
+           enterSearch(){
+           	this.searchInput()
+           },
+           //商品弹框点击一行获取数据
+			clickgoodsrow(data){
+				this.skuname=data.skuName
+				this.skuid=data.skuId
+			},
+			//确认的购物送商品
+			cancelsure(){
+				this.skuisshow=false
+			},
+			suresku(){
+				this.skuisshow=false
+			},
+            //切换一条页
+            goodsModelgetData(current){
+                this.axios.get('/sku/query?offset='+current+'&uid='+this.uid).then((res)=>{
+              		if(res.data.status==200){
+              			this.goodsModel = res.data.rows
+              			this.goodsModeltotal=res.data.total
+						this.goodsModelpageSize1=res.data.pageSize
+              		}
+                    
+                })
+            },
+            //翻页
+           goodsModelchangePageSize(size){
+                this.goodsModelpageSize = size
+            },
+              //下拉加载更多
+            handleReachEdge(){
+            	alert()
+                this.current++//默认10条
+                
+                this.axios.get('/yhj/query?offset='+this.current+'&uid='+this.uid).then((res)=>{
+                    
+                    res.data.rows.forEach((item)=>{
+                        item.createTime=new Date(item.createTime).toLocaleDateString().replace(/\//g,'-')
+                        this.couponList.push(item)
+                        this.couponList.forEach((x,index)=>{
+
+                            x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+                        })
+                    })
+
+                })
+                      
+            },
+            //保存
+        saveyhq(){
+        	if(this.dk==this.$t('operation.yhqHome.gwu')){//'购物'
+        		this.amount=this.zhekouamount
+        		this.type=3
+        	}
+        	if(this.dk==this.$t('operation.yhqHome.DK')){//'抵扣'
+        		this.amount=this.dkou
+        		this.type=1
+        	}
+        	if(this.dk==this.$t('operation.yhqHome.gwus')){//'购物送'
+        		this.type=4
+        	}
+        	if(this.fsl==this.$t('public.Nolimt')){//无限制
+        		this.allCount=0
+        		this.perCount=this.allCount2
+        	}
+        	if(this.fsl==this.$t('operation.yhqHome.yhqname')){//'发放优惠券'
+        		this.perCount=this.allCount1
+        	}
+        	
+        	
+        	this.selectMore()
+        	this.selectStoreMore()
+        	if(this.endTime==""){
+        		this.$notify({
+			        title:"",//
+			        message:"时间必须填写！",
+			        type: 'error',
+			        position: 'bottom-right'
+		        });
+        	}else{
+        		this.axios.post('yhj/add?uid='+this.uid,{
+					name:this.name,
+					type:this.type,
+					beginTime:this.beginTime,
+					endTime:this.endTime,
+					skuVoList:this.skuVoList,//商品
+					skuIds:this.skuIds,//商品id
+					storeList:this.storeList,//商品店铺
+					storeIds:this.storeIds,//商品id
+					perCount:this.perCount,//限制领的数量
+					levelIds:this.levelIds,//会员卡id
+					allStore:this.allStore,//全店通用
+					allSku:this.allSku,//全部商品
+					skuId:this.skuid,//购物送商品id
+					channelLimit:this.channelValue,
+					orderAmount:this.orderAmount,//购物送商品id
+					skuName:this.skuname,//购物送商品名称
+					amount:this.amount,//抵扣金额或者折扣
+					useDateLimit:this.useDateLimit,//领取后多少天有效
+					allCount:this.allCount,//卡券数量
+					description:this.description,//使用说明
+					allCrm:this.allCrm
+			}).then(res=>{
+				console.log(res)
+				if(res.data.status==200){
+					
+					this.$notify({
+					        title:"",//
+					        message:'新建成功',
+					        type: 'success',
+					        position: 'bottom-right'
+				        });
+					this.getAllcoupon()
+					this.getDate()
+					$('.addyhqmodel').animate({right:"-600px"});
+				$('.mark').css('display','none')
+					this.msgisshow=true
+					this.name=''
+					this.endTime=''
+					this.skuVoList=[]//商品
+					this.skuIds=''//商品id
+					this.storeList=[]//商品店铺
+					this.storeIds=''//商品id
+					this.crmLevelVos=[]//会员卡
+					this.levelIds=''//会员卡id
+					this.allStore=1//全店通用
+					this.allSku=1//全部商品
+					this.allCrm=1//全会员通用
+					// this.detailVos=[]//
+					this.selectedstores=[]
+					this.Allstores=[]
+					this.dkou=0//抵扣
+					this.allCount=0//卡券总数量
+					this.amount=0//抵扣金额
+					this.zhekouamount=''//折扣金额
+					this.limitAmount=''//订单金额限制
+					this.orderAmount=''//消费满
+					
+					this.skuname=''//购物送商品
+					this.skuid=''//购物送商品id
+					this.useDateLimit=''//领取后有效天数 0：无限制 非0有限制
+					
+					this.perCount=1// 限领几张 0：不限制 默认为1 
+					this.allCount1=0//限制领取1
+					this.allCount2=0////限制领取2
+					this.allCount=0//发放数量
+					this.description=''
+				}else{
+					this.$notify({
+				        title:"",//
+				        message:res.data.errorMessage,
+				        type: 'error',
+				        position: 'bottom-right'
+			        });
+				}
+			})
+        	}
+			
+		},
+            //抵扣
+            dkchange(v){
+            	this.dk=v
+            	if(v==this.$t('operation.yhqHome.gwu')){//'购物'
+            		// this.amount=this.zhekouamount
+            		this.dkou=0//抵扣
+            		this.skuname=''
+            		this.skuid=''
+            		this.dkdisabled=true
+            	}
+            	if(v==this.$t('operation.yhqHome.DK')){//'抵扣'
+            		// this.amount=this.dkou
+            		this.zhekouamount=0
+            		this.skuname=''
+            		this.skuid=''
+            		this.dkdisabled=true
+            	}
+            	if(v==this.$t('operation.yhqHome.gwus')){//'购物送'
+            		this.amount=0
+            		this.zhekouamount=0
+            		this.dkou=0//抵扣
+            		this.dkdisabled=false
+            	}
+            },
+            //消费满
+            xfchange(v){
+            	if(v==this.$t('public.Nolimt')){//无限制
+            		this.orderAmount=''
+            	}
+            	if(v=='消费满'){
+
+            	}
+            },
+            //有效日期
+            yxsjchange(v){
+            	if(v==this.$t('operation.yhqHome.beginTime')){//'生效日期'
+            		this.useDateLimit=''
+            		this.getDate()
+            	}
+            	if(v==this.$t('operation.yhqHome.getH')){//'领取后'
+            		this.beginTime=''
+            		this.endTime=''
+            	}
+            	if(v==this.$t('public.Nolimt')){//'无限制'
+            		this.beginTime=''
+            		this.endTime=''
+            		this.useDateLimit=0
+            	}
+            },
+            //会员等级
+            hydjchange(v){
+            	if(v==this.$t('public.Nolimt')){//'无限制'
+            		this.levelIds=''
+            		this.allCrm=0//0无限制
+            	}
+            	if(v==this.$t('operation.yhqHome.crmlevel')){//'会员等级'
+            		this.allCrm=1
+            	}
+            },
+            //发放数量
+            fslchange(v){
+            	if(v==this.$t('public.Nolimt')){//'无限制'
+            		this.perCount=0
+            		this.allCount=0
+            	}
+            	if(v==this.$t('operation.yhqHome.yhqname')){//'优惠券'
+            		
+            		this.perCount=this.allCount1
+            	}
+            },
+            //双击表格一行
+            dblclickRow(data){
+            	this.yhqObj=data
+            	$('.detailsYHQ').animate({right:"0px"});
+				$('.markDetails').css('display','block')
+            },
+            //详情取消
+			canceldetails(){
+				$('.detailsYHQ').animate({right:"-80%"});
+				$('.markDetails').css('display','none')
+			},
+			//详情后三个
+			getDetailsS(num){
+            	this.axios.get('ccrm/query?type='+num+'&uid='+this.uid).then(res=>{
+            		if(res.data.status==200){
+            			//已领取 
+            			if(num==0){
+            				this.couponstatus10total=res.data.total
+							this.couponstatus10pageSize=res.data.pageSize
+							this.couponListstatus10=res.data.rows
+							this.couponListstatus10.forEach(x=>{
+	            				x.activateTime=this.getLocalTime(x.activateTime)
+	            				x.expiredTime=this.getLocalTime(x.expiredTime)
+	            				x.createTime=this.getLocalTime(x.createTime)
+	            			})
+            			}
+            			//已使用  
+            			if(num==1){
+            				this.couponListstatus1=res.data.rows
+	            			this.couponstatus1total=res.data.total
+	            			this.couponstatus1pageSize=res.data.pageSize
+	            			this.couponListstatus1.forEach(x=>{
+	            				x.activateTime=this.getLocalTime(x.activateTime)
+	            				x.expiredTime=this.getLocalTime(x.expiredTime)
+	            			})
+            			}
+            			//未使用
+            			if(num==2){
+            				this.couponListstatus2=res.data.rows
+	            			this.couponstatus2total=res.data.total
+	            			this.couponstatus2pageSize=res.data.pageSize
+	            			this.couponListstatus2.forEach(x=>{
+	            				x.activateTime=this.getLocalTime(x.activateTime)
+	            				x.expiredTime=this.getLocalTime(x.expiredTime)
+	            			})
+            			}
+            		}
+            	})
+            },
+            //已领取翻页
+            couponstatus10getData(current){
+            	this.axios.get('ccrm/query?type=0?offset='+current+'&uid='+this.uid).then(res=>{
+            		if(res.data.status==200){
+        				this.couponstatus10total=res.data.total
+						this.couponstatus10pageSize=res.data.pageSize
+						this.couponListstatus10=res.data.rows
+						this.couponListstatus10.forEach(x=>{
+            				x.activateTime=this.getLocalTime(x.activateTime)
+            				x.expiredTime=this.getLocalTime(x.expiredTime)
+            				x.createTime=this.getLocalTime(x.createTime)
+            			})
+            			
+            		}
+            	})
+            },
+            couponstatus1getData(current){
+            	this.axios.get('ccrm/query?type=1?offset='+current+'&uid='+this.uid).then(res=>{
+            		if(res.data.status==200){
+        				this.couponListstatus1=res.data.rows
+            			this.couponstatus1total=res.data.total
+            			this.couponstatus1pageSize=res.data.pageSize
+            			this.couponListstatus1.forEach(x=>{
+            				x.activateTime=this.getLocalTime(x.activateTime)
+            				x.expiredTime=this.getLocalTime(x.expiredTime)
+            			})
+            			
+            		}
+            	})
+            },
+            couponstatus2getData(current){
+            	this.axios.get('ccrm/query?type=2?offset='+current+'&uid='+this.uid).then(res=>{
+            		if(res.data.status==200){
+        				this.couponListstatus2=res.data.rows
+            			this.couponstatus2total=res.data.total
+            			this.couponstatus2pageSize=res.data.pageSize
+            			this.couponListstatus2.forEach(x=>{
+            				x.activateTime=this.getLocalTime(x.activateTime)
+            				x.expiredTime=this.getLocalTime(x.expiredTime)
+            			})
+            			
+            		}
+            	})
+            },
+            //详情切换
+            changeTabs(n){
+            	this.yhqNum=n
+            	// 0：已领取 1：已使用  2：未使用 
+            	switch(n){
+            		case 0:
+
+            		break;
+            		//已领取
+            		case 1:
+            			this.getDetailsS(0)
+            		break;
+            		//已消费
+            		case 2:
+            			this.getDetailsS(1)
+            		break;
+            		//未使用
+            		case 3:
+            			this.getDetailsS(2)
+            		break;
+            	}
+            },
+             getNum(text){
+				var value = text.replace(/[^0-9]/ig,""); 
+					return value;
+				},
+            //选中表格一行
+            clickRow(data,value){
+            	this.valId=data.id
+            	
+            	this.dkou=data.type==1?this.getNum(data.amount):0
+            	// this.zhekouamount=data.type==3?this.getNum(data.amount):''
+            	this.name=data.name
+            	this.type=data.type
+            	this.beginTime=data.beginTime
+            	this.endTime=data.endTime
+            	this.skuVoList=data.skuVoList
+            	this.skuIds=data.skuIds
+            	this.storeList=data.storeList
+            	this.storeIds=data.storeIds
+            	this.perCount=data.perCount
+            	this.levelIds=data.levelIds
+            	this.allStore=data.allStore
+            	this.allSku=data.allSku
+            	this.skuid=data.skuId
+            	this.channelValue=data.channelLimit
+            	this.orderAmount=data.orderAmount
+            	this.skuname=data.skuName
+            	this.amount=data.amount
+            	this.useDateLimit=data.useDateLimit
+            	this.allCount=data.allCount
+            	this.description=data.description
+            	this.allCrm=data.allCrm
+
+   				this.isEdit=true
+            },
+            //修改优惠券
+            edityhq(){
+            	$('.addyhqmodel').animate({right:"0px"});
+				$('.mark').css('display','block')
+				this.isEdit1=false
+            },
+            saveyhqE(){
+            	if(this.dk==this.$t('operation.yhqHome.gwu')){//'购物'
+	        		this.amount=this.zhekouamount
+	        		this.type=3
+	        	}
+	        	if(this.dk==this.$t('operation.yhqHome.DK')){//'抵扣'
+	        		this.amount=this.dkou
+	        		this.type=1
+	        	}
+	        	if(this.dk==this.$t('operation.yhqHome.gwus')){//'购物送'
+	        		this.type=4
+	      
+	        	}
+	        	if(this.fsl==this.$t('public.Nolimt')){//无限制
+	        		this.allCount=0
+	        		this.perCount=this.allCount2
+	        	}
+	        	if(this.fsl==this.$t('operation.yhqHome.yhqname')){//'发放优惠券'
+	        		this.perCount=this.allCount1
+	        	}
+	        	
+	        	
+	        	this.selectMore()
+	        	this.selectStoreMore()
+	        	if(this.endTime==""){
+	        		this.$notify({
+				        title:"",//
+				        message:"时间必须填写！",
+				        type: 'error',
+				        position: 'bottom-right'
+			        });
+	        	}else{
+	        		this.axios.put('yhj/update?uid='+this.uid,{
+	        			id:this.valId,
+						name:this.name,
+						type:this.type,
+						beginTime:this.beginTime,
+						endTime:this.endTime,
+						skuVoList:this.skuVoList,//商品
+						skuIds:this.skuIds,//商品id
+						storeList:this.storeList,//商品店铺
+						storeIds:this.storeIds,//商品id
+						perCount:this.perCount,//限制领的数量
+						levelIds:this.levelIds,//会员卡id
+						allStore:this.allStore,//全店通用
+						allSku:this.allSku,//全部商品
+						skuId:this.skuid,//购物送商品id
+						channelLimit:this.channelValue,
+						orderAmount:this.orderAmount,//购物送商品id
+						skuName:this.skuname,//购物送商品名称
+						amount:this.amount,//抵扣金额或者折扣
+						useDateLimit:this.useDateLimit,//领取后多少天有效
+						allCount:this.allCount,//卡券数量
+						description:this.description,//使用说明
+						allCrm:this.allCrm
+				}).then(res=>{
+					console.log(res)
+					if(res.data.status==200){
+						
+						this.$notify({
+						        title:"",//
+						        message:'新建成功',
+						        type: 'success',
+						        position: 'bottom-right'
+					        });
+						this.getAllcoupon()
+						this.getDate()
+						$('.addyhqmodel').animate({right:"-600px"});
+					$('.mark').css('display','none')
+						this.msgisshow=true
+						this.name=''
+						this.endTime=''
+						this.skuVoList=[]//商品
+						this.skuIds=''//商品id
+						this.storeList=[]//商品店铺
+						this.storeIds=''//商品id
+						this.crmLevelVos=[]//会员卡
+						this.levelIds=''//会员卡id
+						this.allStore=1//全店通用
+						this.allSku=1//全部商品
+						this.allCrm=1//全会员通用
+						// this.detailVos=[]//
+						this.selectedstores=[]
+						this.Allstores=[]
+						this.dkou=0//抵扣
+						this.allCount=0//卡券总数量
+						this.amount=0//抵扣金额
+						this.zhekouamount=''//折扣金额
+						this.limitAmount=''//订单金额限制
+						this.orderAmount=''//消费满
+						
+						this.skuname=''//购物送商品
+						this.skuid=''//购物送商品id
+						this.useDateLimit=''//领取后有效天数 0：无限制 非0有限制
+						
+						this.perCount=1// 限领几张 0：不限制 默认为1 
+						this.allCount1=0//限制领取1
+						this.allCount2=0////限制领取2
+						this.allCount=0//发放数量
+						this.description=''
+					}else{
+						this.$notify({
+					        title:"",//
+					        message:res.data.errorMessage,
+					        type: 'error',
+					        position: 'bottom-right'
+				        });
+					}
+				})
+	        	}
+            },
+            //启用
+            start(){
+				if(this.valId==''){
+					this.$notify({
+				        title:  "",//'错误',
+				        message: this.$t('public.valid.chooseOneData'),//'请选择一条数据！',
+				        type: 'error',
+				        position: 'bottom-right'
+			        });
+				}else{
+					this.axios.post('yhj/enabled/'+this.valId+'?uid='+this.uid).then(res=>{
+						if(res.data.status==200){
+							this.$notify({
+						        title:  "",
+						        message:"已启用",
+						        type: 'success',
+						        position: 'bottom-right'
+					        });
+							this.getAllcoupon()//获取所有优惠券
+						}else{
+							this.$notify({
+						        title:  "",//'错误',
+						        message:res.data.errorMessage,
+						        type: 'error',
+						        position: 'bottom-right'
+					        });
+						}
+					})
+				}
+            	
+            },
+            //停用
+            stop(){
+				if(this.valId==''){
+					this.$notify({
+				        title:  "",//'错误',
+				        message: this.$t('public.valid.chooseOneData'),//'请选择一条数据！',
+				        type: 'error',
+				        position: 'bottom-right'
+			        });
+				}else{
+					this.axios.post('yhj/disabled/'+this.valId+'?uid='+this.uid).then(res=>{
+						if(res.data.status==200){
+							this.$notify({
+						        title:  "",
+						        message:"已停用",
+						        type: 'success',
+						        position: 'bottom-right'
+					        });
+							this.getAllcoupon()//获取所有优惠券
+						}else{
+							this.$notify({
+						        title:  "",//'错误',
+						        message:res.data.errorMessage,
+						        type: 'error',
+						        position: 'bottom-right'
+					        });
+						}
+					})
+				}
+            },
+            //头部搜索
+            searchNewSku(){
+           	 	this.axios.get('/yhj/query?keyword='+this.keyword+'&uid='+this.uid).then((res)=>{
+           	 		if(res.data.status==200){
+           	 			this.couponList = res.data.rows
+						this.total=res.data.total
+						this.pageSize=res.data.pageSize
+           	 		}
+            	})
+            },
+            //回车搜搜
+            entersSearchNewSku(){
+            	this.searchNewSku()
+            },
+            //差号返回
+            cancelHome(){
+            	this.$router.push('/operationhome')
+            },
+            //获取当前时间
+            getDate(){
+				 let date=new Date()
+				this.beginTime=date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate()
+            },
+            orderselected(){},
+            handleReachEdge(){},
+            //活动商品搜索
+		search(){
+			this.axios.get('/sku/query?keyword='+this.searchKeyword+'&uid='+this.uid).then((res)=>{
+				
+				this.goods= res.data.rows
+				this.goodstotal1=res.data.total
+				this.goodspageSize1=res.data.pageSize
+			})
+		},
+		enterSearch(){
+			this.search()
+		},
+		//活动店铺搜索
+		search1(){
+			this.axios.get('/store/query?keyword='+this.searchKeyword1+'&uid='+this.uid).then((res)=>{
+				this.Allstores= res.data.rows
+				this.storepageSize=res.data.pageSize
+				this.storetotal=res.data.total
+			})
+		},
+		enterSearch1(){
+			this.search1()
+		},
+		//渠道
+		channelSelected(s){
+			this.channelValue=s
+		},
+	},
+	mounted(){
+		this.getAllcoupon()//获取所有优惠券
+		this.getAllHYK()//会员卡
+		this.dk=this.$t('operation.yhqHome.DK'),//'抵扣'
+		this.getDate()
+	}
+}
+</script>
+<style scoped>
+	.units-box {
+		width: 100%;
+		height: 100%;
+		background: rgb(230,233,236);
+		display:flex;
+		overflow: hidden;
+	}
+	
+	.search-box {
+		width: 300px;
+		height: auto;
+		position: fixed;
+		top: 15px;
+		left: 250px;
+		z-index: 9999;
+	}
+	
+	.search-box .add {
+		width: 32px;
+		height: 32px;
+		border-radius: 50%;
+		background: #00a8ff;
+		line-height: 28px;
+		text-align: center;
+		color: #fff;
+		font-size: 22px;
+		float: left;
+		margin-right: 10px;
+	}
+	
+	.btns-box {
+		
+		height: 50px;
+
+		display:flex;
+		justify-content: space-between;
+		
+		line-height: 50px;
+		
+		background: #fff;
+	}
+	 .wldw{
+    	margin-left:10px;
+    	width:300px;
+    }
+	.right{
+		margin-right:20px;
+		margin-bottom:10px;
+	}
+	
+	.ivu-icon-chevron-down {
+		font-size: 10px;
+	}
+	.flclass:last-child{
+		margin-bottom:40px;
+	}
+	.yhq_bg{
+		background: url('http://img.zsydian.com/yhq_bg.png') no-repeat;
+		background-size:100% 100%;
+		box-shadow: 0 0 20px #e4e4e4
+	}
+	.btns img {
+		width: 16px;
+		height: 16px;
+		vertical-align: middle;
+	}
+	
+	.table {
+		margin:0 10px 120px 10px;
+	}
+	
+	.page-box1 {
+		text-align: left;
+		margin-top:5px;
+		 
+	}
+	.page-box {
+		text-align: center;
+		margin-top:10px;
+		 
+	}
+	/***气泡提示样式设置***/
+	
+	.qp-con {
+		width: 100%;
+		height: 30px;
+		color: #0d0d0d;
+		font-size: 14px;
+		line-height: 30px;
+		padding:0 10px;
+		cursor: pointer;
+	}
+	
+	.qp-con img {
+		width: 16px;
+		height: 16px;
+		vertical-align: middle;
+	}
+	.goods-left{
+		width: 120px;
+		margin-right: 3px;
+		flex: 0 0 120px;
+		font-size: 14px;
+		background: #fff;
+	}
+	.bg{
+		background: rgb(241,245,247);
+    color: rgb(59,119,227);
+	}
+	.goods-right{
+   	 	width: 100%;
+   	 	background: #fff;
+   	 	height:100%;
+	}
+	.left-top{
+		height:50px;
+		line-height: 50px;
+		
+		
+		border-bottom:1px solid #F5F5F5;
+		display: flex;
+		justify-content: space-around;
+	}
+	.goods-left li{
+		list-style: none;
+		height:40px;
+		line-height: 40px;
+		width:100%;
+	
+
+	}
+	.goods-left li span{
+		
+		margin-right:20px;
+	}
+	.bg{
+		background: #EBF1FC
+	}
+
+	.addyhqmodel{
+		position:fixed;
+		height:100%;
+		width:600px;
+	
+		right:-600px;
+		top:48px;
+		background: #fff;
+		z-index:10;
+		box-shadow: 0 0 20px #ccc;
+	}
+	
+	.addyhqhead{
+		height:50px;
+		line-height: 50px;
+		border-bottom:1px solid #e4e4e4;
+		display: flex;
+		justify-content: space-between;
+	}
+	.yhq-content{
+		display: flex;
+	}
+	.yhq-content-left-center{
+		background: #F1F1F1;
+		margin-top:-5px;
+		width:320px;
+		height:500px;
+		/*border:1px solid red;*/
+		overflow-y: auto;
+	}
+	.yhq-footer img{
+		height:40px;
+		border:0;
+		width:100%;
+		margin-bottom:-5px;
+	}
+	.yhq-content-right{
+		width:100%;
+		height:800px;
+		overflow-y: scroll;
+	}
+	.yhq-content-right-list{
+		width:100%;
+		display: flex;
+		line-height: 35px
+	}
+.table1{
+	width:100%;
+	/*margin-bottom:200px;*/
+}
+.hx{
+	display:flex;
+	justify-content: space-between;
+	height:50px;
+	
+	line-height: 50px;
+	border-bottom: 1px solid #e4e4e4;
+}
+.hx-center{
+	width:100%;
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	align-items: center
+}
+.mark{
+	position:fixed;
+	display:none;
+	width:100%;
+	height:100%;
+	background: #B2B2B2;
+	opacity:0.4;
+	z-index:9;
+	top: 49px;
+	left:0;
+}
+.markDetails{
+	position:fixed;
+	display:none;
+	width:100%;
+	height:100%;
+	background: #B2B2B2;
+	opacity:0.4;
+	z-index:9;
+	top: 49px;
+	left:0;
+}
+.detailsYHQ{
+	position:fixed;
+	height:100%;
+	width:80%;
+	right:-80%;
+	top:48px;
+	background: #fff;
+	z-index:10;
+	overflow: scroll;
+	box-shadow: 0 0 20px #ccc;
+}
+</style>
+<style type="text/css">
+.ivu-scroll-content{
+	margin-bottom:100px;
+}
+.ivu-scroll-container::-webkit-scrollbar{
+	width: 0px;
+	height: 4px;
+	background-color: #f5f5f5;
+}
+.ivu-scroll-container::-webkit-scrollbar-track{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	border-radius: 10px;
+	background-color: #f5f5f5;
+}
+.ivu-scroll-container::-webkit-scrollbar-thumb{
+	
+	height: 2px;
+	border-radius: 18px;
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	background-color: #ccc;
+}
+	.ivu-table .demo-table-info-row td{
+        background-color: #2db7f5;
+        color: #fff;
+}
+</style>

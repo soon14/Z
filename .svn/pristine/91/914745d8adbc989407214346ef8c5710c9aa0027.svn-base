@@ -1,0 +1,580 @@
+<template>
+	<div>
+
+			<div class="left-top">
+				
+			</div>
+	
+			<div class="right-top">
+
+				<div >
+					<span class='goodsName'>{{orderText}}</span> 
+					
+				</div>
+				<div style="margin-right:10px;position: absolute;right: 120px;">
+				
+
+					<div v-if="addText" class="changebutton" >
+						
+						
+						<span style='margin-left:10px;cursor:pointer;display:inline-block'  @click='goPre'>
+							<Icon type="close" class="cha" style='margin-rgiht:20px;style="margin-left:10px' ></Icon>
+						</span>
+					</div>	
+				</div>
+			</div>
+		<div style="display:flex;margin-top:60px;height: 100%;">
+		<div class="left-content">
+			<p v-if="dataList.length==0">
+				<Spin fix>
+	                <div>{{$t('public.NoData')}}</div>
+	            </Spin>
+	        </p>
+			<Scroll :on-reach-bottom="handleReachEdge" :height="height" v-else>
+				<div class="con-list" v-for="(item,index) in dataList" @click="dclick(item.skuId,index)" :class="{bg:numIndex==index}">
+					<span>
+						  	<span class='left-img'>
+							 	 <img :src="item.skuPic" >
+							 </span>
+						 </span>
+					 <div>
+						<p class="list-title">{{item.skuCode }}</p>
+						<p class="txt">{{item.skuName}}</p>
+						<span class="date">吊牌价 {{item.price}}</span>
+						<span class="date1">库存 {{item.qty}}</span>
+					</div>
+				</div>
+				
+			</Scroll>
+		</div>
+		<div class="right-content" ><!--v-if="addText"-->
+			<div class='right-top-c'>
+				<div style='display:inline-block;margin-top:30px;text-align:center;overflow:hidden;width:200px;height:160px;line-height:160px;vertical-align: middle;'>
+	                <img :src="cgxqInfo.mainPhoto" width='100%' height='100%' style='vertical-align:middle'>
+	            </div>
+				<div class="detail-top">
+					<h4 style='margin-left:30px;'>
+						<span style='color:#2B8F8F;'>{{$t('manage.sku.SkuName')}}：</span>
+						{{cgxqInfo.skuName}}
+					</h4>
+					<div style='display:flex'>
+					<div class='blackinfo'>
+	                  <li><span class='blackinfo-left'>{{$t('manage.sku.FL')}}：</span><span class='info'>{{cgxqInfo.className}}</span></li>
+	                  <li><span class='blackinfo-left'>{{$t('manage.sku.barcode')}}：</span><span class='info'>{{cgxqInfo.barcode}}</span></li>
+	                  <li><span class='blackinfo-left'>{{$t('manage.sku.SkuCode')}}：</span><span class='info'>{{cgxqInfo.skuCode}}</span></li>
+	                  <li><span class='blackinfo-left'>{{$t('manage.sku.inventoryUp')}}：</span><span class='info price-colorInv'>{{cgxqInfo.inventoryUp}}</span>
+	                  </li>
+	                  <li><span class='blackinfo-left'>{{$t('manage.sku.inventory')}}：</span><span class='info price-colorInv'>{{cgxqInfo.inventory}}</span>
+	                  </li>
+	                 </div>
+	               
+	                 <div class='blackinfo'>
+		                  <li><span class='blackinfo-left'>{{$t('manage.sku.barnd')}}：</span><span class='info'>{{cgxqInfo.brand}}</span>
+		                  </li>
+		                  <li><span class='blackinfo-left'>{{$t('manage.sku.SkuUnit')}}：</span><span class='info'>{{cgxqInfo.unit}}</span>
+		                  </li>
+		                  <li><span class='blackinfo-left'>{{$t('manage.sku.price')}}：</span><span class='info price-color'>{{cgxqInfo.price}}</span></li>
+		                  <li><span class='blackinfo-left'>{{$t('manage.sku.costprice')}}：</span><span class='info price-color'>{{cgxqInfo.costPrice}}</span></li>
+		                  <li><span class='blackinfo-left'>{{$t('manage.sku.wholeprice')}}：</span><span class='info price-color'>{{cgxqInfo.wholePrice}}
+		                  </span>
+		                  </li>
+		                  
+		                  <!-- <li><span class='blackinfo-left'>{{$t('manage.sku.provider')}}：</span><span class='info'>{{cgxqInfo.partnerName}}
+		                  </span></li> -->
+	                 </div>
+	                 <div class='blackinfo'>
+		                  <li><span class='blackinfo-left'>{{$t('manage.sku.sing1')}}：</span><span class='info'>{{cgxqInfo.recSku==true?this.$t('manage.sku.yes'):this.$t('manage.sku.noe')}}</span></li><!--推荐-->
+
+		                  <li><span class='blackinfo-left'>{{$t('manage.sku.sing3')}}：</span><span class='info'>{{cgxqInfo.newSku==true?this.$t('manage.sku.yes'):this.$t('manage.sku.noe')}}</span></li><!--新品-->
+
+		                  <li><span class='blackinfo-left'>{{$t('manage.sku.sing2')}}：</span><span class='info'>{{cgxqInfo.hotSku==true?this.$t('manage.sku.yes'):this.$t('manage.sku.noe')}}</span></li><!--热门-->
+
+		                  <li><span class='blackinfo-left'>{{$t('manage.sku.sing4')}}：</span><span class='info'>{{cgxqInfo.onlingSals==true?this.$t('manage.sku.yes'):this.$t('manage.sku.noe')}}</span></li><!--线上销售-->
+		                  
+	                 </div>
+	                 </div>
+					
+				</div>
+
+				
+			</div>
+			<div  style="margin: 20px;">
+				<Tabs>
+			        <TabPane label="明细">
+			        	<Table border :columns="inventorykey" :data="inventoryData" ></Table>
+							<div class="page-box">
+								 <Page size='small' v-if='inventorytotal!=0' :total="inventorytotal" show-total  :pageSize='inventorypageSize'  @on-change="inventorytotalgetData" @on-page-size-change="inventorytotalchangePageSize"></Page>
+							</div>
+			        </TabPane>
+				</Tabs>
+				
+			</div>
+		</div>
+		</div>
+		<div class='tot'>
+	        <span>共<span style='color:#ff0000'> {{total}} </span>条</span>
+        <span>当前第<span style='color:#ff0000'> {{current}} </span>页</span>
+	    </div>
+	</div>
+</template>
+<script type="text/javascript">
+// import op from '../.././components/common/Publicoptions'
+export default{
+	// components:{
+	// 		op
+	// },
+	data(){
+		return{
+			inventorySkuId:"",
+			inventorytotal:0,
+			inventorypageSize:0,
+			inventoryData:[],
+			inventorykey:[
+				{
+	                	title:"",
+	                	width:80,
+	                	key:"skuPic",
+	        
+	                	 render:(h, params) =>{
+                        	return h('div',[
+                    			h('img',{
+                    				attrs:{
+                    					src:params.row.skuPic
+                    				},
+                    				style:{
+                    					width:'40px',
+                    					height:'40px',
+                    				}
+                    			})
+                    		])
+                        }
+	                },
+	                {
+						title:"条码",
+						width:180,
+						key:"barcode"
+					},
+					{
+						title:"货号",
+						width:180,
+						key:"skuCode"
+					},
+					{
+						title:"商品",
+						width:280,
+						ellipsis:true,
+						key:"skuName"
+					},
+					{
+						title:"仓库编码",
+						width:180,
+						key:"warehouseCode"
+					},
+					{
+						title:"仓库",//"仓库",
+						width:180,
+						key:"warehouseName"
+					},
+
+					{
+						title:"供应商",
+						width:180,
+						key:"partnerName"
+					},
+					{
+						title:"库存量",
+						align:'center',
+						width:120,
+						key:"qty"
+					},
+					{
+						title:"冻结数",
+						align:'center',
+						width:120,
+						key:"frozenqty"
+					},
+					{
+						title:"吊牌价",
+						align:'center',
+						width:120,
+						key:"price"
+					},
+					{
+						title:"成本价",
+						align:'center',
+						width:120,
+						key:"costPrice"
+					},
+					{
+						title:"批发价",
+						align:'center',
+						width:120,
+						key:"wholePrice"
+					},
+					{
+						title:"单位",
+						align:'center',
+						width:120,
+						key:"unit"
+					},
+					{
+						title:"属性",
+						align:'center',
+						width:120,
+						key:"skuSpec",
+				
+					},
+			],
+			numIndex:'',
+			valId:"",//一条数据ID
+			height:'',
+			current:1,
+			addText:true,
+			total:0,
+			pageSize:0,
+			orderText:'',//新建库存
+			uid: this.$store.state.common.token,
+			orderListname:[
+					{
+						label:this.$t('public.all'),
+						value:'1'
+					},
+					
+				],
+			dataList:[],
+			cgxqInfo:{}//详情
+		}
+	},
+	created(){
+		
+	},
+	methods:{
+		//获取所有库存
+		getAllList(){
+			this.axios.get('inventory/channel?uid='+this.uid).then((res)=>{
+				if(res.data.status==200){
+					this.dataList = res.data.rows
+					this.total=res.data.total
+					this.pageSize=res.data.pageSize
+					res.data.rows.forEach((item)=>{
+		 				// item.createTime=new Date(item.createTime).toLocaleDateString().replace(/\//g,'-')
+			 		})
+				}
+			})
+		},
+		//单击左边数据
+		dclick(id,index){
+			this.numIndex = index
+			this.valId=id
+			this.getInfo(id)//详情
+			this.getDeails(id)//明细
+		},
+		
+		//获取详情GET /minventory/viewsku/{id} 详情
+		getInfo(id){
+			this.axios.get('inventory/viewsku/'+id+'?uid='+this.uid).then((res)=>{
+				if(res.data.status==200){
+					this.cgxqInfo=res.data.rows
+					this.orderText=this.cgxqInfo.skuName
+				}
+			})
+		},
+		//叉号
+		goPre(){
+			this.$router.push({
+				path:'/channelInventory',
+				
+			})
+		},
+		//GET /inventory/listDetail 库存明细this.valId
+		getDeails(id){
+			this.axios.get('/inventory/listDetail?uid='+this.uid+'&skuId='+this.valId).then(res=>{
+				if(res.data.status==200){
+					let data=res.data
+					this.inventoryData=data.rows
+					this.inventorytotal=data.total
+					this.inventorypageSize=data.pageSize
+				}
+			})
+		},
+		//库存翻页
+		inventorytotalgetData(current){
+			this.axios.get('/inventory/listDetail?offset='+current+'&uid='+this.uid+'&skuId='+id).then(res=>{
+				if(res.data.status==200){
+					let data=res.data
+					this.inventoryData=data.rows
+					this.inventorytotal=data.total
+					this.inventorypageSize=data.pageSize
+				}
+			})
+		},
+		inventorytotalchangePageSize(size){
+			this.inventorypageSize=size
+		},
+		 //下拉加载更多
+        handleReachEdge(){
+			this.current++//默认10条
+	 		this.axios.get('inventory/channel?offset='+this.current+'&uid='+this.uid).then((res)=>{
+ 				if(this.current>Math.ceil(this.total/this.pageSize)){
+                        this.current=Math.ceil(this.total/this.pageSize)
+                    }
+		 		res.data.rows.forEach((item)=>{
+		 			// item.createTime=new Date(item.createTime).toLocaleDateString().replace(/\//g,'-')
+		 			this.dataList.push(item)
+		 			
+		 		})
+		 	})
+                  
+        },
+	},
+	created(){
+
+	},
+	mounted(){
+		if(this.$route.query.id){
+			this.valId = this.$route.query.id
+			this.numIndex = this.$route.query.index
+			this.getInfo(this.$route.query.id)
+			
+			this.getDeails(this.$route.query.id)//明细
+		}
+		this.getAllList()
+		// this.getInfo(this.valId)
+		this.height = document.documentElement.clientHeight
+		
+		window.onresize=function(){
+			this.height = document.documentElement.clientHeight
+		}
+	}
+}
+</script>
+<style type="text/css" scoped>
+.wldw{
+	margin-left:40px;
+}
+.left-top{
+	height: 60px;
+	width:360px;
+	line-height: 60px;
+	position:fixed;
+	z-index:9;
+	display:flex;
+	background: #fff;
+	padding-right:10px;
+	border-bottom:1px solid #e4e4e4;
+	border-right:1px solid #eee;
+	justify-content: space-between;
+}
+.page-box{
+	margin-top:5px;
+}
+.right-top{
+	height: 60px;
+	border-bottom:1px solid #e4e4e4;
+	    display: flex;
+	line-height: 60px;
+	width: 100%;
+	background: #fff;
+	justify-content: space-between;
+	position: fixed;
+    z-index: 9;
+}
+.left-content {
+	height:100%;
+	width:360px;
+	flex:0 0 360px;
+	margin-bottom:300px;
+	border-right:1px solid #eee;
+	position:fixed;
+	background:#F9F9F9;
+}
+
+.con-list {
+	display:flex;
+	align-items: center;
+	width: 100%;
+	word-wrap:break-word;
+	position:relative;
+	border-bottom: solid 1px #EFEFEF;
+	padding: 15px 25px;
+	
+	cursor: pointer;
+	position:relative;
+}
+.con-list:hover{
+	cursor:pointer;
+}
+.con-list .date{
+	position:absolute;
+	right:10px;
+	top:10px;
+}
+.con-list .list-title {
+	color: #0d0d0d;
+    font-size: 14px;
+    position: absolute;
+    top: 20px;
+}
+.detail-top{
+	margin:20px 0 0 20px;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+}
+.right-top-c{
+	display: flex;
+}
+.blackinfo li{
+      list-style: none;
+      margin:15px 0;
+      display: flex;
+
+    }
+    .blackinfo{
+      margin-right:30px;
+      width:33%;
+    }
+    .detail-top h4{
+    	width:100%;
+      text-align: left;
+     
+    }
+    .detail-top li span.info{
+      width:67%;
+    }
+    .detail-top li span.blackinfo-left{
+      
+    color: #2B8F8F;
+    /* margin: 0px 10px; */
+    font-weight: 600;
+    width: 78px;
+   text-align: right;
+    margin-left:-10px;
+    }
+
+.con-list .txt {
+    color: #585858;
+    font-size: 12px;
+    width: 135px;
+    position: absolute;
+    top: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.con-list .date{
+		position:absolute;
+		right:5px;
+		top:60px;
+	}
+.con-list .date1{
+		position:absolute;
+		right:10px;
+		top:20px;
+	}
+.tot{
+    position:fixed;
+    bottom:10px;
+    left:15%;
+    z-index:12;
+}
+.goodsName{
+	position: absolute;
+font-weight:600;
+    left: 380px;
+}
+.cha{
+	margin-right:15px;
+}
+.bg{
+		background: #dbe5f1
+	}
+.top-left-btn{
+	background: #3B77E3;
+    margin-right: 10px;
+    color: #fff;
+    border: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 26px;
+    display: inline-block;
+    position: relative;
+    top: 12px;
+}
+.top-left-btn1{
+	background: #FF7D16;
+}
+.top-left-btn:hover{
+	cursor:pointer;
+}
+.list-box{
+	display: flex;
+	height:35px;
+	line-height: 35px;
+	margin:20px 10px;
+}
+.list-box span{
+	height:40px;
+	width:118px;
+	text-align: center;
+	padding:0 10px;
+}
+.right-content {
+	width:100%;
+	height:100%;
+	margin-left:360px;
+	overflow: auto;
+}
+.left-img{
+    margin-right: 10px;
+	width: 60px;
+	height: 60px;
+	border-radius: 50%;
+	overflow: hidden;
+	/* margin-bottom: -8px; */
+	display: block;
+
+	line-height: 95px;
+	text-align: center;
+}
+.left-img img{
+	width:100%;
+	height:100%;
+}
+.list-box input.ivu-input{
+	height:40px!important;
+}
+ @keyframes ani-demo-spin {
+    from { transform: rotate(0deg);}
+    50%  { transform: rotate(180deg);}
+    to   { transform: rotate(360deg);}
+}
+</style>
+<style type="text/css">
+.ivu-scroll-content{
+	margin-bottom:100px;
+}
+.ivu-scroll-container::-webkit-scrollbar{
+	width: 0px;
+	height: 4px;
+	background-color: #f5f5f5;
+}
+.ivu-scroll-container::-webkit-scrollbar-track{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	border-radius: 10px;
+	background-color: #f5f5f5;
+}
+.ivu-scroll-container::-webkit-scrollbar-thumb{
+	
+	height: 2px;
+	border-radius: 18px;
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	background-color: #ccc;
+}
+.layout-content-main{
+	margin-top:0px!important;
+}
+.ivu-btn{
+	padding:4px 15px!important;
+}
+</style>

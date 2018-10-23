@@ -1,0 +1,2164 @@
+<template>
+	<div class="main">
+		<!--头部-->
+	
+	<div style='width:100%;height:100%;display:flex'>
+	<!--左侧-model='employeeId' -->
+		<div class="left-content">
+				<div class='main-top'>
+					<span>服务人员</span>
+					<Select style="width:100px;margin-left:10px" v-model='employeeId'  placeholder="全部" @on-change="selectedYg" label-in-value>
+	                    <Option v-for="(item,index) in employeeVos" :value="item.value"  :key="index">{{ item.label }}</Option>
+	               	</Select>
+				</div>
+				<div>
+					<div class='header-left'>
+						<div v-for='(item,index) in topText' :key='index' @click='clicktopT(index)' :class="{topTbg:index==topTindex}">{{item.label}}</div>
+					</div>
+				</div>
+				<div class='left-content-mark' v-if='topTindex==0'>
+
+					<div style='background:#fff'>
+						
+						<div class='crmInfo1' style='padding-top:10px'>
+
+							<Input v-model='crmKeyword' placeholder='请输入会员名 / 会员卡号' style='margin-left:10px;width:75%' @on-enter='crmenter'>
+							<span slot="append"  @click='searchNewSku' style='cursor:pointer'>登陆</span>
+						</Input>
+							<span style='width:60px;;margin-left:20px'><a style='color:#C3373D' @click='crmlogout'>登出</a></span>
+						</div>
+						<div class='crmInfo'>
+							<div style='margin: 0 20px;'>
+								<!-- <img :src="crmDetails.photo" v-model='photo' v-if='photo'> -->
+								<img v-if="photo" :src="photo" class="avatar" width='50' height='50' style='    border-radius: 50%;'>
+							</div>
+							<div>
+								<li style='font-weight:600;'>
+									<span>会员姓名：</span>
+									<span >{{crmname}}</span>
+								</li>
+								<li><span>会员类型：</span>
+									<span>{{level}}</span>
+								</li>
+								<li>
+									<span >折扣额度：<span style='color:#FB9961' v-if="crmDetails.id">{{discountPrice}} 折</span></span>
+									<span></span>
+								</li>
+							</div>
+						</div>
+						<div class='crmjf'>
+							<li><span>余额：</span>
+								<span style='color:#FB9961'>{{chargeMoney}}</span>
+								<span>元</span></li>
+							<li class='two-li'></li>
+							<li><span>积分：</span>
+								<span style='color:#FB9961'>{{dqjf}}</span>
+							</li>
+						</div>
+					</div>
+					<div class="cardTop">
+						<span>可参与活动卡券</span>
+						<!-- <span v-if="gdliindex1!=-1" class="cancelSelect" @click="cancelSelectd">取消选择</span> -->
+					</div>
+					<div class='kq'>
+						
+						<Scroll :on-reach-bottom="handleReachEdge1" :height="height1"  >
+						<div class='gdlist' v-if='yhqData.length!=0'><!--优惠券 -->
+							<li v-for='(item,index) in yhqData' :key='index' class='gdli gdli1'
+							 @click='clickgdli1(item,index)' :class="{gdlibg1:index==gdliindex1}">
+								<div class='gdlidiv'>
+									<span>{{item.name}}</span>
+									<span>有效期：{{item.beginTime}}-{{item.endTime}}</span>
+								</div>
+								<div class='gdlidiv'>
+									<span>卡名称</span>
+									<span>
+										<span>
+										{{item.type==3?"折扣：":item.type==1?"抵扣：":item.type==2?"减：":item.type==4?"送：":""}}
+										</span>
+										<span style='color:#E1A271'>{{item.amount}}</span></span>
+								</div>
+								<!-- <div class='gdlidiv'>
+									<div style='display:flex'>
+										<span style='width:60px'></span>
+										<span>{{item.employeeName}}xxxxxx</span>
+									</div>
+									<div style='display:flex'>
+										<span style='width:60px;text-align: right;margin-top:5px'>积分比例</span>
+										<span style='color:#E1A271;margin-top:5px'>1:10</span>
+									</div>
+									
+								</div> -->
+							</li>
+						</div>
+						</Scroll>
+						
+					</div>
+				</div>
+				<div class='left-content-mark' v-if='topTindex==1'>
+					<div style='background:#fff;height:100%'>
+
+						<div class='gdtop'>
+							<div style='font-size:14px;font-weight:600'>暂挂<span style='color:#FA9358'> {{Allgd.length}} </span>条订单</div>
+							<!-- <div style='font-size:14px;font-weight:600;color:#D45D5D' v-if='Allgd.length!=0'>删除</div> -->
+						</div>
+						<Scroll :on-reach-bottom="handleReachEdge" :height="height"  >
+						<div class='gdlist' v-if='Allgd.length!=0'><!--order/listgd Allgd v-if='Allgd.length!=0'-->
+							<li v-for='(item,index) in Allgd' :key='index' class='gdli' @click='clickgdli(index,item)' :class="{gdlibg:index==gdliindex}" >
+								<div class='gdlidiv'>
+									<div>
+										<span>{{item.orderNo}}</span>
+									</div>
+									<div style='display:flex'>
+										<span style='width:60px;margin-top:5px'>商品数量：</span>
+										<span style='color:#E1A271;margin-top:5px'>{{item.details.length}}</span>
+									</div>
+								</div>
+								<div class='gdlidiv'>
+									<div style='display:flex'>
+										<span style='width:60px'>挂单员工：</span>
+										<span>{{item.employeeName}}</span>
+									</div>
+									<div style='display:flex'>
+										<span style='width:60px;text-align: right;margin-top:5px'>总金额：</span>
+										<span style='color:#E1A271;margin-top:5px'>{{item.amount}}</span>
+									</div>
+									
+								</div>
+							</li>
+						</div>
+						</Scroll>
+					</div>
+					
+				</div>
+		</div>
+		<div class='right-content'>
+				<!--表格数据-->
+			<div class='header-right'>
+				<div style="position:relative;width:100%" >
+					<input v-if="codeS==1" v-model='keyword' ref='searchInput' v-on:input='keywordChange' class='search' placeholder="扫 码 录 入 商 品 " >
+					<input v-if="codeS==2" v-model='keywordE' ref='searchInput'  class='search' placeholder="扫 码 录 入 商 品 " >
+					<Select v-model="codeS" style="width:85px;position:absolute;top:1px;left:1px;cursor:pointer'" @on-change="clickCode">
+				        <Option v-for="item in codeListS" :value="item.value" :key="item.value">{{ item.label }}</Option>
+				    </Select>
+				</div>
+				<Button @click='chaxun(keyword)' style="display:none">查询</Button><!--扫码时用-->
+
+				<span class='emptyBtnSearch' @click='chaxunIsEdit(keywordE)' v-if="codeS==2">查询</span><!--手动时用-->
+			
+				<span class='emptyBtn' @click='clear'>清空</span>
+			</div>
+			<div style='width:100%;height:3px;background: rgb(230,233,236);'></div>
+			<div class="table">
+				<Table ref='table' highlight-row border  disabled-hover :height="tableHeight" :columns="columns" :data="dataList"></Table>
+				<div style='width:100%;height:3px;background:rgb(230,233,236);'></div>
+				<div class='bottom-mark'>
+					<div style='display:flex;width: 50%;text-align: center;justify-content: center;flex-direction: column;'>
+						<div style='margin:10px 0;font-weight:600;font-size:14px'>金额明细</div>
+						<div>
+							<li>
+								<span>应收金额：</span><span style='color:#D76969'>{{totalAmount}}元</span>
+								<span style="margin-left:20px">会员折扣：</span><span style='color:#D76969' v-if="crmDetails.id">{{discountPrice}}折</span>
+							</li>
+							<li>
+								<span>商品数量：<span style='color:#D76969'>{{totalCount}}元</span></span>
+								<span style="margin-left:20px">卡券减免：<span style='color:#D76969'>0元</span></span>
+							</li>
+						</div>
+					</div>
+					<div style='height:100%;width:5px;background:rgb(230,233,236);'></div>
+					<div style='display:flex;width: 100%;justify-content: space-around;'>
+						<div class='ss'>
+							<span style='margin:15px 0 5px 0;font-weight:600'>实收金额：</span>
+							<div style='font-size:25px;color:#FA8945'>{{totalAmount}}元</div>
+						</div>
+						<div style='margin-right:50px'>
+							<Checkbox v-model="single" @on-change="kdSelected" style='margin:15px 0 5px 0'><span style='margin:10px;font-weight:400;font-size:12px'>本店无货商品跨店消费</span></Checkbox>
+							<div>
+								<span class='payBtn' style='background:#999;margin-right:20px' @click="gd">挂单</span>
+								<span class='payBtn' @click="payWay">收款</span>
+								<span class='payBtn' style='background:#2748BC;margin-left:20px;width: 100px;' @click="editPrice">修改价格</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			
+		</div>
+	</div>
+	<!--收款三步-->
+	<el-dialog :visible.sync="alertch" :close-on-click-modal="false" :close-on-press-escape="false" top="10%"><!--:close-on-click-modal='false'-->
+		<div class='paydialog'>
+		<!-- <el-steps  :active="active"  align-center finish-status="success" class='step'>
+		  <el-step title="支付方式"></el-step>
+		  <el-step title="收款找零"></el-step>
+		  <el-step title="交易完成"></el-step>
+		</el-steps>	 -->
+		<div>
+			<span class="allAmountTop">总金额：<span>{{(totalAmount*(discountPrice)).toFixed(2)}}</span>元</span>
+		</div>
+		</div>	
+		<!--下-->
+		<div v-if='one'>
+			<div class='dialog-bottom'>
+				<div class="dialog-left">
+					<div class='left-info'>
+					<li style='font-weight:600;'>收银明细</li>
+					<li><span style='color:#999'>实际金额：</span><span style='margin-left:5px;color:#D04A4A'><strong>{{initAmount}}</strong>元</span></li>
+					
+					<li v-if="crmDetails.id">
+						<span style='color:#999' >会员折扣：</span><span style='margin-left:5px;color:#D04A4A'><strong >{{discountPrice}}</strong>
+						折</span>
+					</li>
+					<li v-if="gdliindex1!=-1"><span style='color:#999'>卡券减免：</span><span style='margin-left:5px;color:#278A8B'><strong>0</strong>元</span></li>
+					</div>
+					<p style='font-weight:600;font-size:16px;height:20%'><span>应收金额：</span> <span style='color:#FB9961;font-size:25px'>{{(totalAmount*(discountPrice)).toFixed(2)}}元</span></p>
+				</div>
+				<div class="dialog-right">
+					<RadioGroup v-model="RadioGroup" @on-change="changeRadio">
+						<Radio label="支付宝" class="classLiType" style="overflow:hidden">
+							<li >
+								<div class='payWay-dialog'>
+									<img src="http://img.zsydian.com/icon/payWayzfb.png" style='margin:0 5px'><span>支付宝</span>
+									<span><Icon type="plus-circled" style=''></Icon></span>
+									<img src="http://img.zsydian.com/icon/payWaywx.png" style='margin:0 5px'><span>微信</span>
+									<span>等第三方</span>
+								</div>
+								<span style='margin-top:15px'>
+									
+									<mu-text-field disabled v-model="zfbmoney"  style='width:100%'  @on-change='moneychangezfb' @on-focus='zfbfocus'></mu-text-field>
+								</span>
+							</li>
+						</Radio>
+						<div style="display: flex;flex-wrap: wrap;">
+							<Radio label="余额" class="classLiType">
+								<li >
+									<div class='payWay-dialog'>
+										<img src="http://img.zsydian.com/icon/payWayvip.png" ><span>余额支付</span>
+									</div>
+									<span style='margin-top:15px' >
+										<mu-text-field disabled v-model="crmmoney"  style='width:100%' @on-change='moneychangecrm' @on-focus='crmfocus'></mu-text-field>
+									</span>
+								</li>
+							</Radio>
+							<Radio label="刷卡" class="classLiType">
+								<li >
+									<div class='payWay-dialog'>
+										<img src="http://img.zsydian.com/icon/payWaysk.png" ><span>刷卡支付</span>
+									</div>
+									<span style='margin-top:15px' >
+										
+										<mu-text-field disabled v-model="skmoney"  style='width:100%' @on-change='moneychangesk' @on-focus='skfocus'></mu-text-field>
+									</span>
+								</li>
+							</Radio>
+							<Radio label="现金" class="classLiType">
+								<li >
+									<div class='payWay-dialog'>
+										<img src="http://img.zsydian.com/icon/payWayxj.png" ><span>现金支付</span>
+									</div>
+									<span style='margin-top:15px' >
+										
+										<mu-text-field disabled v-model="xjmoney"  style='width:100%' @on-change='moneychangexj' @on-focus='xjfocus'></mu-text-field>
+									</span>
+								</li>
+							</Radio>
+							<Radio label="其他" class="classLiType">
+								<li >
+									<div class='payWay-dialog'>
+										<img src="http://img.zsydian.com/icon/payWaymore.png" ><span>其他支付</span>
+									</div>
+									<span style='margin-top:15px' >
+										
+										<mu-text-field disabled v-model="othermoney"  style='width:100%' @on-change='othermoney1' @on-focus='otherfocus'></mu-text-field>
+									</span>
+								</li>
+							</Radio>
+						</div>
+					</RadioGroup>
+					<div class='dialog-btn'>
+						<span class='payBtn' @click='skCancel' style='background:#999;margin-right:20px'>取消</span>
+						<span class='payBtn' @click="oneStep">收款</span>
+						
+					</div>
+				</div>
+			</div>
+		</div>
+		<div v-if='two'>
+			<div class='dialog-bottom'>
+				<div class="dialog-left" style='margin-top:10px'>
+					<div class='left-info'>
+					<li style='font-weight:600'>收银明细</li>
+					<!-- <li><span style='color:#999'>商品价格：</span><span style='margin-left:5px;color:#278A8B'><strong>{{totalAmount}}</strong>元</span></li> -->
+					<li><span style='color:#999'>商品数量：</span><span style='margin-left:5px;color:#278A8B'><strong>{{totalCount}}</strong></span></li>
+					<li v-if="crmDetails.id"><span style='color:#999'>会员折扣：</span><span style='margin-left:5px;color:#278A8B'><strong >{{discountPrice}}</strong>折</span></li>
+					<li v-if='zfbmoney!=0'><span style='color:#999'>线上支付：</span><span style='margin-left:5px;color:#278A8B'><strong>{{zfbmoney}}</strong>元</span></li>
+					
+					<li v-if='crmmoney!=0'><span style='color:#999'>余额支付：</span><span style='margin-left:5px;color:#278A8B'><strong>{{crmmoney}}</strong>元</span></li>
+					<li v-if='xjmoney!=0'><span style='color:#999'>现金支付：</span><span style='margin-left:5px;color:#278A8B'><strong>{{xjmoney}}</strong>元</span></li>
+					<li v-if='skmoney!=0'><span style='color:#999'>刷卡支付：</span><span style='margin-left:5px;color:#278A8B'><strong>{{skmoney}}</strong>元</span></li>
+					<li v-if='othermoney!=0'><span style='color:#999'>其他支付：</span><span style='margin-left:5px;color:#278A8B'><strong>{{othermoney}}</strong>元</span></li>
+					<li><span style='color:#999'>总额：</span><span style='margin-left:5px;color:#278A8B'><strong>{{(totalAmount*(discountPrice)).toFixed(2)}}</strong>元</span></li>
+					</div>
+					
+				</div>
+				<div class="dialog-right">
+					<div style='width:100%;text-align:center;margin-top:10px' v-if='zfbmoney!=0'>
+						<Input style='width:70%' placeholder='输入付款码' v-model='fkmcode' ref='fkm' @on-change="changeCode"></Input>
+					</div>
+					<div style='width:100%;text-align:center;margin-top:10px'>
+						 <Col class="demo-spin-col" span="24">
+				            <Spin fix>
+	                            <div style="font-size:30px">支付中...</div>
+	                        </Spin>
+				        </Col>
+					</div>
+					<div class='dialog-btn'>
+						<span class='payBtn' style='background:#ccc;' @click="twocancel">返回</span>
+						<span class='payBtn payBtn1' style='background:#3B77E3;;margin-left:20px' @click="twoStep">收款确认</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div v-if='three'>
+			<div class='dialog-bottom'>
+				<div class="dialog-left">
+					<div class='left-info'>
+					<li style='font-weight:600'>收银明细</li>
+					<li v-if='zfbmoney!=0'><span style='color:#999'>支付宝支付：</span><span style='margin-left:5px;color:#278A8B'><strong>{{zfbmoney}}</strong>元</span></li>
+					
+					<li v-if='crmmoney!=0'><span style='color:#999'>会员卡支付：</span><span style='margin-left:5px;color:#278A8B'><strong>{{crmmoney}}</strong>元</span></li>
+					<li v-if='xjmoney!=0'><span style='color:#999'>现金支付：</span><span style='margin-left:5px;color:#278A8B'><strong>{{xjmoney}}</strong>元</span></li>
+					<li v-if='skmoney!=0'><span style='color:#999'>刷卡支付：</span><span style='margin-left:5px;color:#278A8B'><strong>{{skmoney}}</strong>元</span></li>
+					<li v-if='othermoney!=0'><span style='color:#999'>其他支付：</span><span style='margin-left:5px;color:#278A8B'><strong>{{othermoney}}</strong>元</span></li>
+					<li><span style='color:#999'>总额：</span><span style='margin-left:5px;color:#278A8B'><strong>{{(totalAmount*(discountPrice)).toFixed(2)}}</strong>元</span></li>
+					</div>
+				</div>
+				<div class="dialog-right">
+					<div style='width:100%;text-align:center;margin-top:10px'>
+						<Icon type="ios-checkmark-outline" size='160' style='color:#13CE66'></Icon>
+					</div>
+					<div class='dialog-btn'>
+						
+						<span class='payBtn payBtn1' style='background:#13CE66;padding:0 4px' @click="goOn">继续收银</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</el-dialog>
+	<!--跨点发货弹框kdisshow-->
+	<Modal v-model="kdisshow" width="600px" title='跨店消费' >
+			
+			 <Form ref="formValidatekd" :model="formValidatekd" :rules="ruleValidatekd" :label-width="100" style='margin:20px 0'>
+		        <FormItem label="其他店铺" >
+		           <Input style=''  style='width:300px'></Input>
+		        </FormItem>
+		      
+		        <FormItem label="收货人姓名" >
+		           <Input style='' style='width:300px'></Input>
+		        </FormItem>
+		        <FormItem label="联系方式" prop="loginphone">
+		          <Input style='width:300px'></Input>
+		        </FormItem>
+		        <FormItem label="收货人地址" prop="loginNewPass">
+		        	<Input ></Input>
+		        </FormItem>
+		        <FormItem label="商品备注" prop="loginNewPass">
+		        	<Input type='textarea'></Input>
+		        </FormItem>
+		      </Form>
+			
+		<div slot="footer">
+			<i></i>
+			<div >
+				<Button shape="circle" @click='kdCancel' style='margin-right:20px;border:none;color:#fff;background:#999'><Icon type="close" style="margin-right:5px;"></Icon>取消</Button>
+				<Button shape="circle" style='border:none;color:#fff;background:#3B77E3'><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>提交</Button>
+			</div>
+		</div>
+	</Modal>
+
+<!--商品选择-->
+		<Modal v-model="searchgoodsisshow" width="880px">
+			<p slot="header" style="height:30px;line-height:30px">
+
+				<span>商品选择</span>
+			</p>
+			<div style="position:relative;text-align:center;width:100%;height:35px;line-height:35px;display:flex;">
+				<Input  :placeholder="$t('public.codeandname')" style="padding:2px 0" v-model='goodskeyword' @on-enter='goodEnter'></Input>
+				<span @click='clicksearchsgood'>
+					<Icon type="search" size="16" style="display:inline-block;position:absolute;top:10px;right:18px;z-index:9;cursor:pointer" ></Icon>
+				</span>
+			</div>
+			<div slot="footer" style='margin-top:-10px'>
+				<!---->
+				<Table highlight-row border :height="300" :columns="searchkey" :data="searchGoods" @on-row-click="clicksearchgoods" @on-row-dblclick="dblclicksearchgoods"></Table>
+				<div style='margin-top:5px;text-align:left'>
+					 <Page  :total="searchtotal" show-total   :pageSize='searchpageSize'  @on-change="searchgetData" @on-page-size-change="searchchangePageSize"></Page>
+				</div>
+				<div class='title'>
+					<div style='color:#D15151;font-size:14px'>
+					
+					</div>
+					<div>
+						<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='searchGoodsCancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+						<Button shape="circle" type="ghost" style="display:inline-block;background:#00A7F5;color:#fff" @click="searchGoodssure"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+					</div>
+				</div>
+			</div>
+		</Modal>
+	
+
+	<!--修改价格-->
+		<Modal v-model="editPriceisshow" width="360px">
+			<p slot="header" style="height:30px;line-height:30px">
+
+				<span>修改价格</span>
+			</p>
+			<div style="position:relative;text-align:center;width:100%;height:35px;line-height:35px;display:flex;">
+				
+				<InputNumber :min="0.1" v-model="totalAmount" style="width:100%"></InputNumber>
+			</div>
+			<div slot="footer" style='margin-top:-10px'>
+				
+				<div class='title'>
+					<div style='color:#D15151;font-size:14px'>
+					
+					</div>
+					<div>
+						<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='editPricCancel'><Icon type="close" style="margin-right:5px;" ></Icon>取消</Button>
+						<Button shape="circle" type="ghost" style="display:inline-block;background:#00A7F5;color:#fff" @click="editPricsure"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>确认</Button>
+					</div>
+				</div>
+			</div>
+		</Modal>
+	</div>
+</template>
+<script type="text/javascript">
+	export default{
+		data(){
+			return{
+				RadioGroup:"",
+				//点击修改价格签先保存原始价格
+				intPrice:0,
+				editPriceisshow:false,//修改弹框
+				//扫码方式
+				codeS:1,
+				codeListS:[
+					{
+						label:"扫码",
+						value:1
+					},
+					{
+						label:"手动输入",
+						value:2
+					}
+				],
+				
+				isCode:true,
+				keywordE:"",
+				goodskeyword:"",//弹框查询商品
+				yhqItem:{},//优惠券一条数据
+				model2:'',
+				employeeId:'',//员工id
+				employeeName:'',//员工名
+				employeeVos:[],//员工
+				shopName:"",//当前店铺
+				yhqData:[],//优惠券
+				pototal1:0,
+				pageSize1:0,
+				searchgoodsisshow:false,
+				searchGoods:[],
+				searchtotal:0,
+				searchpageSize:0,
+				searchkey:[
+					{
+						title:"条码",
+						width:100,
+						key:"barcode",
+					},
+					{
+						title:"货号",
+						width:180,
+						key:"skuCode"
+					},
+					{
+						title:"名称",
+						width:200,
+						ellipsis:true,
+						key:"skuName"
+					},
+					
+					{
+						title:"吊牌价",
+						width:100,
+						key:"price"
+					},
+					{
+						title:"单位",
+						width:100,
+						key:"unit"
+					},
+					{
+						title:"属性",
+						width:200,
+						key:"skuSpec"
+					},
+					{
+						title:"库存",
+						width:100,
+						key:"qty",
+					},
+
+				],
+				Allgd:[],
+				current1:1,
+				current:1,
+				height:'',
+				gdliindex:-1,//挂单下标
+				gdliindex1:-1,//优惠券小标
+				topTindex:0,
+				topText:[
+					{
+						label:"优惠活动",
+						value:0
+					},
+					{
+						label:"暂挂单",
+						value:1
+					},
+				],
+				tableHeight:450,
+				height1:'',
+				height:'',
+				current:1,
+				fkmcode:'',//付款码
+				
+				zfbmoney:0,//支付宝//微信
+				crmmoney:0,//会员余额
+				skmoney:0,////刷卡
+				xjmoney:0,//现金
+				othermoney:0,//其他
+				active:1,
+				one:true,
+				two:false,
+				three:false,
+				
+				allCouunt:1,//商品默认数量
+				model2:'',
+				totalCount:0,
+				totalAmount:0,
+				numIndex:0,
+				kdDialog:false,
+				kdisshow:false,
+				
+				formValidatekd:{},
+				ruleValidatekd:{},
+				pay:[
+					{
+						name:"支付宝支付",
+						img:"http://img.zsydian.com/icon/payWayzfb.png",
+						
+					},
+					{
+						name:"微信支付",
+						img:"http://img.zsydian.com/icon/payWaywx.png",
+						
+					},
+					{
+						name:"会员支付",
+						img:"http://img.zsydian.com/icon/payWayvip.png",
+						
+					},
+					{
+						name:"刷卡支付",
+						img:"http://img.zsydian.com/icon/payWaysk.png",
+						
+					},
+					{
+						name:"现金支付",
+						img:"http://img.zsydian.com/icon/payWayxj.png",
+						
+					},
+					{
+						name:"其他方式",
+						img:"http://img.zsydian.com/icon/payWaymore.png",
+						
+					},
+				],
+				alertch:false,
+				keyword:'',
+				defaultQty:1,
+				payWayisshow:false,
+				
+				single:false,
+				uid: this.$store.state.common.token,
+				user:this.$store.state.common.user,
+				pageSize:0,
+				total:0,
+				columns:[
+					{
+						title:"序号",
+						type:"index",
+						width:70
+					},
+					{
+						title:"条码",
+						
+						key:"skuCode"
+					},
+					{
+						title:"名称",
+						width:160,
+						ellipsis:true,
+						key:"skuName",
+
+					},
+					{
+						title:"单价(元)",
+						
+						align:'center',
+						key:"price"//wholePrice
+					},
+					{
+						title:"数量",
+						align:'center',
+						key:"qty",
+						render:(h,parmas)=>{
+							return h('InputNumber',{
+								style:{
+									width:'98px',
+									marginLeft:"-17px"
+								},
+								props:{
+									value:parmas.row.qty,
+									number:true,
+									min:1,
+									max:parmas.row.inventory
+								},
+								on:{
+									'on-change':(e)=>{
+										parmas.row.qty= e
+										this.allCouunt=e
+										parmas.row.allprice=parmas.row.price*this.allCouunt
+										this.dataList[parmas.index].qty=this.allCouunt
+											this.dataList[parmas.index].allprice=this.dataList[parmas.index].price*this.allCouunt
+
+										let resultqty=0
+										let resultPrice=0
+										for(let i=0;i<this.dataList.length;i++){
+												resultqty+=parseInt(this.dataList[i].qty)
+												resultPrice+=parseInt(Number(this.dataList[i].allprice))
+												// ////console.log(this.cunhuodata[i].qty)
+											}
+									
+										////console.log(parmas.row.allprice)	
+										this.totalCount=resultqty//总数量
+										this.totalAmount=Number(resultPrice)//总价值	
+									},
+									'on-blur':()=>{
+										this.dataList[parmas.index].qty=this.allCouunt
+											this.dataList[parmas.index].allprice=this.dataList[parmas.index].price*this.allCouunt 
+										let resultqty=0
+										let resultPrice=0
+										for(let i=0;i<this.dataList.length;i++){
+												resultqty+=parseInt(this.dataList[i].qty)
+												resultPrice+=Number(this.dataList[i].allprice)
+												this.totalCount=resultqty//总数量
+												this.totalAmount=resultPrice//总价值
+											}
+										this.totalCount=resultqty//总数量
+										this.totalAmount=resultPrice//总价值
+									}
+								}
+							})
+							
+						}
+					},
+					{
+						title:"金额",
+						
+						align:'center',
+						key:"allprice",
+						render:(h,parmas)=>{
+						return h('span',{
+							style:{
+								color:'red'
+							}
+						},parmas.row.allprice)
+					}
+					},
+					{
+						title:"单位",
+						
+						align:'center',
+						key:"unit"//wholePrice
+					},
+					{
+						title:"规格",
+						align:'center',
+						key:"skuSpec"
+					},
+					{
+						title:"库存",
+						align:'center',
+						width:100,
+						ellipsis:true,
+						key:"inventory"
+					},
+					// {
+					// 	title:"操作",
+					// 	key:"",
+					// 	width:100,
+					// 	render:(h,parmas)=>{
+   
+					
+				],
+				dataList:[],//商品数据
+				goods:{},//一条商品数据
+				// allPrice:0,//总金额
+				totalPrice:0,
+				
+				shopName:'',//店铺名
+				
+				crmDetails:{},//会员信息
+				crmKeyword:'',
+				photo:'http://img.zsydian.com/img/d/yh.png',
+				payPrice:0,
+
+				//收款传递数据
+				amount:0,
+				deliveryType:'',//配送方式
+				deliveryTypeDesc:'',//配送方描述
+				crmId:'',//会员id
+				crmCode:'',//会员编码
+				customerName:'',//会员名
+				details:[],//订单明细
+				discountPrice:1,//会员折扣
+				level:'',//会员等级
+				crmname:"",//会员名称
+				chargeMoney:0,//余额
+				dqjf:0,//积分
+				
+				expressId:'',//快递id
+				payVos:[],//支付订单订单明细
+				orderNumber:'',//订单号 
+				type:1,//1聚合支付，3非聚合支付 // 9现金支 ,//11;刷卡支付 ;//99其他支付 ;5余额支付
+				time:null,
+				detalistPay:[],//支付明细商品明细
+				initAmount:0,
+			}
+		},
+		methods:{
+			clickCode(value){
+				this.codeS=value
+			},
+			
+			//弹框搜索商品minventory/settle?keyword
+			clicksearchsgood(){
+				this.axios.get('minventory/settle?keyword='+this.goodskeyword+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.searchGoods=res.data.rows
+						this.searchtotal=res.data.total
+						this.searchpageSize=res.data.pageSize
+					}
+				})
+			},
+			//回车搜索
+			goodEnter(){
+				this.clicksearchsgood()
+			},
+			// selected(){},
+			//支付方式
+			payWay(){
+				if(this.dataList.length==0){
+        			this.$notify({
+	                    title:"",//
+	                    message: '请录入商品！',
+	                    type: 'error',
+	                    position: 'bottom-right'
+	                });
+				}else{
+
+					console.log(this.initAmount,this.totalAmount)
+					this.initAmount=this.totalAmount
+					
+					this.active=1
+					this.alertch=true
+					this.one=true
+					this.two=false
+					this.three=false
+					this.gdliindex1=-1
+				}
+			},
+			//计算价格
+			getAmount(){
+				var test=/^\d{1,14}(\.\d{1,2})?$///验证输入只能时数字且小数点后两位
+				if(this.zfbmoney==0 && this.crmmoney==0 && this.xjmoney==0 && this.skmoney==0 && this.othermoney==0){
+					this.$notify({
+	                    title:"",//
+	                    message: '请选择支付方式！',
+	                    type: 'error',
+	                    position: 'bottom-right'
+	                });
+				}else if(this.chargeMoney<this.crmmoney){
+					this.$notify({
+	                    title:"",//
+	                    message: '会员余额不足！当前余额为'+this.chargeMoney+'元',
+	                    type: 'error',
+	                    position: 'bottom-right'
+	                });
+				}else if(!test.test(this.zfbmoney) || !test.test(this.xjmoney) || !test.test(this.crmmoney) || !test.test(this.skmoney) || !test.test(this.othermoney)){
+					this.$notify({
+	                    title:"",//
+	                    message: '金额出错！',
+	                    type: 'error',
+	                    position: 'bottom-right'
+	                });
+					
+				}else{
+					this.active=2
+					this.one=false
+					this.two=true
+					
+					
+				}
+			},
+			
+			//修改价格
+			editPrice(){
+				this.intPrice=this.totalAmount//保存原始价格
+				this.editPriceisshow=true
+			},
+			//确认
+			editPricsure(){
+				this.editPriceisshow=false
+				this.totalAmount=this.totalAmount
+			},
+			//取消
+			editPricCancel(){
+				this.totalAmount=this.intPrice//恢复原始价格
+				this.editPriceisshow=false
+			},
+			//点击收款第一步
+			oneStep(){
+				this.getAmount()
+				console.log(this.totalAmount)
+				this.detalistPay=[]//每点击一次虚清空//防误点
+					this.dataList.forEach((x,index)=>{
+						let arr={
+							goodsId:this.dataList[index].skuId,
+							goodsName:this.dataList[index].skuName,
+							price:this.dataList[index].price,
+							quantity:this.totalCount,
+						}
+						this.detalistPay.push(arr)
+					})
+					this.payVos=[]
+					//订单明细type:1,//1聚合支付，// 9现金支 ,//11;刷卡支付 ;//99其他支付 ;5余额支付
+					if(this.zfbmoney!=0){
+						this.type=1//1聚合支付
+					}else if(this.xjmoney!=0){
+						this.type=9// 9现金支
+					}else if(this.skmoney!=0){
+						this.type=11//11;刷卡支付
+					}else if(this.crmmoney!=0){
+						this.type=5//余额支付
+					}else if(this.othermoney!=0){
+						this.type=99//99其他支付
+					}
+					//支付订单明细
+					let arr={
+						aliStoreName:this.shopName,
+						crmCode:this.crmDetails.crmCode,
+						crmId:this.crmDetails.id,
+						authCode:this.fkmcode,
+						type:this.type,
+						body:'SU',
+						total_fee:(this.totalAmount*(this.discountPrice)).toFixed(2),
+						employeeId:this.employeeId,
+						employeeName:this.employeeName,
+						dataList:this.detalistPay,
+						totalAmount:(this.totalAmount*(this.discountPrice)).toFixed(2)//总金额
+					}
+					this.payVos.push(arr)
+					//收款
+					this.axios.post('morder/sel?uid='+this.uid,{
+						amount:(this.totalAmount*(this.discountPrice)).toFixed(2),//总金额
+						// orderType:1,
+						crmId:this.crmDetails.id,
+						crmCode:this.crmDetails.crmCode,//会员编码
+						customerName:this.crmDetails.name,//会员名
+						employeeId:this.employeeId,
+						employeeName:this.employeeName,
+						details:this.dataList,//商品详细
+						payVos:this.payVos,//支付信息
+						discountPrice:this.discountPrice,
+						couponId:this.yhqItem.id,//优惠券
+						couponName:this.yhqItem.name,//优惠券名称
+					}).then(res=>{
+						if(res.data.status==200){
+							if(this.type!=1){//非聚合支付
+								//获取orderNo传给后一步
+								this.orderNumber=res.data.rows.orderNo
+								console.log(this.orderNumber)
+							}else{
+								this.orderNumber=res.data.rows.orderNo
+								//订单轮询页面
+								this.time=setInterval((res)=>{
+									this.lunxun(this.orderNumber)
+								},1000)//1秒调一次轮询
+							}
+						}else{
+							this.$notify({
+			                    title:"",//
+			                    message:res.data.errorMessage,
+			                    type: 'error',
+			                    position: 'bottom-right'
+			                });
+						}
+					})
+			},
+			//获取扫码GET /morder/payAuthCode/{ordreNo} 扫码付款'
+			changeCode(s){
+				if(this.fkmcode.length==18){
+					this.axios.get('/morder/payauthcode/'+this.orderNumber+'?uid='+this.uid,{
+						params:{
+							paycode:this.fkmcode
+						}
+					}).then(res=>{
+						console.log(this.fkmcode)
+						if(res.data.status==200){
+							this.$notify({
+			                    title:"",//
+			                    message:"已付款",
+			                    type: 'success',
+			                    position: 'bottom-right'
+			                });
+
+						}
+					})
+				}
+				
+			},
+			//第二步确认收款
+			twoStep(){
+				this.axios.get('/morder/paysuccess/'+this.orderNumber+'?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.$notify({
+		                    title:"",//
+		                    message: '收款成功',
+		                    type: 'success',
+		                    position: 'bottom-right'
+		                });
+						this.active=3
+						this.two=false
+						this.three=true
+						this.fkmcode=''
+						this.RadioGroup=''
+					}else{
+						this.$notify({
+		                    title:"",//
+		                    message: res.data.errorMessage,
+		                    type: 'error',
+		                    position: 'bottom-right'
+		                });
+					}
+				})
+			},
+			//轮询结果
+			lunxun(num){
+				this.axios.post('morder/searchby/'+num+'?uid='+this.uid).then(res=>{
+					console.log(res)
+					if(res.data.status==200){
+						this.$notify({
+		                    title:"",//
+		                    message: '收款成功',
+		                    type: 'success',
+		                    position: 'bottom-right'
+		                });
+						this.active=3
+						this.two=false
+						this.three=true
+						this.payVos=[]//支付明细
+						this.details=[]//商品
+						this.detalistPay=[]
+						this.RadioGroup=''
+						this.fkmcode=''
+						this.clear()
+						clearInterval(this.time)
+					}
+				})
+			},
+			//继续收银
+			goOn(){
+				this.active=1
+				this.three=false
+				this.alertch=false
+				this.payPrice=0
+				this.zfbmoney=0
+				this.crmmoney=0
+				this.skmoney=0
+				this.xjmoney=0
+				this.othermoney=0
+				this.payVos=[]//支付明细
+				this.details=[]//商品
+				this.detalistPay=[]
+				this.fkmcode=''//付款码
+				this.orderNumber=''
+				this.RadioGroup=""
+				this.clear()
+				
+			},
+			//跨店
+			kdSelected(status){
+				if(status){
+					this.kdisshow=true
+				}
+			},
+			//跨店取消按钮
+			kdCancel(){
+				this.kdisshow=false
+				this.single=false
+			},
+			//收款的取消
+			skCancel(){
+				this.alertch=false
+				this.gdliindex1=-1
+				this.active=1
+				this.three=false
+				this.alertch=false
+				this.RadioGroup=''
+				this.fkmcode=''
+				this.payPrice=0
+				this.zfbmoney=0
+				this.crmmoney=0
+				this.skmoney=0
+				this.xjmoney=0
+				this.othermoney=0
+				// this.clear()
+			},
+			//商品选择点击一行
+			clicksearchgoods(data,index){
+				this.goods=data
+				//console.log(data)
+
+			},
+			isTrueOrFalse(arr){
+				for(var i = 0; i < arr.length - 1; i++) {
+                    for(var j = i+1; j < arr.length; j++) {
+                      if(arr[i].barcode == arr[j].barcode) {
+                       arr.splice(j, 1)
+                       console.log(arr)
+                       return true
+                      }else{
+                       	return false
+                      }
+                    }
+                  }
+			},
+			//商品选择确认
+			searchGoodssure(){
+				if(Object.keys(this.goods).length==0){//是否选择了商品
+					this.$notify({
+				        title:"",//
+				        message: '请选择商品',
+				        type: 'error',
+				        position: 'bottom-right'
+			        });
+				}else if(this.isTrueOrFalse(this.dataList)){
+					this.allCouunt+=1
+				}else{
+					console.log(this.isTrueOrFalse(this.dataList))
+					let arr={
+						skuCode:this.goods.skuCode,
+						skuId:this.goods.skuId,
+						barcode:this.goods.barcode,
+						skuName:this.goods.skuName,
+						qty:1,
+						inventory:this.goods.qty,
+						price:this.goods.price,
+						costPrice:this.goods.costPrice,
+						wholePrice:this.goods.wholePrice,//this.goods.wholePrice
+						partnerId:this.goods.partnerId,
+						skuPic:this.goods.skuPic,
+						unit:this.goods.unit,
+						unitId:this.goods.unitId,
+						frozenqty:this.goods.frozenqty,
+						warehouseId:this.goods.warehouseId,
+						warehouseCode:this.goods.warehouseCode,
+						skuSpecId:this.goods.skuSpecId,
+						skuSpec:this.goods.skuSpec,
+					}
+					
+					arr['allprice']=Number(arr.qty*arr.price)
+					this.dataList.push(arr)
+					//计算初始总价
+					this.totalAmount+=Number(arr['allprice'])
+					this.totalCount=this.dataList.length
+					this.keyword=''
+					this.$refs.searchInput.value=''
+					this.searchgoodsisshow=false
+					this.goods={}
+					this.$refs.searchInput.focus()
+				}
+				
+			},
+			//双击
+			dblclicksearchgoods(){
+				this.searchGoodssure()
+			},
+			//商品选择取消
+			searchGoodsCancel(){
+				this.keyword=''
+				this.$refs.searchInput.value=''
+				this.searchgoodsisshow=false
+				this.$refs.searchInput.focus()
+			},
+			//扫码
+			chaxunIsEdit(keyword){
+				console.log(keyword)
+				if(keyword==''){
+					return false
+				}else{
+					this.axios.get('minventory/settle?keyword='+keyword+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						if(res.data.rows.length==0){
+							this.$notify({
+						        title:"",//
+						        message: '商品不存在',
+						        type: 'error',
+						        position: 'bottom-right'
+					        });
+					        // this.keyword==''
+					        // this.$refs.searchInput.value=''
+							
+						}else if(res.data.rows.length==1){
+							this.goods={
+								skuCode:res.data.rows[0].skuCode,
+								skuId:res.data.rows[0].skuId,
+								barcode:res.data.rows[0].barcode,
+								skuName:res.data.rows[0].skuName,
+								qty:1,
+								inventory:res.data.rows[0].qty,
+								skuPic:this.goods.skuPic,
+								price:res.data.rows[0].price,
+								wholePrice:res.data.rows[0].wholePrice,
+								costPrice:res.data.rows[0].costPrice,
+								partnerId:res.data.rows[0].partnerId,
+								unit:res.data.rows[0].unit,
+								unitId:res.data.rows[0].unitId,
+								frozenqty:res.data.rows[0].frozenqty,
+								warehouseId:res.data.rows[0].warehouseId,
+								warehouseCode:res.data.rows[0].warehouseCode,
+								skuSpecId:res.data.rows[0].skuSpecId,
+								skuSpecId:res.data.rows[0].skuSpecId,
+								skuSpec:res.data.rows[0].skuSpec,
+							}
+							this.goods['allprice']=Number(this.goods.qty*this.goods.price)
+							this.dataList.push(this.goods)
+							
+							//计算初始总价
+							this.totalAmount+=Number(this.goods['allprice'])
+							// ////console.log(this.totalAmount)
+							this.totalCount=this.dataList.length
+							// ////console.log(typeof this.totalAmount)
+							// this.keyword=''
+							// this.$refs.searchInput.value=''
+							this.$refs.searchInput.focus()
+						}else{
+							this.searchGoods=res.data.rows
+							this.searchtotal=res.data.total
+							this.searchpageSize=res.data.pageSize
+							this.searchgoodsisshow=true
+						}
+					}
+				})
+				}
+			},
+			//查询商品
+			chaxun(keyword){
+				if(this.keyword==''){
+					return false
+				}else{
+					this.axios.get('minventory/settle?keyword='+keyword+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						if(res.data.rows.length==0){
+							this.$notify({
+						        title:"",//
+						        message: '商品不存在',
+						        type: 'error',
+						        position: 'bottom-right'
+					        });
+					        // this.keyword==''
+					        // this.$refs.searchInput.value=''
+							
+						}else if(res.data.rows.length==1){
+							this.goods={
+								skuCode:res.data.rows[0].skuCode,
+								skuId:res.data.rows[0].skuId,
+								barcode:res.data.rows[0].barcode,
+								skuName:res.data.rows[0].skuName,
+								qty:1,
+								inventory:res.data.rows[0].qty,
+								skuPic:this.goods.skuPic,
+								price:res.data.rows[0].price,
+								wholePrice:res.data.rows[0].wholePrice,
+								costPrice:res.data.rows[0].costPrice,
+								partnerId:res.data.rows[0].partnerId,
+								unit:res.data.rows[0].unit,
+								unitId:res.data.rows[0].unitId,
+								frozenqty:res.data.rows[0].frozenqty,
+								warehouseId:res.data.rows[0].warehouseId,
+								warehouseCode:res.data.rows[0].warehouseCode,
+								skuSpecId:res.data.rows[0].skuSpecId,
+								skuSpec:res.data.rows[0].skuSpec,
+							}
+							this.goods['allprice']=Number(this.goods.qty*this.goods.price)
+							this.dataList.push(this.goods)
+							
+							//计算初始总价
+							this.totalAmount+=Number(this.goods['allprice'])
+							// ////console.log(this.totalAmount)
+							this.totalCount=this.dataList.length
+							// ////console.log(typeof this.totalAmount)
+							// this.keyword=''
+							// this.$refs.searchInput.value=''
+							
+						}else{
+							this.searchGoods=res.data.rows
+							this.searchtotal=res.data.total
+							this.searchpageSize=res.data.pageSize
+							this.searchgoodsisshow=true
+						}
+					}
+				})
+				}
+				
+			},
+			//商品弹框翻页
+			searchgetData(current){
+				this.axios.get('minventory/settle?keyword='+this.keyword+'&offset='+current+'&uid='+this.uid).then(res=>{
+					this.searchGoods=res.data.rows
+					this.searchtotal=res.data.total
+					this.searchpageSize=res.data.pageSize
+				})
+			},
+			searchchangePageSize(size){
+				this.searchpageSize=size
+			},
+			//单选选中
+			changeRadio(s){
+				switch(s){
+					case "支付宝":
+						this.zfbmoney=(this.totalAmount*(this.discountPrice)).toFixed(2)
+						this.crmmoney=0//会员余额
+						this.skmoney=0////刷卡
+						this.xjmoney=0//现金
+						this.othermoney=0//其他
+					break;
+					case "余额":
+						this.crmmoney=(this.totalAmount*(this.discountPrice)).toFixed(2)
+						this.zfbmoney=0//支付宝//微信
+						// this.crmmoney=0,//会员余额
+						this.skmoney=0////刷卡
+						this.xjmoney=0//现金
+						this.othermoney=0//其他
+					break;
+					case "刷卡":
+						this.skmoney=(this.totalAmount*(this.discountPrice)).toFixed(2)
+						this.zfbmoney=0//支付宝//微信
+						this.crmmoney=0,//会员余额
+						// this.skmoney=0////刷卡
+						this.xjmoney=0//现金
+						this.othermoney=0//其他
+					break;
+					case "现金":
+						this.xjmoney=(this.totalAmount*(this.discountPrice)).toFixed(2)
+						this.zfbmoney=0//支付宝//微信
+						this.crmmoney=0,//会员余额
+						this.skmoney=0////刷卡
+						// this.xjmoney=0//现金
+						this.othermoney=0//其他
+					break;
+					case "其他":
+						this.othermoney=(this.totalAmount*(this.discountPrice)).toFixed(2)
+						this.zfbmoney=0//支付宝//微信
+						this.crmmoney=0,//会员余额
+						this.skmoney=0////刷卡
+						this.xjmoney=0//现金
+						// this.othermoney=0//其他
+					break;
+				}
+			},
+			//支付宝或微信支付输入
+			moneychangezfb(e){
+				this.zfbmoney=e
+				this.crmmoney=0//会员余额
+				this.skmoney=0////刷卡
+				this.xjmoney=0//现金
+				this.othermoney=0//其他
+			},
+
+			//会员支付输入
+			moneychangecrm(e){
+				this.crmmoney=e
+				this.zfbmoney=0//支付宝//微信
+				// this.crmmoney=0,//会员余额
+				this.skmoney=0////刷卡
+				this.xjmoney=0//现金
+				this.othermoney=0//其他
+			},
+			//刷卡支付输入
+			moneychangesk(e){
+				this.skmoney=e
+				this.zfbmoney=0//支付宝//微信
+				this.crmmoney=0,//会员余额
+				// this.skmoney=0////刷卡
+				this.xjmoney=0//现金
+				this.othermoney=0//其他
+			},
+			//现金支付输入
+			moneychangexj(e){
+				this.xjmoney=e
+				this.zfbmoney=0//支付宝//微信
+				this.crmmoney=0,//会员余额
+				this.skmoney=0////刷卡
+				// this.xjmoney=0//现金
+				this.othermoney=0//其他
+			},
+			//其他支付输入
+			othermoney1(e){
+				this.othermoney=e
+				this.zfbmoney=0//支付宝//微信
+				this.crmmoney=0,//会员余额
+				this.skmoney=0////刷卡
+				this.xjmoney=0//现金
+				// this.othermoney=0//其他
+			},
+			//
+			//支付宝获取焦点
+			zfbfocus(){
+				// this.zfbmoney=0,//支付宝//微信
+				this.crmmoney=0//会员余额
+				this.skmoney=0////刷卡
+				this.xjmoney=0//现金
+				this.othermoney=0//其他
+				
+			},
+			//会员卡
+			crmfocus(){
+				this.zfbmoney=0//支付宝//微信
+				// this.crmmoney=0,//会员余额
+				this.skmoney=0////刷卡
+				this.xjmoney=0//现金
+				this.othermoney=0//其他
+			},
+			// //刷卡
+			skfocus(){
+				this.zfbmoney=0//支付宝//微信
+				this.crmmoney=0,//会员余额
+				// this.skmoney=0////刷卡
+				this.xjmoney=0//现金
+				this.othermoney=0//其他
+			},
+			xjfocus(){
+				this.zfbmoney=0//支付宝//微信
+				this.crmmoney=0,//会员余额
+				this.skmoney=0////刷卡
+				// this.xjmoney=0//现金
+				this.othermoney=0//其他
+			},
+			otherfocus(){
+				this.zfbmoney=0//支付宝//微信
+				this.crmmoney=0,//会员余额
+				this.skmoney=0////刷卡
+				this.xjmoney=0//现金
+				// this.othermoney=0//其他
+			},
+			//搜索会员
+			searchNewSku(){
+				this.axios.get('mcrm/all?keyword='+this.crmKeyword+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.crmDetails=res.data.rows[0]
+						
+						this.discountPrice=this.crmDetails.discount
+						this.level=this.crmDetails.level
+						this.crmname=this.crmDetails.name
+						this.photo=this.crmDetails.photo
+						this.chargeMoney=this.crmDetails.chargeMoney
+						//将会员信息存储session
+						let str=JSON.stringify(this.crmDetails)
+						sessionStorage.crm=str
+					}
+				})
+			},
+			//按下回车搜索会员
+			crmenter(){
+				this.searchNewSku()
+			},
+			//扫码查商品
+			getGoodsInfo(key){
+				
+			},
+			//点击选择支付方式
+			clickPayWay(index){
+				this.numIndex=index
+			},
+			//清空
+			clear(){
+				this.dataList=[]
+				this.payVos=[]
+				this.detalistPay=[]
+				this.zfbmoney=0
+				this.crmmoney=0
+				this.xjmoney=0
+				this.skmoney=0
+				this.othermoney=0
+				this.money=0
+				this.keyword=''
+				this.totalCount=0
+				this.totalAmount=0
+			},
+			//清空会员信息
+			crmlogout(){
+				sessionStorage.removeItem('crm')
+				this.crmDetails={}
+				this.crmKeyword=''
+				this.photo='http://img.zsydian.com/img/d/yh.png'
+				this.crmname=''
+				this.level=''
+				this.chargeMoney=''
+				this.dqjf=''
+				this.discountPrice=1
+			},
+			
+   			 //获取当前setting/nows店铺员工GET /setting/dqmddg 当前门店导购
+			getAllDg(){
+				this.axios.get('setting/dqmddg?uid='+this.uid).then((res)=>{
+            		if(res.data.status==200){
+            			let data=res.data.rows
+            			if(data.length==0){
+            				return
+            			}else{
+            				var arr={}
+							data.forEach((item,index)=>{
+								arr={
+									value:data[index].id,
+									label:data[index].name
+								}
+								this.employeeVos.push(arr)
+							})
+							this.employeeId=this.employeeVos[0].value//默认显示当前
+							this.employeeName=this.employeeVos[0].label//默认显示当前
+							console.log(this.employeeName)
+            			}
+            		}
+            	})
+			},
+			//当前店铺
+			getAllDp(){
+				this.axios.get('setting/nows?uid='+this.uid).then((res)=>{
+            		if(res.data.status==200){
+            			this.shopName = res.data.rows.name
+            		}
+            	})
+			},
+			// //选中员工
+			selectedYg(select){
+				//console.log(select)
+				
+				this.employeeId=select.value
+				this.employeeName=select.label
+				
+			},
+			//挂单
+			gd(){
+				console.log(this.employeeName)
+				this.payVos=[]
+				//支付订单明细
+				let arr={
+					aliStoreName:this.user.name,
+					crmCode:this.crmDetails.code,
+					crmId:this.crmDetails.id,
+					employeeId:this.employeeId,
+					employeeName:this.employeeName,
+					authCode:this.fkmcode,
+					type:this.type,
+					body:'SU',
+					total_fee:this.totalAmount*(this.discountPrice),
+					totalAmount:this.totalAmount*(this.discountPrice).toFixed(2)
+				}
+				this.payVos.push(arr)
+				if(this.dataList.length==0){
+					this.$notify({
+				        title:"",//
+				        message:"商品数据为空！",
+				        type: 'error',
+				        position: 'bottom-right'
+			        });
+				}else{
+					this.axios.post('morder/gd?uid='+this.uid,{
+						amount:this.totalAmount*(this.discountPrice).toFixed(2),
+						// orderType:1,
+						crmId:this.crmDetails.id,
+						crmCode:this.crmDetails.code,//会员编码
+						customerName:this.crmDetails.customerName,//会员名
+						employeeId:this.employeeId,
+						employeeName:this.employeeName,
+						details:this.dataList,
+						payVos:this.payVos
+
+					}).then(res=>{
+						if(res.data.status==200){
+							this.$notify({
+			                    title:"",//
+			                    message: '已挂单 ',
+			                    type: 'success',
+			                    position: 'bottom-right'
+			                });
+							this.payVos=[]
+							this.getAllgd()//获取挂单
+							this.clear()
+						}else{
+							this.$notify({
+						        title:"",//
+						        message:res.data.errorMessage,
+						        type: 'error',
+						        position: 'bottom-right'
+					        });
+						}
+					})
+				}
+				
+			},
+			//返回
+			twocancel(){
+				this.two=false
+				this.one=true
+				this.active=1
+				this.three=false
+				// this.RadioGroup=''
+				this.fkmcode=''
+
+			},
+			//单击左上方切换
+			clicktopT(index){
+				this.topTindex=index
+			},
+			//取消选中优惠券
+			cancelSelectd(){
+				this.gdliindex1=-1
+				
+				this.yhqItem={}
+			},
+			//优惠券
+			clickgdli1(item,index){
+				
+				let yhqEndTime=null
+				let date=new Date().getTime()
+
+				let arr=Object.keys(this.dataList)
+				if(arr.length==0){
+					this.$notify({
+				        title:"",//
+				        message:'请录入商品',
+				        type: 'error',
+				        position: 'bottom-right'
+			        });
+				}else{
+					this.yhqItem=item
+					yhqEndTime=new Date(this.yhqItem.endTime).getTime()
+					if(this.yhqItem.endTime!=null){
+						if(yhqEndTime<date){
+							this.$notify({
+						        title:"",//
+						        message:'该优惠券已过期！',
+						        type: 'error',
+						        position: 'bottom-right'
+					        });
+						}else{
+							this.gdliindex1=index
+							switch(this.yhqItem.type){
+								//1.满x元减x元 2 满x件减免x件金额 3.满x元x折 4.满x元赠x ,
+								case 1:
+									this.totalAmount=this.totalAmount-this.yhqItem.amount
+								break;
+								case 2:
+									this.totalAmount=this.totalAmount-this.yhqItem.amount
+								break;
+								case 3:
+									this.totalAmount=this.totalAmount*this.yhqItem.amount
+								break;
+								case 4:
+									
+								break;
+							}
+						}
+					}
+					
+				}
+				
+				
+			},
+			//挂单列别的背景切换,点击加入商品列表
+			clickgdli(index,item){
+				this.dataList=[]
+				this.gdliindex=index
+				this.dataList=item.details
+				this.totalAmount=item.amount
+				this.totalCount=this.dataList.length
+				this.dataList.forEach(x=>{
+					x.allprice=x.price
+					x.qty=1
+					
+				})
+				// ////console.log(item)
+			},
+			//获取挂单
+			getAllgd(){
+				this.axios.get('/morder/listgd?uid='+this.uid).then((res)=>{
+					if(res.data.status==200){
+						this.Allgd=res.data.rows
+					}
+				})
+			},
+			 //挂单下拉加载更多
+            handleReachEdge(){
+			 	this.current++//默认10条
+    	 		this.axios.get('morder/listgd?offset='+this.current+'&uid='+this.uid).then((res)=>{
+	 				if(this.current>Math.ceil(this.pototal/this.popageSize)){
+	 						this.current=Math.ceil(this.pototal/this.popageSize)
+	 					}
+			 		res.data.rows.forEach((item)=>{
+			 			this.Allgd.push(item)
+			 		})
+
+			 	})  
+            },
+         
+            //优惠券
+            handleReachEdge1(){
+            
+    	 		this.current1++//默认10条
+    	 		this.axios.get('myhj/query/0?offset='+this.current1+'&uid='+this.uid).then((res)=>{
+	 				if(this.current1>Math.ceil(this.pototal1/this.popageSize1)){
+	 						this.current1=Math.ceil(this.pototal1/this.popageSize1)
+	 					}
+	 					let data=res.data.rows
+			 			data.forEach((item)=>{
+				 			this.yhqData.push(item)
+				 		})
+
+			 	})
+            },
+            //输入框数据改变
+            keywordChange(e){
+            	//console.log(e.target.value)
+            	// this.chaxun(e.target.value)
+				
+            },
+            //优惠券
+            getyhqData(){
+            	this.axios.get('myhj/query/0?uid='+this.uid).then(res=>{
+            		if(res.data.status==200){
+            			this.yhqData=res.data.rows
+            			this.pototal1=res.data.total
+            			this.pageSize1=res.data.pageSize
+            		}
+            	})
+            },
+            
+		},
+		//观察者，观察输入框变化自动聚焦
+		watch:{
+			keyword(val,oldval){
+				if(val!=oldval){
+					this.chaxun(val)
+					// this.keyword=''
+					// this.$refs.searchInput.focus()
+				}
+			}
+		},
+		created(){
+			this.$nextTick(()=>{
+				this.getyhqData()//优惠券
+				this.getAllDp()//当前店铺名称
+				this.getAllgd()//获取挂单
+			})
+		},
+		mounted(){
+			this.getAllDg()  //获取当前店铺与员工导购
+			let that = this
+			if(this.keyword==''){
+				this.$refs.searchInput.focus()
+			}
+			//读取会员信息写入session
+			if(sessionStorage.crm){
+				this.crmDetails = sessionStorage.crm;
+				this.crmDetails=JSON.parse(this.crmDetails)
+				// this.crmKeyword=this.crmDetails.code
+				this.photo=this.crmDetails.photo
+				this.crmname=this.crmDetails.name
+				this.level=this.crmDetails.level
+				this.chargeMoney=this.crmDetails.chargeMoney
+				this.dqjf=this.crmDetails.dqjf
+				this.discountPrice=this.crmDetails.discount
+			}
+			this.height = document.documentElement.clientHeight
+			this.height1 = document.documentElement.clientHeight
+			//动态复制商品表格
+			this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop-143
+			
+			//检测浏览器窗口变化
+			window.onresize=function(){
+				that.tableHeight= window.innerHeight - that.$refs.table.$el.offsetTop -143
+				
+			}
+			//检测条码框变化调用chaxun搜索商品
+			// this.$refs.searchInput.onchange=function(e){
+			// 	that.chaxun(e.target.value)
+			// 	e.target.value=''
+			// 	that.keyword=''
+			// }
+		}
+	}
+</script>
+<style type="text/css" scoped>
+.main{
+	width:100%;
+	background: rgb(230,233,236);
+	height: 100%;
+	overflow: hidden!important;
+}
+.head{
+	width:100%;
+	height:60px;
+	background-color: #fff;
+	margin-bottom: 7px;
+	display:flex;
+
+}
+.cardTop{
+	width:100%;height:30px;text-align:center;background:#fff;margin-top:3px;line-height:30px;font-weight:600;font-size:12px;position:relative
+}
+.cardTop .cancelSelect{
+	position:absolute;
+	right:5px;
+	color:#3b77e3;
+	cursor: pointer;
+}
+.main-top{
+	background-color: #fff;
+	display: flex;justify-content: center;align-items: center;
+	height:50px;
+	
+	border-bottom:1px solid #e4e4e4;
+}
+.header-left{
+	display:flex;
+	margin-bottom:3px;
+	height:60px;
+	border-bottom:1px solid #e4e4e4;
+	justify-content: center;
+	align-items: center;
+	background: #fff;
+}
+.header-left div{
+	height: 35px;
+    text-align: center;
+    border: 1px solid #DEE7F8;
+    line-height: 35px;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+    padding: 0 15px;
+}
+.header-left div:first-child{
+	border-top-left-radius: 4px;
+	border-bottom-left-radius:4px;
+}
+.header-left div:last-child{
+	border-top-right-radius: 4px;
+
+	border-bottom-right-radius:4px;
+}
+
+.header-right{
+	border-bottom:1px solid #e4e4e4;
+	
+	
+	height:60px;
+	display:flex;
+	padding:0 10px;
+	justify-content: space-between;
+	align-items: center;
+	
+	background: #fff
+}
+.emptyBtn{
+	display:block;
+	width:100px;
+	height:32px;
+	line-height: 32px;
+	background-color: #E4E4E4;
+	color:#000;
+	border-radius: 6px;
+	text-align: center;
+	margin:0 5px;
+	letter-spacing: 2px
+}
+.emptyBtn:hover{
+	cursor:pointer;
+}
+.emptyBtnSearch:hover{
+	cursor:pointer;
+}
+
+.emptyBtnSearch{
+	display:block;
+	width:100px;
+	height:32px;
+	line-height: 32px;
+	background-color: #2748BC;
+	color:#fff;
+	border-radius: 6px;
+	text-align: center;
+	margin:0 5px;
+	letter-spacing: 2px
+}
+.topTbg{
+	background:#EFF2F8;
+
+}
+.gdtop{
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding:20px;
+}
+.gdlist{
+	margin:0 10px;
+	height:100%;
+	background:#EBEFF7;
+	padding: 1px
+}
+.gdli{
+	display: flex;
+	justify-content: space-between;
+	margin: 7px;
+	background:#fff;
+	padding: 10px;
+}
+.gdli:last-child{
+	margin-bottom:190px;
+}
+.gdli1:last-child{
+	margin-bottom:460px;
+}
+.gdlidiv{
+	display: flex;
+	flex-direction: column;
+	margin:0 5px;
+}
+.search{
+	display:block;
+	width: 100%;
+	height: 34px;
+	text-indent: 10px;
+	padding-left: 45px;
+	color: #555;
+	background-color: #fff;
+	background-image: none;
+	border: 1px solid #e4e4e4;
+	text-indent: 60px;
+	border-radius: 6px;
+	-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+	-webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+	-o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+	transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+.search:focus{
+	border-color: #66afe9;
+	outline: 0;
+	-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 4px rgba(102, 175, 233, .6);
+	box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 4px rgba(102, 175, 233, .6);
+}
+.left-content {
+	height:100%;
+	width:23%;
+	margin-right: 3px;
+
+	background: rgb(230,233,236);
+}
+.gdlibg,.gdlibg1{
+	background-color: #F8EAD2
+}
+.left-content-mark{
+	width:100%;
+	height:100%;
+	
+}
+li{
+	list-style:none
+}
+.crmInfo{
+	display: flex;
+	/*justify-content: center;*/
+	align-items: center;
+	padding:25px 0;
+	background-color: #fff
+}
+.crmInfo1{
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	
+	background-color: #fff
+}
+.crmjf{
+	display:flex;
+	border-top:1px solid #eee;
+	justify-content: space-around;
+}
+.crmjf li{
+	
+	background-color: #fff;
+	
+}
+.two-li{
+	width:1px;
+	height:50px;
+	background: #eee!important
+}
+.crmjf li span{
+	display: inline-block;
+	
+	line-height: 50px;
+}
+ .demo-spin-icon-load{
+        animation: ani-demo-spin 1s linear infinite;
+    }
+    @keyframes ani-demo-spin {
+        from { transform: rotate(0deg);}
+        50%  { transform: rotate(180deg);}
+        to   { transform: rotate(360deg);}
+    }
+    .demo-spin-col{
+        height: 100px;
+        position: relative;
+        /*border: 1px solid #eee;*/
+    }
+.kq{
+	
+	height: 60%;
+    background-color: #fff;
+    margin-top: 3px;
+   
+}
+.right-content{
+	height: 100%;
+	width:77%;
+	background: #fff;
+}
+.bottom-mark{
+	display: flex;
+	/*justify-content: space-around;*/
+	align-items: center;
+	/*border:1px solid #e4e4e4;*/
+	position:fixed;
+	width: 76%;
+    /*bottom: 70px;*/
+    /*padding: 10px;*/
+    height:100px;
+}
+.ss{
+	
+	display: flex;
+	flex-direction: column;
+	align-items: center
+
+}
+.m{
+	display: inline-block;
+	margin:0 10px 0 0
+}
+.m .span{
+	width:100px;
+	text-align: right;
+	display: inline-block;
+}
+.payBtn{
+	display:inline-block;
+	width:80px;
+	height:36px;
+	line-height: 36px;
+	text-align: center;
+	font-size:18px;
+	background-color: #13CE66;
+	color:#fff;
+	border-radius:4px;
+}
+.payBtn:hover{
+	cursor:pointer;
+}
+.payBtn1{
+	width:140px;
+}
+.table{
+	width:100%;
+	
+	background-color: #fff;
+}
+.paydialog{
+	width:100%;
+	border-bottom:1px solid #E4E4E4;
+	padding:30px 0;
+	text-align: center;
+	/*margin: 20px auto 0 auto;*/
+}
+.step{
+	margin-left:25%;
+}
+.dialog-bottom{
+	display:flex;
+	justify-content:space-between;
+	
+}
+.dialog-left{
+	width:35%;
+	display:flex;
+	justify-content: flex-start;
+	align-items: center;
+	flex-direction: column;
+	text-align: center;
+	padding-bottom:30px;
+}
+.dialog-left li{
+	margin:10px;
+	font-size:16px;
+}
+.dialog-right{
+	width:65%;
+	display:flex;
+	flex-wrap: wrap;
+	border-left:1px solid #E4E4E4;
+	padding-bottom:30px;
+	overflow: hidden;
+}
+.dialog-right li{
+	/*height:80px;*/
+	/*width:50%;
+	padding:5px 0;
+	display:flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	border-bottom:1px solid #E4E4E4;
+	border-right:1px solid #E4E4E4;
+	text-align: center*/
+}
+.dialog-right li:nth-child(2n){
+	border-right:none;
+}
+.payWay-dialog{
+
+}
+.left-info{
+	/*height:80%;*/
+	display:flex;
+	/*margin-top:40px;*/
+	/*align-items: center;*/
+	flex-direction: column;
+	text-align: left
+}
+.left-info li{
+	text-align: right;
+	display: flex;
+	
+}
+.left-info li span:first-child{
+	display: inline-block;
+	width:85px;
+	
+}
+.dialog-btn{
+	display:flex;
+	width:100%;
+	padding:20px 0;
+	justify-content: center;
+	align-items: center
+}
+.payWay-dialog img{
+	vertical-align: middle;
+	margin-right:20px;
+}
+.head-dialog{
+	height: 60px;
+    width: 100%;
+    line-height: 60px;
+    display: flex;
+    justify-content: center;
+   
+}
+.kd-info-dialog{
+	display:flex;;
+	justify-content: space-around;
+	height:40px;
+	line-height: 30px;
+	margin:15px 0;
+}
+.kd-info-dialog span{
+	display:inline-block;
+	width:275px;
+	text-align: right
+}
+.kd-dialog-btn{
+	width:100%;
+	height:60px;
+	display:flex;
+	justify-content: space-around;
+}
+.bg{
+	background: #F8F8F8;
+
+}
+.allAmountTop{
+	
+}
+.allAmountTop>span{
+	color:#ff0000;
+	font-size:70px;
+}
+.classLiType{
+	margin:5px;
+	padding:5px;
+	border:1px solid #f5f5f5;
+
+}
+.skuname{
+    position: absolute;
+    width: 113px;
+    height: 34px;
+    line-height: 44px;
+ 	cursor:pointer;
+ 	color:#3b77e3;
+    left: 80px;
+    bottom: 30px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.classLiType:focus-within{
+	border:1px solid #FB9961;
+	box-shadow: 0 0 4px #FB9961
+}
+
+</style>
+<style type="text/css">
+.main .el-dialog__wrapper .el-dialog--small{
+	width:800px!important;
+
+}
+</style>

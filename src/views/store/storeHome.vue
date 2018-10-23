@@ -1,0 +1,1345 @@
+<template>
+	<div class='gl'>
+		<div class='main'>
+			<div class='head'>
+			<div class='crm-top'>
+				<ul class="top-ul">
+					<mu-paper class="demo-paper list" :z-depth="1">
+						<span class="myCrmTtitle">我的会员（人）</span>
+						<div class="myCrmNum"></div>
+						<ul class="myCrmBottom" style="border-top:1px solid #EFF3F6">
+							<li style="border-right:1px solid #EFF3F6">
+								<span  class="crmNum crmNum1"></span>
+								<span>活跃会员（人）</span>
+							</li>
+							<li>
+								<span class="crmNum crmNum2"></span>
+								<span>沉默会员（人）</span>
+							</li>
+						</ul>
+						<ul class="myCrmBottom" style="border-top:1px solid #EFF3F6">
+							<li style="border-right:1px solid #EFF3F6">
+								<span  class="crmNum crmNum3"></span>
+								<span>睡眠会员（人）</span>
+							</li>
+							<li>
+								<span  class="crmNum crmNum4"></span>
+								<span>流失会员（人）</span>
+							</li>
+						</ul>
+					</mu-paper>
+					<mu-paper class="demo-paper list" :z-depth="1">
+						<div class="myCrmTtitle">
+							<span>会员消费占比（30天）</span>
+							<Select v-model="model" size="small" style="width:100px" @on-change="changeDay">
+						        <Option v-for="item in dateList2" :value="item.value" :key="item.value">{{ item.label }}</Option>
+						    </Select>
+						</div>
+						<div class="center-money">
+							<ul class="moneykh">
+								<i-circle :percent="consumptionRat" :size="160" dashboard :trail-width="13" :stroke-width="13" stroke-color="#FF5354">
+							        <span class="demo-circle-inner fontSizeNum" style="color:#FF5354"><span id="n1"></span>%</span>
+							        <p style="margin-top:5px">会员消费占比</p>
+							    </i-circle>
+						    </ul>
+						    <ul class="moneykh">
+						    	<li>
+						    		<span>消费顾客（人）</span>
+						    		<span  class="crmNumCenter crmNumCenter1"></span>
+						    	</li>
+						    	<li style="padding: 10px 0;">
+						    		<span>消费会员（人）</span>
+						    		<span  class="crmNumCenter crmNumCenter2"></span>
+						    	</li>
+						    </ul>
+					    </div>
+					</mu-paper>
+					<mu-paper class="demo-paper list" :z-depth="1">
+						<div class="myCrmTtitle">
+							<span>会员转化率（30天）</span>
+							<Select v-model="model2" size="small" style="width:100px" @on-change="changeDay2">
+						        <Option v-for="item in dateList3" :value="item.value" :key="item.value">{{ item.label }}</Option>
+						    </Select>
+						</div>
+						<div class="center-money">
+							<ul class="moneykh">
+								<i-circle :percent="conversionRate" :size="160" dashboard :trail-width="13" :stroke-width="13" stroke-color="#3679FA">
+							        <span class="demo-circle-inner fontSizeNum" style="color:#3679FA"><span id="n2"></span>%</span>
+							        <p style="margin-top:5px">会员转化率</p>
+							    </i-circle>
+						    </ul>
+						    <ul class="moneykh">
+						    	<li>
+						    		<span>新增顾客（人）</span>
+						    		<span  class="crmNumCenter3 crmNumCenter31"></span>
+						    	</li>
+						    	<li style="padding: 10px 0;">
+						    		<span>新增会员（人）</span>
+						    		<span  class="crmNumCenter3 crmNumCenter32"></span>
+						    	</li>
+						    </ul>
+					    </div>
+					</mu-paper>
+					  
+				</ul>
+			</div>
+		</div>
+			<div class='top'>
+						<li>
+							<div class='img'>
+								<img src="http://img.zsydian.com/icon/store_send.png" width='40' height='40'>
+							</div>
+							<div class='top-num'>
+								<div>{{topNosure}}</div>
+								<div>未确认</div>
+							</div>
+						</li>
+						<li>
+							<div class='img'>
+								<img src="http://img.zsydian.com/icon/store_sh.png" width='40' height='40'>
+							</div>
+							<div class='top-num'>
+								<div>{{topNofh}}</div>
+								<div>未发货</div>
+							</div>
+							
+						</li>
+						<li>
+							<div class='img'>
+								<img src="http://img.zsydian.com/icon/store_jz.png" width='40' height='40'>
+							</div>
+							<div class='top-num'>
+								<div>{{topNosh}}</div>
+								<div>未收货</div>
+							</div>
+							
+						</li>
+						
+						<li>
+							<div class='img'>
+								<img src="http://img.zsydian.com/icon/store_qs.png" width='40' height='40'>
+							</div>
+							<div class='top-num'>
+								<div>{{topSucess}}</div>
+								<div>已完成</div>
+							</div>
+						</li>
+						<li>
+							<div class='img'>
+								<img src="http://img.zsydian.com/icon/store_qs.png" width='40' height='40'>
+							</div>
+							<div class='top-num'>
+								<div>{{topclose}}</div>
+								<div>已关闭</div>
+							</div>
+						</li>
+						<li>
+							<div class='img'>
+								<img src="http://img.zsydian.com/icon/store_qs.png" width='40' height='40'>
+							</div>
+							<div class='top-num'>
+								<div>{{topcancel}}</div>
+								<div>已取消</div>
+							</div>
+						</li>
+						<li>
+							<div class='img'>
+								<img src="http://img.zsydian.com/icon/store_qs.png" width='40' height='40'>
+							</div>
+							<div class='top-num'>
+								<div>{{topNopay}}</div>
+								<div>未支付</div>
+							</div>
+						</li>
+						<li>
+							<div class='img'>
+								<img src="http://img.zsydian.com/icon/store_qs.png" width='40' height='40'>
+							</div>
+							<div class='top-num'>
+								<div>{{topAll}}</div>
+								<div>全部</div>
+							</div>
+						</li>
+				</div>
+			<div class='line' style="position:relative">
+				<div v-if='lena==0'  style="position:absolute;left:25%;;top:100px">{{$t('public.NoData')}}</div></div>
+			<div class='center' >
+				<!--一周营业额-->
+				<div id="myEchartvip" style="width: 100%;"></div>
+				
+				
+				<div class='line-c'></div>
+				<div class='center-p'>
+					<div class='amount-title'>本月营业额（元）</div>
+					<div class='center-top'>
+						<div class='amount'>{{month}}</div>
+					</div>
+					<div class='center-bottom'>
+						<div style='padding: 20px 0;width:40%;border-right:1px solid #D8DBDE'>
+							<div class='je'>
+								{{yesterdayMoney}}
+							</div>
+							<div>昨日营业额(元)</div>
+						</div>
+						<div style='padding: 20px 0;'>
+							<div class='je'>
+								{{week}}
+							</div>
+							<div>本周营业额(元)</div>
+						</div>
+					</div>
+				</div>
+				<div class='line-c'></div>
+				<div class='center-p'>
+					<div class='amount-title'>本月吸粉数（人）</div>
+					<div class='center-top'>
+						<div class='amount'>{{rankMonth}}</div>
+					</div>
+					<div class='center-bottom'>
+						<div style='padding: 20px 0;width:40%;border-right:1px solid #D8DBDE'>
+							<div class='je'>
+								{{rankYesterDay}}
+							</div>
+							<div>昨日吸粉数（人）</div>
+						</div>
+						<div style='padding: 20px 0;'>
+							<div class='je'>
+								{{rankSevenDay}}
+							</div>
+							<div>近七日吸粉数（人）</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class='line' ></div>
+			<div  style="display:flex;">
+				<!--最新订单<-->
+				<div class='table'>
+					<div class='echarts echarts2' style='position:relative'>
+						<!--性别-->
+						<div id="myEchartkh" style="width: 100%;margin:0 5px;border:1px solid #ccc;"></div>
+						<!--会员等级-->
+						<div id="myEchartvip2" style="width: 100%;margin:0 5px;border:1px solid #ccc;;"></div>
+						<div id="myEcharForm" style="width: 100%;margin:0 5px;border:1px solid #ccc;"></div>
+						<div v-if='lenGender==0'  style="position:absolute;left:15%;;top:25%">{{$t('public.NoData')}}</div>
+						<div v-if='lenLevel==0'  style="position:absolute;left:47%;;top:25%">{{$t('public.NoData')}}</div>
+						<div v-if='lenForm==0'  style="position:absolute;left:80%;;top:25%">{{$t('public.NoData')}}</div>
+					</div>
+					
+				</div>
+				<!-- <div class='line22' ></div> -->
+				
+			</div>
+			<!--员工排名<-->
+				 <div class='table1' style='padding-bottom:120px'>
+					<div class='table-top-right'>
+						<span class='left-tx'>员工排名</span>
+						<div class='right-tx'>
+							<span class='lookAll'>查看全部</span>
+							<span class='icon'><Icon type="arrow-right-b" style='color:#F0F4F7'  size='26'></Icon></span>
+						</div>
+					</div>
+					<div class='line11'></div>
+					<div style='margin:0 2px'>
+						<div style='height:38px;line-height:38px'><span style='display:block;height:35px;margin-left:20px'>业绩前三名</span></div>
+						<Table border  :columns="eykey" :data="eyData" :show-header='true'></Table>
+					</div> 
+				</div>
+		</div>
+		
+	</div>
+</template>
+<script type="text/javascript">
+import echarts from 'echarts'
+import bounty from "bounty";
+export default {
+	data(){
+		return{
+			rankMonth:0,//月吸粉
+			rankYesterDay:0,//昨日吸粉
+			rankSevenDay:0,//近七日吸粉数
+			lena:0,//一周报表
+			lenGender:0,
+			lenLevel:0,
+			lenForm:0,
+			//0：全部 1：未支付 2：未确认 3：未发货 4：未收货 5：已完成 6：已取消 7：已关闭
+			topSucess:0,
+			topNosure:0,
+			topNofh:0,
+			topNosh:0,
+			topNopay:0,
+			topclose:0,
+			topcancel:0,
+			topAll:0,
+
+			
+			AllCrmNum:0,//总会员
+			ActiveCrmNum:0,//活跃会员
+			CilentCrmNum:0,//沉默会员
+			SleepCrmNum:0,//睡眠会员
+			LossCrmNum:0,//流失会员
+			consumptionRat:0,//会员消费占比
+			conversionRate:0,//会员转化率
+			monthCount:0,//本月新增人员
+			todayCount:0,//今日新增会员
+			yesCrmCount:0,//昨日会员
+
+			newCustomer:0,// 新增顾客 
+			newCrm:0,//新增会员
+			consumptionCustomer:0, //消费顾客 
+			consumptionCrm:0,//消费会员 
+
+
+			model:2,
+			model2:2,
+			dateList2:[
+				{
+					label:"当日",
+					value:0
+				},
+				{
+					label:"7日",
+					value:1
+				},
+				{
+					label:"30日",
+					value:2
+				},
+			],
+			dateList3:[
+				{
+					label:"当日",
+					value:0
+				},
+				{
+					label:"7日",
+					value:1
+				},
+				{
+					label:"30日",
+					value:2
+				},
+			],
+			
+			//交易额
+			// mdata:{},//昨日交易额
+			yesterdayMoney:0,//昨日交易额 
+			month:0,
+			week:10,
+			num:65,
+			searchWord:"",
+			img:'',
+			indexId:'',
+			uid: this.$store.state.common.token,
+			user:this.$store.state.common.user,
+			orderData:[],
+			ordertotal:0,
+			orderpageSize:0,
+			orderkey:[
+				{
+					title:"订单日期",
+					key:"createTime"
+				},
+				{
+					title:"订单编号",
+					key:"orderNo"
+				},
+				{
+					title:"订单总价",
+					key:"amount"
+				},
+				{
+					title:"会员",
+					key:"customerName"
+				},
+				{
+					title:"订单状态",
+					key:"statusDesc"
+				},
+				{
+					title:"操作",
+					key:"action",
+					width:80,
+					align:"center",
+					render:(h,params)=>{
+						return h('span',{
+							style:{
+								color:"#4692F9",
+								cursor:"pointer"
+							},
+							"on":{
+								"click":()=>{
+									console.log(params.row)
+									this.goOrderInfo(params)
+									
+								}
+							}
+						},'查看')
+					}
+				},
+			],
+			//员工排名
+			eykey:[
+				{
+					title:"排名",
+					// type:"index",
+					width:90,
+					align:"center",
+					render:(h,parmas)=>{
+						return h('span',{
+							style:{
+								color:"#d53c39",
+								fontWeigth:"700"
+							}
+						},"第"+(parmas.index+1)+"名")
+					}
+				},
+				{
+					title:"头像",
+					key:"headPic",
+					width:80,
+					align:"center",
+					render:(h, params) =>{
+	                  return h('div',[
+	                      h('img',{
+	                        attrs:{
+	                          src:params.row.headPic
+	                        },
+	                        style:{
+	                          width:'40px',
+	                          height:'40px'
+	                        }
+	                      })
+	                    ])
+	                }
+				},
+				{
+					title:"姓名",
+					key:"employeeName",
+					align:"center"
+				},
+				{
+					title:"吸粉数",
+					key:"salesAmount",
+					align:"center",
+					render:(h,parmas)=>{
+						return h('div',[
+							h('span',{
+
+							},"吸粉数："),
+							h('span',{
+								style:{
+									
+									color:"#FFB213"
+								}
+							},parmas.row.salesAmount),
+						])
+					}
+				},
+			],
+			eyData:[],
+			
+		}
+	},
+	methods:{
+		//概览
+		//昨日交易额
+		getMdata(){
+			this.axios.get('mdata/yesterday?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					// this.mdata=res.data.rows
+					let data=res.data.rows
+					this.yesterdayMoney=data.totalAmount
+				}
+			})
+		},
+		//员工排名GET /mdata/ecrm 导购-会员排
+		getPm(){
+			this.axios.get('statement/ranks?type=0&uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					let data=res.data.rows
+					if(data.length==0){
+						return
+					}else{
+						let arr={
+							employeeName:data[0].crmName==null?"":data[0].crmName,
+							salesAmount:data[0].crmTotal,
+							headPic:data[0].headPic
+						}
+						let arr1={
+							
+							employeeName:data[1].crmName==null?"":data[1].crmName,
+							salesAmount:data[1].crmTotal,
+							headPic:data[1].headPic
+						}
+						let arr2={
+							
+							employeeName:data[2].crmName==null?"":data[2].crmName,
+							salesAmount:data[2].crmTotal,
+							headPic:data[2].headPic
+						}
+						this.eyData.push(arr)
+						this.eyData.push(arr1)
+						this.eyData.push(arr2)
+						console.log(this.eyData)
+					}
+					
+				}
+			})
+		},
+
+		//一周营业额图表
+		drawvip(){
+				let myEchartvip = echarts.init(document.getElementById('myEchartvip'),'shine')
+				this.lena=0
+				myEchartvip.showLoading()
+				// this.axios.get('statement/levelStatement?uid='+this.uid).then(res=>{
+					// if(res.data.status==200){
+						// let levelName=[]//等级名称
+						// let crmCount=[]//等级占比
+						// res.data.rows.forEach((x,index)=>{
+						// 	levelName.push(res.data.rows[index].levelName)
+						// 	let arr={
+						// 		value:res.data.rows[index].crmCount,
+						// 		name:res.data.rows[index].levelName
+						// 	}
+						// 	crmCount.push(arr)//会员等级占比
+						// 	console.log(levelName)
+						// })
+						let option = {
+								title:{
+									text:"店铺一周营业额",
+									
+									 x: 'center',
+								},
+							    tooltip: {
+							        trigger: 'axis',
+							        axisPointer: {
+							            type: 'cross',
+							            crossStyle: {
+							                color: '#999'
+							            }
+							        }
+							    },
+							    toolbox: {
+							        feature: {
+							            dataView: {show: true, readOnly: false},
+							            // magicType: {show: true, type: ['line', 'bar']},
+							            restore: {show: true},
+							            saveAsImage: {show: true}
+							        },
+							        right:0,
+							        top:5
+							    },
+							    legend: {
+							    	orient : 'vertical',
+				        			x : 'right',
+							        data:['营业额','吸粉数'],
+							      	// left:0,
+							      	top:35
+							    },
+							    xAxis: [
+							        {
+							            type: 'category',
+							            data: [],
+							            axisPointer: {
+							                type: 'shadow'
+							            }
+							        }
+							    ],
+							    yAxis:{},
+							    series: [
+							        {
+							            name:'营业额',
+							            type:'bar',
+							            data:[],
+							            itemStyle: {
+							                normal: {
+							                    color: function(params) {
+							                        // build a color map as your need.
+							                        var colorList = [
+							                        '#FDB245',
+							                           
+							                        ];
+											        return colorList[params.dataIndex]
+							                    },
+							                    //是否显示文字在图表
+							                    label: {
+							                        show: true,
+							                        position: 'top',
+							                        // formatter: '{b}'
+							                    }
+							                }
+							            },
+							        },
+							        {
+							            name:'吸粉数',
+							            type:'bar',
+							            data:[],
+							            itemStyle: {
+							                normal: {
+							                    color: function(params) {
+							                        // build a color map as your need.
+							                        var colorList = [
+							                        '#26C0C0',
+							                        ];
+											        return colorList[params.dataIndex]
+							                    },
+							                    //是否显示文字在图表
+							                    label: {
+							                        show: true,
+							                        position: 'top',
+							                        // formatter: '{b}'
+							                    }
+							                }
+							            },
+							        },
+							        
+							    ]
+							};
+						 myEchartvip.setOption(option);
+						myEchartvip.hideLoading()
+					// }
+				// })
+				
+		},
+		//会员消费
+		changeDay(day){
+			this.model=day
+		},
+		//会员转化率
+		changeDay2(day){
+			this.model2=day
+		},
+		//mcrmdata/today
+		getToday(){
+			this.axios.get('mcrmdata/today?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					let data=res.data
+					this.newCrm=data.total//新增会员
+					bounty({ el: '.crmNumCenter32', value: this.newCrm,letterAnimationDelay: 600 ,});//新增会员 
+				}
+			})
+		},
+		//GET /mcrmdata/turnoverRate 会员转化率
+		getturnoverRate(){
+			this.axios.get('/mcrmdata/turnoverRate?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					let data=res.data.rows
+					this.conversionRate=data.turnoverRate//会员转化率
+					bounty({ el: '#n2', value: this.conversionRate,letterAnimationDelay: 200 ,});//会员转化率
+				}
+			})
+		},
+		//GET /mcrmdata/consumptionRatio 会员消费占比
+		getconversionRate(){
+			this.axios.get('/mcrmdata/consumptionRatio?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					let data=res.data.rows
+					this.conversionRate=data.consumptionRatio//会员转化率
+					bounty({ el: '#n1', value: this.conversionRate,letterAnimationDelay: 800 });//会员消费占比
+				}
+			})
+		},
+		//mcrmdata/crmTotal//总会员
+		getcrmTotal(){
+			this.axios.get('mcrmdata/crmTotal?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					let data=res.data.rows
+					this.AllCrmNum=data.crmTotal//总会员
+					bounty({ el: '.myCrmNum', value: this.AllCrmNum,letterAnimationDelay: 500});//z总会员数
+				}
+			})
+		},
+		//头部数字GET /mcrm/index 会员报表mcrmdata/life
+		getNumTop(){
+			this.axios.get('mcrmdata/life?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					let data=res.data.rows
+					this.ActiveCrmNum=data.activeCrm//活跃会员
+					this.CilentCrmNum=data.silentCrm//沉默会员
+					this.SleepCrmNum=data.sleepCrm//睡眠会员
+					this.LossCrmNum=data.runoffCrm//流失会员
+					
+					// this.monthCount=data.monthCount//本月新增人员
+					// this.todayCount=data.todayCount//今日新增会员
+					// this.yesCrmCount=data.yesCrmCount//昨日会员
+					// this.newCustomer=data.newCustomer// 新增顾客 
+
+					// this.consumptionCustomer=data.consumptionCustomer //消费顾客 
+					// this.consumptionCrm=data.consumptionCrm//消费会员
+					
+
+			        bounty({ el: '.crmNum1', value: this.ActiveCrmNum,letterAnimationDelay: 200 ,});//活跃会员
+			        bounty({ el: '.crmNum2', value: this.CilentCrmNum,letterAnimationDelay: 400 ,});//沉默会员
+			        bounty({ el: '.crmNum3', value: this.SleepCrmNum,letterAnimationDelay: 500 ,});//睡眠会员
+			        bounty({ el: '.crmNum4', value: this.LossCrmNum,letterAnimationDelay: 600 ,});//流失会员
+
+			        bounty({ el: '.crmNumCenter1', value: this.consumptionCustomer,letterAnimationDelay: 600 ,});//消费顾客
+			        bounty({ el: '.crmNumCenter2', value: this.consumptionCrm,letterAnimationDelay: 600 ,});//消费会员
+			        bounty({ el: '.crmNumCenter31', value: this.newCustomer,letterAnimationDelay: 600 ,});//新增顾客
+			        
+				}
+			})
+		},
+		//订单数字看板
+		getretail(){
+			this.axios.get('?uid='+this.uid).then(res=>{
+				if(res.datat.status==200){
+					let data=res.data.rows
+					// topSucess=data.
+					// topNosure=data.
+					// topNofh=data.
+					// topNosh=data.
+					// topNopay=data.
+					// topclose=data.
+					// topcancel=data.
+					// topAll=data.
+				}
+			})
+		},
+		//营业额GET /prep/store/month 门店月报
+		getstoremonth(){
+			this.axios.get('/prep/store/month?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					console.log(res.data.rows)
+					this.week=res.data.rows.withDraw
+				}
+			})
+		},
+		//周GET /prep/store/week 门店周报
+		getstoreweek(){
+			this.axios.get('prep/store/week?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					console.log(res.data.rows)
+					this.month=res.data.rows.withDraw
+				}
+			})
+		},
+		//性别GET /mcrmdata/gender 会员性别分布
+		drawgender(){
+				let myEchartkh = echarts.init(document.getElementById('myEchartkh'),'shine')
+				myEchartkh.showLoading()
+				this.axios.get('mcrmdata/gender?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.lenGender=res.data.rows.rows.length
+						let gender=[]
+						let crmCount=[]
+						res.data.rows.rows.forEach((x,index)=>{
+							
+							if(x.gender=='1'){
+								x.gender='男'
+							}
+							if(x.gender=='0'){
+								x.gender='女'
+							}
+							if(x.gender=='3'){
+								x.gender='未知'
+							}
+							gender.push(res.data.rows.rows[index].gender)//性别
+								let arr={
+									value:res.data.rows.rows[index].crmCount,
+									name:res.data.rows.rows[index].gender
+								}
+								crmCount.push(arr)//比列
+								// console.log(crmCount)
+							})
+						
+							let	option = {
+							    title : {
+							        text: '性别占比',
+							       
+							        x:'center'
+							    },
+							    tooltip : {
+							        trigger: 'item',
+							        formatter: "{a} <br/>{b} : {c} ({d}%)"
+							    },
+							    toolbox: {
+							        show : true,
+							        feature : {
+							            mark : {show: true},
+							            dataView : {show: true, readOnly: false},
+							            magicType : {
+							                show: true, 
+							                type: ['pie'],
+							                // option: {
+							                //     funnel: {
+							                //         x: '25%',
+							                //         width: '50%',
+							                //         funnelAlign: 'left',
+							                //         max: 1548
+							                //     }
+							                // }
+							            },
+							            restore : {show: true},
+							            saveAsImage : {show: true}
+							        }
+							    },
+							    legend: {
+							        orient: 'vertical',
+							        left: 'left',
+							        data: gender//性别列表
+							    },
+							    series : [
+							        {
+							            name: '性别占比',
+							            type: 'pie',
+							            radius : '40%',
+							            center: ['50%', '60%'],
+							            data:crmCount,//性别占比
+							            itemStyle: {
+							          
+							                emphasis: {
+							                    shadowBlur: 10,
+							                    shadowOffsetX: 0,
+							                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+							                }
+							            }
+							        }
+							    ]
+							};
+							 myEchartkh.setOption(option);
+							 myEchartkh.hideLoading()
+					}
+				})
+				
+		},
+		//会员等级GET /mcrmdata/level 会员等级分布
+		drawvip2(){
+				let myEchartvip2 = echarts.init(document.getElementById('myEchartvip2'),'shine')
+				myEchartvip2.showLoading()
+				this.axios.get('mcrmdata/level?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.lenLevel=res.data.rows.rows.length
+						let levelName=[]//等级名称
+						let crmCount=[]//等级占比
+						res.data.rows.rows.forEach((x,index)=>{
+							levelName.push(res.data.rows.rows[index].level)
+							let arr={
+								value:res.data.rows.rows[index].crmCount,
+								name:res.data.rows.rows[index].level
+							}
+							crmCount.push(arr)//会员等级占比
+							
+						})
+						let option = {
+						    title : {
+						        text: '会员等级',
+						        x:'center'
+						    },
+						    tooltip : {
+						        trigger: 'item',
+						        axisPointer: {
+							            type: 'cross'
+							        },
+						        formatter: "{a} <br/>{b} : {c} ({d}%)"
+						    },
+						    toolbox: {
+					        show : true,
+					        feature : {
+					            mark : {show: true},
+					            dataView : {show: true, readOnly: false},
+					            magicType : {
+					                show: true, 
+					                type: ['pie'],
+					                // option: {
+					                //     funnel: {
+					                //         x: '25%',
+					                //         width: '50%',
+					                //         funnelAlign: 'left',
+					                //         max: 1548
+					                //     }
+					                // }
+					            },
+					            restore : {show: true},
+					            saveAsImage : {show: true}
+					        }
+					    },
+						    legend: {
+						        orient: 'vertical',
+						        left: 'left',
+						        data:levelName//等级名称
+						    },
+						    series : [
+						        {
+						            name: '等级占比',
+						            type: 'pie',
+						            radius : '40%',
+						            center: ['50%', '60%'],
+						           
+						            data:crmCount,//会员等级占,
+						            itemStyle: {
+						            	 normal: {
+						                    color: function(params) {
+						                        // build a color map as your need.
+						                       var colorList = [
+						                          '#9BCA63','#C1232B','#F4E001','#B5C334','#FCCE10','#E87C25','#27727B',
+						                           '#FE8463','#FAD860','#F3A43B','#60C0DD',
+						                           '#D7504B','#C6E579','#F0805A','#26C0C0'
+		                       					 ];
+						                        return colorList[params.dataIndex]
+						                    },
+						                    label: {
+						                        show: true,
+						                        position: 'top',
+						                        // formatter: '{b}'
+						                    }
+						                },
+						                emphasis: {
+						                    shadowBlur: 10,
+						                    shadowOffsetX: 0,
+						                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+						                }
+						            }
+						        }
+						    ]
+						};
+						 myEchartvip2.setOption(option);
+						 myEchartvip2.hideLoading()
+					}
+				})
+				
+		},
+		//来源GET /mcrmdata/souce 会员来源分
+		drewForm(){
+			let myEcharForm = echarts.init(document.getElementById('myEcharForm'),'shine')
+			myEcharForm.showLoading();
+			this.axios.get('mcrmdata/souce?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					this.lenForm=res.data.rows.rows.length
+				let source=[]
+				let crmCount=[]
+				res.data.rows.rows.forEach((x,index)=>{
+					source.push(res.data.rows.rows[index].source)
+					let arr={
+						value:res.data.rows.rows[index].crmCount,
+						name:res.data.rows.rows[index].source
+					}
+					crmCount.push(arr)//会员等级占比
+					
+				})
+				let option = {
+				    title : {
+				        text: '会员来源',
+				        x:'center'
+				    },
+				    tooltip : {
+				        trigger: 'item',
+				        formatter: "{a} <br/>{b} : {c} ({d}%)"
+				    },
+				    legend: {
+				        orient : 'vertical',
+				        x : 'left',
+				        data:source
+				    },
+				    toolbox: {
+				       show: true,
+			            // orient: 'vertical',
+			            left: 'right',
+			            // top: 'center',
+				        feature : {
+				            mark : {show: true},
+				            dataView : {show: true, readOnly: false},
+				            magicType : {
+				                show: true, 
+				                type: ['pie', 'funnel'],
+				                option: {
+				                    funnel: {
+				                        x: '25%',
+				                        width: '50%',
+				                        funnelAlign: 'left',
+				                        max: 1548
+				                    }
+				                }
+				            },
+				            restore : {show: true},
+				            saveAsImage : {show: true}
+				        }
+				    },
+				    calculable : true,
+				    series : [
+				        {
+				            name:'数量',
+				            type:'pie',
+				            radius : '40%',
+				            center: ['50%', '60%'],
+				            data:crmCount
+				        }
+				    ]
+				};
+				myEcharForm.setOption(option)
+				myEcharForm.hideLoading()
+				}
+				
+			})
+			
+		},
+	},
+	created(){
+       	this.$nextTick(()=>{
+       		this.getcrmTotal()//会员总数
+       		this.getToday()//新增会员
+       		this.getturnoverRate()//会员转化率
+       		this.getconversionRate()//会员消费占比
+       		this.getNumTop()
+			this.getPm()//导购-会员排名
+			// this.getAllstore()//获取当前店铺
+			this.drawvip()//店铺营业额图表
+			this.getstoremonth()//月
+			// this.getstoreweek()//周
+       		this.drawgender()//性别
+			this.drawvip2()//等级
+			this.drewForm()//会员来源分
+       	})
+    },
+	mounted(){
+		this.$nextTick(()=>{
+	        
+		})
+		
+	}
+}
+</script>
+<style type="text/css" scoped>
+.echarts{
+	width:100%;
+	display:flex;
+	justify-content: space-around;
+	
+}
+.echarts2{
+	margin-bottom:10px;
+}
+#n1{
+	fill:#ff0000;
+	/*text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);*/
+}
+#n2{
+	fill:#3679FA;
+	/*text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);*/
+}
+.myCrmNum{
+font-weight:900;
+font-size:50px;
+color:#ff0000;
+fill:red;
+/*text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);*/
+text-align: center;
+font-family:Impact, Charcoal, sans-serif;
+
+}
+.crmNum1,.crmNum2,.crmNum3,.crmNum4{
+	fill:#3E608B;
+	font-weight: 600
+}
+.crmNumCenter1,.crmNumCenter2{
+	fill:#FF5F61;
+}
+.crmNumCenter31,.crmNumCenter32{
+	fill:#3679FA;
+}
+
+
+
+.head{
+	display:flex;
+	padding:8px 0 8px 0;
+	/*border:1px solid red;*/
+	background: #EFF3F6;
+}
+.crmLivetitle{
+	font-size:16px;
+	font-weight:900;
+}
+.crm-top{
+	width:100%;
+}
+.crm-top .top-ul{
+	width:100%;
+	display: flex;
+	justify-content: space-between;
+}
+.crm-top .top-ul .list{
+	margin:0 5px;
+}
+.myCrmTtitle{
+	display: inline-block;
+	padding:15px;
+	width:100%;
+	display: flex;
+	justify-content: space-between;
+}
+
+.fontSizeNum{
+
+font-size:25px;
+text-align: center;
+font-family:Impact, Charcoal, sans-serif;
+}
+.myCrmBottom{
+	display: flex;
+    justify-content: center;
+    align-items: center;
+    height:55px;
+}
+.crmNum{
+	color:#3E608B;
+	font-weight: 600
+}
+.myCrmBottom li{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	width:50%;
+	height: 100%;
+	
+}
+.center-money{
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+}
+.center-money .moneykh li{
+	display: flex;
+	flex-direction: column;
+	/*align-items: center;*/
+}
+.crmNumCenter{
+	color:#FF5F61;
+}
+.crmNumCenter3{
+	color:#3679FA;
+}
+li{
+	list-style: none
+}
+.gl{
+	width:100%;
+	background: rgb(230,233,236);
+
+	height:100%;
+}
+.main{
+	
+	background-color: #fff;
+	margin-right:3px;
+}
+.model-main{
+	display:flex;
+	border-radius:8px;
+}
+.model-main .left{
+	width:40%;
+	height:408px;
+	background: #495060;
+	display:flex;
+	flex-direction: column;
+	justify-content: center;;
+	align-items: center;
+	color:#fff;
+}
+.model-main .right{
+	flex: 2 0 60%;
+	background: #e2e2e2;
+
+}
+.right-top-search{
+	position:relative;
+	width:100%;
+	height:60px;
+	background: #fff;
+	line-height: 60px;
+	
+}
+.right-top-search input{
+	width:80%;
+}
+
+.right-bottom-main{
+	display:flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+
+}
+.alertcha:hover{
+	cursor:pointer;
+}
+.alertcha{
+	 position: absolute;
+    right: 10px;
+    top: 0px;
+
+}
+.item{
+	display:flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	text-align: center;
+	background: #fff;
+	margin:10px;
+	border-radius:6px;
+}
+.item img{
+	margin-top:10px;
+}
+
+.item .x-name{
+	width:100%;
+	padding:5px;
+	overflow: hidden;
+	text-overflow:ellipsis;
+	white-space: nowrap;
+	color:#fff;
+}
+.bg{
+	background: #3A404D;
+	border-right:2px solid #3B77E3;
+}
+
+.top{
+	border-radius: 6px;
+	height:80px;
+	display: flex;
+	
+	justify-content: center;
+	align-content: center;
+	background-color: #fff
+}
+.top li{
+	list-style: none;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width:25%;
+	text-align: center;
+}
+.top-num{
+	color:#43638D;
+	font-size:14px;
+}
+.top li img{
+	vertical-align: middle;
+	margin-right:35px;
+}
+.top li .num{
+	display: flex;
+	flex-direction: column;
+
+}
+.center{
+	display: flex;
+	border-radius: 6px;
+	height:265px;
+	justify-content: center;
+	/*align-items: center;*/
+	background-color: #fff
+}
+.center-p{
+    width: 50%;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    justify-content: space-around;
+   
+}
+
+.amount{
+	font-weight:900;
+	font-size:50px;
+	color:#FEB031;
+	text-align: center;
+	font-family:Impact, Charcoal, sans-serif;
+}
+.amount-title{
+	margin: -10px 0 0 10px;
+}
+.center-top{
+	/*padding:20px;*/
+}
+.center-bottom{
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+
+}
+.line{
+	background: rgb(230,233,236);
+	height:7px;
+
+}
+.line1{
+	background: rgb(230,233,236);
+	height:3px;
+
+}
+.line11{
+	background: rgb(230,233,236);
+	height:3px;
+
+}
+.line22{
+	background: rgb(230,233,236);
+	width:7px;
+	height:100%;
+}
+.line-c{
+	width:10px;
+	
+	background: rgb(230,233,236);
+}
+.je{
+	color:#40618C;
+	font-size:16px;
+	font-weight:600;
+}
+.page-box{
+	text-align: center;margin-bottom:120px;margin-top:10px;
+}
+.table{
+	width:100%;
+}
+.table1{
+	width:100%;
+}
+.table-top{
+	height:40px;
+	border-radius: 6px;
+	display: flex;
+	justify-content: space-between;
+	line-height: 40px;
+	background: #fff
+}
+.table-top-right{
+	height:40px;
+	
+	display: flex;
+	justify-content: space-between;
+	line-height: 40px;
+	background: #fff
+}
+.left-tx{
+	margin-left:20px;
+}
+.right-tx{
+	margin-right:20px;
+	position:relative;
+	cursor:pointer;
+}
+.lookAll:hover{
+	color:#4692F9
+}
+.icon{
+	position:absolute;
+	top:6px;
+	right:0px;
+}
+.lookAll{
+	margin-right: 20px;
+	color:#CCD5DA
+}
+</style>

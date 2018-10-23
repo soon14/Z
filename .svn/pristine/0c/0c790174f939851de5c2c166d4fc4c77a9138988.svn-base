@@ -1,0 +1,176 @@
+<template>
+	<div class="app-design clearfix" style="margin-left: 10px;margin-top: 10px;">
+		<div class="app-preview">
+			<div class="app-entry">
+				<div class="app-config js-config-region">
+						<w-header :data="pdata" v-on:update="updatePage"></w-header>
+				</div>
+				<div class="app-fields js-fields-region">
+					<div class="app-fields ui-sortable">
+						<!---->
+						<div v-for="(item,i) in wdatas" :class="{'editing':item.edit}" v-dragging="{ item: item, list: wdatas, group: 'wdatas' }" class="app-field clearfix"   style="position: relative; top: 0px; left: 0px;">
+							<w-slider :windex="i" :data="item.data" v-on:remove="removeWid" v-on:update="updateWid" v-on:select="selectWid" v-if="item.type==='slider'"></w-slider>
+							<w-richtext :windex="i" :data="item.data" v-on:remove="removeWid" v-on:update="updateWid" v-on:select="selectWid" v-if="item.type==='richtext'"></w-richtext>
+							<w-range :windex="i" :data="item.data" v-on:remove="removeWid" v-on:update="updateWid" v-on:select="selectWid" v-if="item.type==='range'"></w-range>
+							<w-line :windex="i" :data="item.data" v-on:remove="removeWid" v-on:update="updateWid" v-on:select="selectWid" v-if="item.type==='line'"></w-line>
+							<w-goods :windex="i" :data="item.data" v-on:remove="removeWid" v-on:update="updateWid" v-on:select="selectWid" v-if="item.type==='goods'"></w-goods>
+							<w-text :windex="i" :data="item.data" v-on:remove="removeWid" v-on:update="updateWid" v-on:select="selectWid" v-if="item.type==='text'"></w-text>
+							<w-pic :windex="i" :data="item.data" v-on:remove="removeWid" v-on:update="updateWid" v-on:select="selectWid" v-if="item.type==='pic'"></w-pic>
+						</div>
+						<!---->
+					</div>
+				</div>
+			</div>
+			<div class="js-add-region">
+				<div>
+					<div class="app-add-field">
+						<h4>添加内容</h4>
+						<ul>
+							<li  v-for="(wid,i) in wids" >
+								<a class="js-new-field" @click="addWid(wid.initdata)" data-field-type="rich_text">{{wid.widname}}</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="app-actions" style="bottom: 0px;">
+			<div class="form-actions text-center">
+				<button class="zent-btn zent-btn-primary js-btn-add" @click="savePage">保存</button>
+			</div>
+		</div>
+	</div>
+</template>
+
+<script>
+
+	import wHeader from '@/components/widgets/wheader/index.vue';
+	import wSlider from '@/components/widgets/wslider/index.vue';
+	import wRichtext from '@/components/widgets/wrichtext/index.vue';
+	import wRange from '@/components/widgets/wrange/index.vue';
+	import wLine from '@/components/widgets/wline/index.vue';
+	import wGoods from '@/components/widgets/wgoods/index.vue';
+	import wText from '@/components/widgets/wtext/index.vue';
+	import wPic from '@/components/widgets/wpic/index.vue';
+
+	export default {
+		props: {
+			bid: {
+				type: String,
+				required: true
+			},
+			editflg: {
+				type: String,
+				default: "false"
+			},
+			pageid: {
+				type: String,
+				default: ""
+			},
+			pagetype: {
+				type: String,
+				default: "1"
+			}
+		},
+		data() {
+				return {
+					pid: "",
+					wdatas: [],
+					pdata: {},
+					wids: []
+				}
+		},
+		components: {
+			wHeader,
+			wSlider,
+			wRichtext,
+			wRange,
+			wLine,
+			wGoods,
+			wText,
+			wPic
+		},
+		beforeMount: function() {
+			var params = {
+				"pagetype": this.pagetype
+			};
+
+			this.axios.post("/page/qwids", params)
+				.then(response => {
+					this.wids = response.data.data;
+				});
+
+			var params2 = {
+				"bid": this.bid,
+				"pageid": this.pageid
+			};
+
+			if(this.editflg == "true") {
+				this.axios.post("/page/qpage", params2)
+					.then(response => {
+						var sa = response.data.data;
+						this.pid = sa.pageid;
+						this.pdata = JSON.parse(sa.pagedata);
+						this.wdatas = JSON.parse(sa.wdatas);
+					});
+			} else {
+				this.pid = "-1";
+				this.pdata = {
+					"title": "微页面标题",
+					desc: "",
+					type: "",
+					bgcolor: ""
+				};
+				this.wdatas = [];
+			}
+		},
+		methods: {
+			addWid: function(t) {
+				this.wdatas.push(JSON.parse(t));
+			},
+			removeWid: function(index) {
+				this.wdatas.splice(index, 1);
+			},
+			selectWid: function(index) {
+				for(var i = 0; i < this.wdatas.length; i++) {
+					if(index == i) {
+						this.wdatas[i].edit = true;
+					} else {
+						this.wdatas[i].edit = false;
+					}
+				}
+			},
+			updateWid: function(wdata) {
+				this.wdatas[wdata.index].data = wdata.data;
+			},
+			updatePage: function(pdata) {
+				this.pdata = pdata;
+			},
+			savePage: function() {
+				var params3 = {
+					"bid": this.bid,
+					"pagetype": this.pagetype,
+					"pageid": this.pid,
+					"pagedata": JSON.stringify(this.pdata),
+					"wdatas": JSON.stringify(this.wdatas),
+					"html": this.$el.innerHTML
+				};
+
+				//alert(this.$el.innerHTML);
+				this.axios.post("/page/upage", params3)
+					.then(response => {
+						this.$emit('save', response.data.data);
+					});
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	@import '../../assets/css/ydui.css';
+	@import '../../assets/css/wpages.css';
+
+	.app-preview .app-field {
+		background-color: #f9f9f9 ! important;
+	}
+</style>

@@ -1,0 +1,837 @@
+<template>
+	<div class='setting'>
+			<!--企业信息-->
+			 <Tabs :animated="false" value="name1" style="background:#fff;width:100%">
+		        <TabPane label="企业信息" name="name1" class='right-content right-content-1'>
+		        	<div class='right-content right-content-1'>
+						<div style='display: flex;justify-content: space-between;;height: 40px; border-bottom: 1px solid rgb(228, 228, 228); font-size: 18px; font-weight: 900; line-height: 40px;'>
+							<span style='font-size:18px;font-weight:600;margin-left:10px'></span><!--企业信息-->
+							<div>
+							  <Button type="ghost"  shape="circle" style="border:none;background:#3b77e3;color:#fff;margin-right: 10px;" @click="save" >
+							 	<Icon type="checkmark-round" style="margin-right:5px;color:#fff;"></Icon>{{$t('public.SaveBtn')}}
+							 </Button>
+							 </div>
+					 	</div>
+						<div style='display:flex;'>
+							<div style='margin-left:40px;margin-top:30px;'>
+								<div class='right-left' style='width: 182px;flex: 0 0 182px;'>
+									<el-upload
+									  class="avatar-uploader"
+									  :action="logoUrl"
+									  name='file'
+									  :show-file-list="false"
+									  :before-upload="beforeAvatarUpload"
+									  :on-success="addsucess"
+									  accept="image/*"
+									  >
+									  <img v-if="logo" :src="logo" class="avatar" width='100%' height='100%'>
+									  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+									</el-upload>
+
+								</div>
+								<div class='logotext'><span>上传 Logo</span></div>
+							</div>
+							<div style='width:600px;margin:10px'>
+								<ul>
+									<li class='con-list'>
+										<span>{{$t('manage.EnterpriseName')}}</span><input v-model='entName'  style='width:100%;' :placeholder="$t('manage.EnterpriseNamePlaceholder')">
+									</li>
+									<li class='con-list'>
+										<span>{{$t('manage.Legal')}}</span><input  v-model='contactor' style='width:100%;' :placeholder="$t('manage.LegalPlaceholder')">
+									</li>
+									
+									<li class='con-list'>
+										<span>{{$t('manage.phone')}}</span><input v-model='phone'  style='width:100%;' :placeholder="$t('manage.phonePlaceholder')">
+									</li>
+									<li class='con-list'>
+										<span>{{$t('manage.address')}}</span><input  v-model='address' style='width:100%;' :placeholder="$t('manage.addressPlaceholder')">
+									</li>
+									<li class='con-list'>
+										<span>{{$t('manage.type')}}</span><input v-model='enterType'  style='width:100%;' :placeholder="$t('manage.typePlaceholder')">
+									</li>
+									<li class='con-list'>
+										<span>企业行业</span>
+										<Select style="width:100%;" :label-in-value='true' filterable v-model='valueT' placeholder="请输入企业行业" @on-change="orderselectedIndustry">
+					                    <Option v-for="item in orderListnameIndustry" :value="item.value" :key="item.value">{{ item.label }}</Option>
+					                </Select>
+									</li>
+									<li class='con-list'>
+										<span >{{$t('manage.time')}}</span>
+										<DatePicker type="date" :options="optionsB" :value="approvalDate" placement="bottom-end" placeholder="选择注册日期" style="width: 100%;margin-top:3px"  @on-change="endTimeChange"></DatePicker>
+										
+									</li>
+								<div class='mark' v-if='ismark'>{{markText}}</div>
+								</ul>
+
+							</div>
+						</div>
+						<div style='width:100%;padding:10px;margin-bottom:120px;text-align: left;'>
+							<div style='width:100%;margin:10px auto;text-align:left'>{{$t('manage.info')}}:</div>
+							<Uediter :value="ueditor.value" :id='editor1' :config="ueditor.config" ref="ue"></Uediter>
+						</div>
+					</div>
+		        </TabPane>
+		        <TabPane label="编码规则" name="name2" class='right-content'>
+		        	<!--编码规则-->
+					<div >
+					 <div style='margin: 10px;'>
+						<Table border highlight-row :columns="columnsCode" :data="CodedataList" @on-row-dblclick='dblclick' ></Table>
+
+						<div class="page-box">
+						 <Page :total="codetotal" show-total size="small" :pageSize='codepageSize'  @on-change="codegetData" @on-page-size-change="codechangePageSize"></Page>
+						</div>
+						</div>
+					</div>
+		        </TabPane>
+		        <TabPane label="操作日志" name="name3" class='right-content'>
+		        	<!--操作日志-->
+					<div >
+						 <div style='display: flex;;height: 40px; border-bottom: 1px solid rgb(228, 228, 228); font-size: 18px; font-weight: 900; line-height: 40px;'>
+						 	<span style='font-size:18px;font-weight:600;margin:0 10px;'></span>
+		                    <Input style='width:300px' v-model='searchKeyword' :placeholder="$t('manage.logoPlaceholder')">
+		                    	<span slot="append"  @click='search' style='cursor:pointer;'>{{$t('manage.ModelsearchBtn')}}</span>
+		                    </Input>
+		           		 </div>
+						<div style='margin: 10px;'>
+							<Table border stripe ellipsis ref="selection" width='100%' :columns="columns" :data="dataList" ></Table>
+							<div class="page-box">
+								 <Page :total="total" size='small' show-total  :pageSize='pageSize'  @on-change="getData" ></Page>
+							</div>
+						</div>
+					</div>
+		        </TabPane>
+		    </Tabs>
+		<!--弹框搜索-->
+		<Modal v-model="locationisshow" width="360px">
+				<p slot="header" style="height:30px;line-height:30px;text-align:center">
+
+					<span>{{$t('manage.ModelSearchTitle')}}</span>
+				</p>
+				<div style='height:40px;display:flex;line-height:36px;text-align:center'>
+						<span style='width:100px'>{{$t('manage.ModelOperator')}}：</span>
+						<Input ></Input>
+				</div>
+				<div style='height:40px;display:flex;line-height:36px;text-align:center'>
+						<span style='width:100px'>{{$t('manage.Modelaccount')}}：</span>
+						<Input></Input>
+				</div>
+				<div style='height:40px;display:flex;line-height:36px;text-align:center'>
+						<span style='width:100px'>{{$t('manage.ModelTime')}}：</span>
+						<!-- <Input ></Input> -->
+						 <DatePicker type="daterange" placement="bottom-end" placeholder="选择时间" style="width: 100%" @on-change='getSelectData'></DatePicker>
+				</div>
+		<div slot="footer">
+			<div >
+				<div>
+				<!-- 	<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click=''><Icon type="close" style="margin-right:5px;" ></Icon>取消</Button> -->
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#00A7F5;color:#fff" @click=""><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('manage.ModelsearchBtn')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+
+	<!--编码修改-->
+	<Modal v-model="codeisshow" width="400px">
+		<p slot="header" style="height:30px;line-height:30px;text-align:center">
+			<span>{{$t('manage.ModeleditcodeTitle')}} - {{name}}</span>
+		</p>
+			<Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="90">
+				<FormItem :label="$t('manage.Modelprefix')" prop="prefixes">
+                	<Input v-model="formValidate.prefixes" :placeholder="$t('manage.Modelprefix')"></Input>
+           		</FormItem>
+           		<FormItem :label="$t('manage.timeF')">
+                	<Select  @on-change="orderselected" v-model='sing'>
+					       <Option v-for="(item,index) in dateFormatList" :value="item.label" :key="index">{{ item.label }}</Option>
+					</Select>
+           		</FormItem>
+           		<FormItem label="随机数长度" prop="serialNoLength">
+                	<Input v-model="formValidate.serialNoLength" placeholder="请输入随机数长度"></Input>
+           		</FormItem>
+			</Form>
+				
+		<div slot="footer">
+			<div style='display:flex;justify-content: space-between;text-align:left'>
+				<span></span>
+				<div>
+					 <Button shape="circle" type="ghost" style="display:inline-block;background:#ccc;color:#fff" @click="cencelCode"><Icon type="close" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.cancel')}}</Button>
+					 <Button shape="circle" type="ghost" style="display:inline-block;background:#3b77e3;color:#fff" @click="saveCode('formValidate')"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.SaveBtn')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+	</div>
+</template>
+<script type="text/javascript">
+import '../../../../static/ue/ueditor.config.js'
+import '../../../../static/ue/ueditor.all.min.js'
+import '../../../../static/ue/lang/zh-cn/zh-cn.js'
+import '../../../../static/ue/ueditor.parse.min.js'
+
+import LoadUrl from '@/components/common/actionLoad'
+import Uediter from '@/components/ue.vue'
+export default{
+	name:'settingDetails',
+	components: {Uediter},
+	data(){
+		return{
+			valueT:"",
+			orderListnameIndustry:[],
+			optionsB: {
+                disabledDate (date) {
+                	//当前日前开始以后的日期无法选择
+                    return date.getTime() > new Date().getTime();
+                }
+            },
+			endTimeOptions: {}, //结束日期设置
+			dateFormatList:[
+				{
+					label:"请选择",
+					value:0,
+				},
+				{
+					label:"YYMMDD",
+					value:1,
+				},
+				{
+					label:"mm",
+					value:2,
+				},
+				{
+					label:"mmDD",
+					value:3,
+				},
+				{
+					label:"yyMMdd",
+					value:4,
+				},
+			],
+			//编辑器提交的内容
+			editor1:'editor1',
+			editor2:'editor2',
+	        ueditor: {
+	          value: '',
+	          config: {}//编辑器配置
+	        },
+			ismark:false,
+			markText:"",
+			searchKeyword:'',//精准搜索keyword
+			uid: this.$store.state.common.token,
+			logoUrl:LoadUrl.httpPrefix.Url+'file/action/upload/image/url?c=管理图片&uid='+this.$store.state.common.token,
+			logo:'',
+			imageFile:'',//上传图片表单name
+			sel:'',
+			codetotal:0,
+			codepageSize:0,
+			codeisshow:false,
+			locationisshow:false,
+
+			numIndex:0,
+			orderListname:[
+			],
+
+			list:[this.$t('manage.Enterprise'),this.$t('manage.code'),this.$t('manage.logo')],
+			dataList:[],
+			columns:[
+				{
+					title:this.$t('manage.czcode'),//"操作编号"
+					key:''
+				},
+				{
+					title:this.$t('manage.ModelTime'),//"操作时间"
+					key:''
+				},
+				{
+					title:this.$t('manage.ModelOperator'),//"操作人"
+					key:''
+				},
+				{
+					title:this.$t('manage.Modelaccount'),//"操作帐号"
+					key:''
+				},
+				{
+					title:this.$t('manage.czcontent'),//"操作内容"czcontent
+					key:''
+				},
+				{
+					title:this.$t('manage.ip'),//"客户端IP"
+					key:''
+				},
+
+			],
+			CodedataList:[],
+			total:0,
+			pageSize:0,
+			columnsCode:[
+				
+				{
+					title:this.$t('manage.ModelName'),//"编码名称"
+					key:'title'
+				},
+
+				{
+					title:this.$t('manage.Modelprefix'),//"前缀"
+					key:'prefixes'
+				},
+				{
+					title:this.$t('manage.timeF'),//"时间格式"
+					key:'dateFormat'
+				},
+				{
+					title:this.$t('manage.ModelRandom'),//"随机数长度"
+					key:'serialNoLength'
+				},
+				{
+					title:"操作",
+					key:"action",
+					width:120,
+					align:"center",
+					render:(h,params)=>{
+						return h('Button',{
+							props:{
+								type:"primary"
+							},
+							on:{
+								'click':()=>{
+									//console.log(params)
+									this.codeisshow=true
+									this.codeId=params.row.id
+									this.formValidate.prefixes=params.row.prefixes
+						        	this.formValidate.serialNoLength=params.row.serialNoLength
+						        	this.dateFormat=params.row.dateFormat
+						        	this.creationDate =params.row.creationDate
+						        	this.codeId=params.row.id
+									this.name=params.row.title
+									this.sing=params.row.dateFormat
+								}
+							}
+						},'修改')
+					}
+				}
+
+			],
+			formValidate:{
+				prefixes:"",
+				serialNoLength:""
+			},
+			ruleValidate:{
+				serialNoLength:[
+				{ pattern: /^[1-9]\d*$/, message: '随机数应为数字且不能为0', trigger: 'blur'  }]
+			},
+			name:"",
+			prefixes:'',//前缀
+			dateFormat:'',//格式
+			serialNoLength:'',//随机数长度
+			codeId:'',
+			creationDate:'',
+			arr:[],
+			uid: this.$store.state.common.token,
+			//当前企业信息
+			engName:"",//当前英文名
+			entName:"",//当前企业名称
+			contactor:'',//联系人
+			phone:'',//企业电话
+			invoiceTitle:'',//企业英文
+			address:'',//企业地址
+			enterType:'',//企业类型
+			industry:"",//企业行业
+			approvalDate:'',//企业注册时间
+			user:this.$store.state.common.user,
+			sing:"",
+			codeObj:{}
+		}
+	},
+	methods:{
+		endTimeChange(e) { //设置结束时间
+	        this.approvalDate = e;
+	        // //console.log(new Date(this.approvalDate))
+	        // let endTime = this.approvalDate ? new Date(this.approvalDate).valueOf() - 1 * 24 * 60 * 60 * 1000 : '';
+	        // this.startTimeOptions = {
+	        //   disabledDate(date) {
+	        //     return date.valueOf() > endTime;
+	        //   }
+	        // }
+        },
+		//选中权限
+        addBg(index){
+			this.numIndex=index
+			//企业信息
+			if(index==0){
+				this.getenterprise()//企业详细
+			}
+			//编码
+			if(index==1){
+				this.getallcode()
+			}
+        },
+        //点击搜索
+        search(){},
+        //定位
+        location(){
+        	this.locationisshow=true
+        },
+        //获取日期
+        getSelectData(date){
+        	this.creationDate=date
+
+        },
+        //获取编码
+        getallcode(){
+        	this.axios.get('coderule/query?uid='+this.uid).then(res=>{
+        		if(res.data.status==200){
+        			this.CodedataList=res.data.rows
+	        		this.codetotal=res.data.total
+	        		this.codepageSize=res.data.pageSize
+	        		res.data.rows.forEach((item,index)=>{
+	        			// item.creationDate=new Date(item.creationDate).toLocaleDateString().replace(/\//g,'-')
+	        			// item.creationDate=this.getLocalTime(item.creationDate)
+	        			
+	        		})
+	        		
+        		}
+        	})
+        },
+        //双击编码修改
+        dblclick(rows,index){
+        	//console.log(rows)
+        	this.codeisshow=true
+        	this.formValidate.prefixes=rows.prefixes
+        	this.formValidate.serialNoLength=rows.serialNoLength
+        	this.dateFormat=rows.dateFormat
+        	this.creationDate =rows.creationDate
+        	this.codeId=rows.id
+        	this.name=rows.title
+        	this.sing=rows.dateFormat
+        },
+     
+        cencelCode(){
+        	this.codeisshow=false
+        },
+        //保存编码修改
+        saveCode(name){
+        	this.$refs[name].validate((valid) => {
+        		if(valid){
+        			this.axios.put('coderule/update?uid='+this.uid,{
+		    			id:this.codeId,
+		    			prefixes:this.formValidate.prefixes,
+		    			serialNoLength:this.formValidate.serialNoLength,
+		    			dateFormat:this.dateFormat,
+		    			creationDate:this.creationDate,
+    		}).then(res=>{
+    			if(res.data.status==200){
+					this.$notify({
+                        title:"",//
+                        message: this.$t('public.editSuccess'),//
+                        type: 'success',
+                        position: 'bottom-right'
+                    });
+					this.codeisshow=false
+					this.arr=[]
+					this.codeId=''
+					this.getallcode()
+    			}else{
+    				this.$notify({
+                        title:"",//
+                        message: res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+    			}
+    		})
+        		}
+        	})
+        	
+
+        },
+        orderselected(value){
+        	if(value=="请选择"){
+        		this.dateFormat=""
+        	}else{
+        		this.dateFormat=value
+        	}
+        	
+        	//console.log(value)
+
+        },
+        //上传前
+            beforeAvatarUpload(file) {
+                const isJPG = file.type === 'image/jpeg';
+                const isPng = file.type === 'image/png';
+                const isLt2M = file.size / 1024 / 1024 < 2;
+                if (!isJPG && !isPng) {
+                      this.$notify({
+                        title: "",//'失败',
+                        message:this.$t('public.upJpngOrPng'),
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+                if (!isLt2M) {
+                     this.$notify({
+                        title: "",//'失败',
+                        message:this.$t('public.upJpngTwoM'),
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+                return isJPG || isPng && isLt2M;
+              },
+        //上传图片成功
+			addsucess(res,file){
+				if(res.status==200){
+					this.logo=res.rows.url
+				}else{
+					this.$notify({
+                        title: "",//'失败',
+                        message:"上传失败",
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+				}
+				
+				// //console.log(res)
+			},
+        //当前企业信息
+        getenterprise(){
+        	this.axios.get('enterprise/view?uid='+this.uid).then(res=>{
+        		if(res.data.status==200){
+        			let data=res.data.rows
+        			this.engName=res.data.rows.engName//当前英文名称
+					this.entName=res.data.rows.entName//当前企业名称
+					this.phone=res.data.rows.phone//企业电话
+					this.contactor=res.data.rows.contactor//企业联系人
+					this.address=res.data.rows.address//企业地址
+					this.enterType=res.data.rows.enterType//企业类型
+					this.approvalDate=res.data.rows.approvalDate//企业注册时间
+					this.logo=res.data.rows.logo//企业注册时间
+					this.industry=res.data.rows.industry
+					// this.valueT=res.data.rows.industryId
+					this.valueT=res.data.rows.industry
+					this.ueditor.value=this.$refs.ue.setUEContent(data.intro)
+					//console.log(this.valueT)
+        		}else{
+        			this.$notify({
+	                    title:"",//
+	                    message:  res.data.errorMessage,
+	                    type: 'error',
+	                    position: 'bottom-right'
+	                });
+        		}
+        	})
+        },
+        //保存企业信息修改PUT /enterprise/update
+        save(){
+        	var regEn = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/im,
+   				regCn = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/im;
+			var pattern=/^1[3|4|5|7|8][0-9]{9}$/;
+            if(!pattern.test(this.phone)) {
+	            this.ismark=true
+	            this.markText='请输入正确的电话号码/手机号!'
+             }else if(regEn.test(this.address) || regCn.test(this.address)) {
+			    this.$notify({
+	                title:"",//
+	                message: '不能包含特殊字符',
+	                type: 'error',
+	                position: 'bottom-right'
+	            });
+
+			}else{
+				this.axios.put('/enterprise/update?uid='+this.uid,{
+        			engName:this.engName,//当前英文名称
+					entName:this.entName,//当前企业名称
+					phone:this.phone,//企业电话
+					contactor:this.contactor,//企业电话
+					address:this.address,//企业地址
+					enterType:this.enterType,//企业类型
+					approvalDate:this.approvalDate,//企业注册时间
+					logo:this.logo,	//企业logo
+					industry:this.valueT,
+					// industryId:this.valueT,
+					intro:this.$refs.ue.getUEContent()
+        	}).then(res=>{
+        		if(res.data.status==200){
+
+					this.$notify({
+                            title:"",//
+                            message: this.$t('public.SaveSuccess'),//
+                            type: 'success',
+                            position: 'bottom-right'
+                        });
+      					this.ismark=false
+						this.getenterprise()
+        		}else{
+
+					this.$notify({
+                            title:"",//
+                            message:  res.data.errorMessage,
+                            type: 'error',
+                            position: 'bottom-right'
+                        });
+        		}
+        	})
+			}
+
+        },
+        //获取编码翻页
+        codegetData(current){
+            this.axios.get('/coderule/query?offset='+current+'&uid='+this.uid).then((res)=>{
+          		if(res.data.status==200){
+          			this.CodedataList = res.data.rows
+          		}
+            })
+        },
+        //翻页
+        codechangePageSize(size){
+            this.codepageSize = size
+        },
+        //获取行业GET /param/industry 行业
+        getIndustry(){
+        	this.axios.get('/param/industry?uid='+this.uid).then(res=>{
+        		if(res.data.status==200){
+        			let data=res.data.rows
+        			//console.log(data)
+        			data.forEach((x,index)=>{
+        				let arr={
+	        				value:data[index].title,
+	        				label:data[index].title
+	        			}
+	        			this.orderListnameIndustry.push(arr)
+	        			//console.log(this.orderListnameIndustry)
+        			})
+        			
+        		}
+        	})
+        },
+        //行业选择
+        orderselectedIndustry(s){
+        	this.valueT=s.value
+        	//console.log(s)
+        },
+        //获取操作日志
+        getDataLog(){
+        	this.axios.get('?uid='+this.uid).then(res=>{
+        		if(res.data.status==200){
+        			let data=res.data
+        			this.dataList=data.rows
+        			this.total=data.total
+        			this.pageSize=data.pageSize
+        		}
+        	})
+        },
+        //操作日志翻页
+       getData(current){
+       		this.axios.get('?offset='+current+'&uid='+this.uid).then(res=>{
+        		if(res.data.status==200){
+        			let data=res.data
+        			this.dataList=data.rows
+        			this.total=data.total
+        			this.pageSize=data.pageSize
+        		}
+        	})
+       },
+	},
+	created(){
+		this.$nextTick(x=>{
+			this.getenterprise()//企业详细
+			this.getIndustry()
+			//console.log(this.valueT)
+		})
+	},
+	mounted(){
+	}
+}
+</script>
+<style type="text/css" scoped>
+.mark{
+	position:relative;
+	top:0;
+	left:0;
+	color:#d53c39;
+}
+
+.setting
+{
+	width:100%;
+	height:100%;
+	display:flex;
+	background: rgb(230,233,236);
+	overflow: hidden;
+}
+
+.head{
+	width:90.5%;
+	line-height:50px;
+	position:fixed;
+	z-index:999;
+	display:flex;
+	height:50px;
+	background: #fff;
+	justify-content: space-between;
+	border-bottom:1px solid #e4e4e4;
+}
+.left{
+
+	height:49px;
+	line-height:50px;
+
+	background: #fff;
+	/*position:fixed;*/
+	z-index:9;
+}
+.main-left{
+	 width: 120px;
+	margin-right: 3px;
+	flex: 0 0 120px;
+	font-size: 14px;
+	background: #fff;
+}
+
+.right,.main-right{
+	width:100%;
+	height:100%;
+	/*margin-left:22%;*/
+	/*margin-bottom:60px;*/
+	background: #fff;
+}
+.right{
+	position:relative;
+	z-index:9;
+	display: flex;
+
+}
+.main-left li{
+	list-style: none;
+	height:50px;
+	line-height: 50px;
+	width:100%;
+}
+.main-left li:hover{
+	cursor:pointer;
+}
+.main-left li span{
+	margin-left:20px;
+}
+.bg{
+	background:rgb(241,245,247);
+	color:rgb(59,119,227);
+}
+.right-content{
+	/*margin-top:56px;*/
+	width:100%;
+	text-align: center;
+	background: #f8f8f8;
+	height:100%;
+	float:right;
+	background: #fff;
+	display:inline-block;
+	overflow: auto
+}
+.table{
+	width:100%;
+}
+ input{
+		display: inline-block;
+
+		text-indent: 10px;
+
+		background-color: #fff;
+		background-image: none;
+		border: 1px solid #f8f8f8;
+
+
+		-webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+		-o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+		transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+	}
+ input:focus{
+		border-color: #66afe9;
+		outline: none;
+		-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 4px rgba(102, 175, 233, .6);
+		box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 4px rgba(102, 175, 233, .6);
+	}
+.con-list{
+	display: flex;
+	height:40px;
+	border-top:1px solid #eee;
+	border-left:1px solid #eee;
+	border-right:1px solid #eee;
+	line-height: 34px;
+
+}
+.con-list:last-child{
+	border-bottom:1px solid #eee;
+	margin-bottom: 0px!important
+	}
+.con-list span{
+	width:100px;
+	border-right:1px solid #eee;
+}
+.page-box{
+	margin-top:5px;
+	margin-bottom:100px;
+}
+.suredw{
+   	float:left;
+    width:100px;
+    height:26px;
+    line-height: 26px;
+    text-align: center;
+    border-radius:18px;
+   	color:#fff;
+   	margin-top:12px;
+    background: #3B77E3;
+    cursor:pointer;
+  }
+  .right-content-1{
+  	width:100%;
+  	overflow: auto
+  }
+  .avatar-uploader{
+  	text-align: center;
+  }
+  .avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 180px;
+    height: 180px;
+    line-height: 180px;
+    text-align: center;
+  }
+  .avatar {
+    width: 100%;
+    height: 100%;
+    display: block;
+    border-radius: 50%;
+  }
+  .right-left{
+	width: 182px;
+	height: 182px;
+    margin-top: 26px;
+	text-align: center;
+	border:1px dashed #e1e1e1;
+}
+.logotext{
+	width:180px;
+	height:30px;
+	line-height: 55px;
+	text-align: center;
+
+}
+</style>
+<style type="text/css" scoped>
+.el-upload--text{
+	width:180px!important;
+	height:180px!important;
+	border:none!important;
+}
+
+</style>

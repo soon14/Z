@@ -1,0 +1,946 @@
+<template>
+  <div id="coupon">
+    <!--固定导航-->
+		<div class="head">
+			<!-- <Col span='6'> -->
+				<div class="left-top">
+					<p class="wldw">
+						<span style="width:42px;font-weight:900">{{$t('public.screen')}}：</span>
+						 <Select style="width:100px" v-model='valueT'  placeholder="全部"  @on-change="orderselected"><!--@on-change="orderselected"-->
+					        <Option v-for="item in orderListname" :value="item.value" :key="item.value">{{ item.label }}</Option>
+					    </Select>
+					</p>
+					<div>
+						<!--新建-->
+						<span class="top-left-btn"  @click="add">
+							<Icon type="plus" style="position:absolute;top:7px;left:8px"></Icon></span>
+						
+					</div>
+				</div>
+			<!-- </Col> -->
+			<!-- <Col span='18'> -->
+				<div class="right-top">
+
+				<div style='position:absolute;left:360px'>
+					<span style="margin-left:20px;font-size:14px;font-weight:900">{{addoredit}}</span> 
+				</div>
+				<div style='position:absolute;right:125px'>
+					<div v-if="addText">
+						<Button shape="circle"  style="background:#3b77e3;margin-right:5px;color:#fff;border:none" @click="saveCgInfo('formValidate')" >
+						<Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.SaveBtn')}}</Button><!--保存-->
+						
+						<Button shape="circle"  @click="addCancel"  style="background:#999999;color:#fff;margin-right:10px;" ><Icon type="close" style="margin-right:5px;"></Icon>{{$t('public.cancel')}}</Button><!--取消-->
+						
+						<span @click="cancelHome" style="cursor:pointer;display: inline-block;margin-right: 15px;"><Icon type="close" class="cha" ></Icon></span>
+					</div>
+
+					<div v-if="!addText" class="changebutton">
+
+						<Button type="ghost"  shape="circle"  @click="edit" v-if="editshow" style="background:#40ca98;margin-right:5px;color:#fff;border:none">
+							 <i class="el-icon-edit" style=";margin-right:5px;"></i>
+						{{$t('public.EditBtn')}}<!--修改-->
+						</Button>
+
+						<Button type="ghost"  shape="circle" @click="saveEdit('formValidateE')" v-if="!editshow" style="background:#3b77e3;margin-right:5px;color:#fff;border:none">
+							<Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.SaveBtn')}}
+						</Button>
+						<Button shape="circle" v-if="!editshow"  @click="editCancel"  style="background:#999999;color:#fff;margin-right:10px;" ><Icon type="close" style="margin-right:5px;"></Icon>{{$t('public.cancel')}}</Button>
+						
+						<Dropdown trigger="click" style="margin-left: 4px" v-if='editshow'>
+			                  <Button shape="circle" type="ghost" style="background:#ff7d16;color:#fff;border:none">{{$t('public.more')}}
+			                  <span><i class="ivu-icon ivu-icon-chevron-down"></i></span>
+			              </Button>
+
+			              <DropdownMenu slot="list">
+			                <span  @click="start"><DropdownItem >{{$t('public.start')}}</DropdownItem></span>
+			                <span  @click="stop"><DropdownItem >{{$t('public.stop')}}</DropdownItem></span>
+			                  
+			                <span  @click="del"><DropdownItem >{{$t('public.del')}}</DropdownItem></span>
+			                
+			              </DropdownMenu>
+			           </Dropdown>
+						<span @click="cancelHome" style="cursor:pointer;display: inline-block;margin-left:10px;margin-right: 15px;" ><Icon type="close" class="cha" ></Icon></span>
+					</div>	
+				</div>		
+				</div>
+			<!-- </Col> -->
+		</div>
+	<!--左侧会员卡列表-->
+	<div style='height:60px'></div>
+	<!--左侧列表-->
+		<div class="left-content">
+			<div class='locationSearch'>
+				<Input style='padding:10px 20px' v-model='searchKeyword' :placeholder="$t('public.inputname')" @on-enter='enterSearch'>
+                <span slot="append"  @click='search' style='cursor:pointer;'>{{$t('public.search')}}</span>
+                </Input>
+			</div>
+			<p v-if="AllcrmCard.length==0" class='scrollFix'>
+				<Spin>
+	                <div>{{$t('public.NoData')}}</div>
+	            </Spin>
+		    </p>
+			<Scroll :on-reach-bottom="handleReachEdge" :height="height" v-else>
+				<li class="con-list" v-for="(item,index) in AllcrmCard" @click="getcginfo(item.id,index)" :class="{bg:numIndex==index}">
+					<span style="margin-right: 10px;">
+				 	 	<Checkbox :value="numIndex==index"></Checkbox>
+					</span>
+					 <div>
+						<p class="list-title1">{{item.name}}</p>
+						<p class="list-title2">{{item.useTypeDesc}}</p>
+						<span class="date">{{item.createTime}}</span>
+						<span class="date" style='position:absolute;top:50px;right:20px;'>
+							{{$t('member.xfs')}} {{item.consumeMoneyFrom}} {{$t('member.give')}} {{item.rule}} {{$t('member.jf')}}<!--消费 送 积分-->
+						</span>
+					</div>
+				</li>
+				
+			</Scroll>
+		</div>
+		<!--新增-->
+		<div class="add-right" v-if='addText'>
+			<Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
+				<div >
+					<div style='width:100%'>
+						<FormItem :label="$t('member.name')" prop="name">
+		                	<Input v-model="formValidate.name" :placeholder="$t('member.name')" style='width:444px'></Input>
+		           		</FormItem>
+	           		</div>
+	           		<div style="display:flex;width:100%">
+	           			<FormItem :label="$t('member.orderje')" prop="consumeMoneyFrom">
+		                	<Input v-model="formValidate.consumeMoneyFrom" :placeholder="$t('member.orderje')"></Input>
+		           		</FormItem>
+	           			<FormItem :label="$t('member.crmintegral.zsjf')" prop="rule">
+				             <Input v-model="formValidate.rule" :placeholder="$t('member.crmintegral.zsjf')" ></Input>
+		           		</FormItem>
+	           		</div>
+	           		<FormItem :label="$t('public.remark')" prop="remark">
+		                <Input type='textarea' style='width:444px' v-model="formValidate.remark" :placeholder="$t('public.remark')"></Input>
+		           	</FormItem>
+           		</div>
+           		<!--活动店铺：-->
+				<!-- <div style="display:flex;height:36px;line-height:36px;margin:10px 0">
+					<span style="width:80px">试用店铺：</span>
+					<RadioGroup v-model="stores" @on-change="getstoresname">
+				        <Radio label="全部店铺"></Radio>
+				        <Radio label="指定店铺"></Radio><span>(已选{{selectedstores.length}}个)</span>
+				    </RadioGroup>
+				</div>
+				<div class="table1"  v-if='storesinshow'>
+					<Tabs value="name1" :animated='false'>
+				        <TabPane label="选择店铺" name='name1'>
+				        	<Table size="small" border  height="300"  :columns="storeskey1" :data="Allstores" >
+							</Table>
+							<div class="page-box">
+								 <Page :total="storetotal" show-total  :pageSize='storepageSize'  @on-change="storegetData" @on-page-size-change="storechangePageSize"></Page>
+							</div>
+				        </TabPane>
+				        <TabPane label="已选店铺" >
+				        	<Table size="small" border  height="300"  :columns="storeskey2" :data="selectedstores" >
+							</Table>
+				        </TabPane>
+				    </Tabs>
+				</div> -->
+			</Form>
+		</div>
+		<!--修改-->
+		<div class="add-right" v-if='xiugai'>
+			<Form ref="formValidateE" :model="formValidate" :rules="ruleValidate" :label-width="80">
+				<div >
+					<div style='width:100%'>
+						<FormItem :label="$t('member.name')" prop="name">
+		                	<Input v-model="formValidate.name" :placeholder="$t('member.name')" style='width:444px'></Input>
+		           		</FormItem>
+	           		</div>
+	           		<div style="display:flex;width:100%">
+	           			<FormItem :label="$t('member.orderje')" prop="consumeMoneyFrom"><!--消费金额-->
+		                	<Input v-model="formValidate.consumeMoneyFrom" :placeholder="$t('member.orderje')"></Input>
+		           		</FormItem>
+	           			<FormItem :label="$t('member.crmintegral.zsjf')" prop="rule"><!--赠送积分-->
+				             <Input v-model="formValidate.rule" :placeholder="$t('member.crmintegral.zsjf')" ></Input>
+		           		</FormItem>
+	           		</div>
+	           		<FormItem :label="$t('public.remark')" prop="remark">
+		                	<Input type='textarea' style='width:444px' v-model="formValidate.remark" :placeholder="$t('public.remark')"></Input>
+		           	</FormItem>
+           		</div>
+           		<!--活动店铺：-->
+				<!-- <div style="display:flex;height:36px;line-height:36px;margin:10px 0">
+					<span style="width:80px">试用店铺：</span>
+					<RadioGroup v-model="stores" @on-change="getstoresname">
+				        <Radio label="全部店铺"></Radio>
+				        <Radio label="指定店铺"></Radio><span>(已选{{selectedstores.length}}个)</span>
+				    </RadioGroup>
+				</div>
+				<div class="table1"  v-if='storesinshow'>
+					<Tabs value="name1" :animated='false'>
+				        <TabPane label="选择店铺" name='name1'>
+				        	<Table size="small" border  height="300"  :columns="storeskey1" :data="Allstores" >
+							</Table>
+							<div class="page-box">
+								 <Page :total="storetotal" show-total  :pageSize='storepageSize'  @on-change="storegetData" @on-page-size-change="storechangePageSize"></Page>
+							</div>
+				        </TabPane>
+				        <TabPane label="已选店铺" >
+				        	<Table size="small" border  height="300"  :columns="storeskey2" :data="selectedstores" >
+							</Table>
+				        </TabPane>
+				    </Tabs>
+				</div> -->
+			</Form>
+			
+
+		</div>
+		<!--详情-->
+		<div class="right-content right-detail add-right" ref="detail" style="display:none">
+			
+				<div class="detail-top">
+					<Form :label-width="80">
+					<div >
+						<div style='width:100%'>
+							<FormItem :label="$t('member.name')" prop="name">
+			                	<Input disabled v-model="formValidate.name" :placeholder="$t('member.name')" style='width:444px'></Input>
+			           		</FormItem>
+		           		</div>
+		           		<div style="display:flex;width:100%">
+		           			<FormItem :label="$t('member.orderje')" prop="consumeMoneyFrom"><!--消费金额-->
+			                	<Input  disabled v-model="formValidate.consumeMoneyFrom" :placeholder="$t('member.orderje')"></Input>
+			           		</FormItem>
+		           			<FormItem :label="$t('member.crmintegral.zsjf')" prop="rule"><!--赠送积分-->
+					             <Input disabled v-model="formValidate.rule" :placeholder="$t('member.crmintegral.zsjf')" ></Input>
+			           		</FormItem>
+		           		</div>
+		           		<FormItem :label="$t('public.remark')" prop="remark">
+			                	<Input disabled type='textarea' style='width:444px' v-model="formValidate.remark" :placeholder="$t('public.remark')"></Input>
+			           	</FormItem>
+	           		</div>
+                  </Form>
+				</div>
+				 <!--状态-->
+                <!-- <div class="lanren" :class="{bgd1:CrmCardDetail.useTypeDesc=='全店通用',bgd2:CrmCardDetail.useTypeDesc=='新增'}">
+                   <span>{{CrmCardDetail.useTypeDesc}}</span> 
+                </div>​ -->
+		</div>
+		<div class='tot'>
+            <span>共<span style='color:#ff0000'> {{totalcl}} </span>条</span>
+            <span>当前第<span style='color:#ff0000'> {{current}} </span>页</span>
+     </div>
+     
+  </div>
+</template>
+<script>
+export default{
+	data(){
+		return{
+			searchKeyword:"",
+			gzObj:{},
+			total1:0,
+			pageSize1:0,
+			goodskeyword:"",
+			jfgzisshow:false,
+			goods:[],
+			goodskey:[
+				{
+					title:"名称",
+					key:"key",
+
+				},
+				{
+					title:"消费金额",
+					key:"consumeMoneyFrom",
+
+				},
+			],
+			stores:"全部店铺",
+			issdisabled:true,
+			allStore:0,//全店通用
+			storesinshow:false,
+			storesNum:0,
+			storepageSize:0,
+			storetotal:0,
+			storeIds:"",//店铺编号逗号分割
+			Allstores:[],
+			selectedstores:[],//店铺
+			//弹出框店铺data
+       		storeskey1:[
+                	
+                	{
+                		title:"店铺名",
+                		
+                		key:"name"
+                	},
+                	{
+                		title:"店铺编号",
+                		
+                		key:"code"
+                	},
+                	{
+                		title:"联系人",
+                		
+                		key:"person"
+                	},
+                	{
+                	title:'操作',
+                	width:100,
+                	key:"actiion",
+                	render:(h,params)=>{
+                		return h('Button',{
+                			props:{
+                				type:"primary"
+                			},
+                			on:{
+                				'click':()=>{
+                					this.selectedstores.push(params.row)
+                				}
+                			}
+                		},'选取')
+                	}
+                }
+                	
+            ],
+            storeskey2:[
+            	{
+            		title:"店铺名",
+            		
+            		key:"name"
+            	},
+            	{
+            		title:"店铺编号",
+            		
+            		key:"code"
+            	},
+            	{
+            		title:"联系人",
+            		
+            		key:"person"
+            	},
+            	{
+            	title:'操作',
+            	width:100,
+            	key:"actiion",
+            	render:(h,params)=>{
+            		return h('Button',{
+            			props:{
+            				type:"primary"
+            			},
+            			on:{
+            				'click':()=>{
+            					this.selectedstores.splice(params.row.index,1)
+            				}
+            			}
+            		},'取消')
+            	}
+            	}
+            	
+        	],
+			TIME:"无限制",
+			
+			formValidate:{
+				name:"",//名称
+				consumeMoneyFrom:"",//消费金额
+				rule:"",//赠送积分
+				remark:"",//备注
+			},
+			ruleValidate:{
+				name:[{ required: true, message: '名称不能为空', trigger: 'blur' },
+				{ pattern:/^[A-Za-z\d_\-\u4e00-\u9fa5]{1,20}$/, message: '存在非法字符或超过指定长度20个字符' }],
+				consumeMoneyFrom:[
+					{ required: true, message: '消费金额不能为空', trigger: 'blur' },
+					{ pattern: /^\d{1,10}$/, message: '消费金额应为数字或小数且小数点后两位', trigger: 'blur'  }
+				],
+				rule:[
+				{ pattern: /^[1-9]\d*$|^0$/, message: '赠送积分应为数字', trigger: 'blur'  }],
+				
+			},
+			totalcl:0,
+			pageSizecl:0,
+			
+			xiugai:false,
+			
+			numIndex:0,
+			current:1,
+			addText:true,
+			editshow:false,
+			addoredit:this.$t('member.crmintegral.add'),//"新增规则",
+			
+			height:"",
+			numIndex:0,
+			indexId:"",//会员卡ID
+			AllcrmCard:[],
+			uid: this.$store.state.common.token,
+			valueT:1,
+			orderListname:[
+				{
+					label:"不可用",
+					value:0
+				},
+				{
+					label:"可用",
+					value:1
+				},
+				
+			],
+			CrmCardDetail:{},
+			
+		}
+	},
+	methods:{
+		//是否默认
+		change(v){
+			this.formValidate.defaultValue=v
+		},
+		//时间限制
+		xgchange(v){
+			if(v=='无限制'){
+				this.timeLimit=0
+				// this.isdisabled=true
+			}else{
+				this.timeLimit=1
+				// this.isdisabled=false
+			}
+		},
+		//店铺单选
+		//获取店铺单选框
+		// getstoresname(s){
+		// 	if(s=='全部店铺'){
+		// 		this.allStore=0,//全店通用
+		// 		this.storesinshow = false
+		// 		this.axios.get('/store/query?uid='+this.uid).then((res)=>{
+		// 			this.storesNum=res.data.total
+		// 		})
+		// 	}else if(s='指定店铺'){
+		// 			this.allStore=1,//指定店铺
+		// 			this.storesinshow = true 
+		// 			this.axios.get('/store/query?uid='+this.uid).then((res)=>{
+		// 			this.Allstores= res.data.rows
+		// 			this.storepageSize=res.data.pageSize
+		// 			this.storetotal=res.data.total
+		// 		})
+		// 	}
+		// },
+		//  //切换一条页
+  //       storegetData(current){
+  //           this.axios.get('/store/query?offset='+current+'&uid='+this.uid).then((res)=>{
+  //               //console.log(res)
+  //               this.Allstores = res.data.rows
+                
+  //           })
+  //       },
+  //       //翻页
+  //       storechangePageSize(size){
+  //           this.storepageSize = size
+  //       },
+		// //店铺编号逗号分隔
+		// selectStoreMore(){
+		// 	this.storesNum = this.selectedstores.length
+		// 	this.storeList=this.selectedstores
+		// 	let str=[]
+		// 	for(let i =0;i<this.selectedstores.length;i++){
+		// 		str.push(this.selectedstores[i].id)
+		// 	}
+		// 	let s = str.join(',')
+		// 	this.storeIds = s
+		// 	console.log(this.storeIds)
+			
+		// },
+		//点击新增会员卡
+		add(){
+			this.xiugai=false
+			this.addText = true
+			this.addoredit='新增会员卡'
+			this.$refs.detail.style.display='none'
+			this.formValidate.name=''
+			
+			
+		},
+		//点击保存完成POST /integral/add 新增会员积分
+		saveCgInfo(name){
+			this.$refs[name].validate((valid) => {
+				if(valid){
+					this.axios({
+						method:"post",
+						url:'/integral/add?uid='+this.uid,
+						data:{
+							name:this.formValidate.name,
+							consumeMoneyFrom:Number(this.formValidate.consumeMoneyFrom),//消费金额
+							rule:Number(this.formValidate.rule),//赠送积分
+							remark:this.formValidate.remark//备注
+						}
+					}).then(res=>{
+						if(res.data.status==200){
+							this.$notify({
+						        title:"",//
+						        message:this.$t('public.SaveSuccess'),//
+						        type: 'success',
+						        position: 'bottom-right'
+					        });
+					        this.getAllCrmCard(1)
+					        this.formValidate.name=''
+					        this.formValidate.consumeMoneyFrom=''
+					        this.formValidate.rule=''
+					        this.formValidate.remark=''
+							
+						}else{
+							this.$notify({
+						        title:"",//
+						        message:res.data.errorMessage,
+						        type: 'error',
+						        position: 'bottom-right'
+					        });
+						}
+					})
+				}
+			})
+			
+		},
+		
+		//取消保存
+		addCancel(){
+			this.formValidate.name=''
+	        this.formValidate.consumeMoneyFrom=''
+	        this.formValidate.rule=''
+	        this.formValidate.remark=''
+		},
+		//点击叉号
+		cancelHome(){
+			this.$router.push('/operationHome')
+		},
+		//点击修改
+		edit(){
+			this.$refs.detail.style.display='none'
+			this.editshow=false
+			this.xiugai=true
+			this.addText=false
+
+		},
+		//保存修改
+		saveEdit(name){
+			this.$refs[name].validate((valid) => {
+				if(valid){
+					this.axios.put('integral/update?uid='+this.uid,{
+						id:this.indexId,
+						name:this.formValidate.name,
+						consumeMoneyFrom:Number(this.formValidate.consumeMoneyFrom),//消费金额
+						rule:Number(this.formValidate.rule),//赠送积分
+						remark:this.formValidate.remark//备注
+					}).then(res=>{
+						if(res.data.status==200){
+							
+							this.$notify({
+			                        title:"",//
+			                        message:this.$t('public.editSuccess'),//
+			                        type: 'success',
+			                        position: 'bottom-right'
+			                    });
+							this.getAllCrmCard(1)
+							this.formValidate.name=''
+							this.formValidate.rule=''
+							this.formValidate.consumeMoneyFrom=''
+							this.formValidate.remark=''//备注
+							
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+				}
+			})
+			
+		},
+		//取消修改
+		editCancel(){
+			this.formValidate.name=''
+			this.formValidate.rule=''
+			this.formValidate.consumeMoneyFrom=''
+			this.formValidate.remark=''//备注
+			
+		},
+		
+		//点击左侧列表
+		getcginfo(id,index){
+			this.indexId=id
+			this.numIndex=index
+			this.addText=false
+			this.editshow=true
+			this.xiugai=false
+			this.$refs.detail.style.display='block'
+			this.formValidate.name=''
+			this.formValidate.rule=''
+			this.formValidate.consumeMoneyFrom=''
+			this.formValidate.remark=''//备注
+			this.getCrmCardDetail(id)
+		},
+		//会员卡详情
+		getCrmCardDetail(id){
+			this.axios.get('integral/get/'+this.indexId+'?uid='+this.uid).then(res=>{
+				this.CrmCardDetail=res.data.rows
+				this.addoredit=this.CrmCardDetail.name
+				this.name=res.data.rows.name
+				this.formValidate.rule=String(res.data.rows.rule)
+				this.formValidate.consumeMoneyFrom=String(res.data.rows.consumeMoneyFrom)
+				this.formValidate.remark=res.data.rows.remark//备注
+				this.formValidate.name=res.data.rows.name
+				console.log(this.CrmCardDetail)
+				this.CrmCardDetail.createTime=new Date(this.CrmCardDetail.createTime).toLocaleDateString().replace(/\//g,'-')
+			})
+		},
+		//下拉加载更多
+        handleReachEdge(){
+			this.current++//默认10条
+	 		this.axios.get('integral/query?offset='+this.current+'&uid='+this.uid).then((res)=>{
+ 				if(this.current>Math.ceil(this.totalcl/this.pageSizecl)){
+                        this.current=Math.ceil(this.totalcl/this.pageSizecl)
+                    }
+		 		res.data.rows.forEach((item)=>{
+		 			
+		 			this.AllcrmCard.push(item)
+		 			this.AllcrmCard.forEach((x,index)=>{
+		 				
+						x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+					})
+		 		})
+
+		 	})
+                  
+        },
+        //获取所有会员卡
+        getAllCrmCard(s){
+        	this.axios.get('integral/query?uid='+this.uid+'&status='+s).then(res=>{
+        		if(res.data.status==200){
+        			this.AllcrmCard=res.data.rows
+        			this.totalcl=res.data.total
+        			this.pageSizecl=res.data.pageSize
+        			this.AllcrmCard.forEach((x,index)=>{
+		 				
+						x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+					})
+        		}
+        	})
+        },
+        enterSearch(){
+        	search()
+        },
+        //点击搜索
+        search(){
+        	this.axios.get('crmlevel/query?uid='+this.uid+'&keyword='+this.searchKeyword).then(res=>{
+        		if(res.data.status==200){
+        			this.AllcrmCard=res.data.rows
+        			this.totalcl=res.data.total
+        			this.pageSizecl=res.data.pageSize
+        			this.AllcrmCard.forEach((x,index)=>{
+		 				
+						x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+					})
+        		}
+        	})
+        },
+        del(){
+        	if(this.indexId){
+         		this.axios.delete('integral/delete/'+this.indexId+'?uid='+this.uid).then((res)=>{
+        		if(res.data.status==200){
+						this.$notify({
+	                        title:"",//
+	                        message:this.$t('public.deleteSuccess'),//
+	                        type: 'success',
+	                        position: 'bottom-right'
+	                    });
+        			this.getAllCrmCard(1)
+        		}else{
+        			
+				this.$notify({
+                    title:"",//
+                    message:res.data.errorMessage,
+                    type: 'error',
+                    position: 'bottom-right'
+                });
+        		}
+        	})
+         	}
+        },
+         stop(){
+        	if(this.indexId){
+         		this.axios.post('integral/disabled/'+this.indexId+'?uid='+this.uid).then((res)=>{
+        		if(res.data.status==200){
+        			
+        			this.$notify({
+	                        title:"",//
+	                        message:this.$t('public.normalT'),
+	                        type: 'success',
+	                        position: 'bottom-right'
+	                    });
+        		}else{
+        		this.$notify({
+                    title:"",//
+                    message:res.data.errorMessage,
+                    type: 'error',
+                    position: 'bottom-right'
+                });
+        		}
+        	})
+         	}
+        },
+         start(){
+         	if(this.indexId){
+         		this.axios.post('integral/enabled/'+this.indexId+'?uid='+this.uid).then((res)=>{
+        		if(res.data.status==200){
+        			
+        			this.$notify({
+	                        title:"",//
+	                        message:this.$t('public.normalS'),
+	                        type: 'success',
+	                        position: 'bottom-right'
+	                    });
+        		}else{
+        			this.$notify({
+                    title:"",//
+                    message:res.data.errorMessage,
+                    type: 'error',
+                    position: 'bottom-right'
+                });
+        		}
+        	})
+         	}
+        	
+        },
+        //积分规则弹框
+         clickjfgz(){
+         	this.jfgzisshow=true
+         }, 
+        
+		 //下拉框选择
+			orderselected(value){
+				this.valueT = value
+				this.getAllCrmCard(this.valueT)
+			},
+	},
+	mounted(){
+		if(this.$route.query.id){
+			this.indexId=this.$route.query.id
+			this.numIndex=this.$route.query.index
+			this.valueT=this.$route.query.s
+		}
+		this.getAllCrmCard(1)
+		this.height = document.documentElement.clientHeight
+		window.onresize=function(){
+			this.height = document.documentElement.clientHeight
+		}
+	}
+}
+</script>
+<style scoped>
+.head{
+	width:100%;
+	  height:60px;
+	  display: flex;
+	  position: fixed;
+	  z-index:10;
+	  background: #fff;
+	  border-bottom:1px solid #e4e4e4;
+}
+.tot{
+    position:fixed;
+    bottom:10px;
+    left:15%;
+    z-index:12;
+}
+.left-top{
+	height: 60px;
+	width:360px;
+	flex:0 0 360px;
+	line-height: 60px;
+	
+	display:flex;
+	background: #fff;
+	border-right:1px solid #eee;
+	border-bottom:1px solid #eee;
+	justify-content: space-between;
+}
+.wldw{
+	margin-left:20px;
+}
+.right-top{
+	height: 60px;
+	line-height: 60px;
+	display:flex;
+	margin-left:360px;
+	justify-content: space-between;
+	
+
+}
+.bg{
+	background: #dbe5f1;
+}
+.top-left-btn{
+background: #3B77E3;
+margin-right: 10px;
+color: #fff;
+border: none;
+width: 26px;
+height: 26px;
+border-radius: 26px;
+display: inline-block;
+position: relative;
+top: 12px;
+}
+.top-left-btn1{
+background: #FF7D16;
+}
+.top-left-btn:hover{
+cursor:pointer;
+}
+.left-content {
+	height:100%;
+		width:360px;
+    flex: 0 0 360px;
+		margin-bottom:300px;
+		z-index:9;
+		border-right:1px solid #E6E6E6;
+		position:fixed;
+		background:#F9F9F9;
+}
+.con-list {
+	display:flex;
+	align-items: center;
+	width: 100%;
+	word-wrap:break-word;
+	
+	border-bottom: solid 1px #E6E6E6;
+	padding: 35px 25px;
+	
+	cursor: pointer;
+	position:relative;
+}
+.con-list:hover{
+	cursor:pointer;
+}
+.con-list .date{
+	position:absolute;
+	right:10px;
+	top:10px;
+}
+.con-list .status{
+	width:100px;
+	
+	text-align: center;
+	position: absolute;
+    right: 0px;
+    top: 47px;
+}
+.con-list .list-title2 {
+	color: #0d0d0d;
+	position:absolute;
+	top:50px;
+}
+.con-list .list-title1 {
+	color: #0d0d0d;
+	position:absolute;
+	top:10px;
+}
+.con-list .txt {
+	color: #585858;
+	font-size: 12px;
+}
+.add-right {
+	background: #fff;
+		height:100%;
+		margin-left:360px;
+		padding-top:20px;
+	
+}
+.add-right-top,.crmCard-top{
+	width:100%;
+	display:flex;
+	margin-top:10px;
+}
+.crmCard-top{
+	margin-right:10px;
+}
+.crmCard-top span{
+	width:120px;
+	height:34px;
+	line-height: 34px;
+	text-align: center
+}
+
+.page-box{
+	margin-bottom:120px;
+	text-align: center;
+}
+ input.qyinput{
+	display: inline-block;
+	width: 300px;
+	height: 30px;
+	
+	text-indent: 10px;
+	color: #555;
+	background-color: #fff;
+	background-image: none;
+	border: 1px solid #eee;
+	border-radius:6px;
+}
+  .lanren {
+    position: absolute;
+    text-align: center;
+    top: 60px;
+    right: 15px;
+    width: 0;
+    height: 0;
+    border-top: 80px solid #d53c39;
+    border-left: 80px solid transparent;
+}
+.lanren span{
+    width: 60px;
+    height: 60px;
+    color: #fff;
+    display: block;
+    position: relative;
+    z-index: 9999999999999;
+    top: -66px;
+    right: 70px;
+    font-size: 12px;
+    font-weight: 900;
+    transform: rotate(46deg);
+}
+ input.qyinput:focus{
+	border-color: #66afe9;
+	outline: 0;
+	-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 4px rgba(102, 175, 233, .6);
+	box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 4px rgba(102, 175, 233, .6);
+}
+.crmqy{
+	margin-top:30px;
+	
+}
+.bottom{
+	margin-top: 20px;
+	margin-bottom: 120px;
+	width:100%;
+	text-align: center;
+	display:flex;
+}
+
+.detail-top ul.cgtable1{
+        margin-bottom: 20px
+    }
+    .detail-top ul li{
+        display:inline-block;
+        width:150px;
+        /*border:1px solid red;*/
+        margin:5px 10px;
+    }
+    .detail-top ul.cgtable li{
+        color:#2B8F8F;
+        margin:0px 10px;
+        font-weight:600;
+    }
+</style>
+<style type="text/css">
+.ivu-color-picker{
+	padding:0!important;
+	margin-top:5px!important;
+
+}
+</style>

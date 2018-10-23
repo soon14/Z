@@ -1,0 +1,556 @@
+<template>
+	<!--往来单位-->
+	<div class="units-box">
+		
+		<!--顶部的按钮-->
+		<div class="btns-box">
+			<div class="wldw">
+				<div>
+	                <span style="width:42px;font-weight:900">供应商：</span>
+	                 <Select style="width:100px"  placeholder="全部" @on-change="orderselected">
+	                    <Option v-for="item in orderListname" :value="item.value" :key="item.value">{{ item.label }}</Option>
+	                </Select>
+                </div>
+                <Input style='margin-top:10px;width:400px;margin-left:20px' v-model='keyword' placeholder='请输入编码/名称' @on-enter='entersSearch' >
+                    <span slot="append"  @click='search' style='cursor:pointer'>搜索</span>
+                </Input>
+            </div>
+			
+			<div style="margin-right:10px;">
+				<Button shape="circle" type="ghost" style="margin-right:5px;border:none;background:#43506C;color:#fff"  @click="zsImport">
+                    <img src="http://img.zsydian.com/icon/logo.png" width='10' height='15' style='vertical-align: top;margin-right:3px;'>
+                智胜导入</Button>
+				<Button shape="circle" type="ghost" style="margin-right:5px;border:none;background:#3b77e3;color:#fff"  @click="gotoAdd"><Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>新建</Button>
+				 <Dropdown trigger="click" style="margin-left: 4px">
+                    <Button shape="circle" type="ghost" style="background:#ff7d16;color:#fff;border:none">更多
+                    <span><i class="ivu-icon ivu-icon-chevron-down"></i></span>
+                </Button>
+
+                <DropdownMenu slot="list">
+              
+                    <span @click="startUnits"><DropdownItem >启用</DropdownItem></span>
+                    <span @click="stopUnits"><DropdownItem >停用</DropdownItem></span>
+                    <span  @click="delUnits"><DropdownItem >删除</DropdownItem></span>
+                  
+                </DropdownMenu>
+             </Dropdown>
+			</div>
+		</div>
+		<!--表格数据-->
+		<div class="table">
+			<Table border ref="selection" highlight-row  :columns="columns" :data="dataList" @on-row-dblclick="dbl" @on-select="selected" @on-row-click='clickRow'></Table>
+		<!--底部的分页-->
+		<div class="page-box">
+			 <Page :total="total" show-total  :pageSize='pageSize'  @on-change="getData" @on-page-size-change="changePageSize">
+			 </Page>
+		</div>
+		</div>
+		
+		<!--智胜导入-->
+	<Modal v-model="zsimportisshow" width="500" :mask-closable='false' >
+        <p slot="header" style="height:30px;line-height:30px;text-align:center">
+          <img src="http://img.zsydian.com/icon/logo.png" width='20' height='20' style='vertical-align: middle;'><span style='font-size:14px;vertical-align: middle;margin-left:5px'>智胜导入</span>
+        </p>
+       <el-steps  :active="zsactive"  :align-center='true' style='margin-left:120px'>
+              <el-step title="搜索用户"></el-step>
+              <el-step title="发送邀请"></el-step>
+              <el-step title="完成导入"></el-step>
+        </el-steps>
+        <!--第一步-->
+        <div v-if='zsactive==1'>
+            <div class='zsiscrm'>
+                <span >公司信息</span>
+                <Input style='width:300px' v-model='zsSearchName' placeholder='填写已是智胜会员的公司名称或联系人手机号'></Input>
+            </div>
+            <div class='searchBtn'>
+                <Button size="large" type="ghost" style="width:220px;border:none;background:#3b77e3;color:#fff"  @click="searchZsBtn">搜索用户</Button>
+            </div>
+        </div>
+        <!--第2步-->
+        <div v-if='zsactive==2'>
+            <div class='INFO'>
+                <img src="" width='80' height='80'>
+                <div class='crmInfo'>
+                    <span>公司名称：<span>xxx</span></span>
+                    <span>联系方式：<span>xxx</span></span>
+                    <span>联系人：<span>xxx</span></span>
+                </div>
+            </div>
+            <div class='searchBtn'>
+                <Button size="large" type="ghost" style="width:220px;border:none;background:#3b77e3;color:#fff"  @click="sendZsBtn">发送邀请</Button>
+            </div>
+        </div>
+        <!--第3步-->
+        <div v-if='zsactive==3'>
+            <div class='INFO1'>
+               <Icon type="checkmark-circled" size='40' style='color:#FF7D16'></Icon>
+               <div style='color:#ccc;margin-left:30px;font-size:14px'>
+                邀请已经发送给程晓晔 
+                <div>
+                等对方同意后导入到我的客户
+               </div>
+               </div>
+            </div>
+            <div class='searchBtn'>
+                <Button size="large" type="ghost" style="width:220px;border:none;background:#3b77e3;color:#fff"  @click="sureZsBtn">完成</Button>
+            </div>
+        </div>
+        <div slot="footer" style='margin:0px'>
+            
+        </div>
+    </Modal>
+	</div>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				keyword:'',
+				zsSearchName:'',//智胜导入搜索的名称
+                zsactive:1,//智胜导入步数
+                zsimportisshow:false,//智胜导入
+				isLoading:true,
+				current:0,
+				visible: false,
+				dataList: [], //往来单位列表
+				total: 0,
+				pageSize: 0,
+				valId:"",
+				uid: this.$store.state.common.token,
+				  orderListname:[
+                    {
+                        label:"全部",
+                        value:0
+                    },
+                    // {
+                    //     label:"未审核",
+                    //     value:1
+                    // },
+                    // {
+                    //     label:"未签收",
+                    //     value:3
+                    // },
+                    // {
+                    //     label:"进货单",
+                    //     value:5
+                    // },
+                    // {
+                    //     label:"退货单",
+                    //     value:7
+                    // }
+                ],
+				columns: [
+					{
+						type: 'selection',
+						width: 60,
+						align: 'center'
+					},
+					{
+						title:"编码",
+						key:"code",
+						ellipsis:true,
+					},
+					{
+						title: '名称',
+						
+						key: 'name'
+					},
+					{
+						title: '联系人',
+						
+						key: 'contract'
+					},
+					
+					{
+						title: '电话',
+						
+						key: 'contractTel'
+					},
+					{
+						title: '地址',
+						
+						key: 'ContentAddress'
+					},
+					{
+						title: '注册时间',
+					
+						key: 'createTime'
+					},
+					
+					{
+						title: '状态',
+						
+						width:80,
+						key: 'statusDesc',
+						render:(h,params)=>{
+                            return h('span',{
+                                style:{
+                                    color:params.row.statusDesc=='正常'?'#40ca98':params.row.statusDesc=='新增'?'#3b77e3':params.row.statusDesc=='已停用'?'#d53c39':''
+                                }
+                            },params.row.statusDesc)
+                        }
+					},
+				]
+				
+			}
+		},
+		methods: {
+			//智胜导入
+			zsImport(){
+                this.zsSearchName=''
+                this.zsactive=1
+                this.zsimportisshow=true
+            },
+            //第一步搜索用户
+            searchZsBtn(){
+                // if(this.zsSearchName==''){
+                //     return
+                // }else{
+                  
+                //     this.zsactive=2
+                // }
+                this.zsactive=2
+            },
+            //发送邀请
+            sendZsBtn(){
+                 this.zsactive=3
+            },
+            //完成导入
+            sureZsBtn(){
+                this.zsimportisshow=false
+            },
+			//点击增加  跳转到 增加供货商页面
+			gotoAdd: function() {
+				this.$router.push({
+					path: '/addunits',
+					query: {
+						id: ''
+					}
+				});
+			},
+			//表格选中时的数据，数组
+			selected(selection,row){
+				console.log(row)
+				this.valId = row.id
+			},
+			//双击表格一行
+			dbl(row,index){
+				this.$router.push({
+					path:'/addunits',
+					query:{
+						id:row.id,
+						index:index
+					}
+				})
+			},
+			 //搜索供应商
+            search(){
+               this.axios.get('partner/query?keyword='+this.keyword+'&uid='+this.uid).then((res)=>{
+                   if(res.data.status == '200') {
+						let data = res.data;
+						this.dataList = data.rows;
+						this.pageSize = data.pageSize;
+						this.total = data.total;
+						this.dataList.forEach((item,index)=>{
+							item.ContentAddress=item.province+item.city+item.address
+							item.createTime = new Date(item.createTime).toLocaleDateString().replace(/\//g,'-')
+							item.modifyTime = new Date(item.modifyTime).toLocaleDateString().replace(/\//g,'-')
+						})
+						} else {
+		                    this.$notify({
+	                        title:"",//
+	                        message:  res.data.errorMessage,
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+					}
+                })
+            },
+            entersSearch(){
+                this.search()
+            },
+			//获取供应商
+			getUnitsList: function() {
+				this.axios.get('/partner/query?uid=' + this.uid).then((res) => {
+					let data = res.data;
+					
+					if(res.data.status == '200') {
+						
+						this.dataList = data.rows;
+						this.pageSize = data.pageSize;
+						this.total = data.total;
+						this.dataList.forEach((item,index)=>{
+							  item.ContentAddress=item.province+item.city+item.address
+							item.createTime = new Date(item.createTime).toLocaleDateString().replace(/\//g,'-')
+							item.modifyTime = new Date(item.modifyTime).toLocaleDateString().replace(/\//g,'-')
+
+						})
+						
+					} else {
+						
+	                    this.$notify({
+                        title:"",//
+                        message:  res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+					}
+				})
+			},
+			//单击某一行
+			clickRow(data){
+				this.valId=data.id
+			},
+			//点击删除
+			delUnits: function() {
+				if(this.valId==''){
+					this.$notify({
+                        title:"",//
+                        message: '请选供应商',
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+				}else{
+					this.axios.delete('/partner/delete/' + this.valId + '?uid=' + this.uid).then((res) => {
+					
+						if(res.data.status == '200') {
+								this.$notify({
+			                        title:"",//
+			                        message: this.$t('public.deleteSuccess'),//
+			                        type: 'success',
+			                        position: 'bottom-right'
+			                    });
+	                        this.getUnitsList();
+						}
+					})
+				}
+				
+			},
+			//点击停用
+			stopUnits:function(id){
+				if(this.valId==''){
+					
+                    this.$notify({
+                        title:"",//
+                        message: '请选供应商',
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+				}else{
+					this.axios.post('/partner/disabled/'+this.valId+'?uid='+this.uid).then((res)=>{
+						 if(res.data.status=='200'){
+						 		this.$notify({
+		                        title:"",//
+		                        message:this.$t('public.normalT'),//
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+							this.getUnitsList();
+						 }
+					})
+				}
+				
+			},
+			//点击启用
+			startUnits:function(){
+				if(this.valId==''){
+					
+                    this.$notify({
+                        title:"",//
+                        message: '请选供应商',
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+				}else{
+					this.axios.post('/partner/enabled/'+this.valId+'?uid='+this.uid).then((res)=>{
+					 if(res.data.status=='200'){
+					 		this.$notify({
+		                        title:"",//
+		                        message:this.$t('public.normalS'),//
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+						this.getUnitsList();
+					 }
+				})
+				}
+				
+			},
+			 //切换一条页
+            getData(current){
+                this.axios.get('/partner/list?offset='+current+'&uid='+this.uid).then((res)=>{
+                    console.log(res)
+                    this.dataList = res.data.rows
+                })
+            },
+            //翻页
+            changePageSize(size){
+                this.pageSize = size
+            },
+            //下拉框选择
+            orderselected(value){
+                // this.value = value
+                // this.axios.get('/po/query/'+value+'?uid=' + this.uid).then((res) => {
+                //     if(res.data.status == '200') {
+                    
+                //         let data = res.data
+                //         this.dataList = data.rows;
+                //         this.isLoading = false
+                //         this.dataList.forEach((x)=>{
+                //             x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+                //             switch(x.status){
+                //                 case 77:
+                //                     x.statusDesc='签收完成'
+                //                 break;
+                //                 case 1:
+                //                     x.statusDesc='未审核'
+                //                 break;
+                //                 case 15:
+                //                     x.statusDesc='已审核'
+                //                 break;
+                //                 case 88:
+                //                     x.statusDesc='已完成'
+                //                 break;
+                //                 case 19:
+                //                     x.statusDesc='已作废'
+                //                 break;
+                //             }
+                            
+                //         })
+                        
+                //     } else {
+                //         this.$Notice.success({
+                //            title:"",//
+                //             desc: res.data.errorMessage
+                //         });
+                        
+                //     }
+                // })
+            },
+           
+		},
+		mounted() {
+			
+			this.getUnitsList();
+		}
+	}
+</script>
+
+<style lang="css" scoped>
+ .zsiscrm{
+        padding-top:30px;
+        margin-top:10px;
+        border-top:1px solid #e4e4e4;
+        display:flex;
+        justify-content: center;
+        align-items: center
+    }
+    .zsiscrm span{
+        display:block;
+        width:80px;
+        text-align: center;
+    }
+    .searchBtn{
+        width:100%;
+        text-align: center;
+        margin-top:40px;
+    }
+    .INFO{
+        padding-top:30px;
+        margin-top:10px;
+        border-top:1px solid #e4e4e4;
+        display: flex;;
+        justify-content: center;
+        align-items: center
+    }
+    .crmInfo{
+        display: flex;
+        flex-direction: column;
+        padding:0 30px;
+    }
+     .crmInfo span{
+        font-weight:600;
+        padding:3px 0;
+     }
+     .INFO1{
+        padding-top:30px;
+        margin-top:10px;
+        display: flex;;
+        justify-content: center;
+        align-items: center
+     }
+	.units-box {
+		width: 100%;
+		height: 100%;
+		background: #fff;
+	}
+	.btns-box {
+		width: 100%;
+		height: 50px;
+		display:flex;
+		justify-content: space-between;
+		
+		line-height: 50px;
+	}
+	.wldw {
+		display: flex;
+		font-size: 14px;
+		color: #585858;
+		margin-left:10px;
+	}
+	.right{
+		margin-right:10px;
+		margin-bottom:10px;
+	}
+	.right-btn{
+		background: #FF7D16;
+	    margin-right: 10px;
+	    color: #fff;
+	    border: none;
+	    width: 26px;
+	    height: 26px;
+	    border-radius: 26px;
+	    display: inline-block;
+	    position: relative;
+	    top: 10px;
+	}
+	.ivu-icon-chevron-down {
+		font-size: 10px;
+	}
+	.btns img {
+		width: 14px;
+		height: 14px;
+		vertical-align: middle;
+	}
+	.table {
+		margin:0 10px 120px 10px;
+	}
+
+	.page-box {
+		text-align: center;
+		margin-top:5px;
+	}
+	/***气泡提示样式设置***/
+
+	.qp-con {
+		width: 100%;
+		height: 30px;
+		color: #0d0d0d;
+		font-size: 14px;
+		line-height: 30px;
+		cursor: pointer;
+	}
+
+	.qp-con img {
+		width: 16px;
+		height: 16px;
+		vertical-align: middle;
+	}
+</style>
+<style type="text/css" >
+	.ivu-table-border th{
+		background:transparent!important;
+	}
+
+</style>

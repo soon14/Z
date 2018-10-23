@@ -1,0 +1,202 @@
+<template>
+	<div class="shopQuota">
+		<div class="coupon-top">
+			<p class="wldw">
+				<span>全部指标</span>
+				<span><i class="ivu-icon ivu-icon-chevron-down"></i></span>
+			</p>
+			
+			<div class="btn-add">
+				<Button type="ghost" @click="add"><Icon type="plus-round" style="margin-right:5px;color:#00a8ff"></Icon>新增</Button>
+				<Button type="ghost" @click="getCrmQuota">员工指标</Button>
+
+			</div>
+		</div>
+		<!--下方表格全部指标-->
+		<div v-if="addText">
+			<div class="table">
+				<Table border ref="selection"  :columns="shopQuota" :data="shopQuotaList" @on-row-dblclick="dbclick"></Table>
+			</div>
+			
+				<!--底部的分页-->
+			<div class="page-box">
+				 <Page :total="total" size="small" :pageSize='pageSize' show-sizer @on-change="getData" @on-page-size-change="changePageSize"></Page>
+			</div>
+		</div>
+		<div v-if="!addText">
+			员工指标
+		</div>
+	</div>
+</template>
+<script type="text/javascript">
+export default{
+	name:"shopQuota",
+	data(){
+		return{
+			addText:true,
+			pageSize:1,
+			total:1,
+			uid: this.$store.state.common.token,
+			shopQuota:[
+				
+				{
+					title:"总完成率",
+				
+					key:"totalRate"
+				},
+				{
+					title:"销售目标",
+					
+					key:"totalSales"
+				},
+				{
+					title:"当前完成总目标",
+					
+					key:"finTotalSales"
+				},
+				{
+					title:"目标销售额",
+					
+					key:"salesAmount"
+				},
+				{
+					title:"完成指标",
+				
+					key:"finSalesAmount"
+				},
+				
+				{
+					title:"销售额完成率",
+				
+					key:"salesRate"
+				},
+				{
+					title:"会员完成率",
+				
+					key:"crmRate"
+				},
+				
+				{
+					title:"会员消费人数",
+				
+					key:"crmSalesNum",
+					ellipsis:'true'
+				},
+				{
+					title:"操作",
+					key:"action",
+					
+					render:(h,parmas)=>{
+						return h('div',[
+							h('a',{
+								style:{
+									marginLeft:'10px'
+								},
+								on:{
+									'click':()=>{
+										this.del(parmas.row.id)
+									
+									}
+								}
+							},'删除')
+						])
+					}
+				}
+			],
+			//优惠券数据
+			shopQuotaList:[]
+		}
+	},
+	methods:{
+		//新增
+		add(){
+			this.$router.push({
+				path:"/addShopQuota"
+			})
+		},
+		//删除
+		del(id){
+			this.axios.get('zb/delete/'+id+'?uid='+this.uid).then((res)=>{
+				if(res.data.status==200){
+					this.$Notice.success({
+                       title:"",//
+                        desc: '删除成功'
+                    });
+				}else{
+					this.$Message.error(res.data.errorMessage);
+				}
+			})
+		},
+		
+		//双击表格一行
+		dbclick(row,index){
+			this.$router.push({
+				path:"/addShopQuota",
+				query:{
+					id:row.id,
+					index:index
+				}
+			})
+		},
+		//获取所有指标列表
+		getAllshopQuota(){
+				this.axios.get('/zb/query?uid='+this.uid).then((res)=>{
+					if(res.data.status==200){
+						console.log(res.data.rows.rows)
+
+						this.shopQuotaList = res.data.rows.rows
+						this.shopQuotaList.forEach((item,index)=>{
+							item.useDateFromLimit = new Date(item.useDateFromLimit).toLocaleString().replace(/\//g,'-')
+							item.useDateToLimit = new Date(item.useDateToLimit).toLocaleString().replace(/\//g,'-')
+						})
+					}else{
+						this.$Message.error(res.data.errorMessage);
+					}
+				})
+		},
+		//获取会员指标
+		getCrmQuota(){
+			this.addText=false
+		},
+		//切换一条页
+        getData(current){
+            this.axios.get('/zb/query?offset='+current+'&uid='+this.uid).then((res)=>{
+              
+                this.shopQuotaList = res.data.rows
+         })
+        },
+        //翻页
+        changePageSize(size){
+            this.pageSize = size
+        }
+	},
+	mounted(){
+		this.getAllshopQuota()
+	}
+}
+</script>
+<style type="text/css" scoped>
+
+.coupon-top{
+	width:100%;
+	height:40px;
+	line-height: 40px;
+	
+	display:flex;
+	margin-bottom:20px;
+	justify-content: space-between;
+}
+.coupon-top .wldw{
+	margin-left:20px;
+}
+.coupon-top .btn-add{
+	margin-right:40px;
+}
+.table{
+	height:100%;
+}
+.page-box {
+	text-align: right;
+	margin:20px;
+	}
+</style>

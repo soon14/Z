@@ -1,0 +1,566 @@
+<template>
+	<!--期初库存       此页已废除-->
+	<div class="units-box">
+		<!--顶部的按钮-->
+		<div class="btns-box">
+			<p class="wldw">
+			</p>
+			<div class="right" style='margin-right:20px'>
+				<Button type="primary" shape="circle" style="border:none;background:#3b77e3;color:#fff;" @click="gotoAdd">
+					 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.addnew')}}<!--新建-->
+				</Button>
+				<Button type="ghost" shape="circle"
+				style="border:none;background:#3b77e3;color:#fff;"
+				@click="storeImport"><Icon type="plus-round" style="margin-right:5px;color:#fff" ></Icon>
+				{{$t('public.import')}}</Button>
+				<!--更多-->
+				<Dropdown trigger="click">
+                    <Button shape="circle" type="ghost" style="background:#ff7d16;color:#fff;border:none">{{$t('public.more')}}
+                    <span><i class="ivu-icon ivu-icon-chevron-down"></i></span>
+                </Button>
+
+                <DropdownMenu slot="list">
+                    <span  @click="delcg"><DropdownItem >{{$t('public.del')}}</DropdownItem></span>
+                </DropdownMenu>
+             </Dropdown>
+			</div>
+		</div>
+		<!--表格数据-->
+		<div class="table">
+			<Table   border  ref="selection"  :columns="columns" :data="dataList" @on-row-dblclick="dbl" @on-row-click='clickRow'></Table>
+			<!--底部的分页-->
+			<div class="page-box">
+				 <Page :total="total" show-total show-sizer :page-size-opts="[10,20,30,40,50]"  placement='top' :pageSize='pageSize'  @on-change="getData" @on-page-size-change="changePageSize"></Page>
+			</div>
+		</div>
+
+		<!--导入-->
+    <Modal v-model="importisshow" width="700" :mask-closable='false' :closable='false' :title="$t('manage.warehouse.fileImport')"><!--文件导入-->
+        <el-steps  :active="active"  :align-center='true' style='margin-left:120px'>
+              <el-step :title="$t('manage.warehouse.fileImport')" ></el-step>
+              <el-step :title="$t('manage.warehouse.fileY')" ></el-step>
+              <el-step :title="$t('manage.warehouse.fileS')" ></el-step>
+            </el-steps>
+
+       <!--第一步-->
+        <div style='width:100%;margin:20px auto;text-align:center;' v-if='oneStep'>
+           <div style='width:100%;margin:20px auto;text-align:center;font-size:14px;font-weight:600;border-top:1px solid #e4e4e4'>
+				<span style='display:block;margin: 20px auto 30px 0;'>{{$t('manage.warehouse.fileImport')}}</span><!--文件导入-->
+			</div>
+            <div style='width:100%;margin:20px auto;text-align:center;position:relative'>
+                <div style='margin-left:-108px'>
+                	<span>{{$t('manage.warehouse.filechoose')}}：</span><!--选择文件-->
+                  	<Input  disabled style='width:202px' v-model='url'></Input>
+					<div style='position:absolute;top: 0px;right:175px;height: 35px;width: 80px;overflow: hidden;'>
+						<el-upload
+						ref="upload"
+						:show-file-list='false'
+						class="upload-demo"
+						:action="actionUrl"
+                        :on-progress='onprogress'
+						:on-success='success'
+						:before-upload='beforeAvatarUpload'
+						accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" >
+						<Button size="small" type="primary" style='background:#169BD5'>
+						{{$t('manage.warehouse.upload')}}</Button><!--点击上传-->
+
+						</el-upload>
+					</div>
+                    <div v-if='loadingisshow' >
+                        <Spin fix>
+                            <mu-icon value="rotate_right" color="blue"  class="demo-spin-icon-load"></mu-icon>
+                            
+                            <div>Loading...</div>
+                        </Spin>
+                    </div>
+                    <div v-if='errorisshow' class='importErrTxt'>{{error}}</div>
+                </div>
+            </div>
+            <div style='margin-top:40px;display: flex;justify-content:space-between;;margin-bottom:-40px;font-size:14px;cursor:pointer'>
+                <Button  type="ghost" style='margin-left:5px;border:none;background:#169BD5;color:#fff'>
+
+                     <a :href="skuLoad" style='color:#fff' @click.stop='stopsku($event)'>
+                     {{$t('manage.warehouse.fileD')}}</a>
+                </Button>
+                <span style="" @click="cancel">{{$t('public.cancel')}}</span><!--取消-->
+            </div>
+        </div>
+        <!--第二步-->
+         <div style='width:100%;margin:20px auto;text-align:center;' v-if='twoStep'>
+            <div style='width:100%;margin:20px auto;text-align:center;position:relative'>
+                <Table border height='300' :columns="importstore" :data="importstoredataList"></Table>
+            </div>
+            <div style='margin-top:40px;display: flex;justify-content:space-between;;margin-bottom:-40px;font-size:14px'>
+                <div>共导入：<span style='color:blue'>{{importstoredataList.length}}</span> 条数据</div>
+                <div>
+                    <span style="color:#448AFF;font-size:14px" @click="gothree"><a>{{$t('public.sureBtn')}}</a></span><!--确认-->
+                </div>
+            </div>
+         </div>
+     
+        <div slot="footer">
+
+        </div>
+    </Modal>
+	</div>
+</template>
+<script>
+import LoadUrl from '@/components/common/actionLoad'
+	export default {
+		data() {
+			return {
+				skuLoad:"",//商品导入模板
+                loadingisshow:false,
+                isshowtable:true,
+				errorisshow:false,
+                error:'',//导入失败的提示
+				        type:1,
+                oneStep:true,//第一步显示
+                twoStep:false,//第2步显示
+                threeStep:false,//第3步显示
+                active:1,//步数
+                importisshow:false,//导入显示
+                url:'',//选择文件后或名称
+                //POST /initinventory/sku 初始化商品导入
+				actionUrl:LoadUrl.httpPrefix.Url+'initinventory/sku?uid='+this.$store.state.common.token,//导入地址
+                //导入的商品文件数据key
+                importstore:[
+                    {
+                        title: '商品条码',
+                        key:'skuCode',
+
+                        width:140
+                    },
+                    {
+                        title: '商品名称',
+                         width:180,
+                        key:'skuName',
+                    },
+
+                    {
+                        title: '最高库存',
+                        key:'inventoryUp',
+
+                        width:100,
+                       align:'center'
+                    },
+
+                    {
+                        title: '最低库存',
+                        key:'inventory',
+
+                        width:100,
+                        align:'center'
+                    },
+                    {
+                        title: '零售价',
+                        key:'price',
+
+                        width:80,
+                       align:'center'
+                    },
+                    {
+                        title: '批发价',
+                        key:'wholePrice',
+
+                       width:80,
+                        align:'center'
+                    },
+                     {
+                        title: '成本价',
+                        key:'costPrice',
+
+                        width:80,
+                       align:'center'
+                    },
+                    {
+                        title: '分类',
+                        key:'className',
+
+                        width:80,
+                        align:'center'
+                    },
+                ],
+				importstoredataList:[],//导入的仓库文件数据
+				row:{},
+				isLoading:true,
+				visible: false,
+				dataList: [], //往来单位列表
+				orderListname:[
+					{
+						label:"全部",
+						value:0
+					},
+					
+				],
+				total: 0,
+				pageSize: 0,
+				valId:"",
+				uid: this.$store.state.common.token,
+				columns: [
+					
+                    {
+                        title: this.$t('manage.sku.SkuCode'),//'货号',
+                        key:'barcode',
+                       	width:160,
+                    },
+                     {
+                        title: this.$t('manage.sku.SkuName'),//'名称',
+                        key:'skuName',
+                   		ellipsis:true,
+                       	width:280,
+                    },
+                    {
+                        title: this.$t('manage.sku.SkuUnit'),//'单位',
+                        key:'unit',
+                        align: 'center',
+                        width:100,
+                    },
+                    {
+                        title:"库存",
+                        key:'qty',
+                        width:100,
+                        align:"center",
+                    },
+                   
+                    {
+                    	title:this.$t('manage.sku.FL'),//"分类",
+                    	key:"className",
+                    	width:160,
+                        align:"center",
+                    },
+                    {
+                        title: this.$t('manage.sku.costprice'),//'成本价',
+                        key:'costPrice',
+                         width:120,
+                        align:"center",
+                        render:(h,params)=>{
+                        	return h('span',{
+                        		style:{
+                        			color:"#d53c39"
+                        		}
+                        	},params.row.costPrice)
+                        }
+                    },
+                     {
+                        title:this.$t('manage.sku.wholeprice'),// '批发价',
+                        key:'wholePrice',
+                         width:120,
+                        align:"center",
+                      	render:(h,params)=>{
+                        	return h('span',{
+                        		style:{
+                        			color:"#d53c39"
+                        		}
+                        	},params.row.wholePrice)
+                        }
+
+                    },
+                    {
+                        title: this.$t('manage.sku.price'),// '吊牌价',
+                        key:'price',
+                         width:120,
+                        align:"center",
+                      	render:(h,params)=>{
+                        	return h('span',{
+                        		style:{
+                        			color:"#d53c39"
+                        		}
+                        	},params.row.price)
+                        }
+
+                    },
+                     {
+                        title: this.$t('manage.sku.issale'),//'可销售',
+                        key:'onlingSals',
+                         width:100,
+                        align:"center",
+                    
+                       render:(h,params)=>{
+                            return h('span',{
+                                style:{
+                                    color:params.row.onlingSals==true?'#40ca98':'#ff0000'
+                                }
+                            },params.row.onlingSals==true?this.$t('manage.sku.issale'):this.$t('manage.sku.issale1'))
+                        }
+                    },
+                     {
+                        title: this.$t('public.status'),//'状态',
+                        key:'statusDesc',
+                      
+                      	width:120,
+                      	render:(h,params)=>{
+                            return h('span',{
+                                style:{
+                                    color:params.row.status==1?'#40ca98':params.row.status==0?'#d53c39':params.row.status==99?'#d53c39':''
+                                }
+                            },params.row.statusDesc)
+                        }
+
+                    }
+					
+				]
+
+			}
+		},
+		methods: {
+			//导入
+            //下载阻止冒泡
+			stopsku(event){
+               event.stopPropagation()
+            },
+            //点击
+            storeImport(){
+                this.importisshow=true
+                this.active=1
+                this.oneStep=true//第一步显示
+                this.twoStep=false//第2步隐藏
+                this.threeStep=false//第3步隐藏
+                this.url=''
+                this.errorisshow=false
+                this.error=''
+                this.importstoredataList=[]
+
+            },
+            //取消
+            cancel(){
+                this.importisshow=false//弹框消失
+                this.oneStep=true//第一步显示
+                this.twoStep=false//第2步隐藏
+                this.threeStep=false//第3步隐藏
+                this.url=''
+                this.errorisshow=false
+                this.error=''
+                this.importstoredataList=[]
+            },
+            //第一步
+            importOne(){
+                if(this.url==''){
+                	this.errorisshow=true
+                    this.error=this.$t('manage.warehouse.upmb')
+                    return
+                }else{
+                    this.active=2
+                    this.oneStep=false
+					this.twoStep=true
+
+                }
+
+            },
+            //返回第一步
+            goOneStep(){
+                this.active=1
+                this.oneStep=true
+                this.twoStep=false
+            },
+            //进入第三
+            gothree(){
+                this.importisshow=false//弹框消失
+                this.oneStep=true//第一步显示
+                this.twoStep=false//第2步隐藏
+                this.threeStep=false//第3步隐藏
+                this.url=''
+                this.errorisshow=false
+                this.error=''
+            },
+            //继续编辑完成
+            sureimport(){
+                
+            },
+             //上传时
+            onprogress(event, file, fileList){
+            	
+            	this.loadingisshow=true
+            },
+             //上传之前类型之前
+            beforeAvatarUpload(file){
+
+               var fileName=new Array()
+                fileName =file.name.split('.');
+                const extension = fileName[fileName.length-1] === 'xls'
+                const extension2 =  fileName[fileName.length-1]=== 'xlsx'
+                const isLt2M = file.size / 1024 / 1024 < 10
+                if (!extension && !extension2) {
+
+                    this.$notify({
+				        title: "",
+				        message:this.$t('finance.upTemplate'),//'上传模板只能是xls、xlsx格式!',
+				        type: 'error',
+				        position: 'bottom-right'
+			        });
+                }
+                if (!isLt2M) {
+                    this.$notify({
+				        title: "",
+				        message: this.$t('finance.upTemplateB'),//'上传模板大小不能超过 10MB!',
+				        type: 'error',
+				        position: 'bottom-right'
+			        });
+                }
+
+             return extension || extension2 && isLt2M
+
+            },
+            //成功后的会掉
+            success(response, file, fileList){
+                 if(response.status==200){
+                   	this.error=this.$t('finance.upTemplateS')
+                   	this.errorisshow=true
+                    this.url=file.name
+                    console.log(response)
+                    this.loadingisshow=false
+                    this.importstoredataList=response.rows
+                    this.active=2
+                    this.oneStep=false
+                    this.twoStep=true
+                    this.getcgList()
+                }else{
+                    this.errorisshow=true
+                    this.loadingisshow=false
+                    this.error=response.errorMessage
+                   //console.log(response)
+                }
+            },
+			//点击增加  跳转到 增加供货商页面
+			gotoAdd: function() {
+				this.$router.push({
+					path: '/addinitinventory'
+				});
+			},
+			//双击表格一行
+			dbl(row,index){
+				this.$router.push({
+					path:'/addinitinventory',
+					query:{
+						id:row.id,
+						index:index
+					}
+				})
+			},
+			
+			//下拉框选择
+			orderselected(value){
+				this.value = value
+				
+			},
+			//获取期初化库存列表GET /initinventory/query 期初库存
+			getcgList: function() {
+				this.axios.get('/initinventory/query?uid=' + this.uid).then((res) => {
+					let data = res.data;
+					console.log(data.rows)
+					if(res.data.status == '200') {
+						this.dataList = data.rows;
+						this.total=res.data.total
+						this.pageSize=res.data.pageSize
+						this.dataList.forEach((x)=>{
+							x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+						
+						})
+					}
+				})
+			},
+			clickRow(data){
+				this.valId = row.id
+				this.row = row
+			},
+			//点击删除DELETE /initinventory/delete/{id} 删除
+			delcg: function() {
+			
+				this.axios.delete('initinventory/delete/' + this.valId + '?uid=' + this.uid).then((res) => {
+
+					if(res.data.status == '200') {
+						
+						this.$notify({
+					        title:"",//
+					        message: this.$t('public.deleteSuccess'),//
+					        type: 'success',
+					        position: 'bottom-right'
+				        });
+                      this.getcgList();
+					}else{
+						this.$notify({
+					        title:"",//
+					        message: res.data.errorMessage,
+					        type: 'error',
+					        position: 'bottom-right'
+				        });
+					}
+				})
+			},
+
+			 //切换一条页
+            getData(current){
+                this.axios.get('initinventory/query?offset='+current+'&uid='+this.uid).then((res)=>{
+                    //console.log(res)
+                    this.dataList = res.data.rows
+                    this.total=res.data.total
+					this.pageSize=res.data.pageSize
+                    this.dataList.forEach((x,index)=>{
+						x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+					})
+                })
+            },
+            //翻页
+            changePageSize(size){
+                this.pageSize = size
+                this.axios.get('initinventory/query?length='+size+'&uid='+this.uid).then((res)=>{
+                    let data=res.data
+                    this.dataList = data.rows
+                    this.total=data.total
+                    this.pageSize=data.pageSize
+                    this.dataList.forEach((x,index)=>{
+                        x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+                    })
+                })
+            }
+		},
+		mounted() {
+			this.getcgList();
+			this.skuLoad=LoadUrl.actionLoad.SKU//商品导入模板
+		}
+	}
+</script>
+
+<style lang="css" scoped>
+p.edit:hover{
+	color:blue;
+}
+	.units-box {
+		width: 100%;
+		height: auto;
+		background: #fff;
+	}
+	.btns-box {
+		width: 100%;
+		height: 50px;
+		display:flex;
+		justify-content: space-between;
+		
+		line-height: 50px;
+	}
+	 .wldw{
+    	margin-left:10px;
+    }
+	.right{
+		margin-right:10px;
+		margin-bottom:10px;
+	}
+	.ivu-icon-chevron-down {
+		font-size: 10px;
+	}
+	.btns img {
+		width: 14px;
+		height: 14px;
+		vertical-align: middle;
+	}
+	.table {
+		margin:0 10px;
+	}
+
+	.page-box {
+		text-align: center;
+		margin-top:2px;
+		margin-bottom:120px;
+	}
+	
+</style>

@@ -1,0 +1,411 @@
+<template>
+	<!--日报-->
+	<div class="units-box">
+		<div style='display:flex;height:100%;overflow:hidden'>
+			<Tabs :animated="false"  style="background:#fff;width:100%;height:100%" @on-click="getfhlistbg">
+		        <TabPane label="门店日报">
+		        	<!--门店日报-->
+					<div class="table">
+						<div style='display:flex;justify-content: space-between;border-bottom:1px solid #e4e4e4'>
+							<div  style='height:50px;line-height:50px'>
+							</div>
+							<div style='margin-top:10px;margin-right:10px;'>
+				                <Button type="primary" shape="circle" @click="exportS" >
+									<Icon type="document" style="margin-right:5px;color:#fff"></Icon>{{$t('public.export')}}<!--导出-->
+								</Button>
+							</div>
+							<!-- <Input style='margin-top:10px;width:400px' v-model='storekeyword' placeholder='请输入单号' @on-enter='entersSearchstore' >
+		                    	<span slot="append"  @click='searchstore' style='cursor:pointer'>搜索</span>
+		            		</Input> -->
+		            		
+						</div>
+						<div style='margin:10px 0'>
+							
+							<Table border :columns="storeKey" :data="storeData" ></Table>
+							<div class="page-box">
+								 <Page v-if='storetotal!=0' size='small' show-sizer :page-size-opts="[10,20,30,40,50]" :total="storetotal" show-total  :pageSize='storepageSize'  @on-change="storegetData" @on-page-size-change="storechangePageSize"></Page>
+							</div>
+						</div>
+					</div>
+		        </TabPane>
+		        <TabPane label="员工日报">
+		        	<!--员工日报-->
+					<div class="table" >
+						<div style='display:flex;justify-content: space-between;border-bottom:1px solid #e4e4e4'>
+							<div  style='height:50px;line-height:50px'>
+							
+							</div>
+							<div style='margin-top:10px;margin-right:10px;'>
+				                <Button type="primary" shape="circle" @click="exportS2" >
+									<Icon type="document" style="margin-right:5px;color:#fff"></Icon>{{$t('public.export')}}<!--导出-->
+								</Button>
+							</div>
+						</div>
+						<div style='margin:10px 0'>
+							<Table border :columns="crmKey" :data="crmData" ></Table>
+							<div class="page-box">
+								 <Page v-if='crmtotal!=0' size='small' show-sizer :page-size-opts="[10,20,30,40,50]" :total="crmtotal" show-total  :pageSize='crmpageSize'  @on-change="crmgetData" @on-page-size-change="crmchangePageSize"></Page>
+							</div>
+						</div>
+					</div>
+		        </TabPane>
+		    </Tabs>
+		</div>
+	</div>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				//门店日报
+				storekeyword:'',
+				storetotal: 0,
+				storepageSize: 0,
+				storeData:[],
+				storeKey:[ 
+					{
+						title:"店铺名称",
+						key:"storeName"
+					},
+					{
+						title:"编号",
+						key:"code"
+					},
+					{
+						title:"订单数量",
+						key:"orderCount"
+					},
+					{
+						title:"零售金额",
+						key:"lsje"
+					},
+					
+					{
+						title:"收银总金额",
+						key:"totalAmount"
+					},
+					{
+						title:"可提现金额",
+						key:"withDraw"
+					},
+					{
+						title:"导入会员数量",
+						key:"crmCount"
+					},
+					{
+						title:"开始时间",
+						key:"rq_s"
+					},
+					{
+						title:"结束时间",
+						key:"rq_e"
+					},
+				],
+				fhindex:0,
+				row:{},
+				visible: false,
+				fhlist:[
+					{
+						label:"门店日报",
+						value:0
+					},
+					{
+						label:"员工日报",
+						value:1
+					},
+				],
+				valId:"",
+				type:'',//下拉选中
+				crmkeyword:'',
+				crmtotal: 0,
+				crmpageSize: 0,
+				uid: this.$store.state.common.token,
+				crmData: [], //员工日报
+				crmKey:[  
+		            {
+						title:"员工姓名",
+						key:"employeeName"
+					},
+					{
+						title:"会员数",
+						key:"crmCount"
+					},
+					{
+						title:"销售额",
+						key:"salesAmount"
+					},
+					{
+						title:"提成",
+						key:"percentage"
+					},
+					{
+						title:"工作日期",
+						key:"workDate"
+					},
+		        ]
+
+			}
+		},
+		methods: {
+			//切换
+			getfhlistbg(index){
+				this.fhindex=index
+				if(this.fhindex==0){
+					//'门店日报'
+					this.getstore()
+				}
+				if(this.fhindex==1){
+					//'员工日报'
+					this.getsoreM()
+				}
+			},
+			//GET /mdata/store/d 门店日报
+			getstore(){
+				this.axios.get('/mdata/store/d?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.storeData=res.data.rows
+						this.storetotal=res.data.total
+						this.storepageSize=res.data.pageSize
+						this.storeData.forEach(x=>{
+							x.rq_s=new Date(x.rq_s).toLocaleDateString().replace(/\//g,'-')
+							x.rq_e=new Date(x.rq_e).toLocaleDateString().replace(/\//g,'-')
+						})
+					}
+				})
+			},
+			//门店日报翻页
+			storegetData(current){
+				this.axios.get('/mdata/store/d?offset='+current+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.storeData=res.data.rows
+						this.storetotal=res.data.total
+						this.storepageSize=res.data.pageSize
+						this.storeData.forEach(x=>{
+							x.rq_s=new Date(x.rq_s).toLocaleDateString().replace(/\//g,'-')
+							x.rq_e=new Date(x.rq_e).toLocaleDateString().replace(/\//g,'-')
+						})
+					}
+				})
+			},
+			storechangePageSize(size){
+				this.storepageSize=size
+				this.axios.get('/mdata/store/d?length='+size+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.storeData=res.data.rows
+						this.storetotal=res.data.total
+						this.storepageSize=res.data.pageSize
+						this.storeData.forEach(x=>{
+							x.rq_s=new Date(x.rq_s).toLocaleDateString().replace(/\//g,'-')
+							x.rq_e=new Date(x.rq_e).toLocaleDateString().replace(/\//g,'-')
+						})
+					}
+				})
+			},
+			//GET /mdata/employee/d 员工日报
+			getsoreM(){
+				this.axios.get('/mdata/employee/d?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.crmData=res.data.rows
+						this.crmtotal=res.data.total
+						this.crmpageSize=res.data.pageSize
+						this.crmData.forEach(x=>{
+							
+						})
+					}
+				})
+			},
+			//员工日报翻页
+			crmgetData(current){
+				this.axios.get('/mdata/employee/d?offset='+current+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.crmData=res.data.rows
+						this.crmtotal=res.data.total
+						this.crmpageSize=res.data.pageSize
+						
+					}
+				})
+			},
+			crmchangePageSize(size){
+				this.crmpageSize=size
+				this.axios.get('/mdata/employee/d?length='+size+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.crmData=res.data.rows
+						this.crmtotal=res.data.total
+						this.crmpageSize=res.data.pageSize
+						
+					}
+				})
+			},
+			//门店日报导出
+			exportS(){
+				this.axios.get('orderExport/orderExcel?uid='+this.uid,{
+            		params:{
+						beginTime:this.searchDate,
+						endTime:this.searchDate2,
+					}
+            	}).then(res=>{
+            		if(res.data!=null){
+						this.$notify({
+							title:"",//
+							message: res.data.errorMessage,
+							type: 'error',
+							position: 'bottom-right'
+						});
+					}else{
+						window.location.href=res.request.responseURL
+					}
+            	})
+			},
+			//员工日报导出
+			exportS2(){
+				this.axios.get('orderExport/orderExcel?uid='+this.uid,{
+            		params:{
+						beginTime:this.searchDate,
+						endTime:this.searchDate2,
+					}
+            	}).then(res=>{
+            		if(res.data!=null){
+						this.$notify({
+							title:"",//
+							message: res.data.errorMessage,
+							type: 'error',
+							position: 'bottom-right'
+						});
+					}else{
+						window.location.href=res.request.responseURL
+					}
+            	})
+			},
+		},
+		mounted() {
+			this.getstore()
+		}
+	}
+</script>
+
+<style lang="css" scoped>
+p.edit:hover{
+	color:blue;
+}
+	.units-box {
+		width: 100%;
+		background: rgb(230,233,236);
+	}
+	.btns-box {
+		width: 100%;
+		height: 50px;
+		display:flex;
+		justify-content: space-between;
+		background: #fff;
+		line-height: 50px;
+	}
+	 .wldw{
+    	margin-left: 15px;
+    	font-size:18px;font-weight:bold;
+    }
+	.right{
+		margin-right:10px;
+		margin-bottom:10px;
+	}
+	.ivu-icon-chevron-down {
+		font-size: 10px;
+	}
+	.btns img {
+		width: 14px;
+		height: 14px;
+		vertical-align: middle;
+	}
+	.main-left{
+		width: 120px;
+		margin-right: 3px;
+		flex: 0 0 120px;
+		font-size: 14px;
+		background: #fff;
+	}
+	.main-left li{
+		list-style: none;
+		padding:10px 0;
+		width:100%;
+		
+	}
+	.main-left li span{
+		margin-left:20px;
+	}
+.table {
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	background: #fff;
+	padding: 0 10px;
+}
+	.bor{
+		background:rgb(241,245,247);
+        color:rgb(59,119,227);
+	}
+.mtewm{
+width:100%;
+
+display:flex;
+padding: 0px 200px 0 200px;
+
+justify-content: center;
+align-items: center;
+flex-direction: column;
+    	
+}
+.mtewm span{
+	width:260px;
+	height:30px;
+	line-height: 30px;
+	font-weight:600;
+	text-align: center
+}
+.mtewm div{
+	width:260px;
+	height:60px;
+	line-height: 35px;
+	
+}
+
+.ygewm{
+	 padding:10px;
+	width:100%;
+	height:100%;
+	/*border:1px solid red;*/
+	display: flex;
+	flex-wrap: wrap;
+	 /*justify-content: center;*/
+    text-align: center;
+	/*justify-content: center;*/
+	/*flex-direction: column*/
+	background: #fff
+}
+.ygewm-list{
+	margin:10px;
+    height: 195px;
+    width:17%;
+    padding:10px;
+    justify-content: center;
+    text-align: center;
+    border: 1px solid #ccc;
+}
+.page-box{
+	width:100%;
+	margin-right:56px;
+	margin-top:15px;
+	text-align: center;
+	margin-bottom:120px;
+}
+.bottom-btn{
+	width:100%;
+	height:80px;
+	/*border:1px solid red;*/
+	margin-top:10px;
+	background: #f8f8f8;
+	line-height: 80px;
+	margin-right:56px;
+	text-align:right;
+
+}
+</style>

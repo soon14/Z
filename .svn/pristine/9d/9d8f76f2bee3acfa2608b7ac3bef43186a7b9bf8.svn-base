@@ -1,0 +1,707 @@
+<template>
+	<!--新增 修改门店-->
+	<div class="add-box">
+		<!--定位的顶部搜索框-->
+		<div class="search-box">
+			<div class="add">+</div>
+			<Input icon="ios-search" placeholder="请输入关键字" style="width:200px;float:left;"></Input>
+		</div>
+		<!--tab标签-->
+		<ul class="tabs">
+			<li style="border-bottom:1px solid #00a8ff;">门店</li>
+			<li>导购</li>
+		</ul>
+		<!--内容部分-->
+		<div class="content-box">
+			<div class="add-left">
+				<div class="left-title">
+					<p class="title-txt">全部仓库
+						<span><i class="ivu-icon ivu-icon-chevron-down"></i></span>
+					</p>
+					<div class="left-btn">
+						<button @click="addNew" style="margin-right:10px;margin-top:-10px;background:#00a8ff;">新建</button>
+						<button style="background:#ff8b00;">
+							<i class="ivu-icon ivu-icon-navicon"></i>
+					</button>
+					</div>
+				</div>
+				<!--左边内容-->
+				<div class="left-content">
+					<div class="con-list" v-for="item in storeList">
+						<p class="list-title">{{item.code}}</p>
+						<p class="list-title">{{item.name}}</p>
+						<p class="txt">地址:{{item.address}}</p>
+					</div>
+				</div>
+				<!--底部分页-->
+				<div class="page-box">
+					<Page :total="total" show-sizer :pageSize='pageSize'></Page>
+				</div>
+			</div>
+			<!--右边内容-->
+			<div class="add-right">
+				<div class="right-title">
+					<div class="title-btn">
+						<button v-show="showAdd" @click="saveAdd" style="background:#308dbf;color:#fff;margin-right:20px;">保存</button>
+						<button v-show="!showAdd" style="background:#308dbf;color:#fff;margin-right:20px;">修改</button>
+						<button style="color:#1d2531;background:#bdc2e8;margin-right:70px;">删除</button>
+					</div>
+				</div>
+				<!--新增-->
+				<div v-show="showAdd">
+					<div class="right-content">
+						<form action="">
+							<div class="code-box">
+								<p>门店名称:</p>
+								<input type="text" v-model="name" placeholder="请输入门店名称" />
+							</div>
+							<div class="code-box" style="width:55%;">
+								<p>联系人:</p>
+								<input type="text" v-model="person" placeholder="请输入联系人" style="width:80%;" />
+							</div>
+							<div class="code-box">
+								<p>联系电话:</p>
+								<input type="text" v-model="phone" placeholder="请输入联系电话" />
+							</div>
+							<div class="code-box" style="width:55%;">
+								<p>随机号码:</p>
+								<input type="text" v-model="ranCode1" placeholder="请输入随机号码" style="width:30%;margin-right:10px;" />
+								<input type="text" v-model="ranCode2" placeholder="请输入随机号码" style="width:46%;" />
+							</div>
+							<div class="code-box" style="width:100%;">
+								<p style="margin-right:8px;">所属区域:</p>
+								<!-- Vue2 -->
+								<region-picker :province="province" @onchange="change"  :city="city" :district="district" style="width:38%;float:left;padding-left:20px;color:#666666;height:35px;border-color:#ececec;border-radius:4px;">
+								</region-picker>
+								<input type="text" v-model="address" placeholder="请输入详细地址" style="width:42%;margin-left:2%;" @blur="getLngLat">
+								<img src="../../../static/img/location.png" alt="" />
+								<div class="map-box">
+									<!--百度地图-->
+									<baidu-map :center="center" @ready="handler" :zoom="zoom" style="width:100%;height:100%;">
+										<bm-marker :position="center" :dragging="true" animation="BMAP_ANIMATION_BOUNCE" :icon="{url: '../../../static/img/zspo.png', size: {width: 80, height: 100}}">
+										</bm-marker>
+									</baidu-map>
+								</div>
+							</div>
+							<div class="code-box" style="width:100%;margin-top:190px;">
+								<p>关联导购:</p>
+								<input type="text" v-model="gldg" placeholder="请输入关联导购" style="width:40%;margin-left:10px;" />
+							</div>
+							<div class="code-box" style="width:100%;">
+								<p style="margin-right:10px;">门店照片:</p>
+								<div class="img" v-for="(item,index) in uploadList">
+									<img :src="item" alt="" class="img" />
+								</div>
+								<el-upload class="avatar-uploader" header="application/json" action="http://dev.zsydian.com:9003/pss/store/add" :show-file-list="false" :on-success="handleAvatarSuccess">
+									<i class="el-icon-plus avatar-uploader-icon"></i>
+								</el-upload>
+							</div>
+							<div class="code-box" style="width:100%;margin-top:80px;">
+								<p style="margin-right:10px;">运营时间:</p>
+								<div style="width:80%;float:left;">
+									<Row>
+										<Col span="12">
+										<TimePicker type="timerange" v-model="endTime" placement="请选择结束时间"  style="width: 168px;float:left;"></TimePicker>
+										</Col>
+									</Row>
+								</div>
+							</div>
+							<div class="data-btn">
+								<ul>
+									<li @click="chooseDate(item.flag)" :class="item.flag==currentLi?'act':''" v-for="item in weekend" v-model="item.flag">{{item.name}}
+										<img v-show="item.flag==currentLi" src="../../../static/img/selected.png" alt="" />
+									</li>
+								</ul>
+							</div>
+							<div style="width:100%;height:120px;">
+								<div class="code-box" style="width:100%;margin-top:10px;">
+									<p style="margin-right:8px;">商家推荐:</p>
+									<textarea name="" v-model="info" rows="" cols="" placeholder="你可以简述门店的推荐商品或者是活动,也可以向买家陈述特殊服务!(最多200字)" style="width:84%;height:120px;padding:10px;border-color:#ececec;float:left;"></textarea>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+				<!--修改显示的页面-->
+				<div v-show="!showAdd">
+					<div class="right-content edit">
+						<form action="">
+							<div class="code-box">
+								<p>门店名称:</p>
+								<input type="text" placeholder="请输入门店名称" />
+							</div>
+							<div class="code-box" style="width:55%;">
+								<p>联系人:</p>
+								<input type="text" placeholder="请输入联系人" style="width:80%;" />
+							</div>
+							<div class="code-box">
+								<p>联系电话:</p>
+								<input type="text" placeholder="请输入联系电话" />
+							</div>
+							<div class="code-box" style="width:55%;">
+								<p>随机号码:</p>
+								<input type="text" placeholder="请输入随机号码" style="width:30%;margin-right:10px;" />
+								<input type="text" placeholder="请输入随机号码" style="width:46%;" />
+							</div>
+							<div class="code-box" style="width:100%;">
+								<p style="margin-right:8px;">所属区域:</p>
+								<!-- Vue2 -->
+								<region-picker :province="province" :city="city" :district="district" style="width:38%;float:left;padding-left:20px;color:#666666;height:35px;border-color:#ececec;border-radius:4px;">
+								</region-picker>
+								<input type="text" placeholder="请输入详细地址" style="width:42%;margin-left:2%;">
+							</div>
+							<div class="code-box" style="width:100%;margin-top:-5px;">
+								<p>关联导购:</p>
+								<input type="text" placeholder="请输入关联导购" style="width:40%;margin-left:10px;" />
+							</div>
+							<div class="code-box" style="width:100%;">
+								<p style="margin-right:10px;">门店照片:</p>
+								<div class="img" v-for="(item,index) in uploadList">
+									<img :src="item" alt="" class="img" />
+								</div>
+								<el-upload class="avatar-uploader" action="https://jsonplaceholder.typicode.com/posts/" :show-file-list="false" :on-success="handleAvatarSuccess">
+									<i class="el-icon-plus avatar-uploader-icon"></i>
+								</el-upload>
+							</div>
+							<div class="code-box" style="width:100%;margin-top:80px;">
+								<p style="margin-right:10px;">运营时间:</p>
+								<div style="width:80%;float:left;">
+									<Row>
+										<Col span="12">
+										<TimePicker type="time" placeholder="请选择开始时间" style="width: 168px;float:left;"></TimePicker>
+										</Col>
+										<Col span="12">
+										<TimePicker type="timerange" placement="请选择结束时间" placeholder="Select time" style="width: 168px;float:left;"></TimePicker>
+										</Col>
+									</Row>
+								</div>
+							</div>
+							<div class="data-btn">
+								<ul>
+									<li>周一</li>
+								</ul>
+							</div>
+							<div style="width:100%;height:120px;">
+								<div class="code-box" style="width:100%;margin-top:10px;">
+									<p style="margin-right:8px;">商家推荐:</p>
+									<textarea name="" rows="" cols="" placeholder="你可以简述门店的推荐商品或者是活动,也可以向买家陈述特殊服务!(最多200字)" style="width:84%;height:120px;padding:10px;border-color:#ececec;float:left;"></textarea>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				total: '',
+				pageSize: '',
+				province: '',
+				city: '',
+				district: '',
+				center: {
+					lng: 116.404,
+					lat: 39.915
+				},
+				zoom: 16,
+				uploadList: [],
+				imageUrl: '',
+				showAdd: true, //新增显示页面
+				storeList:[],//门店列表
+				name:'',
+				person:'',
+				phone:'',
+				ranCode1:'',
+				ranCode2:'',
+				address:'',
+				gldg:'',//关联导购
+				bgTime:'',
+				endTime:'',
+				info:'',
+				weekend:[
+				   {
+				   	name:'周一',
+				   	flag:'1'
+				   },
+				   {
+				   	name:'周二',
+				   	flag:'2'
+				   },
+				   {
+				   	name:'周三',
+				   	flag:'3'
+				   },
+				   {
+				   	name:'周四',
+				   	flag:'4'
+				   },
+				   {
+				   	name:'周五',
+				   	flag:'5'
+				   },
+				   {
+				   	name:'周六',
+				   	flag:'6'
+				   },
+				   {
+				   	name:'周日',
+				   	flag:'7'
+				   }
+				],
+				currentLi:'',
+				center: {
+					lng: 116.404,
+					lat: 39.915
+				},
+				zoom: 16,
+			}
+		},
+		methods: {
+			handleAvatarSuccess(res, file) {
+				var imgurl = file.url;
+				console.log(imgurl)
+				this.uploadList.push(imgurl);
+				if(this.uploadList.length > 5) {
+					this.$Notice.success({
+						desc: '最多上传5张'
+					});
+				}
+			},
+			//设置地图参数
+			handler({
+				BMap,
+				map
+			}) {
+				this.center.lng = 116.404;
+				this.center.lat = 39.915;
+				this.zoom = 15;
+			},
+			//点击新建
+			addNew:function(){
+				this.showAdd=true;
+			},
+			//获取门店列表
+			getStoreList:function(){
+				this.axios.get('store/list?uid='+this.uid).then((res)=>{
+					let data=res.data;
+					if(res.data.code=='0'){
+						this.storeList=data.rows;
+					}else{
+						this.$Message.error(res.data.errorMessage);
+					}
+				})
+			},
+			//选择星期
+			chooseDate:function(flag){
+				this.currentLi=flag;
+			},
+			//点击保存
+			saveAdd:function(){
+				this.axios.post('store/add?uid='+this.uid,{
+					address:this.address,
+					businessHours:this.endTime,
+					city:this.city,
+					code:this.code,
+					district :this.district,
+					latitude:this.center.lat,
+					longitude:this.center.lng,
+					name:this.name,
+					person:this.person,
+					phone:this.phone,
+					province:this.province,
+					remark:this.info
+				}).then((res)=>{
+					if(res.data.status='200'){
+						this.$Message.success('this.$t('public.SaveSuccess'),//');
+						this.getStoreList();
+					}else{
+						this.$Message.error(res.data.errorMessage);
+					}
+				})
+			},
+			//输入详细地址后 根据输入的地址  获取地址的经度和纬度
+			getLngLat: function() {
+				var _this = this;
+				$.ajax({
+					dataType: 'jsonp',
+					url: 'https://api.map.baidu.com/geocoder/v2/?address=' + _this.address + '&output=json&ak=BBe8b008fb274f9544aa96828ac8c10e&callback=showLocation',
+					type: 'get',
+					crossDomain: true,
+				}).done(function(data) {
+					var lngLat = data.result.location;
+					_this.center.lng = lngLat.lng;
+					_this.center.lat = lngLat.lat;
+				});
+			},
+			//选择省市县之后的回调函数
+			change: function(result) {
+				this.province = result.province;
+				this.city = result.city;
+				this.district = result.district;
+			},
+		},
+		mounted() {
+            this.getStoreList();
+            this.id = this.$route.query.id
+		}
+	}
+</script>
+
+<style lang="css" scoped>
+	.add-box {
+		width: 100%;
+		height: auto;
+		background: #fff;
+	}
+	
+	.add-box:after {
+		content: '';
+		display: block;
+		clear: both;
+	}
+	
+	.search-box {
+		width: 300px;
+		height: auto;
+		position: fixed;
+		top: 15px;
+		left: 250px;
+		z-index: 9999;
+	}
+	
+	.search-box .add {
+		width: 32px;
+		height: 32px;
+		border-radius: 50%;
+		background: #00a8ff;
+		line-height: 28px;
+		text-align: center;
+		color: #fff;
+		font-size: 22px;
+		float: left;
+		margin-right: 10px;
+	}
+	
+	.tabs {
+		padding: 0;
+		width: 100%;
+		height: 50px;
+		border-bottom: 1px solid #ececec;
+	}
+	
+	.tabs li {
+		float: left;
+		text-align: center;
+		width: 80px;
+		height: 50px;
+		line-height: 50px;
+		font-size: 14px;
+	}
+	
+	.content-box {
+		width: 100%;
+		height: auto;
+		padding-bottom: 100px;
+	}
+	
+	.content-box:after {
+		content: '';
+		display: block;
+		clear: both;
+	}
+	
+	.add-left {
+		width: 28%;
+		height: auto;
+		background: #fff;
+		border-radius: 6px;
+		padding-top: 15px;
+		margin-right: 20px;
+		float: left;
+		padding-bottom: 20px;
+	}
+	
+	.add-left .left-title {
+		width: 100%;
+		height: 40px;
+		line-height: 40px;
+		padding-left: 20px;
+		border-left: 3px solid #00a8ff;
+	}
+	
+	.add-left .left-title .title-txt {
+		font-size: 14px;
+		color: #585858;
+		width: 120px;
+	}
+	
+	.left-btn {
+		width: 170px;
+		height: 40px;
+		float: right;
+		margin-top: -40px;
+	}
+	
+	.left-btn button {
+		width: 70px;
+		height: 40px;
+		color: #fff;
+		font-size: 14px;
+		color: #ececec;
+		border: 0;
+		border-radius: 6px;
+	}
+	
+	.ivu-icon-navicon {
+		font-size: 20px;
+	}
+	
+	.left-content {
+		width: 100%;
+		height: auto;
+		padding: 15px 20px;
+	}
+	
+	.con-list {
+		width: 100%;
+		height: auto;
+		border-radius: 6px;
+		border: solid 1px #ececec;
+		padding: 15px 20px;
+		margin-bottom: 15px;
+		cursor: pointer;
+	}
+	
+	.con-list .list-title {
+		color: #0d0d0d;
+		font-size: 14px;
+		margin-bottom: 10px;
+	}
+	
+	.con-list button {
+		width: auto;
+		height: 25px;
+		padding-left: 14px;
+		padding-right: 14px;
+		margin-right: 10px;
+		color: #607d8b;
+		font-size: 12px;
+		border: 0;
+		background: #ececec;
+	}
+	
+	.con-list .txt {
+		color: #585858;
+		font-size: 12px;
+	}
+	
+	.page-box {
+		margin-left: 35px;
+	}
+	
+	.add-right {
+		width: 64%;
+		height: auto;
+		float: left;
+		background: #fff;
+		border-radius: 6px;
+		/*border-top: 2px solid #00a8ff;*/
+		/*margin-top:60px;*/
+	}
+	
+	.add-right:after {
+		content: '';
+		display: block;
+		clear: both;
+	}
+	
+	.add-right .right-title {
+		width: 100%;
+		height: 60px;
+		line-height: 60px;
+		border-bottom: 1px solid #ececec;
+		padding: 0px 20px;
+	}
+	
+	.right-title p {
+		width: 150px;
+		font-size: 14px;
+		color: #585858;
+	}
+	
+	.title-btn {
+		float: right;
+		width: auto;
+	}
+	
+	.title-btn button {
+		width: 110px;
+		height: 40px;
+		border-radius: 8px;
+		font-size: 14px;
+		line-height: 40px;
+		border: 0;
+	}
+	
+	.right-content {
+		width: 100%;
+		height: auto;
+		padding: 10px 0;
+		padding-left: 25px;
+		padding-right: 60px;
+	}
+	
+	.code-box {
+		width: 40%;
+		height: 40px;
+		float: left;
+		margin-bottom: 15px;
+		position: relative;
+	}
+	
+	.code-box>img {
+		width: 18px;
+		height: 23px;
+		position: absolute;
+		right: 13%;
+		top: 6px;
+	}
+	
+	.code-box:after {
+		content: '';
+		display: block;
+		clear: both;
+	}
+	
+	.code-box p {
+		color: #585858;
+		font-size: 12px;
+		float: left;
+		width: auto;
+		height: 35px;
+		line-height: 35px;
+		text-align: center;
+	}
+	
+	.code-box input {
+		width: 70%;
+		height: 35px;
+		border: 1px solid #ececec;
+		border-radius: 4px;
+		padding: 0 10px;
+		float: left;
+	}
+	
+	.map-box {
+		width: 84%;
+		height: 180px;
+		margin-top: 50px;
+		border: 1px solid #ececec;
+		margin-left: 6%;
+	}
+	
+	button {
+		outline: none;
+	}
+	
+	input {
+		outline: none;
+	}
+	
+	option {
+		outline: none;
+	}
+	
+	.img {
+		width: 120px;
+		height: 120px;
+		border-radius: 6px;
+		float: left;
+		margin-right: 10px;
+	}
+	
+	.img>img {
+		width: 100%;
+		height: 100%;
+	}
+	/****上传图片****/
+	
+	.avatar-uploader .el-upload {
+		border: 1px dashed #fff;
+		border-radius: 6px;
+		cursor: pointer;
+		position: relative;
+		overflow: hidden;
+	}
+	
+	.avatar-uploader .el-upload:hover {
+		border-color: #409EFF;
+	}
+	
+	.avatar-uploader-icon {
+		font-size: 28px;
+		color: #8c939d;
+		width: 120px;
+		height: 120px;
+		line-height: 120px;
+		text-align: center;
+	}
+	
+	.avatar {
+		width: 120px;
+		height: 120px;
+		display: block;
+	}
+	
+	.data-btn {
+		width: 100%;
+		height: 50px;
+		margin-top: 20px;
+		line-height: 50px;
+		padding-left: 60px;
+	}
+	
+	.data-btn ul {
+		padding: 0;
+		width: 100%;
+		height: 40px;
+		float: left;
+	}
+	
+	.data-btn ul li {
+		float: left;
+		width: 64px;
+		height: 40px;
+		margin-right: 11px;
+		border: 1px solid #ececec;
+		border-radius: 6px;
+		text-align: center;
+		line-height: 40px;
+		font-size: 14px;
+		color: #acacac;
+		cursor: pointer;
+		position: relative;
+	}
+	.act{
+		border:1px solid #ed7019 !important;
+	}
+	.data-btn ul li img{
+		width:15px;
+		height:15px;
+		position: absolute;
+		right:0;
+		bottom:0;
+	}
+	
+	.edit input {
+		background:#ececec;
+	}
+	.edit textarea{
+		background:#ececec;
+	}
+</style>

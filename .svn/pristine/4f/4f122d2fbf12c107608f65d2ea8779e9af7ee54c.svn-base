@@ -1,0 +1,223 @@
+<template>
+	<div class="setting">
+		<div class="right">
+				<img :src="rows.head_img" width='40' height='40' class="icon">
+				<div class="right-l">
+
+					<div class="publicDiv">
+
+						<span>公众号：</span>
+						<div style="display:flex">
+							<span>{{rows.nick_name}}</span>
+							
+							<a style='margin-left:10px' @click='jcbd'>解除绑定</a>
+						</div>
+						
+					</div>
+					<div class="publicDiv">
+						<span>主体：</span>
+						<div>
+						<span>{{rows.principal_name}}</span>
+					</div>
+					</div>
+					<div class="publicDiv">
+						<span>帐号类型：</span>
+						<div>
+						<span style='margin-right:10px'>认证服务号 | 帐号已升级？点此:<a style='margin-left:10px' @click='reloadWx'>重新授权</a></span>
+					</div>
+					</div>
+					<div class="publicDiv">
+						<span>授权状态：</span>
+						<div>
+						<span style='margin-right:10px'>{{rows.status}}</span>
+						</div>
+					</div>
+					<div class="publicDiv">
+						<span>签名：</span>
+						<div style="width: 50%;">
+						<span style='margin-right:10px'>{{rows.signature}}</span>
+						</div>
+					</div>
+					<div style="height:80px;width:60%;border:1px solid #eee;margin:40px 0;background:#F8F8F8">
+							<p style="padding:20px 10px">你的店铺已获得该公众号的所有接口权限，可以正常对接微信。如果使用中发现接口有异常，请点此
+								<a @click='reloadWx'>重新授权</a>
+								试试</p>
+						</div>
+					<!-- <div class="saveBtn">
+						<Button style="background: #0077DD;color:#fff">保存</Button>
+					</div> -->
+				</div>
+				<div class="right-r">
+					<img :src="ewm" width='130' height='130'>
+					<!-- <div style='width:130px;text-align:center'><a>设置代参数二维码</a></div> -->
+				</div>
+			</div>
+			<!--重新授权弹框-->
+			<Modal v-model="wxModel" width="460px" >
+				<p slot="header" style="height:30px;line-height:30px">
+		          <span>提示</span>
+		        </p>
+					<div class='attrNum'>
+						<ul>
+							<p>温馨提示：</p>
+							<li style='color:#ff0000;'>必须使用当前绑定的公众号进行授权，否则将可能导致某些重要数据丢失或其他异常情况</li>
+							<li style='color:#ff0000;'>为保证您在有赞平台功能的正常使用，授权时请保持默认选择，把权限统一授权给智胜云。</li>
+							
+						</ul>
+					</div>
+				<div slot="footer">
+					<div >
+						<div class='attrNum'>
+							<Button shape="circle" type="ghost" style="display:inline-block;background:#60BB46;border:none;color:#fff" @click='iknow'>
+								
+								我知道了，继续
+								
+							</Button>
+							
+						</div>
+					</div>
+				</div>
+			</Modal>
+			<!--解除绑定弹框-->
+			<Modal v-model="wxModelbd" width="460px">
+				<p slot="header" style="height:30px;line-height:30px">
+		          <span>提示</span>
+		        </p>
+					<div class='attrNum'>
+						<ul>
+							<p>温馨提示：</p>
+							<li style='color:#ff0000;'>解除绑定微信号，会造成当前店铺的重要信息丢失（包括图文素材、自动回复、自定义菜单等），请谨慎操作；</li>
+							
+						</ul>
+					</div>
+				<div slot="footer">
+					<div >
+						<div class='attrNum'>
+							<Button shape="circle" type="ghost" style="display:inline-block;background:#60BB46;border:none;color:#fff" @click='jcbdsure'>解除绑定</Button>
+							<Button shape="circle" type="ghost" style="display:inline-block;background:#60BB46;border:none;color:#fff" @click='wxcancel'>取消</Button>
+						</div>
+					</div>
+				</div>
+			</Modal>
+	</div>
+</template>
+<script type="text/javascript">
+export default{
+	data(){
+		return{
+			wxModel:false,
+			wxModelbd:false,
+			uid: this.$store.state.common.token,
+			appId:'',//第三方平台appId
+			token:'',//预授权码
+			serverIp:'',//回掉地址
+			auth_type:3,//类型
+			url:'',//跳转地址
+			rows:{},//微信用户信息
+			ewm:'',//授权后的个人二维码
+		}
+	},
+	methods:{
+		//查看权限
+		lookPower(){
+
+		},
+		//重新授权
+		reloadWx(){
+			this.wxModel=true
+		},
+		//重新授权，我知道了
+		iknow(){
+			//重新授权之前，解除授权
+			this.axios.get('/wxapp/cancel?uid='+this.uid).then(res=>{
+
+				if(res.data.status==200){
+					
+					this.wxModel=false
+					this.$router.push('/wxsetting')
+				}else{
+					this.$notify({
+                        title:"",//
+                        message: res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+				}
+			})
+			
+		},
+		//解除绑定按钮
+		jcbd(){
+			this.wxModelbd=true
+		},
+		//解除绑定的确认
+		jcbdsure(){
+			this.axios.get('/wxapp/cancel?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					//成功解除授权
+					this.$router.push('/wxsetting')
+					this.wxModelbd=false
+				}else{
+					this.$notify({
+                        title:"",//
+                        message: res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+				}
+			})
+		},
+		//取消
+		wxcancel(){
+			this.wxModelbd=false
+		},
+		
+		//获取授权用户信息
+		getWxMess(){
+			this.axios.get('/wxapp/app?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					this.rows=res.data.rows
+					this.ewm=res.data.rows.qrcode_url
+					if(res.data.rows.status==0){
+						res.data.rows.status='已授权'
+					}
+					console.log(this.rows)
+					
+				}
+			})
+		},
+	},
+	mounted(){
+		this.getWxMess()//获取授权用户信息
+		
+		
+	},
+}
+</script>
+<style type="text/css" scoped>
+.setting{
+	padding:20px;
+}
+.right{
+	display:flex;
+	justify-content: flex-start;
+	/*align-items: center*/
+}
+
+.publicDiv{
+	
+	display:flex;
+	margin:10px 0;
+}
+.publicDiv>span{
+	width:100px;
+	flex: 0 0 100px;
+	margin-right:8px;
+	text-align: right
+}
+
+.icon{
+	vertical-align: top;
+	margin-top:10px;
+}
+</style>

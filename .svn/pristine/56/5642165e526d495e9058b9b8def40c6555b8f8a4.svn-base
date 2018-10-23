@@ -1,0 +1,43 @@
+<template>
+	<div class=''>
+		<v-user :data='data' :titleName='titleName'></v-user>
+	</div>
+</template>
+<script type="text/javascript">
+import user from '../components/common/publicUser'
+export default{
+	components:{
+		'v-user':user
+	},
+	data(){
+		return{
+			user:this.$store.state.common.user,
+			data:[
+				// {
+				// 	title:"概览",
+				// 	url:"/customer",
+				// 	 icon:"../../static/icon/gl/gl.png",
+				// },
+				{
+					title:"客户",
+					url:"/customer",
+					 icon:"../../ys/static/icon/kh/kh.png",
+					 icon1:"../../ys/static/icon/kh/kh1.png",
+				},
+				{
+					title:"报价单",
+					url:"/quotation",
+					 icon:"../../ys/static/icon/kh/bjd.png",
+					 icon1:"../../ys/static/icon/kh/bjd1.png",
+				},
+				
+
+			],
+			titleName:'客户'
+		}
+	}
+}
+</script>
+<style type="text/css">
+
+</style>

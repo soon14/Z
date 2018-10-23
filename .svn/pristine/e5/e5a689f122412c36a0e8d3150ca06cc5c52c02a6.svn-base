@@ -1,0 +1,146 @@
+<template>
+	<div class='navigationIndex'>
+		<div class='main'>
+			<img src="http://img.zsydian.com/icon/navigation_logo.png" width='120' height='120'>
+			<div class='text-one'>{{$t('navigation.remark1')}}</div>
+			<div class='main'>
+				<div class='text-two'>{{$t('navigation.remark2')}}</div>
+				<div class='text-two' style='margin-bottom:10px;margin-top:0px'>{{$t('navigation.remark3')}}</div> 
+			</div>
+			
+			<div class='main-btn-group'>
+				<span class='goBtn' @click='gotoNavigationHome'>{{$t('navigation.btnOne')}}</span>
+				<!-- <span class='goBtn' @click='now'>{{$t('navigation.btnTwo')}}</span> -->
+			</div>
+		</div>
+		<Modal v-model="modelisshow" width="500" :mask-closable='false' :closable='false' >
+			<div>
+				<span><Icon type="arrow-left-c" size='25'></Icon></span>
+			</div>
+			
+				<div class='fuwu'>
+					<li v-for='(item,index) in list' :key='index' @click='clickfuwuli(index,item)' :class='{bor:index==listIndex}'>
+						<div>
+							<img :src="item.img" width='90' height='60'>
+							<p>{{item.title}}<span style='color:#FF7E7E'>{{item.price}}</span>
+								<span class='yuan'>元</span></p>
+						</div>
+					</li>
+				</div>
+        	<div slot="footer">
+        	</div>
+        </Modal>
+	</div>
+</template>
+<script type="text/javascript">
+export default{
+	data(){
+		return{
+			modelisshow:false,
+			listIndex:-1,
+			price:0,
+			list:[
+				{
+					title:"优惠套餐",
+					price:699,
+					img:'http://img.zsydian.com/icon/fuwu_1.png'
+				},
+				{
+					title:"优惠套餐",
+					price:1099,
+					img:'http://img.zsydian.com/icon/fuwu_2.png'
+				},
+				{
+					title:"优惠套餐",
+					price:1399,
+					img:'http://img.zsydian.com/icon/fuwu_3.png'
+				},
+				{
+					title:"立即体验",
+					img:'http://img.zsydian.com/icon/fuwu_4.png'
+				},
+			],
+		}
+	},
+	methods:{
+		//进入引导页
+		gotoNavigationHome(){
+			this.$router.push('/navigationHome')
+		},
+		now(){
+			this.$router.push('/main')
+		},
+		//点击服务li
+		clickfuwuli(index,item){
+			this.listIndex=index
+			this.price=item.price
+			if(this.listIndex==3){
+				this.price=0
+			}
+		},
+	},
+	mounted(){
+
+		// this.modelisshow=true
+	}
+}
+</script>
+<style type="text/css" scoped>
+.navigationIndex{
+	width:100%;
+	height:100%;
+	background: #495060;
+}
+.main{
+	color:#fff;
+	display:flex;
+	align-items: center;
+	flex-direction: column
+}
+.main img{
+	display:block;
+	margin-top:10%;
+	margin-bottom:20px;
+}
+.text-one{
+	font-size:20px;
+	margin-bottom:10px;
+}
+.text-two{
+	color:#B9BBC0;
+	font-size:16px;
+	margin:10px 0;
+}
+.main-btn-group{
+	margin-top:20px;
+}
+.goBtn{
+	display:inline-block;
+	width:100px;
+	height:30px;
+	line-height: 30px;
+	border:1px solid #fff;
+	background: #6D7380;
+	text-align: center;
+	border-radius:2px;
+	margin:0 10px;
+	cursor:pointer;
+}
+.fuwu{
+		display:flex;
+	}
+.fuwu li{
+	list-style: none;
+	height:90px;
+	width:120px;
+	text-align: center;
+	border:1px solid #E4E4E4;
+	margin:0 10px;
+}
+.fuwu li img{
+	margin-top:4px;
+}
+.fuwu li.bor{
+		border:1px solid #248AFF;
+	}
+</style>

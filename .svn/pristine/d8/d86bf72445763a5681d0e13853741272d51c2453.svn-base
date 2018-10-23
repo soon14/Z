@@ -1,0 +1,1818 @@
+<template>
+	<div class="settingMjs">
+		<div class="settingMjs-top">
+			<!--header-->
+		<div class='head'>
+			<Col span='6'>
+				<div class="left-top">
+						<p class="wldw">
+							<span style="width:42px;font-weight:900">优惠券：</span>
+							 <Select style="width:100px" size="small" placeholder="全部"  >
+						        <Option v-for="item in orderListname" :value="item.value" :key="item.value">{{ item.label }}</Option>
+						    </Select>
+						</p>
+						<div>
+							<!--新建-->
+							<span class="top-left-btn"  @click="add">
+								<Icon type="plus" style="position:absolute;top:7px;left:8px"></Icon></span>
+							<span class="top-left-btn top-left-btn1">
+								<Icon type="navicon-round" style="position:absolute;top:7px;left:8px"></Icon></span>
+						</div>
+				</div>
+			</Col>
+			
+			<Col span='18'>
+				<div class="right-top">
+
+				<div >
+					<span style="margin-left:20px;font-size:14px;font-weight:900">{{addoedit}}</span> 
+				</div>
+				<div style="margin-right:40px">
+					<div v-if="addText">
+						<Button shape="circle"  style="background:#3b77e3;margin-right:5px;color:#fff;border:none" @click="saveCoupon" >
+						<Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>保存</Button>
+						
+						<Button shape="circle"  @click="clickcancel"  style="background:#999999;color:#fff;margin-right:10px;" ><Icon type="close" style="margin-right:5px;"></Icon>取消</Button>
+						
+						<span @click="cancelHome" style="cursor:pointer"><Icon type="close" class="cha" ></Icon></span>
+					</div>
+
+					<div v-if="!addText" class="changebutton">
+
+						<Button type="ghost"  shape="circle"  @click="edit" v-if="editshow" style="background:#40ca98;margin-right:5px;color:#fff;border:none">
+							<i class="el-icon-edit" style=";margin-right:5px;"></i>
+						修改
+						</Button>
+
+						<Button type="ghost"  shape="circle" @click="saveEdit" v-if="!editshow" style="background:#3b77e3;margin-right:5px;color:#fff;border:none">
+							<Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>保存
+						</Button>
+						<Button shape="circle" v-if="!editshow"  @click="clickcancel"  style="background:#999999;color:#fff;margin-right:10px;" ><Icon type="close" style="margin-right:5px;"></Icon>取消</Button>
+						<Dropdown trigger="click" style="margin-left: 4px">
+		                    <Button shape="circle" type="ghost" style="background:#ff7d16;color:#fff;border:none">更多
+		                    <span><i class="ivu-icon ivu-icon-chevron-down"></i></span>
+		                </Button>
+
+		                <DropdownMenu slot="list">
+		                    <span  @click="start"><DropdownItem >启用</DropdownItem></span>
+		                    <span  @click="stop"><DropdownItem >停用</DropdownItem></span>
+		                    <span  @click="del"><DropdownItem >删除</DropdownItem></span>
+		                  
+		                </DropdownMenu>
+		             </Dropdown>
+						<span @click="cancelHome" style="cursor:pointer;margin-left:5px" ><Icon type="close" class="cha" ></Icon>
+						</span>
+					</div>	
+				</div>		
+				</div>
+			</Col>
+		</div>
+		<!--左边列表内容-->
+		<div class="left-content">
+			<p v-if="mjsList.length==0">
+				<Spin fix>
+	                <Icon type="load-c" size=18 class="demo-spin-icon-load"></Icon>
+	                <div>暂无数据</div>
+	            </Spin>
+		    </p>
+			<Scroll :on-reach-bottom="handleReachEdge" :height="height" v-else>
+				<div class="con-list" v-for="(item,index) in mjsList" :key='index' @click="clickInfo(item.id,index)" :class="{bg:numIndex==index}">
+					<span style="margin-right: 10px;">
+				 	 <Checkbox :value="numIndex==index"></Checkbox>
+				 	<!-- <input type="checkbox" :checked="numIndex==index"></input> -->
+				 </span>
+					 <div>
+					<p class="list-title">{{item.code}}</p>
+					<p class="txt" style="margin-top:10px;">
+						{{item.name}} 
+						
+					</p>
+					
+					<span class="date">{{item.createTime}}</span>
+					<p>已发数量：<span>{{item.sendCount}}</span></p>
+					</div>
+				</div>
+				
+			</Scroll>
+		</div>
+			<!--新增-->
+			<div class="right" v-if='addText'>
+				<div class="settingInfo" style='margin-bottom:120px'>
+					<!-- <span style="font-size:12px;font-weight:700">活动信息：</span> -->
+					<p style="display:flex;height:36px;line-height:36px;margin:10px 0">
+						<span style="width:80px">卡券名称：</span>
+						<Input v-model='name' type="text" style="width:188px"></Input>
+						<!-- <span style="margin-left:20px"> 发放数量：</span>
+						<Input v-model='allCount' type="text" style="width:188px"></Input> -->
+					</p>
+					<p style="display:flex;height:36px;line-height:36px;margin:10px 0">
+						<span style="width:80px">优惠方式：</span>
+						<Input v-model='name' type="text" style="width:188px"></Input>
+						<!-- <span style="margin-left:20px"> 发放数量：</span>
+						<Input v-model='allCount' type="text" style="width:188px"></Input> -->
+					</p>
+					<p style="display:flex;height:36px;line-height:36px;margin:10px 0">
+						<span style="width:80px">已发数量：</span>
+						<Input v-model='sendCount' type="text" style="width:188px"></Input>
+						<span style="margin-left:20px"> 已用数量：</span>
+						<Input v-model='useCount' type="text" style="width:188px"></Input>
+					</p>
+					<p style="display:flex;height:36px;line-height:36px;margin:10px 0">
+						<span style="width:80px">生效时间：</span>
+						<DatePicker type="datetime" @on-change="getStartDate" ></DatePicker>
+						<span style="margin:0 10px">至</span>
+						<DatePicker type="datetime" @on-change="getStartDate" ></DatePicker>
+					</p>
+					<!-- <p>
+						<span>优惠设置：</span>
+						<div class="table">
+							<Table border ref="selection" :columns="PreferentialIndex" :data="PreferentialIndexData" @on-row-dblclick=""></Table>
+
+
+							<Table no-data-text='' :show-header='false' ref="selection" :columns="a" :data="b" style="border-top:none"></Table>
+
+						</div>
+					</p> -->
+					<div >
+						<div>
+							<span style='font-weight:600'>选择活动商品：</span>
+							<div >
+								<span>活动商品：</span>
+								<RadioGroup v-model="shops" @on-change="getshopsname">
+							        <Radio label="全部商品"></Radio>
+							        <Radio label="部分商品参加"></Radio><span>(已选{{selectedGoods.length}}个)</span>
+							        
+							    </RadioGroup>
+							</div>
+							<div class="table1" v-if='goodsinshow'>
+								<Tabs value="name1" :animated='false'>
+							        <TabPane label="选择商品" name='name1'>
+							        	<Table size="small" border  height="300"  :columns="goodskey" :data="goods" >
+										</Table>
+							        </TabPane>
+							        <TabPane label="已选商品" >
+							        	<Table size="small" border  height="300"  :columns="goodskey1" :data="selectedGoods" >
+										</Table>
+							        </TabPane>
+							        
+							    </Tabs>
+							     <div class="page-box">
+									 <Page :total="goodstotal" show-total  :pageSize='goodspageSize'  @on-change="getData" @on-page-size-change="changePageSize"></Page>
+								</div>
+							</div>
+						</div>
+						<div style=''>
+							<span style='font-weight:600'>选择活动店铺：</span>
+							<div>
+								<span>活动店铺：</span>
+								<RadioGroup v-model="stores" @on-change="getstoresname">
+							        <Radio label="全部店铺"></Radio>
+							        <Radio label="部分店铺参加"></Radio><span>(已选{{selectedstores.length}}个)</span>
+							    </RadioGroup>
+							</div>
+							<div class="table1" v-if='storesinshow'>
+								<Tabs value="name1" :animated='false'>
+							        <TabPane label="选择店铺" name='name1'>
+							        	<Table size="small" border  height="300"  :columns="storeskey1" :data="Allstores" >
+										</Table>
+							        </TabPane>
+							        <TabPane label="已选店铺" >
+							        	<Table size="small" border  height="300"  :columns="storeskey2" :data="selectedstores" >
+										</Table>
+							        </TabPane>
+							        
+							    </Tabs>
+							    <div class="page-box">
+									 <Page :total="storetotal" show-total  :pageSize='storepageSize'  @on-change="storegetData" @on-page-size-change="storechangePageSize"></Page>
+								</div>
+							</div>
+						</div>
+						<div style=''>
+							<span style='font-weight:600'>选择会员卡：</span>
+							<div>
+								<span>活动会员卡：</span>
+								<RadioGroup v-model="crmCard" @on-change="crmCardname">
+							        <Radio label="全部会员卡"></Radio>
+							        <Radio label="部分会员卡参加"></Radio><span>(已选{{selectedcrmCard.length}}个)</span>
+							    </RadioGroup>
+							</div>
+							<div class="table1" v-if='crmCardinshow'>
+							<Tabs value="name1" :animated='false'>
+							        <TabPane label="选择会员卡" name='name1'>
+							        	<Table size="small" border  height="300"  :columns="crmCardkey1" :data="AllcrmCard" >
+										</Table>
+							        </TabPane>
+							        <TabPane label="已选会员卡" >
+							        	<Table size="small" border  height="300"  :columns="crmCardkey2" :data="selectedcrmCard" >
+										</Table>
+							        </TabPane>
+							        
+							    </Tabs>
+							    <div class="page-box">
+									 <Page :total="crmtotal" show-total  :pageSize='crmpageSize'  @on-change="crmgetData" @on-page-size-change="crmchangePageSize"></Page>
+								</div>
+							   </div>
+						</div>
+
+					</div class='rightc'>
+					<div  style='margin-bottom: 200px;width:98%'>
+						<Input type='textarea' v-model='description' placeholder='使用说名'></Input>
+					</div>
+				</div>
+			</div>
+			<!--修改-->
+			<div class="right" v-if='xiugai'>
+				<div class="settingInfo" style='margin-bottom:120px'>
+					<span style="font-size:12px;font-weight:700">活动信息：</span>
+					<p style="display:flex;height:36px;line-height:36px;margin:10px 0">
+						<span style="width:80px">优惠券名称：</span>
+						<Input v-model='name' type="text" style="width:188px"></Input>
+						<span style="margin-left:20px"> 发放数量：</span>
+						<Input v-model='allCount' type="text" style="width:188px"></Input>
+					</p>
+					<p style="display:flex;height:36px;line-height:36px;margin:10px 0">
+						<span style="width:80px">已发数量：</span>
+						<Input v-model='sendCount' type="text" style="width:188px"></Input>
+						<span style="margin-left:20px"> 已用数量：</span>
+						<Input v-model='useCount' type="text" style="width:188px"></Input>
+					</p>
+					<p style="display:flex;height:36px;line-height:36px;margin:10px 0">
+						<span style="width:80px">生效时间：</span>
+						<DatePicker type="datetime" @on-change="getStartDate" placement="left-start" ></DatePicker>
+						<span style="margin:0 10px">至</span>
+						<DatePicker type="datetime" @on-change="getStartDate" placement="left-start" ></DatePicker>
+					</p>
+					<!-- <p>
+						<span>优惠设置：</span>
+						<div class="table">
+							<Table border ref="selection" :columns="PreferentialIndex" :data="PreferentialIndexData" @on-row-dblclick=""></Table>
+
+
+							<Table no-data-text='' :show-header='false' ref="selection" :columns="a" :data="b" style="border-top:none"></Table>
+
+						</div>
+					</p> -->
+					<div >
+						<div>
+							<span style='font-weight:600'>选择活动商品：</span>
+							<div >
+								<span>活动商品：</span>
+								<RadioGroup v-model="shops" @on-change="getshopsname">
+							        <Radio label="全部商品"></Radio>
+							        <Radio label="部分商品参加"></Radio><span>(已选{{selectedGoods.length}}个)</span>
+							        
+							    </RadioGroup>
+							</div>
+							<div class="table1" v-if='goodsinshow'>
+								<Tabs value="name1" :animated='false'>
+							        <TabPane label="选择商品" name='name1'>
+							        	<Table size="small" border  height="300"  :columns="goodskey" :data="goods" >
+										</Table>
+							        </TabPane>
+							        <TabPane label="已选商品" >
+							        	<Table size="small" border  height="300"  :columns="goodskey1" :data="selectedGoods" >
+										</Table>
+							        </TabPane>
+							        
+							    </Tabs>
+							     <div class="page-box">
+									 <Page :total="goodstotal" show-total  :pageSize='goodspageSize'  @on-change="getData" @on-page-size-change="changePageSize"></Page>
+								</div>
+							</div>
+						</div>
+						<div style=''>
+							<span style='font-weight:600'>选择活动店铺：</span>
+							<div>
+								<span>活动店铺：</span>
+								<RadioGroup v-model="stores" @on-change="getstoresname">
+							        <Radio label="全部店铺"></Radio>
+							        <Radio label="部分店铺参加"></Radio><span>(已选{{selectedstores.length}}个)</span>
+							    </RadioGroup>
+							</div>
+							<div class="table1" v-if='storesinshow'>
+								<Tabs value="name1" :animated='false'>
+							        <TabPane label="选择店铺" name='name1'>
+							        	<Table size="small" border  height="300"  :columns="storeskey1" :data="Allstores" >
+										</Table>
+							        </TabPane>
+							        <TabPane label="已选店铺" >
+							        	<Table size="small" border  height="300"  :columns="storeskey2" :data="selectedstores" >
+										</Table>
+							        </TabPane>
+							        
+							    </Tabs>
+							    <div class="page-box">
+									 <Page :total="storetotal" show-total  :pageSize='storepageSize'  @on-change="storegetData" @on-page-size-change="storechangePageSize"></Page>
+								</div>
+							</div>
+						</div>
+						<div style=''>
+							<span style='font-weight:600'>选择会员卡：</span>
+							<div>
+								<span>活动会员卡：</span>
+								<RadioGroup v-model="crmCard" @on-change="crmCardname">
+							        <Radio label="全部会员卡"></Radio>
+							        <Radio label="部分会员卡参加"></Radio><span>(已选{{selectedcrmCard.length}}个)</span>
+							    </RadioGroup>
+							</div>
+							<div class="table1" v-if='crmCardinshow'>
+							<Tabs value="name1" :animated='false'>
+							        <TabPane label="选择会员卡" name='name1'>
+							        	<Table size="small" border  height="300"  :columns="crmCardkey1" :data="AllcrmCard" >
+										</Table>
+							        </TabPane>
+							        <TabPane label="已选会员卡" >
+							        	<Table size="small" border  height="300"  :columns="crmCardkey2" :data="selectedcrmCard" >
+										</Table>
+							        </TabPane>
+							        
+							    </Tabs>
+							    <div class="page-box">
+									 <Page :total="crmtotal" show-total  :pageSize='crmpageSize'  @on-change="crmgetData" @on-page-size-change="crmchangePageSize"></Page>
+								</div>
+							   </div>
+						</div>
+
+					</div>
+					<div  style='margin-bottom: 200px;width:98%'>
+						<Input type='textarea' v-model='description' placeholder='使用说名'></Input>
+					</div>
+				</div>
+			</div>
+			<!--详情-->
+			<div class="right-content right-detail right" ref="detail" style="display:none">
+				<div class="detail-top">
+					<table class="cgtable">
+						<tr>
+							<th>优惠券名称</th>
+							<th>优惠券数量</th>
+							
+							<th>已发数量</th>
+							<th>已用数量</th>
+							
+						</tr>
+						<tr>
+							<td>{{mjsObject.name}}</td>
+							<td>{{mjsObject.allCount}}</td>
+							
+							<td>{{mjsObject.sendCount }}</td>
+							<td>{{mjsObject.useCount  }}</td>
+							
+						</tr>
+					</table>
+					<table class="cgtable">
+						<tr>
+							
+							<th>优惠金额</th> 
+							 <th>优惠折扣</th>
+							<th>订单金额限制</th>
+							<th>备注 </th>
+							
+						</tr>
+						<tr>
+							<td>{{mjsObject.amount }}</td>
+							<td>{{mjsObject.discount }}折</td>
+							<td>{{mjsObject.identityLimitValue}}</td>
+							<td>{{mjsObject.remark }}</td>
+						</tr>
+					</table>
+					<table class="cgtable" >
+						<tr>
+							
+							<th>有效开始时间</th> 
+							 <th>有效结束时间</th>
+							
+							
+						</tr>
+						<tr>
+							<td>{{mjsObject.beginTime  }}</td>
+							<td>{{mjsObject.endTime  }}</td>
+							
+						</tr>
+					</table>
+					<!-- crmGetLimitValue:this.crmGetLimitValue,//用户自取数量限制
+						
+						crmOrderGetLimitValue:this.crmOrderGetLimitValue,//购物满多少限制
+						useDateFromLimit:this.useDateFromLimit,//使用时间限制
+						useDateToLimit:this.useDateToLimit,//指定时间范围限制
+						description:this.description,//使用说名 -->
+				</div>
+			</div>
+		</div>
+		
+	</div>
+</template>
+<script type="text/javascript">
+	export default{
+		name:"settingMjs",
+		data(){
+			return{
+				goodstotal:0,
+				goodspageSize:0,
+				storetotal:0,
+				storepageSize:0,
+				crmtotal:0,
+				crmpageSize:0,
+				isclick:0,//判断是否已保存
+				mjsarr:{},
+				addoedit:"新增优惠券",
+				xiugai:false,
+				current:1,
+				height:"",
+				addText:true,
+				editshow:false,
+				orderListname:[
+					{
+						label:"全部",
+						value:1
+					},
+					
+				],
+				//第二个表格 新增一级优惠
+				a:[
+					{
+						title:"dddd",
+						key:'name',
+						render:(h,params)=>{
+							return h('div',[
+								h('Icon', {
+                                    props: {
+                                        type: "android-add"
+
+                                    },
+                                    style:{
+                                    	color:"#3388FF",
+                                    	marginRight:"4px"
+                                    }
+                                }),
+								h('a',{
+									on:{
+										'click':(e)=>{
+											if(this.isclick==1){
+												this.PreferentialIndexData.push({})
+											}else{
+												this.$Notice.error({
+														title:"",//
+														desc: '请先保存'
+													});
+											}
+											
+										}
+									}
+								},'新增一级优惠'),
+
+								])
+						}
+					}
+				],
+				//新增一行---空数据 新增一级优惠
+				b:[
+					{}
+				],
+				PreferentialIndex:[
+					{
+						title:"层级",
+						type:"index",
+						align:'center',
+						width:80
+					},
+					{
+						title:"优惠门槛",
+						key:"threshold",
+						render:(h,params)=>{
+							return h('div',[
+									h('div',{
+										style:{
+											display:'inline-block',
+											marginRight:"4px"
+										}
+									},'满：'),
+									h('Input',{
+										
+										style:{
+											display:'inline-block',
+											width:"40px",
+											marginRight:"4px"
+										},
+										on:{
+											'input':(e)=>{
+												this.identityLimitValue=e
+												console.log(e)
+											}
+										}
+									}),
+									// h('div',{
+									// 	style:{
+									// 		display:'inline-block',
+									// 		marginRight:"4px"
+									// 	}
+									// },'消费件数：'),
+									// h('Input',{
+										
+									// 	style:{
+									// 		display:'inline-block',
+									// 		width:"40px",
+									// 		marginRight:"4px"
+									// 	},
+									// 	on:{
+									// 		'input':(e)=>{
+									// 			this.countNum=e
+									// 			console.log(e)
+									// 		}
+									// 	}
+									// }),
+
+								])
+						}
+
+					},
+					{
+						title:"优惠方式(可多选)",
+						key:"PreferentialType",
+						render:(h,params)=>{
+							return h('div',[
+									//减现金
+									// h('Checkbox',{
+									// 	style:{
+									// 		width:"60px",
+									// 		display:'inline-block',
+									// 		marginRight:"4px"
+									// 	},
+									// 	on:{
+									// 		'on-change':(status)=>{
+									// 			if(status===true){
+									// 				$('input.money').css({opacity:'1'})
+									// 				$('.moneya').css({opacity:'1'})
+									// 			}else{
+									// 				$('input.money').css({opacity:'0'})
+									// 				$('.moneya').css({opacity:'0'})
+									// 			}
+												
+									// 		}
+									// 	}
+									// },'减现金'),
+									// //减现金
+									// h('input',{
+									// 	style:{
+									// 		width:"40px",
+									// 		height:"40px",
+									// 		display:"inline-block",
+									// 		opacity:'0'
+									// 	},
+									// 	attrs:{
+									// 		class:'money'
+									// 	},
+									// 	on:{
+									// 		'input':(e)=>{
+									// 			//优惠金额
+									// 			this.amount=e.target.value
+									// 		}
+									// 	}
+									// }),
+									// h('a',{
+									// 	style:{
+									// 		width:"40px",
+									// 		height:"30px",
+									// 		display:"inline-block",
+									// 		marginLeft:"4px",
+									// 		opacity:'0'
+									// 	},
+									// 	attrs:{
+									// 		class:'moneya'
+									// 	},
+									// },'元'),
+
+
+
+									//打折
+									h('Checkbox',{
+										style:{
+											width:"60px",
+											display:'inline-block',
+											marginRight:"4px"
+										},
+										on:{
+											'on-change':(status)=>{
+												if(status===true){
+													$('input.zhekouinput').css({opacity:'1'})
+													$('.zhoukoua').css({opacity:'1'})
+												}else{
+													$('input.zhekouinput').css({opacity:'0'})
+													$('.zhoukoua').css({opacity:'0'})
+												}
+											}
+										}
+									},'打折'),
+									h('input',{
+										style:{
+											width:"40px",
+											height:"40px",
+											display:"inline-block",
+											opacity:'0'
+										},
+										attrs:{
+											class:'zhekouinput'
+										},
+										on:{
+											'input':(e)=>{
+												console.log(e.target.value)
+												this.discount=e.target.value
+											}
+										}
+									}),
+									h('a',{
+										style:{
+											width:"40px",
+											height:"30px",
+											display:"inline-block",
+											marginLeft:"4px",
+											opacity:'0'
+										},
+										attrs:{
+											class:'zhoukoua'
+										},
+									},'折'),
+
+
+
+									//免邮
+									// h('Checkbox',{
+									// 	style:{
+									// 		width:"60px",
+									// 		display:'block',
+									// 		marginRight:"4px"
+									// 	},
+									// 	on:{
+									// 		'on-change':(status)=>{
+									// 			if(status===true){
+									// 				this.freePos=1
+									// 			}else{
+									// 				this.freePos=0
+									// 			}
+									// 		}
+									// 	}
+									// },'免邮'),
+
+
+
+									//送积分
+									// h('Checkbox',{
+									// 	style:{
+									// 		width:"60px",
+									// 		display:'inline-block',
+									// 		marginRight:"4px"
+									// 	},
+									// 	on:{
+									// 		'on-change':(status)=>{
+									// 			if(status===true){
+									// 				$('input.jfinput').css({opacity:'1'})
+									// 				$('.jfa').css({opacity:'1'})
+									// 			}else{
+									// 				$('input.jfinput').css({opacity:'0'})
+									// 				$('.jfa').css({opacity:'0'})
+									// 			}
+												
+									// 		}
+									// 	}
+									// },'送积分'),
+									// //送积分
+									// h('input',{
+									// 	style:{
+									// 		width:"40px",
+									// 		height:"40px",
+									// 		display:"inline-block",
+									// 		opacity:'0'
+									// 	},
+									// 	attrs:{
+									// 		class:'jfinput'
+									// 	},
+									// 	on:{
+									// 		'input':(e)=>{
+									// 			this.integralNum =e.target.value
+									// 		}
+									// 	}
+									// }),
+									// h('a',{
+									// 	style:{
+									// 		width:"40px",
+									// 		height:"30px",
+									// 		display:"inline-block",
+									// 		marginLeft:"4px",
+									// 		opacity:'0'
+									// 	},
+									// 	attrs:{
+									// 		class:'jfa'
+									// 	},
+									// },'积分'),
+
+
+
+									//送优惠
+									h('Checkbox',{
+										style:{
+											width:"60px",
+											display:'block',
+											marginRight:"4px"
+										},
+										on:{
+											'on-change':(status)=>{
+												console.log(status)
+											}
+										}
+									},'送优惠'),
+
+									//送赠品
+									h('Checkbox',{
+										style:{
+											width:"60px",
+											display:'block',
+											marginRight:"4px"
+										},
+										on:{
+											'on-change':(status)=>{
+												console.log(status)
+											}
+										}
+									},'送赠品'),
+								])
+						}
+					},
+					{
+						title:"操作",
+
+						key:"action",
+						render:(h,params)=>{
+							return h('div',[
+									h('a',{
+										style:{
+											marginRight:"15px"
+										},
+										on:{
+											'click':(e)=>{
+												if(this.identityLimitValue==''){
+													this.$Notice.error({
+														title:"",//
+														desc: '请设置金额'
+													});
+
+												}else{
+													
+													this.isclick=1
+													this.$Notice.success({
+														title: '保存',
+														desc: 'this.$t('public.SaveSuccess'),//'
+													});
+												}
+											}
+										}
+									},'保存'),
+									// h('a',{
+									// 	style:{
+									// 		marginRight:"15px"
+									// 	}
+									// },'修改'),
+									h('a',{
+										style:{
+											marginRight:"15px"
+										},
+										on:{
+											'click':()=>{
+												if(this.PreferentialIndexData.length==1){
+													return
+												}
+												this.PreferentialIndexData.splice(params.index,1)
+											}
+										}
+									},'删除'),
+								])
+						}
+					},
+				],
+				//默认一行数据
+				PreferentialIndexData:[
+					{
+						
+					}
+				],
+				
+				uid: this.$store.state.common.token,
+				addText:true,
+				mjsList:[],
+				numIndex:0,
+				mjsId:'',
+
+				crmCard:'全部会员卡',
+				crmCardNum:0,
+				crmCardinshow:false,//会员卡弹框默认影藏
+				 //弹出框会员卡data
+           		crmCardkey1:[
+	                	{
+	            			type:"selection",
+	            			width:60
+	                	},
+	                	{
+			                title:'名称',
+			                key:'name'
+			            },{
+			                title:'押金',
+			                key:'deposit'
+			            },{
+			                title:'折扣',
+			                key:'discount'
+			            },{
+			                title:'试用店铺',
+			                key:'storeList'
+			            },{
+			                title:'使用范围',
+			                key:'useType'
+			            },{
+	                	title:'操作',
+	                	key:"actiion",
+	                	render:(h,params)=>{
+	                		return h('Button',{
+	                			props:{
+	                				type:"primary"
+	                			},
+	                			on:{
+	                				'click':()=>{
+	                					this.selectedcrmCard.push(params.row)
+	                				}
+	                			}
+	                		},'选取')
+	                	}
+	                }
+                ],
+                AllcrmCard:[],//弹框会员卡
+                selectedcrmCard:[],//弹框会员卡
+				 //弹出框会员卡data
+           		crmCardkey2:[
+	                	{
+	            			type:"selection",
+	            			width:60
+	                	},
+	                	{
+			                title:'名称',
+			                key:'name'
+			            },{
+			                title:'押金',
+			                key:'deposit'
+			            },{
+			                title:'折扣',
+			                key:'discount'
+			            },{
+			                title:'试用店铺',
+			                key:'storeList'
+			            },{
+			                title:'使用范围',
+			                key:'useType'
+			            },{
+	                	title:'操作',
+	                	key:"actiion",
+	                	render:(h,params)=>{
+	                		return h('Button',{
+	                			props:{
+	                				type:"primary"
+	                			},
+	                			on:{
+	                				'click':()=>{
+	                					this.selectedcrmCard.splice(params.row.index,1)
+	                				}
+	                			}
+	                		},'取消')
+	                	}
+	                }
+                ],
+				
+				stores:'全部店铺',
+				storesNum:0,
+				storesinshow:false,//店铺弹框默认影藏
+				 //弹出框店铺data
+           		 storeskey1:[
+	                	{
+	            			type:"selection",
+	            			width:60
+	                	},
+	                	{
+	                		title:"店铺名",
+	                		key:"name"
+	                	},
+	                	{
+	                		title:"店铺编号",
+	                		key:"code"
+	                	},
+	                	{
+	                		title:"联系人",
+	                		key:"person"
+	                	},
+	                	{
+	                	title:'操作',
+	                	key:"actiion",
+	                	render:(h,params)=>{
+	                		return h('Button',{
+	                			props:{
+	                				type:"primary"
+	                			},
+	                			on:{
+	                				'click':()=>{
+	                					this.selectedstores.push(params.row)
+	                				}
+	                			}
+	                		},'选取')
+	                	}
+	                }
+	                	
+                ],
+                Allstores:[],//弹框店铺列表
+                selectedstores:[],//弹框店铺列表
+                 storeskey2:[
+	                	{
+	            			type:"selection",
+	            			width:60
+	                	},
+	                	{
+	                		title:"店铺名",
+	                		key:"name"
+	                	},
+	                	{
+	                		title:"店铺编号",
+	                		key:"code"
+	                	},
+	                	{
+	                		title:"联系人",
+	                		key:"person"
+	                	},
+	                	{
+	                	title:'操作',
+	                	key:"actiion",
+	                	render:(h,params)=>{
+	                		return h('Button',{
+	                			props:{
+	                				type:"primary"
+	                			},
+	                			on:{
+	                				'click':()=>{
+	                					this.selectedstores.splice(params.row.index,1)
+	                				}
+	                			}
+	                		},'取消')
+	                	}
+	                }
+	                	
+                ],
+
+
+				shops:'全部商品',
+				shopsNum:0,
+				goodsinshow:false,//商品弹框默认影藏
+
+				 //弹出框商品data
+           		goodskey:[
+           			
+           			{
+           				type:"selection",
+           				width:60
+           			},
+	                {
+	                	title:"商品名称",
+	                	
+	                	ellipsis:'true',
+	                	key:"skuName"
+	                },
+	                {
+	                	title: '参考售价',
+	                	key:'costPrice',
+
+	                	
+	                	align: 'center'
+	                },
+	                {
+	                	title: '零售价',
+	                	key:'wholePrice',
+
+	                	
+	                	align: 'center'
+	                },
+	                {
+	                	title:'操作',
+	                	key:"actiion",
+	                	render:(h,params)=>{
+	                		return h('Button',{
+	                			props:{
+	                				type:"primary"
+	                			},
+	                			on:{
+	                				'click':()=>{
+	                					this.selectedGoods.push(params.row)
+	                				}
+	                			}
+	                		},'选取')
+	                	}
+	                }
+                ],
+                selectedGoods:[],
+                goodskey1:[
+           			
+           			{
+           				type:"selection",
+           				width:60
+           			},
+	                {
+	                	title:"商品名称",
+	                	
+	                	ellipsis:'true',
+	                	key:"skuName"
+	                },
+	                {
+	                	title: '参考售价',
+	                	key:'costPrice',
+
+	                	
+	                	align: 'center'
+	                },
+	                {
+	                	title: '零售价',
+	                	key:'wholePrice',
+
+	                	
+	                	align: 'center'
+	                },
+	                {
+	                	title:'操作',
+	                	key:"actiion",
+	                	render:(h,params)=>{
+	                		return h('Button',{
+	                			props:{
+	                				type:"primary"
+	                			},
+	                			on:{
+	                				'click':()=>{
+	                					this.selectedGoods.splice(params.row.index,1)
+	                				}
+	                			}
+	                		},'取消')
+	                	}
+	                }
+                ],
+                goods:[],//弹框商品列表
+                mjsObject:{},//满减送详情
+                
+                name:"",//满减送名称
+				beginTime:"",//生效时间
+				endTime:"",//失效时间
+				levelIds:"",//会员等级
+				crmLevelVos:[],//会员卡
+				storeList:[],//店铺
+				skuVoList:[],//商品
+				skuIds:"",//商品编号逗号分割
+				// detailVos:[],//满减送明细
+				storeList:[],
+				storeIds:'',//店铺编号逗号分割
+				allStore:0,//全店通用
+				allSku:0,//全部商品
+				allCrm:0,//全会员通用
+
+				//满减送规则
+				cash:false,//减现金
+				discount:false,//折扣
+				freehipping:false,//免邮
+				sendintegral:false,//送积分
+				yh:false,//送优惠
+				gift:false,//送赠品
+				amount:0,//优惠金额
+				countNum:'',//满此件数送
+				discount:0,//优惠折扣
+				freePos:'',//免邮费 0不免邮费 1免邮费
+				integralNum:'',//赠送积分
+				limitAmount:'',//订单金额限制
+				sendCount:0,//已发放数量
+				useCount:0,//已使用数量
+				allCount:0,//发放数量
+				identityLimitValue:0,//订单金额限制
+				limitAmount:0,//订单金额限制0不限制 1限制
+				description:'',//使用说名
+			}
+
+		},
+		methods:{
+			add(){
+				this.name=''
+						this.beginTime=''
+						this.endTime=''
+						this.skuVoList=[]//商品
+						this.skuIds=''//商品id
+						this.storeList=[]//商品店铺
+						this.storeIds=''//商品id
+						this.crmLevelVos=[]//会员卡
+						this.levelIds=''//会员卡id
+						this.allStore=1//全店通用
+						this.allSku=1//全部商品
+						this.allCrm=1//全会员通用
+						// this.detailVos=[]//全会员通用
+						this.amount=0
+						this.countNum=0
+						this.freePos=1
+						this.integralNum=0
+						this.discount=0
+						this.identityLimitValue=0 //订单金额限制
+						this.sendCount=0//已发放数量
+						this.useCount=0//已使用数量
+						this.allCount=0//发放数量
+						this.description=''
+				this.addoedit='新建优惠券'
+				this.addText = true
+				this.xiugai=false 
+				this.$refs.detail.style.display='none'
+			},
+			//保存完成
+			saveCoupon(){
+
+				// let mjsObject={
+				// 	amount:this.amount,
+				// 	countNum:this.countNum,
+				// 	freePos:this.freePos,
+				// 	integralNum:this.integralNum,
+				// 	discount:this.discount
+				// }
+				// this.detailVos.push(mjsObject)
+				if(this.name==''){
+					this.$Notice.error({
+							title:"",//
+							desc: '名称不能为空'
+						});
+					
+					
+				}else if(this.isclick==0){
+					this.$Notice.error({
+							title:"",//
+							desc: '请先保存优惠设置'
+						});
+				}else{
+					this.axios.post('yhj/add?uid='+this.uid,{
+					
+					name:this.name,
+					// beginTime:this.beginTime,
+					// endTime:this.endTime,
+					skuVoList:this.skuVoList,//商品
+					skuIds:this.skuIds,//商品id
+					storeList:this.storeList,//商品店铺
+					storeIds:this.storeIds,//商品id
+					crmLevelVos:this.crmLevelVos,//会员卡
+					levelIds:this.levelIds,//会员卡id
+					allStore:this.allStore,//全店通用
+					allSku:this.allSku,//全部商品
+					allCrm:this.allCrm,//全会员通用
+					// detailVos:this.detailVos,
+					identityLimitValue :this.identityLimitValue ,//订单金额限制
+					sendCount:this.sendCount,//已发放数量
+					useCount:this.useCount,//已使用数量
+					allCount:this.allCount,//发放数量
+					description:this.description//
+				}).then(res=>{
+					console.log(res)
+					if(res.data.status==200){
+						this.$Notice.success({
+							title:"",//
+							desc: '新建成功'
+						});
+						this.getAllmjs()
+						this.name=''
+						this.beginTime=''
+						this.endTime=''
+						this.skuVoList=[]//商品
+						this.skuIds=''//商品id
+						this.storeList=[]//商品店铺
+						this.storeIds=''//商品id
+						this.crmLevelVos=[]//会员卡
+						this.levelIds=''//会员卡id
+						this.allStore=1//全店通用
+						this.allSku=1//全部商品
+						this.allCrm=1//全会员通用
+						// this.detailVos=[]//
+						this.amount=''
+						this.countNum=''
+						this.freePos=1
+						this.integralNum=''
+						this.discount=''
+						this.identityLimitValue=0 //订单金额限制
+						this.sendCount=0//已发放数量
+						this.useCount=0//已使用数量
+						this.allCount=0//发放数量
+						this.description=''
+					}else{
+						this.$Notice.error({
+							title:"",//
+							desc: res.data.errorMessage+'新建失败'
+						});
+					}
+				})
+				}
+				
+			},
+			//点击修改
+			edit(){
+				
+				this.$refs.detail.style.display='none'
+				this.editshow=false
+				this.xiugai=true
+				this.addoedit="修改优惠券"
+				// this.detailVos=[]
+
+			},
+			saveEdit(){
+				console.log(this.mjsId)
+				// let mjsObject={
+				// 	amount:this.amount,
+				// 	countNum:this.countNum,
+				// 	freePos:this.freePos,
+				// 	integralNum:this.integralNum,
+				// 	discount:this.discount
+				// }
+				// this.detailVos.push(mjsObject)
+				if(this.name==''){
+					this.$Notice.error({
+							title:"",//
+							desc: '名称不能为空'
+						});
+					
+					
+				}else if(this.isclick==0){
+					this.$Notice.error({
+							title:"",//
+							desc: '请先保存优惠设置'
+						});
+				}else{
+					this.axios.put('yhj/update?uid='+this.uid,{
+					id:this.mjsId,
+					name:this.name,
+					// beginTime:this.beginTime,
+					// endTime:this.endTime,
+					skuVoList:this.skuVoList,//商品
+					skuIds:this.skuIds,//商品id
+					storeList:this.storeList,//商品店铺
+					storeIds:this.storeIds,//商品id
+					crmLevelVos:this.crmLevelVos,//会员卡
+					levelIds:this.levelIds,//会员卡id
+					allStore:this.allStore,//全店通用
+					allSku:this.allSku,//全部商品
+					allCrm:this.allCrm,//全会员通用
+					// detailVos:this.detailVos,//全会员通用
+					identityLimitValue :this.identityLimitValue ,//订单金额限制
+					sendCount:this.sendCount,//已发放数量
+					useCount:this.useCount,//已使用数量
+					allCount:this.allCount,//发放数量
+					description:this.description
+				}).then(res=>{
+					if(res.data.status==200){
+						this.$Notice.success({
+							title:"",//
+							desc: '修改成功'
+						});
+						this.getAllmjs()
+						this.name=''
+						this.beginTime=''
+						this.endTime=''
+						this.skuVoList=[]//商品
+						this.skuIds=''//商品id
+						this.storeList=[]//商品店铺
+						this.storeIds=''//商品id
+						this.crmLevelVos=[]//会员卡
+						this.levelIds=''//会员卡id
+						this.allStore=1//全店通用
+						this.allSku=1//全部商品
+						this.allCrm=1//全会员通用
+						// this.detailVos=[]
+						this.amount=''
+						this.countNum=''
+						this.freePos=1
+						this.integralNum=''
+						this.discount=''
+						this.identityLimitValue=0 //订单金额限制
+						this.sendCount=0//已发放数量
+						this.useCount=0//已使用数量
+						this.allCount=0//发放数量
+						this.description=''
+					}else{
+						this.$Notice.error({
+							title:"",//
+							desc: '修改失败'
+						});
+					}
+				})
+				}
+				
+			},
+			//点击取消
+			clickcancel(){
+				this.add()
+			},
+			//点击差号
+			cancelHome(){
+				this.$router.push('operationCoupon')
+			},
+			//获取单选框
+			getshopsname(s){
+				
+				if(s=='部分商品参加'){
+					this.allStore=1,//全店通用
+					this.allSku=1,//全部商品
+					this.allCrm=1,//全会员通用
+					
+						this.axios.get('/sku/query?uid='+this.uid).then((res)=>{
+							console.log(res.data)
+						this.goods= res.data.rows
+						this.goodstotal=res.data.total
+						this.goodspageSize=res.data.pageSize
+					})
+						this.goodsinshow = true 
+				}else if(s='全部商品'){
+					this.allStore=0,//全店通用
+					this.allSku=0,//全部商品
+					this.allCrm=0,//全会员通用
+					this.goodsinshow = false
+					this.axios.get('/sku/query?uid='+this.uid).then((res)=>{
+							console.log(res.data)
+						this.goods= res.data.rows
+						
+					})
+				}
+			},
+			 //切换一条页
+            getData(current){
+                this.axios.get('/sku/query?offset='+current+'&uid='+this.uid).then((res)=>{
+                    //console.log(res)
+                    this.goods = res.data.rows
+                    
+                })
+            },
+            //翻页
+            changePageSize(size){
+                this.goodspageSize = size
+            },
+           selectMore(){
+				this.shopsNum = this.selectedGoods.length
+				this.skuVoList=this.selectedGoods
+				let str=[]
+				for(let i =0;i<this.selectedGoods.length;i++){
+					str.push(this.selectedGoods[i].id)
+				}
+				let s = str.join(',')
+				this.skuIds = s
+
+				console.log(this.skuIds)
+				
+			},
+			//获取店铺单选框
+			getstoresname(s){
+				if(s=='全部店铺'){
+					this.allStore=0,//全店通用
+					this.allSku=0,//全部商品
+					this.allCrm=0,//全会员通用
+					this.storesinshow = false
+					this.axios.get('/store/query?uid='+this.uid).then((res)=>{
+						this.storesNum=res.data.total
+					})
+				}else if(s='部分店铺参加'){
+					this.allStore=1,//全店通用
+					this.allSku=1,//全部商品
+					this.allCrm=1,//全会员通用
+						this.storesinshow = true 
+						this.axios.get('/store/query?uid='+this.uid).then((res)=>{
+						this.Allstores= res.data.rows
+						this.storepageSize=res.data.pageSize
+						this.storetotal=res.data.total
+					})
+				}
+			},
+			  //切换一条页
+            storegetData(current){
+                this.axios.get('/store/query?offset='+current+'&uid='+this.uid).then((res)=>{
+                    //console.log(res)
+                    this.Allstores = res.data.rows
+                    
+                })
+            },
+            //翻页
+            storechangePageSize(size){
+                this.storepageSize = size
+            },
+				//店铺弹框多选
+			selectStoreMore(){
+				this.storesNum = this.selectedstores.length
+				this.storeList=this.selectedstores
+				let str=[]
+				for(let i =0;i<this.selectedstores.length;i++){
+					str.push(this.selectedstores[i].id)
+				}
+				let s = str.join(',')
+				this.storeIds = s
+
+				console.log(this.storeIds)
+				
+			},
+			//获取会员卡单选
+			crmCardname(s){
+				if(s=='全部会员卡'){
+					this.allStore=0,//全店通用
+					this.allSku=0,//全部商品
+					this.allCrm=0,//全会员通用
+					this.crmCardinshow = false
+					this.axios.get('crmlevel/query?uid='+this.uid).then((res)=>{
+						this.crmCardNum=res.data.total
+					})
+				}else if(s='部分会员卡参加'){
+					this.allStore=1,//全店通用
+					this.allSku=1,//全部商品
+					this.allCrm=1,//全会员通用
+						this.crmCardinshow = true 
+						this.axios.get('crmlevel/query?uid='+this.uid).then((res)=>{
+						this.AllcrmCard= res.data.rows
+						this.crmpageSize=res.data.pageSize
+						this.crmtotal=res.data.total
+					})
+				}
+			},
+			//切换一条页
+            crmgetData(current){
+                this.axios.get('crmlevel/query?offset='+current+'&uid='+this.uid).then((res)=>{
+                    //console.log(res)
+                    this.AllcrmCard = res.data.rows
+                    
+                })
+            },
+            //翻页
+            crmchangePageSize(size){
+                this.crmpageSize = size
+            },
+            selectcrmCardMore(){
+				this.crmCardNum = this.selectedcrmCard.length
+				this.crmLevelVos=this.selectedcrmCard
+				let str=[]
+				for(let i =0;i<this.selectedcrmCard.length;i++){
+					str.push(this.selectedcrmCard[i].id)
+				}
+				let s = str.join(',')
+				this.levelIds = s
+
+				console.log(this.levelIds)
+				
+			},
+			//获取生效时间
+			getStartDate(date){
+				console.log(date)
+				this.beginTime = date
+			},
+			//获取到期时间
+			getStopDate(date){
+				this.endTime = date
+			},
+			//单击查看详情
+			clickInfo(id,index){
+				console.log(id)
+				this.mjsId= id
+				this.numIndex = index
+				this.addText = false
+				this.xiugai=false
+				this.editshow=true
+				this.$refs.detail.style.display='block'
+				this.addoedit='优惠券详情'
+				this.getCouponInfo(id)
+				console.log(this.mjsId)
+			},
+			//获取详情
+			getCouponInfo(id){
+				this.axios.get('yhj/get/'+id+'?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						console.log(res.data.rows)
+						this.mjsObject=res.data.rows
+						
+						this.name=res.data.rows.name
+						this.beginTime=res.data.rows.beginTime
+						this.endTime=res.data.rows.endTime
+						this.skuVoList=[]//商品
+						this.skuIds=''//商品id
+						this.storeList=[]//商品店铺
+						this.storeIds=''//商品id
+						this.crmLevelVos=[]//会员卡
+						this.levelIds=''//会员卡id
+						this.allStore=0//全店通用
+						this.allSku=0//全部商品
+						this.allCrm=0//全会员通用
+						this.detailVos=res.data.rows.detailVos
+						this.amount=''
+						this.countNum=''
+						this.freePos=1
+						this.integralNum=''
+						this.discount=res.data.rows.discount
+						this.identityLimitValue=res.data.rows.identityLimitValue //订单金额限制
+						this.sendCount=res.data.rows.sendCount//已发放数量
+						this.useCount=res.data.rows.useCount//已使用数量
+						this.allCount=res.data.rows.allCount//发放数量
+						this.description=''
+					}
+				})
+			},
+			//下拉加载更多
+            handleReachEdge(){
+				this.current++//默认10条
+    	 		this.axios.get('yhj/query?offset='+this.current+'&uid='+this.uid).then((res)=>{
+	 				
+			 		res.data.rows.forEach((item)=>{
+			 			
+			 			this.mjsList.push(item)
+			 			this.mjsList.forEach((x,index)=>{
+			 				
+							x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+						})
+			 		})
+
+			 	})
+	                  
+            },
+			//获取所有满减送
+			getAllmjs(){
+				this.axios.get('yhj/query?uid='+this.uid).then((res)=>{
+					if(res.data.status==200){
+						console.log(res.data.rows)
+						this.mjsList = res.data.rows
+						this.mjsList.forEach((item,index)=>{
+							item.createTime = new Date(item.createTime).toLocaleString().replace(/\//g,'-')
+						})
+					}else{
+						this.$Message.error(res.data.errorMessage);
+					}
+				})
+			},
+			//获取商品
+			getSkuDetail(){
+				this.allStore=0,//全店通用
+					this.allSku=0,//全部商品
+					this.allCrm=0,//全会员通用
+				//默认获取商品全部参加活动
+				this.axios.get('/sku/list?uid='+this.uid).then((res)=>{
+					
+					this.shopsNum=res.data.total
+				})
+			},
+			//获取店铺
+			getStoresDetail(){
+				this.allStore=0,//全店通用
+					this.allSku=0,//全部商品
+					this.allCrm=0,//全会员通用
+				//默认店铺全部参加活动
+				this.axios.get('/store/list?uid='+this.uid).then((res)=>{
+							
+						
+						this.storesNum=res.data.total
+					})
+			},
+			//获取会员卡
+			getCrmCardDetail(){
+				this.allStore=0,//全店通用
+					this.allSku=0,//全部商品
+					this.allCrm=0,//全会员通用
+				//默认店铺全部参加活动
+				this.axios.get('crmlevel/query?uid='+this.uid).then((res)=>{
+						
+						console.log(res.data.total)
+						this.crmCardNum=res.data.total
+					})
+			},
+			 del(){
+            	if(this.mjsId){
+             		this.axios.delete('yhj/delete/'+this.mjsId+'?uid='+this.uid).then((res)=>{
+            		if(res.data.status==200){
+            			this.$Notice.success({
+								title: '删除',
+								desc: '删除成功'
+							});
+            			this.getAllmjs()
+            		}else{
+            			this.$Notice.error({
+								title:"",//
+								desc: '删除失败'+res.data.errorMessage
+							});
+            		}
+            	})
+             	}
+            },
+             stop(){
+            	if(this.mjsId){
+             		this.axios.post('yhj/disabled/'+this.mjsId+'?uid='+this.uid).then((res)=>{
+            		if(res.data.status==200){
+            			this.$Notice.success({
+								title:"",//
+								desc: '停用成功'
+							});
+            		}else{
+            			this.$Notice.error({
+								title:"",//
+								desc: '失败'+res.data.errorMessage
+							});
+            		}
+            	})
+             	}
+            },
+             start(){
+             	if(this.mjsId){
+             		this.axios.post('yhj/enabled/'+this.mjsId+'?uid='+this.uid).then((res)=>{
+            		if(res.data.status==200){
+            			this.$Notice.success({
+								title:"",//
+								desc: '启用成功'
+							});
+            		}else{
+            			this.$Notice.error({
+								title:"",//
+								desc: '启用失败'+res.data.errorMessage
+							});
+            		}
+            	})
+             	}
+            	
+            },
+			//初始化添加默认数据
+
+		},
+		mounted(){
+			//id存在则加入查看详情，否则是点击了新增按钮
+			if(this.$route.query.id){
+				this.addText = false
+				this.mjsId = this.$route.query.id//点击查看进来后，获取id
+				this.numIndex = this.$route.query.index
+				this.clickInfo(this.mjsId,this.numIndex)
+				
+			}
+			this.getAllmjs()
+			this.height = document.documentElement.clientHeight
+			this.handleReachEdge()//滚动加载
+			window.onresize=function(){
+				this.height = document.documentElement.clientHeight
+			}
+			this.getSkuDetail()//商品
+			this.getStoresDetail()//店铺
+			this.getCrmCardDetail()//会员卡
+		}
+	}
+</script>
+<style type="text/css" scoped>
+.settingMjs-top{
+	width:100%;
+	height:48px;
+	line-height: 48px;
+	
+}
+.wldw{
+	margin-left:20px;
+}
+.settingInfo{
+	padding:0 20px;
+}
+.head{
+	height:60px;
+	background: #fff;
+	
+}
+.left-top{
+	height: 60px;
+	width:25%;
+	line-height: 60px;
+	position:fixed;
+	z-index:9;
+	display:flex;
+	background: #fff;
+	padding-right:10px;
+	border-bottom:1px solid #eee;
+	border-right:1px solid #eee;
+	justify-content: space-between;
+}
+.right-top{
+	height: 60px;
+
+	border-bottom:1px solid #eee;
+	line-height: 60px;
+	position:fixed;
+	z-index:10;
+	display:flex;
+	width:64%;
+	margin-left:25%;
+	background: #fff;
+	justify-content: space-between;
+
+}
+.top-left-btn{
+background: #3B77E3;
+margin-right: 10px;
+color: #fff;
+border: none;
+width: 26px;
+height: 26px;
+border-radius: 26px;
+display: inline-block;
+position: relative;
+top: 12px;
+}
+.detail-top{
+	width:100%;
+}
+.left-content {
+	height:100%;
+	width:25%;
+	
+	margin-bottom:300px;
+	
+	border-right:1px solid #E6E6E6;
+	position:fixed;
+	background:#F9F9F9;
+}
+.bg{
+	background:#f5f5f5;
+	/*border-color:#086CA2;*/
+}
+.con-list {
+	display:flex;
+	align-items: center;
+	width: 100%;
+	word-wrap:break-word;
+	
+	border-bottom: solid 1px #E6E6E6;
+	padding: 0px 25px;
+	
+	cursor: pointer;
+	position:relative;
+}
+.con-list:hover{
+	cursor:pointer;
+}
+.con-list .date{
+	position:absolute;
+	right:10px;
+	top:10px;
+}
+.con-list .status{
+	width:100px;
+	
+	text-align: center;
+	position: absolute;
+    right: 0px;
+    top: 47px;
+}
+.con-list .list-title {
+	color: #0d0d0d;
+	font-size: 14px;
+	margin-bottom: 10px;
+}
+
+.con-list .txt {
+	color: #585858;
+	font-size: 12px;
+}
+.top-left-btn1{
+background: #FF7D16;
+}
+.top-left-btn:hover{
+cursor:pointer;
+}
+.left{
+	padding-top: 20px;
+}
+.left-brand-list{
+	display:flex;
+	justify-content: space-between;
+	border-bottom:1px solid #eee;
+	height:100px;
+	margin:0 auto;
+	padding:10px 20px;
+	margin-bottom:10px;
+}
+.left-brand-list:hover{
+	cursor: pointer
+}
+.bg{
+	background:#f5f5f5;
+}
+.right{
+	height:100%;
+	width:64%;;
+	position:fixed;
+	margin-left:25%;
+	margin-top:10px;
+	overflow-y: auto;
+	/*margin-bottom:120px;*/
+}
+.cgtable{
+	/*width:100%;*/
+	margin-top:20px;
+	text-align: center
+}
+.cgtable th{
+	width:200px;
+	text-align: center;
+	color:#2B8F8F;
+}
+.cgtable td{
+	text-align: center
+}
+.table1{
+	width:100%;
+}
+</style>

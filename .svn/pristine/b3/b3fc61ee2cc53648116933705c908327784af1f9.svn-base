@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>智胜云-助力零售数智化转型</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="keywords" content="智胜云店后台管理系统" />
+		<meta name="description" content="智胜云店后台管理系统" />
+    	<meta name="description " content="智胜云店产品全面覆 盖企业级B2B批发订货服务、B2C商城可视化搭建及管理服务、供货及分销服务,提供企业移动分销工具、O2O智能收银工具等。同时,针对不同行业特点智胜云店为厂商及分销商、连锁店、零售商、 批发市场、百货商场、跨境电商等业态提供专业的场景化电商解决方案。"/>
+		<link type="favicon" rel="shortcut icon" href="./static/favicon.png" />
+		<link rel="stylesheet" href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.css">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500">
+	</head>
+	<body>
+		<div id="app"></div>
+	</body>
+</html>
+<script type="text/javascript" src="https://cdn.bootcss.com/countup.js/1.9.3/countUp.js"></script>
+
+
+

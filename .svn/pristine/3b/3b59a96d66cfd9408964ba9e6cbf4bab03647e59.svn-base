@@ -1,0 +1,415 @@
+<template>
+	<!--首页-->
+	<div class="page-box">
+		<vue-particles
+        color="#fff"
+        :particleOpacity="0.7"
+        :particlesNumber="60"
+        shapeType="circle"
+        :particleSize="4"
+        linesColor="#fff"
+        :linesWidth="1"
+        :lineLinked="true"
+        :lineOpacity="0.4"
+        :linesDistance="150"
+        :moveSpeed="2"
+        :hoverEffect="true"
+        hoverMode="grab"
+        :clickEffect="true"
+        clickMode="push"
+        class="lizi"
+      >
+      </vue-particles>
+		<div class="position">
+			<div class="page-title">
+				<div class="icon-box">
+					<img src="http://img.zsydian.com/logo.png" alt="" />
+					<p>{{$t('login.zsyd')}}</p>
+				</div>
+				
+				<div class="title-right">
+					<mu-button flat textColor='#fff' ref="span" @click="open = !open">{{user.trueName}}</mu-button>
+						<mu-popover placement='bottom-start' :open.sync="open" :trigger="trigger" style='margin-top:10px;'>
+							<mu-appbar color="#4A7DFA" class='centerImg'>
+
+							    <mu-avatar color="#4A7DFA" style='vertical-align: middle;'>
+							      <img :src="user.logo">
+							    </mu-avatar>
+							    <!-- <img :src="logo"> color="purple500"-->
+						   		<span>{{user.trueName}}</span>
+							    <mu-button icon slot="right" color="#4A7DFA">
+							      <!-- <mu-icon value="search"></mu-icon> -->
+							    </mu-button>
+						  </mu-appbar>
+						   <mu-list>
+						    <mu-list-item button @click="personal">
+						    	<mu-list-item-action>
+						        	<mu-icon value="folder_shared" color="#4A7DFA"></mu-icon>
+						      	</mu-list-item-action><!--个人中心-->
+						      	<mu-list-item-title>{{$t('info.pCenter')}}</mu-list-item-title>
+						    </mu-list-item>
+						    <mu-list-item button @click="settingPs">
+						    	<mu-list-item-action>
+						        	<mu-icon value="lock" color="#4A7DFA"></mu-icon>
+						      	</mu-list-item-action><!--设置密码-->
+						      <mu-list-item-title>{{$t('info.sPSS')}}</mu-list-item-title>
+						    </mu-list-item>
+						    <mu-list-item button>
+						    	<mu-list-item-action>
+						        	<mu-icon value="headset_mic" color="#4A7DFA"></mu-icon>
+						      	</mu-list-item-action><!--在线客服-->
+						      <mu-list-item-title>{{$t('info.zxkf')}}</mu-list-item-title>
+						    </mu-list-item>
+						    <mu-list-item button @click='help'>
+						    	<mu-list-item-action>
+						        	<mu-icon value="live_help" color="#4A7DFA"></mu-icon>
+						      	</mu-list-item-action><!--帮助中心-->
+						      <mu-list-item-title>{{$t('info.helcenter')}}</mu-list-item-title>
+						    </mu-list-item>
+						    <mu-list-item button @click="recommend">
+						    	<mu-list-item-action>
+						        	<mu-icon value="compare_arrows" color="#4A7DFA"></mu-icon>
+						      	</mu-list-item-action>
+						      <mu-list-item-title>推荐码</mu-list-item-title>
+						    </mu-list-item>
+						    <mu-list-item button @click="logout">
+						    	<mu-list-item-action><!--退出-->
+						        	<mu-icon value="keyboard_return" color="#4A7DFA"></mu-icon>
+						      	</mu-list-item-action>
+						      <mu-list-item-title>{{$t('info.loginOut')}}</mu-list-item-title>
+						    </mu-list-item>
+						  </mu-list>
+						</mu-popover>
+				</div>
+			</div>
+			<!--图标-->
+			<div class="icon-list">
+				<li  v-for='(item,index) in getSystem' :key='index' @click="gotoNav(item.path)" style='position:relative'>
+					<img :src="item.icon" :alt="item.displayName" width='168' height='168' style='display:block'/>
+					<!--图标名称-->
+					<div style='position:relative;top: -88px;font-size: 16px;color:#fff' >
+						{{getv(item.displayName)}}
+					</div>
+				</li>
+			</div>
+		</div>
+		<Modal v-model="detailsisshow" width="460px">
+		<p slot="header" style="height:30px;line-height:30px">
+			<span>推荐码</span>
+		</p>
+		<div class="shareCodeClass">
+			
+            <p>{{user.shareCode}}</p>
+           
+		</div>
+		<div slot="footer">
+			<div class='title' style='margin:0px'>
+				<div style='color:#D15151;font-size:14px'>
+				</div>
+				<div style='margin-top:10px'>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ccc;color:#fff" @click="cancelDetails"><Icon type="close" style="margin-right:5px;" ></Icon>关闭</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+	</div>
+</template>
+
+<script>
+import * as types from '../../store/types'
+export default{
+	data(){
+		return{
+			detailsisshow:false,
+			powerIsshow:false,
+			open:false,
+			trigger: null,
+			getSystem:[],
+			uid: this.$store.state.common.token,
+			user:this.$store.state.common.user,
+		}
+	},
+	methods:{
+			//退出
+			logout(){
+				this.axios.post('logout?uid='+this.uid).then((res)=>{
+					if(res.data.status==200){
+					
+						this.$store.commit(types.LOGOUT);
+						
+						this.$router.push('/')
+					}
+				})
+			},
+			//个人中心
+			personal(){
+				this.$router.push('/personalHome')
+			},
+			//跳转设置密码
+			settingPs(){
+				this.$router.push('/safesetting')
+			},
+			//获取控制权限
+			sym(){
+				this.axios.get('getSystem?uid='+this.uid).then((res)=>{
+					if(res.data.status==200){
+						this.getSystem=res.data.rows
+						
+					}
+				})
+			},
+			getv(s){
+				switch(s){
+					case '管理':
+						return this.$t('public.manage')
+					break;
+					case '门店':
+						return this.$t('public.Store')
+					break;
+					case '采购':
+						return this.$t('public.Purchase')
+					break;
+					case '销售':
+						return this.$t('public.Sale')
+					break;
+					case '会员':
+						return this.$t('public.Member')
+					break;
+					case '运营':
+						return this.$t('public.Operate')
+					break;
+					case '订单':
+						return this.$t('public.Order')
+					break;
+					case '库存':
+						return this.$t('public.Inventory')
+					break;
+					case '财务':
+						return this.$t('public.Finance')
+					break;
+					case '数据':
+						return this.$t('public.Data')
+					break;
+					case '长护包':
+						return this.$t('public.zhb')
+					break;
+				}
+				
+			},
+			//跳转帮助页面
+			help(){
+				window.open('http://help.zsydian.com/')
+			},
+		
+			gotoNav:function(path){
+				this.$router.push({
+						name:path
+					});
+				},
+			//推荐码
+			recommend(){
+				this.detailsisshow=true
+				},
+			cancelDetails(){
+					this.detailsisshow=false
+				},
+		},
+
+		created(){
+			this.$nextTick(()=>{
+				this.sym()//GET /getSystem 获得操作入口
+			})
+		},
+		mounted() {
+			this.trigger = this.$refs.span.$el;
+		}
+	}
+</script>
+
+<style lang="css" scoped>
+.shareCodeClass{
+		margin-bottom:-20px;margin-top:-10px;text-align: center;font-size: 160px;
+	}
+#particles-js{
+    background-color: #000;
+    height: 100%;
+}
+.position{
+    position: absolute;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    overflow: auto;
+}
+
+.manTop{
+	width:240px;
+	/*height:100px;*/
+	background: #4081E0;
+	color:#fff;
+	padding:10px;
+}
+.msgTop{
+	display:flex;
+	margin-top:10px;
+	align-items: center
+}
+.msgTop span{
+	margin-left:20px;
+	
+}
+.logout{
+		margin-top:10px;
+		margin-left:15px;
+	}
+	.logout:hover{
+		cursor:pointer;
+	}
+
+.model-main{
+	display:flex;
+	border-radius:8px;
+}
+.model-main .left{
+	width:40%;
+	height:410px;
+	background: #495060;
+	display:flex;
+	flex-direction: column;
+	justify-content: center;;
+	align-items: center;
+	color:#fff;
+}
+.model-main .right{
+	flex: 2 0 60%;
+	background: #e2e2e2;
+
+}
+
+
+
+.bg{
+	background: #495060;
+	color:#fff;
+}
+.stroeName{
+	display:inline-block;margin-left:10px;color:#fff
+}
+.stroeName:hover{
+	cursor:pointer;
+}
+.alertcha:hover{
+	cursor:pointer;
+}
+
+.icon-list img{
+	height: 168px;
+	width: 128px;
+}
+
+.page-box{
+	width:100%;
+	height:100%;
+	background:#31333a;
+	background-size:100% 100%;
+	background-attachment: fixed;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	
+	overflow:hidden;
+}
+	.page-title{
+		width:100%;
+		height:80px;
+		display:flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+	.logout:hover{
+		cursor:pointer
+	}
+	.page-title .icon-box{
+		width:auto;
+		height:50px;
+		line-height:50px;
+		margin-left:44px;
+		display:flex;
+	}
+	.logo-img{
+		border-radius: 50%;
+    overflow: hidden;
+    height: 80px;
+    line-height: 80px;
+    text-align: center;
+     margin-bottom:20px;
+	}
+	.page-title .icon-box img{
+		width:30px;
+		height:40px;
+		margin-right:10px;
+		vertical-align: middle
+	}
+	.page-title .icon-box p{
+		font-size:24px;
+		font-weight:bold;
+		color:#fff;
+		float:left;
+	}
+	.title-right{
+		height:50px;
+		line-height:50px;
+		margin-right:70px;
+		display:flex;
+	}
+	.title-right .iconbox{
+		display:inline-block;
+		width:27px;
+		height:27px;
+		border-radius:50%;
+		background:#fff;
+		margin-top:10px;
+	}
+	.title-right>p{
+		line-height:18px;
+		font-size:16px;
+		color:#fff;
+		float:left;
+		margin-right:5px;
+	}
+	.ivu-icon-chevron-down{
+		color:#fff;
+	}
+	.icon-list{
+		width: 950px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-wrap: wrap;
+		margin: 6% auto;
+	}
+	.icon-list li{
+		margin:20px 30px;
+		text-align: center;
+		list-style:none;
+		height: 168px;
+		width: 128px;
+	}
+	</style>
+<style type="text/css">
+	/*.el-dialog--small{
+		width:600px!important;
+	}*/
+	.ivu-poptip-body{
+		padding:0!important;
+		border-radius:4px;
+	}
+	.ivu-poptip-popper[x-placement^=bottom] .ivu-poptip-arrow:after{
+		border-bottom-color:#4081E0!important;
+	}
+	.ivu-poptip-body-content{
+		border-radius:4px!important;
+	}
+</style>

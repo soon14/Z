@@ -1,0 +1,648 @@
+<template>
+	<!--流水账-->
+	<div class="units-box">
+		
+		<div style='display:flex;height:100%;overflow:hidden'>
+			<div class='main-left'>
+				<div style='height: 50px; border-bottom: 1px solid rgb(228, 228, 228); font-size: 18px; font-weight: 900; line-height: 50px;'>
+					<div style='margin-left:10px'>财务</div>
+				</div>
+				<li class="flclass" v-for='(item,index) in fhlist' @click='getfhlistbg(index)' :class="{bor:index==fhindex}">
+					<span>{{item.label}}</span>
+				</li>
+			</div>
+			<!--流水账-->
+			<div class="table" v-if='fhindex==0'>
+				<div style='display:flex;border-bottom:1px solid #e4e4e4'>
+					<span  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+						<div style='margin:0 10px;'>流水账</div>	
+					</span>
+					<Input style='margin-top:10px;width:400px' v-model='lskeyword' placeholder='请输入单号' @on-enter='entersSearchls' >
+                    	<span slot="append"  @click='searchls' style='cursor:pointer'>搜索</span>
+            		</Input>
+            		<DatePicker type="date" :value="createTime" :confirm="true" placeholder="Select date" style="width: 200px;margin-top:10px;margin-left:10px" @on-ok="clickOk" @on-change="changeDate"></DatePicker>
+				</div>
+				<div style='margin:10px'>
+					
+					<Table border :columns="lsKey" :data="lsData" ></Table>
+					<div class="page-box">
+						 <Page v-if='lstotal!=0' size='small' show-sizer :page-size-opts="[10,20,30,40,50]" :total="lstotal" show-total  :pageSize='lspageSize'  @on-change="lsgetData" @on-page-size-change="lschangePageSize"></Page>
+					</div>
+				</div>
+			</div>
+			<!--门店营收-->
+			<div class="table" v-if='fhindex==1'>
+				<div style='display:flex;border-bottom:1px solid #e4e4e4' >
+					<div  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+						<div style='margin:0 10px;' v-if="valueT==1">日报表</div>
+						<div style='margin:0 10px;' v-if="valueT==2">月报表</div>
+						<div style='margin:0 10px;' v-if="valueT==3">年报表</div>
+					</div>
+					<Select style="width:100px;margin-top:8px;margin-left:10px" v-model='valueT'  placeholder="全部" @on-change="topListselected" >
+                    	<Option v-for="item in topList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+               		 </Select>
+               		 <div style="margin-top:8px;margin-left:5px" v-if="valueT==1">
+	               		 <DatePicker type="date" placeholder="开始时间" :value="startDate1" style="width: 200px;" @on-change="changeDay1"></DatePicker>
+	               		 <DatePicker type="date" placeholder="结束时间" :value="endDate1" style="width: 200px;" @on-change="changeDay11"></DatePicker>
+               		 </div>
+               		 <div style="margin-top:8px;margin-left:5px" v-if="valueT==2">
+	               		 <DatePicker type="month" placeholder="开始时间" :value="startDate2" style="width: 200px;" @on-change="changeDay2"></DatePicker>
+	               		 <DatePicker type="month" placeholder="结束时间" :value="endDate2" style="width: 200px;" @on-change="changeDay22"></DatePicker>
+               		 </div>
+               		 <div style="margin-top:8px;margin-left:5px" v-if="valueT==3">
+	               		 <DatePicker type="year" placeholder="开始时间" :value="startDate3" style="width: 200px;" @on-change="changeDay3"></DatePicker>
+	               		 <DatePicker type="year" placeholder="结束时间" :value="endDate3" style="width: 200px;" @on-change="changeDay33"></DatePicker>
+               		 </div>
+               		 <div><Button type="primary" @click="searchDate" style=";margin-top:10px;margin-left:5px">搜索</Button></div>
+				</div>
+				<div class='tableb'>
+					<div >
+						<Table border  :columns="daycolumns" :data="daydataList" ></Table>
+						<div class="page-box">
+							 <Page :total="daytotal" size='small' show-total show-total placement='top' show-sizer :page-size-opts="[10,20,30,40,50]" :pageSize='daypageSize'  @on-change="daygetData" @on-page-size-change="daychangePageSize"></Page>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				createTime:"",
+				title:"流水账",
+				//流水账
+				lskeyword:'',
+				lstotal: 0,
+				lspageSize: 0,
+				lsData:[],
+				lsKey:[
+					{
+						title:"入账日期",
+						key:"createTime",
+						width:170,
+						align:"center"
+					},
+					{
+						title:"流水号",
+						width:180,
+						key:"payNo"
+
+					},
+					{
+						title:"订单号",
+						width:180,
+						key:"orderNo"
+
+					},
+					{
+						title:"标题",
+						width:120,
+						key:"title"
+
+					},
+					{
+						title:"店铺",
+						key:"storeName",
+						width:180,
+					},
+					{
+						title:"员工",
+						key:"employeeName",
+						width:120,
+						align:"center"
+					},
+					
+					{
+						title:"金额",
+						key:"total_fee",
+						width:120,
+						align:"center"
+					},
+					{
+						title:"支付方式",
+						key:"typeDesc",
+						width:120,
+						align:"center"
+					},
+					{
+						title:"客户信息",
+						key:"crmName",
+						width:100,
+					},
+					{
+						title:"备注",
+						key:"remark",
+						width:120,
+					},
+				],
+				
+				fhindex:0,
+				row:{},
+				visible: false,
+				fhlist:[
+					{
+						label:"流水账",
+						value:0
+					},
+					{
+						label:"门店营收",
+						value:1
+					},
+				],
+				valId:"",
+				type:'',//下拉选中
+				kxkeyword:'',
+				kxtotal: 0,
+				kxpageSize: 0,
+				uid: this.$store.state.common.token,
+				kxData: [], //款项上缴
+				kxKey:[],
+				startDate1:"",
+				endDate1:"",
+				startDate2:"",
+				endDate2:"",
+				startDate3:"",
+				endDate3:"",
+				valueT:1,
+				topList:[
+					{
+						label:"日报表",
+						value:1
+					},
+					{
+						label:"月报表",
+						value:2
+					},
+					{
+						label:"年报表",
+						value:3
+					},
+				],//门店营收
+				//日报
+				daytotal:0,
+				daypageSize:0,
+				daydataList:[],
+				daycolumns:[
+					{
+						title:"金额",
+						key:"amount"
+					},
+					{
+						title:"店铺",
+						key:"storeName"
+					},
+					{
+						title:"员工",
+						key:"employeeName",
+						width:120,
+						align:"center"
+					},
+					{
+						title:"创建时间",
+						key:"createDate"
+					},
+					{
+						title:"类型",
+						key:"typeDesc"
+					},
+				],
+			}
+		},
+		methods: {
+			//流水账查询
+			searchls(){
+				this.axios.get('mpay/query?keyword='+this.lskeyword+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.lsData=res.data.rows
+						this.lstotal=res.data.total
+						this.lspageSize=res.data.pageSize
+						this.lsData.forEach(x=>{
+							x.createTime=new Date(x.createTime).toLocaleString().replace(/\//g,'-')
+							
+						})
+					}
+				})
+			},
+			//回车搜索
+			entersSearchls(){
+				this.searchls()
+			},
+			//流水账
+			getls(){
+				this.axios.get('mpay/query?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.lsData=res.data.rows
+						this.lstotal=res.data.total
+						this.lspageSize=res.data.pageSize
+						this.lsData.forEach(x=>{
+							x.createTime=new Date(x.createTime).toLocaleString().replace(/\//g,'-')
+							
+						})
+					}
+				})
+			},
+			//切换
+			getfhlistbg(index){
+				this.fhindex=index
+				if(this.fhindex==0){
+					
+					this.getls()
+				}
+				if(this.fhindex==1){
+					this.getFirstDay()
+				}
+			},
+			//流水账翻页
+			lsgetData(current){
+				this.axios.get('mpay/query?offset='+current+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.lsData=res.data.rows
+						this.lstotal=res.data.total
+						this.lspageSize=res.data.pageSize
+						this.lsData.forEach(x=>{
+							x.createTime=new Date(x.createTime).toLocaleString().replace(/\//g,'-')
+							
+						})
+					}
+				})
+			},
+			lschangePageSize(size){
+				this.lspageSize=size
+				this.axios.get('mpay/query?length='+size+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.lsData=res.data.rows
+						this.lstotal=res.data.total
+						this.lspageSize=res.data.pageSize
+						this.lsData.forEach(x=>{
+							x.createTime=new Date(x.createTime).toLocaleString().replace(/\//g,'-')
+							
+						})
+					}
+				})
+			},
+			//选择日期
+			changeDate(value){
+				this.createTime=value
+			},
+			//日期选择确认
+			clickOk(){
+				this.axios.get('mpay/query?uid='+this.uid,{
+					params:{
+						createTime:this.createTime
+					}
+				}).then(res=>{
+					if(res.data.status==200){
+						this.lsData=res.data.rows
+						this.lstotal=res.data.total
+						this.lspageSize=res.data.pageSize
+						this.lsData.forEach(x=>{
+							x.createTime=new Date(x.createTime).toLocaleString().replace(/\//g,'-')
+						})
+					}
+				})
+			},
+			changeDay1(start){
+				this.startDate1=start
+			},
+			changeDay11(end){
+				this.endDate1=end
+			},
+
+
+			changeDay2(start){
+				this.startDate2=start
+			},
+			changeDay22(end){
+				this.endDate2=end
+			},
+
+
+			changeDay3(start){
+				this.startDate3=start
+			},
+			changeDay33(end){
+				this.endDate3=end
+			},
+			//门店营收下拉
+			topListselected(value){
+				this.daydataList=[]
+				this.total=0
+				this.pageSize=0
+				this.valueT=value
+				switch(this.valueT){
+					//日
+					case 1:
+						
+						this.getFirstDay()
+					break;
+					//月
+					case 2:
+						
+						this.getFirstmonth()
+					break;
+					//年
+					case 3:
+						
+						this.getFirstYear()
+					break;
+				}
+			},
+			//日报GET /storeRPT/day 门店日报表
+			getFirstDay(){
+				this.axios.get('/mstoreRPT/day?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						let data=res.data
+						this.daydataList=data.rows
+						this.daytotal=data.total
+						this.daypageSize=data.pageSize
+					}
+				})
+			},
+			//GET /storeRPT/month 门店月报表
+			getFirstmonth(){
+				this.axios.get('/mstoreRPT/month?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						let data=res.data
+						this.daydataList=data.rows
+						this.daytotal=data.total
+						this.daypageSize=data.pageSize
+					}
+				})
+			},
+			//GET /storeRPT/year 门店年报表
+			getFirstYear(){
+				this.axios.get('/mstoreRPT/year?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						let data=res.data
+						this.daydataList=data.rows
+						console.log(this.daydataList)
+						this.daytotal=data.total
+						this.daypageSize=data.pageSize
+					}
+				})
+			},
+			//门店营收翻页
+			daygetData(current){
+				switch(this.valueT){
+					case 1:
+						this.axios.get('/mstoreRPT/day?offset='+current+'&uid='+this.uid).then(res=>{
+							if(res.data.status==200){
+								let data=res.data
+								this.daydataList=data.rows
+								this.daytotal=data.total
+								this.daypageSize=data.pageSize
+							}
+						})
+					break;
+					//月
+					case 2:
+						this.axios.get('/mstoreRPT/month?offset='+current+'&uid='+this.uid).then(res=>{
+							if(res.data.status==200){
+								let data=res.data
+								this.daydataList=data.rows
+								this.daytotal=data.total
+								this.daypageSize=data.pageSize
+							}
+						})
+					break;
+					//年
+					case 3:
+						this.axios.get('/mstoreRPT/year?offset='+current+'&uid='+this.uid).then(res=>{
+							if(res.data.status==200){
+								let data=res.data
+								this.daydataList=data.rows
+								this.daytotal=data.total
+								this.daypageSize=data.pageSize
+							}
+						})
+					break;
+				}
+			},
+			daychangePageSize(size){
+				switch(this.valueT){
+					case 1:
+						this.axios.get('/mstoreRPT/day?length='+size+'&uid='+this.uid).then(res=>{
+							if(res.data.status==200){
+								let data=res.data
+								this.daydataList=data.rows
+								this.daytotal=data.total
+								this.daypageSize=data.pageSize
+							}
+						})
+					break;
+					//月
+					case 2:
+						this.axios.get('/mstoreRPT/month?length='+size+'&uid='+this.uid).then(res=>{
+							if(res.data.status==200){
+								let data=res.data
+								this.daydataList=data.rows
+								this.daytotal=data.total
+								this.daypageSize=data.pageSize
+							}
+						})
+					break;
+					//年
+					case 3:
+						this.axios.get('/mstoreRPT/year?length='+size+'&uid='+this.uid).then(res=>{
+							if(res.data.status==200){
+								let data=res.data
+								this.daydataList=data.rows
+								this.daytotal=data.total
+								this.daypageSize=data.pageSize
+							}
+						})
+					break;
+				}
+			},
+			//搜索
+			searchDate(){
+				switch(this.valueT){
+					case 1:
+						this.axios.get('/mstoreRPT/day?uid='+this.uid,{
+							params:{
+								startDate:this.startDate1,
+								endDate:this.endDate1
+							}
+						}).then(res=>{
+							if(res.data.status==200){
+								let data=res.data
+								this.daydataList=data.rows
+								this.daytotal=data.total
+								this.daypageSize=data.pageSize
+
+							}
+						})
+					break;
+					//月
+					case 2:
+						this.axios.get('/mstoreRPT/month?uid='+this.uid,{
+							params:{
+								startDate:this.startDate2,
+								endDate:this.endDate2
+							}
+						}).then(res=>{
+							if(res.data.status==200){
+								let data=res.data
+								this.daydataList=data.rows
+								this.daytotal=data.total
+								this.daypageSize=data.pageSize
+								
+							}
+						})
+					break;
+					//年
+					case 3:
+						this.axios.get('/mstoreRPT/year?uid='+this.uid,{
+							params:{
+								startDate:this.startDate3,
+								endDate:this.endDate3
+							}
+						}).then(res=>{
+							if(res.data.status==200){
+								let data=res.data
+								this.daydataList=data.rows
+								this.daytotal=data.total
+								this.daypageSize=data.pageSize
+								
+							}
+						})
+					break;
+				}
+			},
+		},
+		mounted() {
+			this.getls()
+		}
+	}
+</script>
+
+<style lang="css" scoped>
+p.edit:hover{
+	color:blue;
+}
+	.units-box {
+		width: 100%;
+		background: rgb(230,233,236);
+	}
+	.btns-box {
+		width: 100%;
+		height: 50px;
+		display:flex;
+		justify-content: space-between;
+		background: #fff;
+		line-height: 50px;
+	}
+	 .wldw{
+    	margin-left: 15px;
+    	font-size:18px;font-weight:bold;
+    }
+	.right{
+		margin-right:10px;
+		margin-bottom:10px;
+	}
+	.ivu-icon-chevron-down {
+		font-size: 10px;
+	}
+	.btns img {
+		width: 14px;
+		height: 14px;
+		vertical-align: middle;
+	}
+	.main-left{
+		width: 120px;
+		margin-right: 3px;
+		flex: 0 0 120px;
+		font-size: 14px;
+		background: #fff;
+	}
+	.main-left li{
+		list-style: none;
+		padding:10px 0;
+		width:100%;
+		
+	}
+	.main-left li span{
+		margin-left:20px;
+	}
+	.table {
+		width: 100%;
+		height: 100%;
+		
+		overflow: auto;
+		background: #fff;
+	}
+	.bor{
+		background:rgb(241,245,247);
+        color:rgb(59,119,227);
+	}
+.mtewm{
+width:100%;
+
+display:flex;
+padding: 0px 200px 0 200px;
+
+justify-content: center;
+align-items: center;
+flex-direction: column;
+    	
+}
+.mtewm span{
+	width:260px;
+	height:30px;
+	line-height: 30px;
+	font-weight:600;
+	text-align: center
+}
+.mtewm div{
+	width:260px;
+	height:60px;
+	line-height: 35px;
+	
+}
+
+.ygewm{
+	 padding:10px;
+	width:100%;
+	height:100%;
+	/*border:1px solid red;*/
+	display: flex;
+	flex-wrap: wrap;
+	 /*justify-content: center;*/
+    text-align: center;
+	/*justify-content: center;*/
+	/*flex-direction: column*/
+	background: #fff
+}
+.ygewm-list{
+	margin:10px;
+    height: 195px;
+    width:17%;
+    padding:10px;
+    justify-content: center;
+    text-align: center;
+    border: 1px solid #ccc;
+}
+.page-box{
+	width:100%;
+	margin-right:56px;
+	margin-top:15px;
+	text-align: center;
+	margin-bottom:120px;
+}
+.bottom-btn{
+	width:100%;
+	height:80px;
+	/*border:1px solid red;*/
+	margin-top:10px;
+	background: #f8f8f8;
+	line-height: 80px;
+	margin-right:56px;
+	text-align:right;
+
+}
+</style>

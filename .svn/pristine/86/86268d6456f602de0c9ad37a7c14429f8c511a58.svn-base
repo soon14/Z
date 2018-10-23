@@ -1,0 +1,348 @@
+<template>
+	<!--近期生日-->
+	<div class="units-box">
+		<div class="btns-box">
+			<div class="wldw">
+				<div>
+	                <span style="width:42px;font-weight:900">近期生日：</span>
+	                 <Select style="width:100px" v-model="valueT" placeholder="全部" @on-change="orderselected">
+	                    <Option v-for="item in orderListname" :value="item.value" :key="item.value">{{ item.label }}</Option>
+	                </Select>
+                </div>
+                <Input style='margin-top:10px;width:400px;margin-left:20px' v-model='keyword' placeholder='请输入编码/名称' @on-enter='entersSearch' >
+                    <span slot="append"  @click='search' style='cursor:pointer'>搜索</span>
+                </Input>
+            </div>
+			<div style="margin-right:10px;">
+				
+			</div>
+		</div>
+		<!--表格数据-->
+		<div class="table">
+			<Table border highlight-row  :columns="columns" :data="dataList" ></Table>
+		<!--底部的分页-->
+		<div class="page-box">
+			 <Page :total="total" show-total placement='top' size='small' show-sizer :page-size-opts="[10,20,30,40,50]" :pageSize='pageSize'  @on-change="getData" @on-page-size-change="changePageSize">
+			 </Page>
+		</div>
+		</div>
+	
+	</div>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				keyword:'',
+				
+				current:1,
+				visible: false,
+				dataList: [], 
+				total: 0,
+				pageSize: 0,
+				valId:"",
+				uid: this.$store.state.common.token,
+				valueT:0,
+				orderListname:[
+                    {
+						label:"当天",
+						value:0
+					},
+					{
+						label:"三天以内",
+						value:3
+					},
+					{
+						label:"本周以内",
+						value:7
+					},
+					{
+						label:"两周以内",
+						value:14
+					},
+                   
+                ],
+				columns: [
+					{
+		              title:this.$t('member.avt'),//"头像",
+		              key:'photo',
+		               width:80,
+		              render:(h, params) =>{
+		                  return h('div',[
+		                      h('img',{
+		                        attrs:{
+		                          src:params.row.photo
+		                        },
+		                        style:{
+		                          width:'40px',
+		                          height:'40px'
+		                        }
+		                      })
+		                    ])
+		                }
+		            },
+		             {
+		               title:this.$t('member.code'),//'编号',
+		             
+		               key:'code'
+		            },
+		            {
+		              title:this.$t('member.name'),//"姓名",
+		              
+		             align:"center",
+		              key:"name",
+		            },
+		           
+		            {
+		              title:this.$t('public.gender'),//"性别",
+		               align:"center",
+		              key:"gender",
+		              render:(h,params)=>{
+		                return h('div',{
+		                    style:{
+		                      color:params.row.gender=='男'?'#40ca98':params.row.gender=='女'?'#FF934D':'未知'
+		                    }
+		                  },params.row.gender)
+		                }
+		            },
+		            {
+		              title:this.$t('member.mobile'),//'手机',
+		               
+		                align:"center",
+		              key:'mobile'
+		            },
+		             {
+		              title:this.$t('member.birsday'),//'生日',
+		             
+		               align:"center",
+		             
+		              key:'birthday'
+		            },
+		            {
+		              title:this.$t('member.ye'),//'余额',
+		             
+		               align:"center",
+		            
+		              key:'chargeMoney'
+		            },
+		            {
+		              title:this.$t('member.jf'),//'积分',
+		              
+		               align:"center",
+		              key:'dqjf'
+		            },
+		            {
+		              title:"等级",//'积分',
+		              
+		               align:"center",
+		              key:'level'
+		            },
+		            // {
+		            //    title:this.$t('member.time'),//'注册时间',
+		              
+		            //    key:'createTime',
+		            //     align:"center",
+		            // },
+				]
+				
+			}
+		},
+		methods: {
+			 //搜索statement/birthStatement?days=10
+            search(){
+               this.axios.get('statement/birthStatement?days='+this.valueT+'&keyword='+this.keyword+'&uid='+this.uid).then(res=>{
+            		if(res.data.status==200){
+            			let data=res.data
+		            	this.dataList=data.rows
+						this.total=data.total
+						this.pageSize=data.pageSize
+						this.dataList.forEach((x)=>{
+		                    x.createTime=this.getLocalTime(x.createTime)
+		                    console.log( x.createTime)
+		                    if(x.birthday==null){
+		                      x.birthday=''
+		                    }else{
+		                    	x.birthday=this.getLocalTime(x.birthday)
+		                    }
+		                    
+		                  })
+            		}
+            	})
+            },
+            entersSearch(){
+                this.search()
+            },
+			//获取
+			getUnitsList(s) {
+				this.axios.get('statement/birthStatement?days='+s+'&uid='+this.uid).then(res=>{
+            		if(res.data.status==200){
+            			let data=res.data
+		            	this.dataList=data.rows
+						this.total=data.total
+						this.pageSize=data.pageSize
+						this.dataList.forEach((x)=>{
+		                    x.createTime=this.getLocalTime(x.createTime)
+		                    console.log( x.createTime)
+		                    if(x.birthday==null){
+		                      x.birthday=''
+		                    }else{
+		                    	x.birthday=this.getLocalTime(x.birthday)
+		                    }
+		                    
+		                  })
+            		}
+            	})
+			},
+			 //切换一条页
+            getData(current){
+               this.axios.get('statement/birthStatement?days='+this.valueT+'&offset='+current+'&uid='+this.uid).then(res=>{
+            		if(res.data.status==200){
+            			let data=res.data
+		            	this.dataList=data.rows
+						this.total=data.total
+						this.pageSize=data.pageSize
+						this.dataList.forEach((x)=>{
+		                    x.createTime=this.getLocalTime(x.createTime)
+		                    console.log( x.createTime)
+		                    if(x.birthday==null){
+		                      x.birthday=''
+		                    }else{
+		                    	x.birthday=this.getLocalTime(x.birthday)
+		                    }
+		                    
+		                  })
+            		}
+            	})
+            },	
+            //翻页
+            changePageSize(size){
+                this.pageSize = size
+                this.axios.get('statement/birthStatement?days='+this.valueT+'&length='+size+'&uid='+this.uid).then(res=>{
+            		if(res.data.status==200){
+            			let data=res.data
+		            	this.dataList=data.rows
+						this.total=data.total
+						this.pageSize=data.pageSize
+						this.dataList.forEach((x)=>{
+		                    x.createTime=this.getLocalTime(x.createTime)
+		                    console.log( x.createTime)
+		                    if(x.birthday==null){
+		                      x.birthday=''
+		                    }else{
+		                    	x.birthday=this.getLocalTime(x.birthday)
+		                    }
+		                    
+		                  })
+            		}
+            	})
+            },
+            //下拉框选择
+            orderselected(value){
+            	this.valueT=value
+               this.getUnitsList(this.valueT);
+            },
+           
+		},
+		mounted() {
+			this.getUnitsList(this.valueT);
+		}
+	}
+</script>
+
+<style lang="css" scoped>
+ .zsiscrm{
+        padding-top:30px;
+        margin-top:10px;
+        border-top:1px solid #e4e4e4;
+        display:flex;
+        justify-content: center;
+        align-items: center
+    }
+    .zsiscrm span{
+        display:block;
+        width:80px;
+        text-align: center;
+    }
+    .searchBtn{
+        width:100%;
+        text-align: center;
+        margin-top:40px;
+    }
+    .INFO{
+        padding-top:30px;
+        margin-top:10px;
+        border-top:1px solid #e4e4e4;
+        display: flex;;
+        justify-content: center;
+        align-items: center
+    }
+    .crmInfo{
+        display: flex;
+        flex-direction: column;
+        padding:0 30px;
+    }
+     .crmInfo span{
+        font-weight:600;
+        padding:3px 0;
+     }
+     .INFO1{
+        padding-top:30px;
+        margin-top:10px;
+        display: flex;;
+        justify-content: center;
+        align-items: center
+     }
+	.units-box {
+		width: 100%;
+		height: 100%;
+		background: #fff;
+	}
+	.btns-box {
+		width: 100%;
+		height: 50px;
+		display:flex;
+		justify-content: space-between;
+		
+		line-height: 50px;
+	}
+	.wldw {
+		display: flex;
+		font-size: 14px;
+		color: #585858;
+		margin-left:10px;
+	}
+	.right{
+		margin-right:10px;
+		margin-bottom:10px;
+	}
+	.right-btn{
+		background: #FF7D16;
+	    margin-right: 10px;
+	    color: #fff;
+	    border: none;
+	    width: 26px;
+	    height: 26px;
+	    border-radius: 26px;
+	    display: inline-block;
+	    position: relative;
+	    top: 10px;
+	}
+	.ivu-icon-chevron-down {
+		font-size: 10px;
+	}
+	.btns img {
+		width: 14px;
+		height: 14px;
+		vertical-align: middle;
+	}
+	.table {
+		margin:0 10px 120px 10px;
+	}
+
+	.page-box {
+		text-align: center;
+		margin-top:5px;
+	}
+
+</style>

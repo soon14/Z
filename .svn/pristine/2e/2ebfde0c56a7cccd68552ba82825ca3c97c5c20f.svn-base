@@ -1,0 +1,1053 @@
+<template>
+  <!--供应商：-->
+  <div class="units-box">
+
+    <!--顶部的按钮-->
+    <div class="btns-box">
+           <div class="wldw1">
+              <div>
+                <span style="font-weight:900;width:60px">{{$t('public.screen')}}：</span>
+                 <Select style="width:100px;margin-top:0px;margin-right:10px" v-model='valueT'  placeholder="全部" @on-change="orderselected">
+                    <Option v-for="item in orderListname" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                </Select>
+                </div>
+                <div style='margin-right:20px;display:flex'>
+                <Input style='margin-top:10px;width:300px' v-model='searchKeyword' :placeholder="$t('public.orderorname')" @on-enter='enterSearch'>
+                <span slot="append"  @click='search' style='cursor:pointer;'>{{$t('public.search')}}</span>
+                </Input>
+                 <!-- <a style='font-size:14px;font-weight:600;margin-left:20px;border-bottom:1px solid #3b77e3;height:40px' @click='searchLocation'>{{$t('public.PreciseSearch')}}</a> -->
+              </div>
+            </div>
+      <div style="display:flex">
+        <div>
+          <!-- <Button shape="circle" type="ghost" style="margin-right:5px;border:none;background:#43506C;color:#fff"  @click="zsImport">
+                      <img src="http://img.zsydian.com/icon/logo.png" width='10' height='15' style='vertical-align: top;margin-right:3px;'>
+                  智胜导入
+          </Button> -->
+        </div>
+
+        <div>
+          <Button shape="circle" type="ghost" style="margin-right:5px;border:none;background:#3b77e3;color:#fff"  @click="gotoAdd"><Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.addnew')}}</Button>
+        </div><!--新建-->
+        
+        <div>
+          <Button shape="circle" type="ghost" style="margin-right:5px;border:none;background:#3b77e3;color:#fff"  @click="Invitation"><Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>邀请</Button>
+        </div>
+        <div>
+            <Button type="ghost" shape="circle" style="margin-right:5px;border:none;background:#3b77e3;color:#fff"   @click="storeImport"><Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.import')}}
+            </Button> 
+        </div>
+         <Dropdown trigger="click" style="margin-right: 10px">
+                <Button shape="circle" type="ghost" style="background:#ff7d16;color:#fff;border:none">{{$t('public.more')}}
+                <span><i class="ivu-icon ivu-icon-chevron-down"></i></span>
+            </Button>
+            <DropdownMenu slot="list">
+                <span @click="startUnits"><DropdownItem >{{$t('public.start')}}</DropdownItem></span>
+                <span @click="stopUnits"><DropdownItem >{{$t('public.stop')}}</DropdownItem></span>
+                <span  @click="delUnits"><DropdownItem >{{$t('public.del')}}</DropdownItem></span>
+            </DropdownMenu>
+         </Dropdown>
+      </div>
+    </div>
+    <!--表格数据-->
+    <div class="table">
+      <Table border highlight-row  :columns="columns" :data="dataList" @on-row-dblclick="dbl" @on-select="selected" @on-row-click='clickRow'></Table>
+    <!--底部的分页-->
+    <div class="page-box">
+       <Page :total="total" show-sizer placement='top' size='small' :page-size-opts="[10,20,30,40,50]" show-total  :pageSize='pageSize'  @on-change="getData" @on-page-size-change="changePageSize">
+       </Page>
+    </div>
+    </div>
+
+    <!--智胜导入-->
+  <Modal v-model="zsimportisshow" width="500" :mask-closable='false' >
+        <p slot="header" style="height:30px;line-height:30px;text-align:center">
+          <img src="http://img.zsydian.com/zsimportlogo.png" width='20' height='20' style='vertical-align: middle;'><span style='font-size:14px;vertical-align: middle;margin-left:5px'>智胜导入</span>
+        </p>
+       <el-steps  :active="zsactive"  :align-center='true' style='margin-left:120px'>
+              <el-step title="搜索用户"></el-step>
+              <el-step title="发送邀请"></el-step>
+              <el-step title="完成导入"></el-step>
+        </el-steps>
+        <!--第一步-->
+        <div v-if='zsactive==1'>
+            <div class='zsiscrm'>
+                <span >公司信息</span>
+                <Input style='width:300px' v-model='zsSearchName' placeholder='填写已是智胜会员的公司名称或联系人手机号'></Input>
+            </div>
+            <div class='searchBtn'>
+                <Button size="large" type="ghost" style="width:220px;border:none;background:#3b77e3;color:#fff"  @click="searchZsBtn">搜索用户</Button>
+            </div>
+        </div>
+        <!--第2步-->
+        <div v-if='zsactive==2'>
+            <div class='INFO'>
+                <img src="" width='80' height='80'>
+                <div class='crmInfo'>
+                    <span>公司名称：<span>xxx</span></span>
+                    <span>联系方式：<span>xxx</span></span>
+                    <span>联系人：<span>xxx</span></span>
+                </div>
+            </div>
+            <div class='searchBtn'>
+                <Button size="large" type="ghost" style="width:220px;border:none;background:#3b77e3;color:#fff"  @click="sendZsBtn">发送邀请</Button>
+            </div>
+        </div>
+        <!--第3步-->
+        <div v-if='zsactive==3'>
+            <div class='INFO1'>
+               <Icon type="checkmark-circled" size='40' style='color:#FF7D16'></Icon>
+               <div style='color:#ccc;margin-left:30px;font-size:14px'>
+                邀请已经发送给程晓晔
+                <div>
+                等对方同意后导入到我的客户
+               </div>
+               </div>
+            </div>
+            <div class='searchBtn'>
+                <Button size="large" type="ghost" style="width:220px;border:none;background:#3b77e3;color:#fff"  @click="sureZsBtn">完成</Button>
+            </div>
+        </div>
+        <div slot="footer" style='margin:0px'>
+
+        </div>
+    </Modal>
+     <!--导入-->
+    <Modal v-model="importisshow" width="700" :mask-closable='false' :closable='false' :title="$t('manage.warehouse.fileImport')">
+        <el-steps  :active="active"  :align-center='true' style='margin-left:120px'>
+              <el-step :title="$t('manage.warehouse.fileImport')"></el-step>
+              <el-step :title="$t('manage.warehouse.fileY')"></el-step>
+              <el-step :title="$t('manage.warehouse.fileS')"></el-step>
+        </el-steps>
+
+       <!--第一步-->
+        <div style='width:100%;margin:20px auto;text-align:center;' v-if='oneStep'>
+           <div style='width:100%;margin:20px auto;text-align:center;font-size:14px;font-weight:600;border-top:1px solid #e4e4e4'>
+                <span style='display:block;margin: 20px auto 30px 0;'>{{$t('manage.warehouse.fileImport')}}</span><!--文件导入-->
+           </div>
+            <div style='width:100%;margin:20px auto;text-align:center;position:relative'>
+                <div style='margin-left:-105px'>
+                   <span>{{$t('manage.warehouse.filechoose')}}：</span><!--选择文件-->
+                 <Input  disabled style='width:200px' v-model='url'></Input>
+                  <div style='position:absolute;top: 0px;right: 137px;height: 35px;width: 110px;overflow: hidden;'>
+                     <el-upload
+                     ref="upload"
+                     :show-file-list='false'
+                      class="upload-demo"
+                      :action="actionUrl"
+                      :on-progress='onprogress'
+                      :on-success='success'
+                      :before-upload='beforeAvatarUpload'
+                      accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" >
+                      <Button size="small" type="primary" style='background:#169BD5'>{{$t('manage.warehouse.upload')}}</Button><!--点击上传-->
+
+                     </el-upload>
+
+                 </div>
+                 <div v-if='loadingisshow' >
+                        <Spin fix>
+                            <mu-icon value="rotate_right" color="blue"  class="demo-spin-icon-load"></mu-icon>
+                            
+                            <div>Loading...</div>
+                        </Spin>
+                    </div>
+                <div v-if='errorisshow' class='importErrTxt'>{{error}}</div>
+                </div>
+            </div>
+            <div style='margin-top:40px;display: flex;justify-content:space-between;;margin-bottom:-40px;font-size:14px'>
+              <Button  type="ghost" style='margin-left:20px;border:none;background:#169BD5;color:#fff'>
+
+                     <a :href="loadup" style='color:#fff' @click.stop='stopsku($event)'>{{$t('manage.warehouse.fileD')}}</a><!--下载模板文件-->
+                </Button>
+                <span style="cursor:pointer" @click="cancel">{{$t('public.cancel')}}</span>
+            </div>
+        </div>
+        <!--第二步-->
+         <div style='width:100%;margin:20px auto;text-align:center;' v-if='twoStep'>
+            <div style='width:100%;margin:20px auto;text-align:center;position:relative'>
+                <Table border  height="300"  :columns="importstore" :data="importstoredataList"></Table>
+            </div>
+            <div style='margin-top:40px;margin-left:480px;margin-bottom:-40px;font-size:14px'>
+                
+                <span style="color:#448AFF;font-size:14px" @click="gothree"><a>{{$t('public.sure')}}</a></span>
+
+            </div>
+         </div>
+        
+        <div slot="footer">
+
+        </div>
+    </Modal>
+    <!--精准搜索-->
+    <Modal v-model="psisshow" width="360px">
+    <p slot="header" style="height:30px;line-height:30px;text-align:center">
+
+      <span>{{$t('public.search')}}</span><!--精准搜索-->
+    </p>
+     <Form :label-width="100">
+        <FormItem :label="$t('purchase.supplier.loginName')" ><!--账号-->
+           <Input v-model='accountName' ></Input>
+        </FormItem>
+        <FormItem :label="$t('purchase.supplier.name')" ><!--名称-->
+           <Input v-model='supplierName' ></Input>
+        </FormItem>
+        <FormItem :label="$t('purchase.supplier.contractPhone')" ><!--手机-->
+           <Input v-model='supplierContractPhone' ></Input>
+        </FormItem>
+    </Form>
+    <div slot="footer">
+      <div class='footer-mark'>
+        <span><a style='color:#999;font-size:14px' @click='cancelSearchLocation'>{{$t('public.cancel')}}</a></span>
+        <span style='font-size:20px;width:1px;height:40px;background:#e4e4e4'></span>
+        <span ><a style='color:#3B77E3;font-size:14px' @click='sureSearchLocation'>{{$t('public.sure')}}</a></span>
+      </div>
+    </div>
+  </Modal>
+
+  <Modal v-model="InvitationIsshow" width="460px" @on-ok="InvitationSure('formValidate')" @on-cancel="InvitationCancel">
+   
+    <div class='title-Invit'>
+      <b>
+        <span>{{user.trueName}}</span>
+        邀请您加入企业圈<br>
+        联系方式：
+        {{user.mobile}}<br>
+        {{user.email}}
+      </b>
+    </div>
+     <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
+        <FormItem label="手机号" prop="mobile">
+           <Input v-model='formValidate.mobile'  placeholder="请输入手机号"></Input>
+        </FormItem>
+    </Form>
+    <!-- <div slot="footer">
+      <div class='footer-mark'>
+        <span><a style='color:#999;font-size:14px' @click='InvitationCancel'>{{$t('public.cancel')}}</a></span>
+        <span style='font-size:20px;width:1px;height:40px;background:#e4e4e4'></span>
+        <span ><a style='color:#3B77E3;font-size:14px' @click="InvitationSure('formValidate')">{{$t('public.sure')}}</a></span>
+      </div>
+    </div> -->
+  </Modal>
+
+  </div>
+</template>
+
+<script>
+import LoadUrl from '@/components/common/actionLoad' 
+  export default {
+    data() {
+      return {
+                user:this.$store.state.common.user,
+                InvitationIsshow:false,//邀请弹框
+                formValidate:{
+                  mobile:""
+                },
+                ruleValidate:{
+                  mobile:[{ required: true, message: '手机号不能为空', trigger: 'blur' },
+                  { pattern: /^1[3|4|5|7|8][0-9]{9}$/, message: '请输入正确的手机号码' }],
+                },
+                loadup:"",
+                loadingisshow:false,
+                accountName:"",//名称
+                supplierName:'',//精准搜索供应商名称
+                supplierContractPhone:'',//精准搜索供应商手机
+                psisshow:false,//精准搜索
+                        searchKeyword:'',//搜索key
+                errorisshow:false,
+                        error:'',//导入失败的提示
+                actionUrl:LoadUrl.httpPrefix.Url+'partner/import?uid='+this.$store.state.common.token,//导入地址
+                status:'',//上传状态
+                type:1,//选择文件类型
+                oneStep:true,//第一步显示
+                twoStep:false,//第2步显示
+                threeStep:false,//第3步显示
+                active:1,//步数
+                importisshow:false,//导入显示
+                url:'',//选择文件后或名称
+                importType:1,
+                importStoreType:[
+                    {
+                        value:1,
+                        label:'Excel'
+                    }
+                ],
+                //导入的仓库文件数据key
+                importstore:[
+
+                    {
+                        title:this.$t('purchase.supplier.code'),//"编码",
+                        key:'code',
+                        width: 80,
+                    },
+                     {
+                        title:this.$t('purchase.supplier.name'),//"名称",
+                        key:'name',
+                        ellipsis:true,
+                        align: 'center',
+
+
+                    },
+                     {
+                        title:this.$t('purchase.supplier.level'),//"等级",
+                        key:'level',
+
+                        align: 'center',
+                        width: 80,
+                    },
+                     {
+                        title:this.$t('purchase.supplier.contract'),//"联系人",
+                        key:'contract',
+
+                        align: 'center',
+                        width: 120,
+                    },
+                     {
+                        title:this.$t('purchase.supplier.contractPosition'),//"职务",
+                        key:'contractPosition',
+
+                        align: 'center',
+                        width: 120,
+                    },
+                     {
+                        title:this.$t('purchase.supplier.contractPhone'),//"手机",
+                        key:'contractPhone',
+
+                        align: 'center',
+                        width: 120,
+                    },
+                     {
+                        title:this.$t('purchase.supplier.contractTel'),//"电话",
+                        key:'contractTel',
+
+                        align: 'center',
+                        width: 120,
+                    },
+
+                     {
+                        title:this.$t('purchase.supplier.contractEmail'),//"邮箱",
+                        key:'contractEmail',
+
+                        align: 'center',
+                        width: 120,
+                    },
+                    {
+                        title:this.$t('purchase.supplier.Raddress'),//"地址",
+                        key:'contractAddress',
+                        width: 120,
+                        align: 'center',
+
+                    },
+
+                     {
+                        title:this.$t('public.remark'),//"备注",
+                        key:'remark',
+                        width: 120,
+                        align: 'center',
+                    },
+                ],
+                importstoredataList:[],//导入的仓库文件数据
+                zsSearchName:'',//智胜导入搜索的名称
+                zsactive:1,//智胜导入步数
+                zsimportisshow:false,//智胜导入
+                isLoading:true,
+                current:0,
+                visible: false,
+                dataList: [{}], //往来单位列表
+                total: 0,
+                pageSize: 0,
+                valId:"",
+                uid: this.$store.state.common.token,
+                valueT:1,
+                orderListname:[
+                    {
+                        label:this.$t('public.all'),//
+                        value:0
+                    },
+                    {
+                        label:this.$t('public.normal'),//正常
+                        value:1
+                    },
+                    {
+                        label:this.$t('public.normalT'),//"已停用",
+                        value:2
+                    },
+
+                ],
+        columns: [
+         
+             {
+                title:this.$t('purchase.supplier.code'),//"编码",
+                key:'code',
+            },
+            {
+                title: this.$t('purchase.supplier.name'),//'名称',
+                key: 'name',
+            },
+            {
+                title:this.$t('purchase.supplier.level'),//"等级",
+                key:'level',
+                align: 'center',
+
+            },
+            {
+                title:this.$t('purchase.supplier.contract'),//"联系人",
+                key:'contract',
+                align: 'center',
+
+            },
+            {
+                title:this.$t('purchase.supplier.contractPosition'),//"职务",
+                key:'contractPosition',
+                align: 'center',
+            },
+            {
+                title:this.$t('purchase.supplier.contractPhone'),//"手机",
+                key:'contractPhone',
+                align: 'center',
+            },
+            {
+                title:this.$t('purchase.supplier.contractTel'),//"电话",
+                key:'contractTel',
+                align: 'center',
+            },
+            {
+                title:this.$t('purchase.supplier.contractEmail'),//"邮箱",
+                key:'contractEmail',
+                align: 'center',
+            },
+            {
+                title:this.$t('purchase.supplier.Raddress'),//"地址",
+                key:'Raddress',
+                align: 'center',
+            },
+
+            {
+            title: this.$t('public.status'),//'状态'
+            align: 'center',
+            width:120,
+            key: 'statusDesc',
+            render:(h,params)=>{
+                return h('span',{
+                    style:{
+                       
+                        color:params.row.status==1?'#40ca98':params.row.status==0?'#3b77e3':params.row.status==99?'#d53c39':params.row.status==9999?'#d53c39':""
+                    }
+                },params.row.statusDesc)
+            }
+            },
+      ]
+
+      }
+    },
+    methods:{
+      //邀请弹框
+      Invitation(){
+        this.InvitationIsshow=true
+
+      },
+      //邀请确认
+      InvitationSure(name){
+        this.$refs[name].validate((valid) => {
+            this.axios.get('partner/invite?uid='+this.uid,{
+              params:{
+                mobile:this.formValidate.mobile
+              }
+            }).then(res=>{
+                if(res.data.status==200){
+                   this.$notify({
+                      title: '',
+                      message:"已邀请",//
+                      type: 'success',
+                      position: 'bottom-right'
+                    });
+                   this.InvitationCancel()
+                }else{
+                  this.$notify({
+                      title: '',
+                      message:res.data.errorMessage,//
+                      type: 'error',
+                      position: 'bottom-right'
+                    });
+                }
+            })
+        })
+      },
+      //取消邀请
+      InvitationCancel(){
+        this.InvitationIsshow=false
+        this.formValidate.mobile=''
+      },
+      //智胜导入
+      zsImport(){
+                this.zsSearchName=''
+                this.zsactive=1
+                this.zsimportisshow=true
+            },
+            //第一步搜索用户
+            searchZsBtn(){
+                // if(this.zsSearchName==''){
+                //     return
+                // }else{
+
+                //     this.zsactive=2
+                // }
+                this.zsactive=2
+            },
+            //发送邀请
+            sendZsBtn(){
+                 this.zsactive=3
+            },
+            //完成导入
+            sureZsBtn(){
+                this.zsimportisshow=false
+            },
+      //点击增加  跳转到 增加供货商页面
+      gotoAdd: function() {
+        this.$router.push('/addsupplier');
+      },
+      //表格选中时的数据，数组
+      selected(selection,row){
+        console.log(row)
+        this.valId = row.id
+      },
+      //双击表格一行
+      dbl(row,index){
+        this.$router.push({
+          path:'/addsupplier',
+          query:{
+            id:row.id,
+            index:index
+          }
+        })
+      },
+            //点击搜索
+            search(){
+                this.axios.get('/partner/query?keyword='+this.searchKeyword+'&uid=' + this.uid).then((res) => {
+                    if(res.data.status==200){
+                        let data = res.data;
+                        this.dataList = data.rows;
+                        this.pageSize = data.pageSize;
+                        this.total = data.total;
+                        this.dataList.forEach((item,index)=>{
+                            item.Raddress=item.province+item.city
+                            item.ContentAddress=item.province+item.city
+                        })
+                    }
+                })
+            },
+
+            //回车搜索
+            enterSearch(){
+                this.search()
+            },
+      //获取往来单位列表信息
+      getUnitsList(s){
+        this.axios.get('/partner/query?cl='+s+'&uid=' + this.uid).then((res) => {
+          let data = res.data;
+          if(res.data.status == '200') {
+            this.dataList = data.rows;
+            this.pageSize = data.pageSize;
+            this.total = data.total;
+            this.dataList.forEach((item,index)=>{
+                if(item.status==1){
+                    item.statusDesc=this.$t('public.normal')
+                }
+                if(item.status==99){
+                    item.statusDesc=this.$t('public.normalT')
+                }
+                if(item.status==0){
+                    item.statusDesc=this.$t('public.addnew')
+                }
+                if(item.status==9999){
+                  item.statusDesc=this.$t('public.del')
+                }
+                item.Raddress=item.province+item.city
+
+              item.ContentAddress=item.province+item.city
+              item.createTime = new Date(item.createTime).toLocaleDateString().replace(/\//g,'-')
+              item.modifyTime = new Date(item.modifyTime).toLocaleDateString().replace(/\//g,'-')
+
+            })
+
+          }
+        })
+      },
+      //单击某一行
+      clickRow(data){
+        this.valId=data.id
+      },
+      //点击删除
+      delUnits() {
+        if(this.valId==''){
+         this.$notify({
+                title:"",//
+                message: "请选中一条供应商",
+                type: 'error',
+                position: 'bottom-right'
+            });
+        }else{
+          this.axios.delete('/partner/delete/' + this.valId + '?uid=' + this.uid).then((res) => {
+
+            if(res.data.status == '200') {
+              this.$notify({
+                title:"",//
+                message: this.$t('public.deleteSuccess'),//
+                type: 'success',
+                position: 'bottom-right'
+            });
+              this.valId=''
+              this.getUnitsList(this.valueT);
+            }else{
+                this.$notify({
+                      title:"",//
+                      message:res.data.errorMessage,
+                      type: 'error',
+                      position: 'bottom-right'
+                  });
+              }
+          })
+        }
+
+      },
+      //点击停用
+      stopUnits(){
+        if(this.valId==''){
+         this.$notify({
+                  title:"",//
+                  message:"请选中一条供应商",
+                  type: 'error',
+                  position: 'bottom-right'
+              });
+        }else{
+          this.axios.post('/partner/disabled/'+this.valId+'?uid='+this.uid).then((res)=>{
+             if(res.data.status=='200'){
+              this.$notify({
+                title:"",//
+                message:this.$t('public.normalT'),//
+                type: 'success',
+                position: 'bottom-right'
+            });
+              this.valId=''
+              this.getUnitsList(this.valueT);
+             }else{
+                this.$notify({
+                      title:"",//
+                      message:res.data.errorMessage,
+                      type: 'error',
+                      position: 'bottom-right'
+                  });
+              }
+          })
+        }
+
+      },
+      //点击启用
+      startUnits(){
+        if(this.valId==''){
+            this.$notify({
+                  title:"",//
+                  message:"请选中一条供应商",
+                  type: 'error',
+                  position: 'bottom-right'
+              });
+        }else{
+          this.axios.post('/partner/enabled/'+this.valId+'?uid='+this.uid).then((res)=>{
+             if(res.data.status=='200'){
+             
+              this.$notify({
+                title:"",//
+                message:this.$t('public.normalS'),//
+                type: 'success',
+                position: 'bottom-right'
+            });
+              this.getUnitsList(this.valueT);
+              this.valId=''
+             }else{
+                this.$notify({
+                      title:"",//
+                      message:res.data.errorMessage,
+                      type: 'error',
+                      position: 'bottom-right'
+                  });
+              }
+          })
+        }
+
+      },
+       //切换一条页
+            getData(current){
+                this.axios.get('/partner/query?offset='+current+'&uid='+this.uid+'&status='+this.valueT).then((res)=>{
+                        let data = res.data;
+                        this.dataList = data.rows;
+                        this.pageSize = data.pageSize;
+                        this.total = data.total;
+                        this.dataList.forEach((x,index)=>{
+                            if(x.status==1){
+                                x.statusDesc=this.$t('public.normal')
+                            }
+                            if(x.status==99){
+                                x.statusDesc=this.$t('public.normalT')
+                            }
+                            if(x.status==0){
+                                x.statusDesc=this.$t('public.addnew')
+                            }
+                             if(x.status==9999){
+                                x.statusDesc=this.$t('public.del')
+                            }
+                            x.Raddress=x.province+x.city
+                            x.ContentAddress=x.province+x.city
+                        })
+                })
+            },
+            //翻页
+            changePageSize(size){
+                this.pageSize = size
+                this.axios.get('/partner/query?length='+size+'&uid='+this.uid+'&status='+this.valueT).then((res)=>{
+                        let data = res.data;
+                        this.dataList = data.rows;
+                        this.pageSize = data.pageSize;
+                        this.total = data.total;
+                        this.dataList.forEach((x,index)=>{
+                            if(x.status==1){
+                                x.statusDesc=this.$t('public.normal')
+                            }
+                            if(x.status==99){
+                                x.statusDesc=this.$t('public.normalT')
+                            }
+                            if(x.status==0){
+                                x.statusDesc=this.$t('public.addnew')
+                            }
+                             if(x.status==9999){
+                                x.statusDesc=this.$t('public.del')
+                            }
+                            x.Raddress=x.province+x.city
+                            x.ContentAddress=x.province+x.city
+                        })
+                })
+            },
+             //导入
+             //下载阻止冒泡
+            stopsku(event){
+               event.stopPropagation()
+            },
+            //点击
+            storeImport(){
+                this.active=1
+                this.importisshow=true//弹框消失
+                this.oneStep=true//第一步显示
+                this.twoStep=false//第2步隐藏
+                this.threeStep=false//第3步隐藏
+                this.url=''
+                this.errorisshow=false
+                this.error=''
+                this.importstoredataList=[]
+            },
+            cancel(){
+                this.active=1
+                this.importisshow=false//弹框消失
+                this.oneStep=true//第一步显示
+                this.twoStep=false//第2步隐藏
+                this.threeStep=false//第3步隐藏
+                this.url=''
+                this.errorisshow=false
+                this.error=''
+                this.importstoredataList=[]
+                this.loadingisshow=false
+                this.$refs.upload.abort()
+            },
+            //取消
+            cancelku(){
+                this.importisshow=false
+            },
+            //第一步
+            importOne(){
+                if(this.url==''){
+                    this.errorisshow=true
+                    this.error=this.$t('finance.upAt')
+                    return
+                }else{
+                    this.active=2
+                    this.oneStep=false
+                    this.twoStep=true
+                }
+
+            },
+            //返回第一步
+            goOneStep(){
+                this.active=1
+                this.oneStep=true
+                this.twoStep=false
+            },
+            //进入第三
+            gothree(){
+                this.active=1
+                this.importisshow=false//弹框消失
+                this.oneStep=true//第一步显示
+                this.twoStep=false//第2步隐藏
+                this.threeStep=false//第3步隐藏
+                this.url=''
+                this.errorisshow=false
+                this.error=''
+                this.importstoredataList=[]
+                this.loadingisshow=false
+               
+
+            },
+           
+             //上传时
+            onprogress(event, file, fileList){
+              
+              this.loadingisshow=true
+            },
+             //上传之前类型之前
+            beforeAvatarUpload(file){
+
+               var fileName=new Array()
+                fileName =file.name.split('.');
+                const extension = fileName[fileName.length-1] === 'xls'
+                const extension2 =  fileName[fileName.length-1]=== 'xlsx'
+                const isLt2M = file.size / 1024 / 1024 < 20
+                if (!extension && !extension2) {
+
+
+                    this.$notify({
+                        title:"",//
+                        message:  '上传模板只能是xls、xlsx格式!',
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+                if (!isLt2M) {
+
+                    this.$notify({
+                        title:"",//
+                        message:  '上传模板大小不能超过 20MB!',
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+               //  if (extension || extension2 && isLt2M == true) {
+
+               //      // let fd = new FormData()
+
+               //      // fd.append('file', file)
+               //      // //console.log(fd)
+               //      // this.newImport(file)
+               //      return true
+               //  }
+              return extension || extension2 && isLt2M
+
+            },
+
+            //成功后的会掉
+            success(response, file, fileList){
+               if(response.status==200){
+                   this.error=this.$t('finance.upTemplateS'),
+                   this.errorisshow=true
+                    this.url=file.name
+                    //查询导入结果GET /partner/impres/{uuid}
+                    this.axios.get('/partner/impres/'+response.rows+'?uid='+this.uid).then(res=>{
+                        if(res.data.status==200){
+                            this.importstoredataList=res.data.rows
+                            this.active=2
+                            this.oneStep=false
+                            this.twoStep=true
+                            this.loadingisshow=false
+                            this.getUnitsList(this.valueT);
+                        }
+                    })
+                }else{
+                    this.errorisshow=true
+                    this.error=response.errorMessage
+                   this.loadingisshow=false
+                }
+            },
+            orderselectedku(value){
+              this.type=value
+            },
+            //精准搜索
+            searchLocation(){
+              this.psisshow=true
+            },
+            //精准搜索确认
+            sureSearchLocation(){
+               this.axios.get('/partner/query?cl=0'+'&uid=' + this.uid,{
+                accountName:this.accountName,
+                contractPhone:this.supplierContractPhone,
+                name:this.supplierName
+               }).then((res) => {
+                if(res.data.status==200){
+                  let data = res.data
+                      this.dataList = data.rows;
+                      this.pageSize = data.pageSize;
+                      this.total = data.total;
+                      this.supplierContractPhone=''
+                      this.supplierName=''
+                      this.accountName=''
+                      this.psisshow=false
+                  }
+               })
+            },
+             //精准搜索取消
+            cancelSearchLocation(){
+              this.supplierContractPhone=''
+              this.supplierName=''
+              this.accountName=''
+              this.psisshow=false
+            },
+            //下拉框选择
+            orderselected(value){
+              this.valueT=value
+                this.getUnitsList(this.valueT);
+            },
+           
+    },
+    mounted() {
+    console.log(this.user)
+      this.getUnitsList(this.valueT);
+      this.loadup=LoadUrl.actionLoad.supplier//供应商导入模板
+    }
+  }
+</script>
+
+<style lang="css" scoped>
+.title-Invit{
+  padding:20px;text-align:center;
+  font-size:20px;
+}
+.footer-mark{
+  width:100%;
+  height:40px;
+  border-top:1px solid #E4E4E4;
+  display: flex;
+  justify-content: space-around;
+  margin-bottom:-10px;
+}
+.footer-mark span{
+  height:40px;
+  line-height: 40px
+}
+ .zsiscrm{
+        padding-top:30px;
+        margin-top:10px;
+        border-top:1px solid #e4e4e4;
+        display:flex;
+        justify-content: center;
+        align-items: center
+    }
+    .zsiscrm span{
+        display:block;
+        width:80px;
+        text-align: center;
+    }
+    .searchBtn{
+        width:100%;
+        text-align: center;
+        margin-top:40px;
+    }
+    .INFO{
+        padding-top:30px;
+        margin-top:10px;
+        border-top:1px solid #e4e4e4;
+        display: flex;;
+        justify-content: center;
+        align-items: center
+    }
+    .crmInfo{
+        display: flex;
+        flex-direction: column;
+        padding:0 30px;
+    }
+     .crmInfo span{
+        font-weight:600;
+        padding:3px 0;
+     }
+     .INFO1{
+        padding-top:30px;
+        margin-top:10px;
+        display: flex;;
+        justify-content: center;
+        align-items: center
+     }
+  .units-box {
+    width: 100%;
+    height: 100%;
+    background: #fff;
+  }
+  .btns-box {
+    width: 100%;
+    height:50px;
+    display:flex;
+    justify-content: space-between;
+
+    line-height: 50px;
+  }
+  .wldw {
+    font-size: 14px;
+    color: #585858;
+    margin-left:10px;
+  }
+  .wldw1{
+
+      margin-left:10px;
+      display: flex;
+      height:50px;
+      line-height: 50px
+
+  }
+  .right{
+    margin-right:10px;
+    margin-bottom:10px;
+  }
+  .right-btn{
+    background: #FF7D16;
+      margin-right: 10px;
+      color: #fff;
+      border: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 26px;
+      display: inline-block;
+      position: relative;
+      top: 10px;
+  }
+  .ivu-icon-chevron-down {
+    font-size: 10px;
+  }
+  .btns img {
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+  }
+  .table {
+    margin:0 10px 100px 10px;
+  }
+
+  .page-box {
+    text-align: center;
+    margin-top:5px;
+    margin-bottom:120px;
+  }
+  /***气泡提示样式设置***/
+
+  .qp-con {
+    width: 100%;
+    height: 30px;
+    color: #0d0d0d;
+    font-size: 14px;
+    line-height: 30px;
+    cursor: pointer;
+  }
+
+  .qp-con img {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+  }
+</style>
+<style type="text/css" >
+  .ivu-table-border th{
+    background:transparent!important;
+  }
+
+</style>

@@ -1,0 +1,571 @@
+<template>
+	<div class="units-box">
+		<!--微信小程序-->
+		<div class='goods-right'>
+			<Tabs :animated="false"  style="background:#fff;width:100%;height:100%" @on-click="addBg">
+		        <TabPane label="审核小程序">
+		        	<!--表格数据-->
+					<div class="table">
+						<div class='desc'>
+							<ul style='display:flex;'>
+								<li style=';margin-bottom:10px'>
+									<span style='display:inline-block;width:110px;text-align:right'>小程序名称：</span>
+									<span>{{name}}</span>
+									<span style='margin:0 10px'><a @click='reloadWx'>重新授权</a></span>
+									<span style='margin:0 10px'><a @click='jcbd'>解除授权</a></span>
+								</li>
+							</ul>
+							<div>
+								<ul style='display:flex;justify-content: space-between;'>
+									<li>
+										<p  class="main-p">
+											<span style='width:110px;text-align:right'>最近更新：</span>
+											<span>{{time}}</span>
+											
+										</p>
+										<p  class="main-p">
+											<span style='width:110px;text-align:right'>审核状态：</span>
+											<span>{{statusDesc}}</span>
+					
+											<Button type="primary" size='small' v-if='wxxcxInfo.status!=8' @click='getLatesStatus' style='margin-left:10px;margin-top: -5px;height:30px'>状态刷新</Button>
+											<Button type="primary" size='small' v-if='wxxcxInfo.status==8' @click='release' style='margin-left:10px;margin-top: -5px;height:30px'>发布</Button>
+										</p>
+										<p class="main-p" v-if='wxxcxInfo.status!=8'>
+											
+											<Button type="primary" @click='addBind' style=";margin-top: -6px;height:30px">添加体验人员</Button>
+											<div style="display:flex;padding:5px 0" v-if='wxxcxInfo.status!=8'>
+												<Tag type="border" closable color="#199DFF" v-for="(item,index) in Binds" :key="index" @on-close="handleClose(item)">
+													{{item.wechatid}}
+												</Tag>
+											</div>
+										</p>
+										<div style='line-height:20px;height:35px;margin-top:10px;' v-if='wxxcxInfo.status==7'>
+											<span style='margin-left:70px'>原因：</span>
+											<span></span>
+											<div style='margin-left:110px;margin-top:10px'>
+												<Button style='background:#d53c39;color:#fff' @click='again'>重新设置小程序</Button>
+											</div>
+										</div>
+									</li>
+									<div class="right-img">
+										<img id="wximg"  alt=''>
+									</div>
+								</ul>
+								<div style='display:flex;border:1px solid #e4e4e4;margin-top:50px;padding:20px;background:#FCFCFC'>
+									<span style='width:110px;text-align:right'>审核失败原因：</span>
+									<div>
+										<div>1.微信支付设置有误，或小程序主页相关设置不完善导致，可自行根据微信反馈原因自行修改提交。</div>
+										<div>2.如果是小程序本身问题，我们会尽快发布新版本，并自动帮你重新提交审核。</div>
+										<div>3.审核失败不会影响已经发布的线上小程序</div>
+									</div>
+								</div>
+								
+							</div>
+
+						</div>
+					</div>
+		        </TabPane>
+		        <Button type="ghost" @click="cancelHome" size="small" slot="extra" style='margin-top:3px;margin-right:20px'>返回</Button>
+		    </Tabs>
+		</div>
+	<!--重新授权弹框-->
+			<Modal v-model="wxModel" width="460px">
+				<p slot="header" style="height:30px;line-height:30px;">
+					<span>提示</span>
+				</p>
+					<div class='attrNum'>
+						<ul>
+							<p>温馨提示：</p>
+							<li style='color:#ff0000;'>必须使用当前绑定的小程序进行授权，否则将可能导致某些重要数据丢失或其他异常情况</li>
+							<li style='color:#ff0000;'>为保证您在有赞平台功能的正常使用，授权时请保持默认选择，把权限统一授权给智胜云。</li>
+							
+						</ul>
+					</div>
+				<div slot="footer">
+					<div >
+						<div class='attrNum'>
+							<Button shape="circle" type="ghost" style="display:inline-block;background:#60BB46;border:none;color:#fff" @click='iknow'>
+								我知道了，继续
+							</Button>
+							<Button shape="circle" type="ghost" style="display:inline-block;background:#ccc;border:none;color:#fff" @click='wxcanceliknow'>取消</Button>
+						</div>
+					</div>
+				</div>
+			</Modal>
+		<!--解除绑定弹框-->
+		<Modal v-model="wxModelbd" width="460px">
+			<p slot="header" style="height:30px;line-height:30px;">
+				<span>提示</span>
+			</p>
+				<div class='attrNum'>
+					<ul>
+						<p>温馨提示：</p>
+						<li style='color:#ff0000;'>解除绑定微信小程序，会造成当前小程序的重要信息丢失请谨慎操作!</li>
+						
+					</ul>
+				</div>
+			<div slot="footer">
+				<div >
+					<div class='attrNum'>
+						<Button shape="circle" type="ghost" style="display:inline-block;background:#60BB46;border:none;color:#fff" @click='jcbdsure'>解除绑定</Button>
+						<Button shape="circle" type="ghost" style="display:inline-block;background:#ccc;border:none;color:#fff" @click='wxcancel'>取消</Button>
+					</div>
+				</div>
+			</div>
+		</Modal>
+		<!--添加体验人员-->
+		<Modal v-model="widIsshow" width="460px" title='添加体验人员'>
+			<p slot="header" style="height:30px;line-height:30px;">
+				<span>添加体验人员</span>
+			</p>
+			<div class='attrNumWid'>
+				<span>微信号：</span>
+				<Input v-model="wid" number placeholder="请添加需要加入的用户微信号" @on-enter="enterWid"></Input>
+			</div>
+			<div slot="footer">
+				<div >
+					<div>
+						<Button shape="circle" type="ghost" style="display:inline-block;background:#ccc;border:none;color:#fff" @click='cancelWid'><Icon type="close" style="margin-right:5px;"></Icon>取消</Button>
+						<Button shape="circle" type="ghost" style="display:inline-block;background:#3b77e3;border:none;color:#fff" @click='sureWid'>
+							<Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>
+						确认</Button>
+						
+					</div>
+				</div>
+			</div>
+		</Modal>
+	</div>
+</template>
+<script type="text/javascript">
+	export default{
+		data(){
+			return{
+				
+				single:false,
+				wxModel:false,
+				wxModelbd:false,
+				wxxcxInfo:{},//当前授权小程序
+				wxxcxsy:{},//当前商用小程序
+				name:'',//授权小程序名称
+				time:'',//创建时间
+				statusDesc:'',//状态
+				qrcode_url:"",//体验二维码
+				uid: this.$store.state.common.token,
+				numIndex:0,
+				widIsshow:false,
+				Binds:[],
+				wid:"",//体验用户微信id
+				Allfl:[
+					{
+						label:'小程序设置',
+						value:0
+					}
+				],
+			}
+		},
+		methods:{
+			addBg(index){
+				this.numIndex=index
+			},
+			//状态刷新GET /acommit/getLatesStatus
+			getLatesStatus(){
+				this.axios.get('/acommit/getLatesStatus?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						let data=res.data.rows
+						this.wxxcxInfo=data
+						this.statusDesc=data.statusDesc
+					}
+				})
+			},
+			//发布GET /acommit/release 9、发布已通过审核的小程序（仅供第三方代小程序调用）
+			release(){
+				this.axios.get('/acommit/release?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						let data=res.data.rows
+						this.wxxcxInfo=data
+						this.statusDesc=data.statusDesc
+						this.$notify({
+	                        title:"",//
+	                        message:'发布成功！',
+	                        type: 'success',
+	                        position: 'bottom-right'
+	                    });
+					}else{
+						this.$notify({
+	                        title:"",//
+	                        message: res.data.errorMessage,
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+					}
+				})
+			},
+			//重新授权
+			reloadWx(){
+				this.wxModel=true
+			},
+			//重新授权，我知道了
+			iknow(){
+				//重新授权
+				this.axios.get('/acommit/again?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.wxModel=false
+						this.$router.push('/wxxcxhome')
+					}else{
+						this.$notify({
+	                        title:"",//
+	                        message: res.data.errorMessage,
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+					}
+				})
+				
+			},
+			//取消//重新授权
+			wxcanceliknow(){
+				this.wxModel=false
+			},
+			//解除绑定按钮
+			jcbd(){
+				this.wxModelbd=true
+			},
+			//解除绑定的确认GET /GET /wxa/cancel 取消授权
+			jcbdsure(){
+				this.axios.get('/wxa/cancel?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						//成功解除授权
+						this.$router.push('/wxxcxhome')
+						this.wxModelbd=false
+					}else{
+						this.$notify({
+	                        title:"",//
+	                        message: res.data.errorMessage,
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+					}
+				})
+			},
+			//取消
+			wxcancel(){
+				this.wxModelbd=false
+			},
+			//小程序获取授权信息
+			getxcx(){
+				this.axios.get('acommit/wxaapp?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						let data=res.data.rows
+						this.name=data.templeteName
+						this.wxxcxInfo=data
+						this.statusDesc=data.statusDesc
+						this.time=new Date(data.createTime).toLocaleString().replace(/\//g,'-')
+						//0：新增  3:待审核   5：审核中 7：审核失败   8：已上线   9：已失效
+						
+					}else{
+						this.axios.get('wxa/app?uid='+this.uid).then(res=>{
+							if(res.data.status==200){
+								this.$router.push('/wxxcxsh')
+							}else{
+								//没有授权跳转授权页面
+								this.$router.push('/wxxcxhome')
+							}
+						})
+						
+					}
+				})
+			},
+			//GET /acommit/reset 重新设置小程序
+			again(){
+				this.axios.get('/acommit/reset?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.$router.push('/wxxcxsh')
+					}else{
+						this.$notify({
+	                        title:"",//
+	                        message: res.data.errorMessage,
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+					}
+				})
+			},
+			//回车确认
+			enterWid(){
+				this.sureWid()
+			},
+			//添加确认
+			sureWid(){
+				this.axios.get('/atester/bind?uid='+this.uid,{
+					params:{
+						wid:this.wid
+					}
+				}).then(res=>{
+					if(res.data.status==200){
+						this.widIsshow=false
+						this.wid=""
+						this.Queryatester()
+					}else{
+						this.$notify({
+	                        title:"",//
+	                        message: res.data.errorMessage,
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+					}
+				})
+			},
+			//查找添加的体验GET /atester/query 获取体验者列表
+			Queryatester(){
+				this.axios.get('/atester/query?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.Binds=res.data.rows
+					}
+				})
+			},
+			//解绑GET /atester/unbind 解除绑定小程序的体验者
+			handleClose(item){
+				this.axios.get('/atester/unbind?uid='+this.uid,{
+					params:{
+						wid:item.wechatid
+					}
+				}).then(res=>{
+					if(res.data.status==200){
+						this.Queryatester()
+					}
+				})
+			},
+			//添加取消
+			cancelWid(){
+				this.widIsshow=false
+				this.wid=""
+			},
+			//GET /atester/bind 微信体验者成员添加
+			addBind(){
+				this.widIsshow=true
+			},
+			//GET /acommit/getQrcode 获取体验二维码
+			getQrcode(){
+				this.axios.get( "/acommit/getQrcode?uid="+this.uid , {
+				    responseType: "arraybuffer",
+				  }).then(res => {
+				  	console
+				  
+				    return 'data:image/png;base64,' + btoa(
+				        new Uint8Array(res.data)
+				          .reduce((data, byte) => data + String.fromCharCode(byte), '')
+				      );
+				  })
+				  .then(data => {
+
+				    $('#wximg').attr('src', data);
+				    console.log(document.getElementById('wximg').src)
+				  })
+			},
+			//差号返回
+	        cancelHome(){
+	        	this.$router.push('/operationhome')
+	        },
+		},
+		created(){
+			this.$nextTick(x=>{
+				this.getxcx()
+				this.getQrcode()//获取体验二维码
+				this.Queryatester()
+			})
+		},
+		mounted(){
+			
+		},
+}
+</script>
+<style scoped>
+.right-img{
+	width:200px;
+	height:200px;
+	margin-top:-40px;
+}
+.right-img img{
+	width:100%;
+	height:100%;
+}
+.main-p{
+	display:flex;line-height:25px;height:35px;
+}
+.attrNumWid{
+	display: flex;
+	line-height: 35px
+}
+.attrNumWid span{
+	flex:0 0 55px;
+	text-align: right
+}
+	.units-box {
+		width: 100%;
+		height: 100%;
+		background: rgb(230,233,236);
+		display:flex;
+	}
+	.search-box {
+		width: 300px;
+		height: auto;
+		position: fixed;
+		top: 15px;
+		left: 250px;
+		z-index: 9999;
+	}
+	.search-box .add {
+		width: 32px;
+		height: 32px;
+		border-radius: 50%;
+		background: #00a8ff;
+		line-height: 28px;
+		text-align: center;
+		color: #fff;
+		font-size: 22px;
+		float: left;
+		margin-right: 10px;
+	}
+	
+	.btns-box {
+		
+		height: 50px;
+		border-bottom:1px solid #e4e4e4;
+		display:flex;
+		justify-content: space-between;
+		
+		line-height: 50px;
+		
+		background: #fff;
+	}
+	 .wldw{
+    	margin-left:10px;
+    }
+    .wldw span{
+    	margin-left:20px;
+    }
+	.right{
+		margin-right:20px;
+		margin-bottom:10px;
+	}
+	
+	.ivu-icon-chevron-down {
+		font-size: 10px;
+	}
+	.flclass:last-child{
+		margin-bottom:40px;
+	}
+	
+	.btns img {
+		width: 16px;
+		height: 16px;
+		vertical-align: middle;
+	}
+	
+	.table {
+		width: 100%;
+		height: 100%;
+		background: #fff;
+		overflow: auto;
+	}
+	
+	.page-box {
+		text-align: center;
+		margin-top:5px;
+	}
+	/***气泡提示样式设置***/
+	
+	.qp-con {
+		width: 100%;
+		height: 30px;
+		color: #0d0d0d;
+		font-size: 14px;
+		line-height: 30px;
+		padding:0 10px;
+		cursor: pointer;
+	}
+	
+	.qp-con img {
+		width: 16px;
+		height: 16px;
+		vertical-align: middle;
+	}
+	.goods-left{
+		width:120px;
+		height:100%;
+		flex:0 0 120px;
+		margin-right:3px;
+		background: #fff;
+		border-right:1px solid #eee;
+	}
+	.goods-right{
+		
+   	 	width: 100%;
+   	 	background: #fff;
+   	 	overflow: hidden;
+	}
+	.left-top{
+		height:50px;
+		line-height: 50px;
+	
+		
+		border-bottom:1px solid #F5F5F5;
+		justify-content: space-between;
+	}
+	.left-top span{
+		margin-left:10px;
+		display:inline-block;
+	}
+	.goods-left li{
+		list-style: none;
+		height:40px;
+		line-height: 40px;
+		width:100%;
+	
+
+	}
+	.goods-left li span{
+		
+		margin-right:10px;
+	}
+	.bg{
+		background: rgb(241,245,247);
+    color: rgb(59,119,227);
+	}
+	.table div.desc{
+		margin:40px 20px;
+	}
+	.a-btn{
+		display:block;
+		margin:40px 20px 10px 20px;
+	}
+	.a-btn1{
+		margin:10px 20px;
+	}
+.wxBtn{
+	display:flex;
+	width:20%;
+	height:40px;
+	justify-content: center;
+	text-align: center;
+	line-height: 40px;
+	font-size:14px; 	
+	background: #3B77E3;
+	color:#fff;
+	border-radius:3px;
+}
+.wxBtn:hover{
+	cursor:pointer;
+}
+.submitBtn{
+	border-color:blue;
+
+}
+</style>
+<style type="text/css">
+	.ivu-table .demo-table-info-row td{
+        background-color: #2db7f5;
+        color: #fff;
+    }
+
+</style>

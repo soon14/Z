@@ -1,0 +1,1890 @@
+<template>
+	<!--库存报表-->
+	<div class="units-box">
+		
+		<div style='display:flex;height:100%'>
+			<!-- <div class='main-left'>
+				<div style='display:flex;;margin-bottom:7px'>
+					<span  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+						<div style='margin:0 10px;'>{{$t('data.inv.Inv')}}</div>
+					</span>
+				</div>
+				<li class='flclass' v-for='(item,index) in fhlist' :key='index' @click='getfhlistbg(index)' :class="{bor:index==fhindex}">
+					<span>{{item.label}}</span>
+				</li>
+			</div> -->
+			<Tabs :animated="false"  style="background:#fff;width:100%;height:100%" @on-click="getfhlistbg">
+		        <TabPane label="库存余额">
+					<div class="table">
+						<div style='display:flex;justify-content: space-between;;margin-bottom:7px'>
+							<div style='display:flex'>
+							
+							<Input style='margin-top:10px;width:300px;' v-model='fuzzySearch' :placeholder="$t('public.codeandname')">
+			                    <span slot="append" style='cursor:pointer' @click='search'>{{$t('public.search')}}</span><!--搜索-->
+			                </Input>
+			                <div style='margin-left:10px;margin-top:15px'>
+						
+			                </div>
+			                </div>
+			                <div>
+			                	<Button type="primary" shape="circle" @click="exportNo1(0)" style='margin-top:10px' >
+									 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.export')}}
+								</Button><!--导出-->
+							</div>
+						</div>
+						<div >
+							<Table border  ref="tableM" highlight-row :columns="columns" :data="dataList"  @on-row-click='clickRow'></Table>
+							<div class="page-box">
+								 <Page :total="total" show-total size="small" :pageSize='pageSize'  @on-change="getData" @on-page-size-change="changePageSize"></Page>
+							</div>
+						</div>
+					</div>
+		        </TabPane>
+		        <TabPane label="收发存货">
+		        	<!--收发存货统计表-->
+					<div class="table">
+						<div style='display:flex;justify-content: space-between;;margin-bottom:7px'>
+							<div style='display:flex'>
+							
+							<Input style='margin-top:10px;width:300px;' v-model='fuzzySearch' :placeholder="$t('public.codeandname')">
+			                    <span slot="append" style='cursor:pointer' @click='search'>{{$t('public.search')}}</span>
+			                </Input>
+			                <div style='margin-left:10px;margin-top:15px'>
+							<!-- <a style='font-size:14px;font-weight:600;margin-left:10px;margin-right:20px;border-bottom:1px solid #3b77e3;height:40px' @click='searchNo2'>{{$t('public.PreciseSearch')}}</a> -->
+							
+							</div>
+						</div>
+							<div>
+								<Button type="primary" shape="circle" @click="exportNo1(1)" style='margin-top:10px' >
+								 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.export')}}<!--导出-->
+							</Button>
+							</div>
+						</div>
+						<div >
+							<Table border  ref="tableM" highlight-row :columns="mxcolumns" :data="mxdataList"   @on-row-click='clickRow'></Table>
+							<div class="page-box">
+								 <Page :total="mxtotal" show-total size="small" :pageSize='mxpageSize'  @on-change="mxgetData" @on-page-size-change="mxchangePageSize"></Page>
+							</div>
+						</div>
+					</div>
+		        </TabPane>
+		        <TabPane label="出入库明细">
+		        	<!--表-->
+					<div class="table">
+						<div style='display:flex;justify-content: space-between;;margin-bottom:7px'>
+							<div style='display:flex'>
+						
+							<Input style='margin-top:10px;width:300px;' v-model='fuzzySearch' :placeholder="$t('public.codeandname')">
+			                    <span slot="append" style='cursor:pointer' @click='search'>{{$t('public.search')}}</span>
+			                </Input>
+			                <div style='margin-left:10px;margin-top:15px'>
+							<!-- <a style='font-size:14px;font-weight:600;margin-left:10px;margin-right:20px;border-bottom:1px solid #3b77e3;height:40px' @click='searchNo3'>{{$t('public.PreciseSearch')}}</a> -->
+							
+							</div>
+							</div>
+							<div>
+								<Button type="primary" shape="circle" @click="exportNo1(2)" style='margin-top:10px'>
+								 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.export')}}<!--导出-->
+							</Button>
+							</div>
+						</div>
+						<div >
+							<Table border  highlight-row :columns="dhcolumns" :data="dhdataList"  @on-row-click='clickRow'></Table>
+							<div class="page-box">
+								 <Page :total="dhtotal" show-total size="small" :pageSize='dhpageSize'  @on-change="dhgetData" @on-page-size-change="dhchangePageSize"></Page>
+							</div>
+						</div>
+					</div>
+		        </TabPane>
+		        <TabPane label="负库存量">
+		        	<!--存货查询-->
+					<div class="table">
+						<div style='display:flex;justify-content: space-between;;margin-bottom:7px'>
+							<div style='display:flex'>
+								
+								<Input style='margin-top:10px;width:300px;' v-model='fuzzySearch' :placeholder="$t('public.codeandname')">
+				                    <span slot="append" style='cursor:pointer' @click='search'>{{$t('public.search')}}</span>
+				                </Input>
+				                <div style='margin-left:10px;margin-top:10px'>
+								<!-- <a style='font-size:14px;font-weight:600;margin-left:10px;margin-right:20px;border-bottom:1px solid #3b77e3;height:40px' @click='searchNo4'>{{$t('public.PreciseSearch')}}</a> -->
+								
+								</div>
+							</div>
+							<div>
+								<Button type="primary" shape="circle" @click="exportNo1(3)" style='margin-top:10px' >
+								 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.export')}}<!--导出-->
+							</Button>
+							</div>
+						</div>
+						<div >
+							<Table border  highlight-row :columns="mlcolumns" :data="mldataList"  @on-row-click='clickRow'></Table>
+							<div class="page-box">
+								 <Page :total="mltotal" show-total size="small" :pageSize='mlpageSize'  @on-change="mlgetData" @on-page-size-change="mlchangePageSize"></Page>
+							</div>
+						</div>
+					</div>
+		        </TabPane>
+		        <TabPane label="收发明细">
+		        	<!--表-->
+					<div class="table">
+						<div style='display:flex;justify-content: space-between;;margin-bottom:7px'>
+							<div style='display:flex'>
+						
+							<Input style='margin-top:10px;width:300px;' v-model='fuzzySearch' :placeholder="$t('public.codeandname')">
+			                    <span slot="append" style='cursor:pointer' @click='search'>{{$t('public.search')}}</span>
+			                </Input>
+			                <div style='margin-left:10px;margin-top:15px'>
+								<!-- <a style='font-size:14px;font-weight:600;margin-left:10px;margin-right:20px;border-bottom:1px solid #3b77e3;height:40px' @click='searchNo5'>{{$t('public.PreciseSearch')}}</a> -->
+								
+							</div>
+							</div>
+							<div>
+								<Button type="primary" shape="circle" @click="exportNo1(4)" style='margin-top:10px' >
+									 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.export')}}<!--导出-->
+								</Button>
+							</div>
+						</div>
+						<div >
+							<Table border  highlight-row :columns="dhmxcolumns" :data="dhmxdataList"  @on-row-click='clickRow'></Table>
+							<div class="page-box">
+								 <Page :total="dhmxtotal" show-total size="small" :pageSize='dhmxpageSize'  @on-change="dhmxgetData" @on-page-size-change="dhmxchangePageSize"></Page>
+							</div>
+						</div>
+					</div>
+		        </TabPane>
+		        <TabPane label="出入库统计">
+					<div class="table" >
+						<div style='display:flex;justify-content: space-between;;margin-bottom:7px'>
+							<div style='display:flex'>
+						
+							<Input style='margin-top:10px;width:300px;' v-model='fuzzySearch' :placeholder="$t('public.codeandname')">
+			                    <span slot="append" style='cursor:pointer' @click='search'>{{$t('public.search')}}</span>
+			                </Input>
+			                <div style='margin-left:10px;margin-top:15px'>
+							<!-- <a style='font-size:14px;font-weight:600;margin-left:10px;margin-right:20px;border-bottom:1px solid #3b77e3;height:40px' @click='searchNo6'>{{$t('public.PreciseSearch')}}</a> -->
+							
+							</div>
+							</div>
+							<div>
+								<Button type="primary" shape="circle" @click="exportNo1(5)" style='margin-top:10px'>
+								 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.export')}}<!--导出-->
+							</Button>
+							</div>
+						</div>
+						<div >
+							<Table border  highlight-row :columns="skucolumns" :data="skudataList"   @on-row-click='clickRow'></Table>
+							<div class="page-box">
+								 <Page :total="skutotalR" show-total size="small" :pageSize='skupageSizeR'  @on-change="skugetDataR" @on-page-size-change="skuchangePageSizeR"></Page>
+							</div>
+						</div>
+					</div>
+		        </TabPane>
+		        <TabPane label="全渠道库存">
+				   	<div class="table">
+						<div style='display:flex;justify-content: space-between;;margin-bottom:7px'>
+							<div style='display:flex'>
+							
+							<Input style='margin-top:10px;width:300px;' v-model='qqdSearch' :placeholder="$t('public.codeandname')">
+			                    <span slot="append" style='cursor:pointer' @click='searchqqd'>{{$t('public.search')}}</span>
+			                </Input>
+			                <div style='margin-left:10px;margin-top:15px'>
+							<!-- <a style='font-size:14px;font-weight:600;margin-left:10px;margin-right:20px;border-bottom:1px solid #3b77e3;height:40px' @click='searchNo6'>{{$t('public.PreciseSearch')}}</a> -->
+							
+							</div>
+							</div>
+							<div>
+								<Button type="primary" shape="circle" @click="exportNo1(6)" style='margin-top:10px'>
+								 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.export')}}<!--导出-->
+							</Button>
+							</div>
+						</div>
+						<div >
+							<Table border  highlight-row :columns="qqdcolumns" :data="qqddataList"></Table>
+							<div class="page-box">
+								 <Page :total="qqdtotal" show-total size="small" :pageSize='qqdpageSize'  @on-change="qqdgetData" @on-page-size-change="qqdchangePageSize"></Page>
+							</div>
+						</div>
+					</div>
+		        </TabPane>
+		    </Tabs>
+		</div>
+		<Modal v-model="searchNo1isshow" width="460px">
+		    <p slot="header" style="height:30px;line-height:30px;text-align:center">
+		      
+		      <span>{{cgtitle}}</span>
+		    </p>
+		    <Form :label-width="80">
+		    
+		        <FormItem :label="$t('data.sku.orderNo')" ><!--单号-->
+		           <Input v-model='reNo1' ></Input>
+		        </FormItem>
+		        
+		        <FormItem :label="$t('data.sku.skuname')"  ><!--商品-->
+		           <Input v-model='skunmae'></Input>
+		           <span @click="clickSku"><Icon type="ios-search" size="16" style='position:absolute;top:8px;right:8px;cursor:pointer' ></Icon></span>
+		        </FormItem>
+		        <FormItem :label="$t('data.inv.ck')" ><!--仓库-->
+		           <Input v-model='ckname'></Input>
+		           <span @click="clickStore"><Icon type="ios-search" size="16" style='position:absolute;top:8px;right:8px;cursor:pointer' ></Icon></span>
+		        </FormItem>
+		        <FormItem :label="$t('data.khname')" ><!--客户-->
+		           <Input v-model='gysname'></Input>
+		           <span @click="clickSupplier"><Icon type="ios-search" size="16" style='position:absolute;top:8px;right:8px;cursor:pointer' ></Icon></span>
+		        </FormItem>
+		        <FormItem  :label="$t('data.orderTime')"><!--单据日期-->
+		        	<div style='display: flex;justify-content: space-between;'>
+					<DatePicker type="date" :value='endNo1' style="width:48%" @on-change="beginChange"></DatePicker> 
+					<DatePicker type="date" :value='beginNo1' style="width:48%" @on-change="endChange"></DatePicker>
+					</div>
+		        </FormItem>
+		    </Form>
+		    <div slot="footer">
+		      <div class='footer-mark'>
+		        <span><a style='color:#999;font-size:14px' @click='secancel'>{{$t('public.cancel')}}</a></span>
+		        <span style='font-size:20px;width:1px;height:40px;background:#e4e4e4'></span>
+		        <span ><a style='color:#3B77E3;font-size:14px' @click='sure'>{{$t('public.sure')}}</a></span>
+		      </div>
+		    </div>
+	  	</Modal>
+	  	 <!--选择商品-->
+	<Modal v-model="goodsinshow" width="700px">
+		<p slot="header" style="height:30px;line-height:30px">
+			
+			<span>{{$t('public.search')}}</span>
+		</p>
+		<div style="position:relative;text-align:center;width:100%;height:35px;line-height:35px;display:flex;">
+			<Input :placeholder="$t('public.codeandname')" style="padding:2px 0" v-model="goodskeyword" ></Input>
+			<span @click="searchInput">
+			<Icon type="search" size="16" style="display:inline-block;position:absolute;top:10px;right:18px;z-index:9" ></Icon>
+			</span>
+		</div>
+		<!--商品数据-->
+		<div slot="footer">
+			<div  style='margin-top:-10px;'>
+				<Table  border  height='200' highlight-row  :columns="goodskey" :data="goods" @on-row-click="clickgoodsrow">
+				</Table>
+				<div style='text-align:left;margin-top:5px'>
+				 <Page :total="skutotal" show-total  :pageSize='skupageSize'  @on-change="skugetData" @on-page-size-change="skuchangePageSize"></Page>
+				</div>
+           	</div>
+			
+			<div class='title' style='margin:0px'>
+				<div style='color:#D15151;font-size:14px'>
+					<!-- <Icon type="plus" style='margin-right:5px'></Icon>
+					<span >添加商品</span> -->
+				</div>
+				<div>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='skucancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#00A7F5;color:#fff" @click="skusure"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+	<!--选择仓库弹出框-->
+	<Modal v-model="warehouseshow" width="660px">
+		<p slot="header" style="height:30px;line-height:30px">
+			
+			<span>{{$t('public.search')}}</span>
+		</p>
+		<div style="position:relative;text-align:center;width:100%;height:35px;line-height:35px;display:flex;">
+			<Input v-model="ckkeyword"  :placeholder="$t('public.codeandname')" style="padding:2px 0;"></Input>
+			<span @click="getckKeyword">
+				<Icon type="search" size="16" style="display:inline-block;position:absolute;top:10px;right:18px;z-index:9" ></Icon>
+			</span>
+		</div>
+		<div slot="footer">
+			<!--仓库表格-->
+			<Table  border height='200' highlight-row  :columns="ckkey" :data="allwarehouse" @on-row-click="ckrow">
+			</Table>
+			<!--分页-->
+            <div class="page-box" style="text-align:left">
+			 <Page :total="cktotal" :pageSize='ckpageSize' show-total @on-change="getckData" @on-page-size-change="changeckPageSize"></Page>
+			</div>
+			<div class='title' style='margin:0px'>
+				<div style='color:#D15151;font-size:14px'>
+					<!-- <Icon type="plus" style='margin-right:5px'></Icon>
+					<span >添加仓库</span> -->
+				</div>
+				<div>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='modelCancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#00A7F5;color:#fff" @click="makeck"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+	<!--选择客户弹出框-->
+	<Modal v-model="alertch" width="660px">
+		<p slot="header" style="height:30px;line-height:30px">
+			
+			<span>{{$t('public.search')}}</span>
+		</p>
+		<div style="position:relative;text-align:center;width:100%;height:35px;line-height:35px;display:flex;">
+			<Input v-model="gyskeyword" :placeholder="$t('public.codeandname')" style="padding:2px 0"></Input>
+			<span @click="getgysKeyword">
+			<Icon type="search" size="16" style="display:inline-block;position:absolute;top:10px;right:18px;z-index:9" ></Icon>
+
+			</span>
+		</div>
+		<div slot="footer">
+			<!--客户表格-->
+			<Table  border height="200" highlight-row  :columns="gyskey" :data="gysdata" @on-row-click="gysrow">
+			</Table>
+			<!--分页-->
+            <div class="page-box" style="text-align:left">
+			 <Page :total="gystotal" :pageSize='gyspageSize' show-total @on-change="getgysData" @on-page-size-change="changegysPageSize"></Page>
+			</div>
+			<div class='title' style='margin:0px'>
+				<div style='color:#D15151;font-size:14px'>
+					<!-- <Icon type="plus" style='margin-right:5px'></Icon>
+					<span >添加往来单位</span> -->
+				</div>
+				<div>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='modelCancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#00A7F5;color:#fff" @click="makegys"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+	</div>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				qqdcolumns:[],
+				qqddataList:[],
+				qqdtotal:0,
+				qqdSearch:"",//全渠道搜索词
+				qqdpageSize:0,
+
+				fuzzySearch:'',//模糊搜索关键词
+				cgtitle:this.$t('data.inv.InvYE'),//"库存余额",
+				searchNo1isshow:false,//采购统计查询
+				reNo1:'',//采购单号
+				beginNo1:'',//查询开始日期
+				endNo1:'',//查询结束日期
+				goodsinshow:false,//商品弹框是否显示
+				//弹出框商品data
+				skutotal:0,
+				skupageSize:0,
+				numindex:'',
+				skuObj:{},//一行商品数据
+				skuid:'',//商品id
+				skunmae:'',//商品名称
+				goodskeyword:'',//查询关键字
+				goods:[],
+                goodskey:[
+	                {
+	                	title:"",
+	                	width:100,
+	                	key:"mainPhoto",
+	                	 render:(h, params) =>{
+                        	return h('div',[
+                        			h('img',{
+                        				attrs:{
+                        					src:params.row.mainPhoto
+                        				},
+                        				style:{
+                        					width:'40px',
+                        					height:'40px'
+                        				}
+                        			})
+                        		])
+                        }
+	                },
+	                {
+	                	title:this.$t('manage.sku.SkuName'),//"商品名称",
+	             		ellipsis:true,
+	                	ellipsis:'true',
+	                	key:"skuName"
+	                },
+	                {
+	                	title:this.$t('manage.sku.SkuCode'),// '商品货号',
+	                	key:'skuCode',
+	               		ellipsis:true,
+	                	align: 'center'
+	                },
+	                {
+	                	title: this.$t('manage.sku.barnd'),//'商品品牌',
+	                	key:'barnd',
+	               		ellipsis:true,
+	                	align: 'center'
+	                },
+	                {
+	                	title:this.$t('manage.sku.FL'),//'商品分类',
+	                	key:'className',
+	               		ellipsis:true,
+	                	align: 'center'
+	                },
+	              	{
+	                	title: this.$t('manage.sku.price'),//'单价',
+	                	key:'price',
+						ellipsis:true,
+	                	align: 'center'
+	                },
+	                {
+	                	title: this.$t('manage.sku.inventory'),//'库存',
+	                	key:'inventoryUp',
+						ellipsis:true,
+	                	align: 'center'
+	                },
+	                
+                ],
+                //仓库
+                warehouseshow:false,
+                ckkeyword:'',//仓库搜索关键字
+                cktotal:0,
+                ckpageSize:0,
+                ckObj:{},//一行仓库数据
+                ckname:"",//仓库名称
+                ckid:'',//仓库id
+                allwarehouse:[],
+                ckkey:[
+					{
+						title:this.$t('manage.warehouse.Name'),//"仓库名",
+						ellipsis:true,
+						key:"name"
+					},
+					{
+						title:this.$t('manage.warehouse.Code'),//"仓库编号",
+					
+						key:"code"
+					},
+					{
+						title:this.$t('manage.warehouse.Type'),//"类型",
+						
+						key:"category"
+					},
+					{
+						title:this.$t('public.status'),//"状态",
+						
+						key:"statusDesc"
+					},
+				],
+				//客户
+				alertch:false,
+				gyskeyword:'',//关键词
+				//弹出框客户table
+				gystotal:0,
+				gyspageSize:0,
+				gysObj:{},//一行数据
+				gysname:"",//客户名称
+				gysid:"",//客户id
+				gysdata:[],
+                gyskey:[
+	                {
+	                	title:this.$t('sales.client.client'),//"客户名称",
+	                	ellipsis:true,
+	                	key:"name"
+	                },
+	                {
+	                	title:this.$t('sales.client.client'),//"客户编码",
+	               	 	ellipsis:true,
+	                	key:"code"
+	                },
+	                {
+	                	title:this.$t('sales.client.address'),//"地址",
+	                	ellipsis:true,
+	                	key:"address"
+	                },
+	               
+                ],
+				fhindex:0,
+				
+				visible: false,
+				fhlist:[
+					{
+						label:this.$t('data.inv.InvYE'),//"库存余额",
+						value:0
+					},
+					{
+						label:this.$t('data.inv.sfch'),//"收发存货",
+						value:1
+					},
+					{
+						label:this.$t('data.inv.Cdetails'),//"出入库明细",
+						value:2
+					},
+					{
+						label:this.$t('data.inv.Fch'),//"负库存量存货",
+						value:3
+					},
+					
+					{
+						label:this.$t('data.inv.Sdetails'),//"收发明细",
+						value:4
+					},
+					{
+						label:this.$t('data.inv.Cdata'),//"出入库统计",
+						value:5
+					},
+					// {
+					// 	label:"全渠道库存",
+					// 	value:6
+					// },
+				],
+				
+				type:'',//下拉选中
+				uid: this.$store.state.common.token,
+				row:{},//选中一行的数据
+				//库存余额表
+				total: 0,
+				pageSize: 0,
+				valId:"",
+				dataList: [],
+				columns: [
+					
+					{
+						title:this.$t('data.orderNo'),//"单号",
+						key:"recordNo",
+					},
+					{
+						title:this.$t('sales.client.client'),//"客户名称",
+						key:"partnerName"
+					},
+					{
+						title:this.$t('manage.warehouse.Name'),//"仓库名",
+						key:"warehouseName"
+					},
+					{
+						title:this.$t('manage.sku.SkuName'),//"商品名称",
+						key: 'skuName'
+					},
+					
+					{
+						title:this.$t('public.num'),
+						key:"qty"
+					},
+					{
+						title:this.$t('manage.sku.price'),//"零售价",
+						key:'price'
+					},
+					{
+						title:this.$t('manage.sku.costprice'),// '成本价',
+						key: 'costPrice'
+					},
+					{
+						title:this.$t('manage.sku.SkuUnit'),//"单位",
+						key:'unit'
+					},
+					{
+						title:this.$t('manage.sku.barnd'),//"品牌",
+						key:'barnd'
+					},
+					
+				],
+				//收发存货统计表
+				mxtotal:0,
+				mxpageSize:0,
+				mxcolumns:[
+					
+					{
+						title:this.$t('data.orderNo'),//"单号",
+						width:140,
+						key:"recordNo",
+						
+					},
+					{
+						title:this.$t('sales.client.client'),//"客户名称",
+						width:140,
+						ellipsis:true,
+						key:"partnerName"
+					},
+					{
+						title:this.$t('manage.warehouse.Name'),//"仓库名",
+						width:140,
+						ellipsis:true,
+						key:"warehouseName"
+					},
+					{
+						title:this.$t('manage.sku.SkuName'),//"商品名称",
+						ellipsis:true,
+						width:160,
+						key: 'skuName'
+					},
+					
+					{
+						title:this.$t('data.inv.ckuNum'),//"出库数量",
+						ellipsis:true,
+						width:120,
+						ellipsis:true,
+						key:"outQty"
+					},
+					{
+						title:this.$t('data.inv.rkuNum'),//"入库数量",
+						ellipsis:true,
+						width:120,
+						ellipsis:true,
+						key:"accessQty"
+					},
+					{
+						title:this.$t('data.inv.rkuPrice'),//"入库成本价格",
+						width:140,
+						ellipsis:true,
+						key:'accessPrice'
+					},
+					{
+						title: this.$t('data.inv.initPrice'),//'初始成本价',
+						width:120,
+						ellipsis:true,
+						key: 'inceptionPrice'
+					},
+					{
+						title:  this.$t('data.inv.ckuPrice'),//'出库成本价格',
+						width:140,
+						ellipsis:true,
+						key: 'outPrice'
+					},
+					{
+						title:this.$t('manage.sku.SkuUnit'),//"单位",
+						width:80,
+						ellipsis:true,
+						key:'unit'
+					},
+					{
+						title:this.$t('manage.sku.barnd'),//"品牌",
+						width:80,
+						ellipsis:true,
+						key:'barnd'
+					},
+				],
+				mxdataList: [],
+				//出入库明细表
+				dhtotal:0,
+				dhpageSize:0,
+				dhcolumns: [
+					
+					{
+						title:this.$t('data.orderNo'),//"单号",
+						width:140,
+						key:"recordNo",
+						
+					},
+					{
+						title:this.$t('sales.client.client'),//"客户名称",
+						width:140,
+						ellipsis:true,
+						key:"partnerName"
+					},
+					{
+						title:this.$t('manage.warehouse.Name'),//"仓库名",
+						width:140,
+						ellipsis:true,
+						key:"warehouseName"
+					},
+					{
+						title:this.$t('manage.sku.SkuName'),//"商品名称",
+						ellipsis:true,
+						width:160,
+						key: 'skuName'
+					},
+					
+					
+					{
+						title:this.$t('data.inv.rkuNum'),//"入库数量",
+						ellipsis:true,
+						width:120,
+						ellipsis:true,
+						key:"accessQty"
+					},
+					{
+						title:this.$t('data.inv.ckuNum'),//"出库数量",
+						ellipsis:true,
+						width:120,
+						ellipsis:true,
+						key:"outQty"
+					},
+					{
+						title:this.$t('data.inv.rkuPrice'),//"入库成本价格",
+						width:120,
+						ellipsis:true,
+						key:'accessPrice'
+					},
+					
+					{
+						title:  this.$t('data.inv.ckuPrice'),//'出库成本价格',
+						width:120,
+						ellipsis:true,
+						key: 'outPrice'
+					},
+					{
+						title:this.$t('manage.sku.SkuUnit'),//"单位",
+						width:80,
+						ellipsis:true,
+						key:'unit'
+					},
+					{
+						title:this.$t('manage.sku.barnd'),//"品牌",
+						width:80,
+						ellipsis:true,
+						key:'barnd'
+					},
+					{
+						title:this.$t('data.orderTime'),//"单据日期",
+						width:170,
+						ellipsis:true,
+						key:'recordDate'
+					},
+				],
+				dhdataList: [],
+				//负库存量存货查询
+				mltotal:0,
+				mlpageSize:0,
+				mlcolumns: [
+					{
+						title:this.$t('manage.warehouse.Name'),//"仓库名",
+						width:140,
+						key:"warehouseName"
+					},
+					{
+						title:this.$t('manage.sku.SkuName'),//"商品名称",
+						ellipsis:true,
+						width:160,
+						key: 'skuName'
+					},
+					
+					{
+						title:this.$t('data.inv.jcunNum'),//"结存数量",
+						
+						key:"qty"
+					},
+					
+					{
+						title:this.$t('manage.sku.SkuUnit'),//"单位",
+						
+						
+						key:'unit'
+					},
+					
+				],
+				mldataList: [],
+				//收发明细表
+				dhmxtotal:0,
+				dhmxpageSize:0,
+				dhmxcolumns:[
+					
+					{
+						title:this.$t('data.orderNo'),//"单号",
+						width:140,
+						key:"recordNo",
+						
+					},
+					{
+						title:this.$t('sales.client.client'),//"客户名称",
+						width:140,
+						ellipsis:true,
+						key:"partnerName"
+					},
+					{
+						title:this.$t('manage.warehouse.Name'),//"仓库名",
+						width:140,
+						ellipsis:true,
+						key:"warehouseName"
+					},
+					{
+						title:this.$t('manage.sku.SkuName'),//"商品名称",
+						ellipsis:true,
+						width:160,
+						key: 'skuName'
+					},
+					
+					
+					{
+						title:this.$t('data.inv.rkuNum'),//"入库数量",
+						ellipsis:true,
+						width:120,
+						ellipsis:true,
+						key:"accessQty"
+					},
+					{
+						title:this.$t('data.inv.ckuNum'),//"出库数量",
+						ellipsis:true,
+						width:120,
+						ellipsis:true,
+						key:"outQty"
+					},
+					{
+						title:this.$t('data.inv.rkuPrice'),//"入库成本价格",
+						width:120,
+						ellipsis:true,
+						key:'accessPrice'
+					},
+					
+					{
+						title:  this.$t('data.inv.ckuPrice'),//'出库成本价格',
+						width:120,
+						ellipsis:true,
+						key: 'outPrice'
+					},
+					{
+						title:this.$t('manage.sku.SkuUnit'),//"单位",
+						width:80,
+						ellipsis:true,
+						key:'unit'
+					},
+					{
+						title:this.$t('manage.sku.barnd'),//"品牌",
+						width:80,
+						ellipsis:true,
+						key:'barnd'
+					},
+					{
+						title:this.$t('data.orderTime'),//"单据日期",
+						width:160,
+						ellipsis:true,
+						key:'recordDate'
+					},
+					
+				],
+				dhmxdataList: [],
+				//出入库统计表
+				skutotalR:0,
+				skupageSizeR:0,
+				skucolumns:[
+					
+					{
+						title:"单号",
+						width:140,
+						key:"recordNo",
+						
+					},
+					{
+						title:"仓库",
+						width:100,
+						ellipsis:true,
+						key:"warehouseName"
+					},
+					{
+						title: '商品名称',
+						ellipsis:true,
+						width:160,
+						key: 'skuName'
+					},
+					
+					{
+						title:"出库数量",
+						ellipsis:true,
+						width:120,
+						ellipsis:true,
+						key:"outQty"
+					},
+					{
+						title:"入库价",
+						width:120,
+						ellipsis:true,
+						key:'accessPrice'
+					},
+					{
+						title: '入库成本价',
+						width:140,
+						ellipsis:true,
+						key: 'accessCostPrice'
+					},
+					{
+						title: '出库价',
+						width:120,
+						ellipsis:true,
+						key: 'outPrice'
+					},
+					{
+						title: '出库成本价',
+						width:140,
+						ellipsis:true,
+						key: 'outCostPrice'
+					},
+					
+					{
+						title:"单位",
+						width:80,
+						ellipsis:true,
+						key:'unit'
+					},
+					{
+						title:"品牌",
+						width:80,
+						ellipsis:true,
+						key:'barnd'
+					},
+					{
+						title:"单据日期",
+						width:160,
+						ellipsis:true,
+						key:'recordDate'
+					},
+					
+				],
+				skudataList: [],
+				
+			}
+		},
+		methods: {
+			getfhlistbg(index){
+				this.fhindex=index
+				if(this.fhindex==0){
+					this.getcgList()//库存余额表
+				}
+				
+				if(this.fhindex==1){
+					//GET /statusReporting/stockInOut 收发存统计表
+					this.axios.post('/statusReporting/stockInOut?uid='+this.uid,{}).then(res=>{
+						if(res.data.status==200){
+
+							this.mxdataList=res.data.rows
+							this.mxtotal=res.data.total
+							this.mxpageSize=res.data.pageSize
+						}
+					})
+				}
+				
+				if(this.fhindex==2){
+					//GET /statusReporting/stockInv 出入库明细表
+					this.axios.post('statusReporting/stockInv?uid='+this.uid,{}).then(res=>{
+						if(res.data.status==200){
+							this.dhdataList=res.data.rows
+							this.dhtotal=res.data.total
+							this.dhpageSize=res.data.pageSize
+						}
+					})
+				}
+				
+				if(this.fhindex==3){
+					//GET /statusReporting/stockNiq 负库存量存货查询
+					this.axios.post('statusReporting/stockNiq?uid='+this.uid,{}).then(res=>{
+						if(res.data.status==200){
+							this.mldataList=res.data.rows
+							this.mltotal=res.data.total
+							this.mlpageSize=res.data.pageSize
+						}
+					})
+				}
+				
+				if(this.fhindex==4){
+					//GET /statusReporting/stockRep 收发明细表
+					this.axios.post('statusReporting/stockRep?uid='+this.uid,{}).then(res=>{
+						if(res.data.status==200){
+							this.dhmxdataList=res.data.rows
+							this.dhmxtotal=res.data.total
+							this.dhmxpageSize=res.data.pageSize
+						}
+					})
+				}
+				
+				if(this.fhindex==5){
+					//GET /statusReporting/stockSta 出入库统计表
+					this.axios.post('statusReporting/stockSta?uid='+this.uid,{}).then(res=>{
+						if(res.data.status==200){
+							this.skudataList=res.data.rows
+							this.skutotalR=res.data.total
+							this.skupageSizeR=res.data.pageSize
+						}
+					})
+				}
+				
+			},
+			//默认显示获取//GET /statusReporting/stockBal 库存余额表
+			getcgList() {
+				this.axios.post('/statusReporting/stockBal?uid='+this.uid,{}).then(res=>{
+					console.log(res.data)
+					if(res.data.status==200){
+						this.dataList=res.data.rows
+						this.total=res.data.total
+						this.pageSize=res.data.pageSize
+					}
+				})
+			},
+			
+			 //库存余额表切换一条页
+            getData(current){
+                this.axios.post('/statusReporting/stockBal?offset='+current+'&uid='+this.uid,{}).then((res)=>{
+                   	this.dataList=res.data.rows
+					this.total=res.data.total
+					this.pageSize=res.data.pageSize
+                })
+            },
+            //翻页
+            changePageSize(size){
+                this.pageSize = size
+            },
+             //销售明细切换一条页
+            mxgetData(current){
+                this.axios.post('/statusReporting/stockInOut?offset='+current+'&uid='+this.uid,{}).then((res)=>{
+                   	this.mxdataList=res.data.rows
+					this.mxtotal=res.data.total
+					this.mxpageSize=res.data.pageSize
+                })
+            },
+            //翻页
+            mxchangePageSize(size){
+                this.mxpageSize = size
+            },
+             //销售订货统计切换一条页
+            dhgetData(current){
+                this.axios.post('statusReporting/stockInv?offset='+current+'&uid='+this.uid,{}).then((res)=>{
+                   	this.dhdataList=res.data.rows
+					this.dhtotal=res.data.total
+					this.dhpageSize=res.data.pageSize
+                })
+            },
+            //翻页
+            dhchangePageSize(size){
+                this.dhpageSize = size
+            },
+            //销售毛利切换一条页
+            mlgetData(current){
+                this.axios.post('statusReporting/stockNiq?offset='+current+'&uid='+this.uid,{}).then((res)=>{
+                   	this.mldataList=res.data.rows
+					this.mltotal=res.data.total
+					this.mlpageSize=res.data.pageSize
+                })
+            },
+            //翻页
+            mlchangePageSize(size){
+                this.mlpageSize = size
+            },
+            //销售订货明细切换一条页
+            dhmxgetData(current){
+                this.axios.post('statusReporting/stockRep?offset='+current+'&uid='+this.uid,{}).then((res)=>{
+                   	this.dhmxdataList=res.data.rows
+					this.dhmxtotal=res.data.total
+					this.dhmxpageSize=res.data.pageSize
+                })
+            },
+            //翻页
+            dhmxchangePageSize(size){
+                this.mlpageSize = size
+            },
+            //出入库统计表
+            skugetDataR(current){
+                this.axios.post('statusReporting/stockSta?offset='+current+'&uid='+this.uid,{}).then((res)=>{
+                   	this.skudataList=res.data.rows
+					this.skutotalR=res.data.total
+					this.skupageSizeR=res.data.pageSize
+                })
+            },
+            //翻页
+            skuchangePageSizeR(size){
+                this.skupageSizeR = size
+            },
+           
+			//单击一行
+			clickRow(data,index){
+				this.numindex=index
+				console.log(index)
+				this.row = data
+			},
+			//商品客户仓库
+			//查询商品
+            clickSku(){
+            	this.goodsinshow=true
+            	this.axios.get('sku/query?uid='+this.uid).then(res=>{
+            		if(res.data.status==200){
+            			this.goods=res.data.rows
+            			this.skutotal=res.data.total
+            			this.skupageSize=res.data.pageSize
+            		}
+            	})
+            },
+            //商品弹框点击一行获取数据
+			clickgoodsrow(data){
+				this.skuObj=data
+				console.log(data)
+			},
+			//商品确认
+			skusure(){
+				this.skuid=this.skuObj.id
+				this.skunmae=this.skuObj.skuName
+				this.goodsinshow=false
+			},
+			//商品取消
+			skucancel(){
+				this.goodsinshow=false
+			},
+			  //商品模糊搜索
+            searchInput(){
+				this.axios.get('sku/query?keyword='+this.goodskeyword+'&uid='+this.uid).then((res)=>{
+					if(res.data.status==200){
+						this.goods = res.data.rows
+						this.skutotal=res.data.total
+						this.skupageSize=res.data.pageSize
+					}
+				})
+			
+            },
+            //回车搜索商品
+           enterSearch(){
+           	this.searchInput()
+           },
+           //商品切换
+            skugetData(current){
+                this.axios.get('sku/query?offset='+current+'&uid='+this.uid).then((res)=>{
+                    this.goods = res.data.rows
+					this.skutotal=res.data.total
+					this.skupageSize=res.data.pageSize
+                })
+            },
+            //翻页
+            skuchangePageSize(size){
+                this.skupageSize = size
+            },
+            //查询仓库
+            clickStore(){
+            	this.axios.get('/warehouse/list?uid='+this.uid).then((res)=>{
+					this.allwarehouse=res.data.rows
+					this.cktotal=res.data.total
+					this.ckpageSize=res.data.pageSize
+				})
+            	this.warehouseshow=true
+            },
+             //仓库翻页
+            getckData(current){
+                this.axios.get('warehouse/list?offset='+current+'&uid='+this.uid).then((res)=>{
+                    this.allwarehouse = res.data.rows
+                    this.cktotal=res.data.total
+					this.ckpageSize=res.data.pageSize
+                })
+            },
+            //翻页
+           changeckPageSize(size){
+                this.ckpageSize = size
+            },
+            //单击仓库列表一行
+			ckrow(data,index){
+				this.ckObj=data
+				
+			},
+			//仓库确认
+			makeck(){
+				this.ckname=this.ckObj.name
+				this.ckid=this.ckObj.id
+				this.warehouseshow=false
+			},
+			//仓库取消
+			modelCancel(){
+				this.warehouseshow=false
+			},
+            //仓库模糊搜索
+			getckKeyword(){
+				this.axios.get('warehouse/list?keyword='+this.ckkeyword+'&uid='+this.uid).then((res)=>{
+					if(res.data.status==200){
+						this.allwarehouse = res.data.rows
+						this.cktotal=res.data.total
+						this.ckpageSize=res.data.pageSize
+					}
+				})
+			},
+            //查询客户
+            clickSupplier(){
+            	this.axios.get('/client/query?uid=' + this.uid).then((res) => {
+					
+					if(res.data.status == '200') {
+						let data = res.data;
+						this.gysdata = data.rows;
+						this.gyspageSize = data.pageSize;
+						this.gystotal = data.total;
+					}
+				})
+            	this.alertch=true
+            },
+             //客户切换
+            getgysData(current){
+                this.axios.get('/client/query?offset='+current+'&uid='+this.uid).then((res)=>{
+                    if(res.data.status == '200') {
+						let data = res.data;
+						this.gysdata = data.rows;
+						this.gyspageSize = data.pageSize;
+						this.gystotal = data.total;
+					}
+                })
+            },
+            //翻页
+           changegysPageSize(size){
+                this.gyspageSize = size
+            },
+            //客户弹框出现后点击表格行数据
+			gysrow(data){
+				this.gysObj=data
+  			},
+  			//客户确认
+  			makegys(){
+  				this.gysid=this.gysObj.id
+  				this.gysname=this.gysObj.name
+  				this.alertch=false
+  			},
+  			modelCancel(){
+				this.alertch=false
+  			},
+            //客户模糊搜索
+			getgysKeyword(){
+				this.axios.get('client/query?keyword='+this.gyskeyword+'&uid='+this.uid).then((res)=>{
+				if(res.data.status==200){
+					this.gysdata = res.data.rows
+					}
+				})
+			},
+
+            //开始日期选择
+            beginChange(d){
+            	this.endNo1=d
+            },
+            endChange(d){
+            	this.beginNo1=d
+            },
+			//查询
+            searchNo1(){
+            	this.reNo1=''//采购单号
+				this.beginNo1='',//查询开始日期
+				this.endNo1=''//查询结束日期
+				this.skuid='',
+				this.skunmae=''
+				this.ckname=''
+				this.ckid=''
+				this.gysname=''
+				this.gysid=''
+            	this.cgtitle=this.$t('data.inv.InvYE'),//'库存余额表查询'
+            	this.searchNo1isshow=true
+            },
+           
+            searchNo2(){
+            	this.reNo1=''//采购单号
+				this.beginNo1='',//查询开始日期
+				this.endNo1=''//查询结束日期
+				this.skuid='',
+				this.skunmae=''
+				this.ckname=''
+				this.ckid=''
+				this.gysname=''
+				this.gysid=''
+            	this.cgtitle=this.$t('data.inv.sfch'),//"收发存货",'收发存货统计表查询'
+            	this.searchNo1isshow=true
+            },
+           
+            searchNo3(){
+            	this.reNo1=''//采购单号
+				this.beginNo1='',//查询开始日期
+				this.endNo1=''//查询结束日期
+				this.skuid='',
+				this.skunmae=''
+				this.ckname=''
+				this.ckid=''
+				this.gysname=''
+				this.gysid=''
+            	this.cgtitle=this.$t('data.inv.Cdetails'),//"出入库明细",
+            	this.searchNo1isshow=true
+            },
+          
+            searchNo4(){
+            	this.reNo1=''//采购单号
+				this.beginNo1='',//查询开始日期
+				this.endNo1=''//查询结束日期
+				this.skuid='',
+				this.skunmae=''
+				this.ckname=''
+				this.ckid=''
+				this.gysname=''
+				this.gysid=''
+            	this.cgtitle=this.$t('data.inv.Fch'),//"负库存量存货",
+            	this.searchNo1isshow=true
+            },
+            searchNo5(){
+            	this.reNo1=''//采购单号
+				this.beginNo1='',//查询开始日期
+				this.endNo1=''//查询结束日期
+				this.skuid='',
+				this.skunmae=''
+				this.ckname=''
+				this.ckid=''
+				this.gysname=''
+				this.gysid=''
+            	this.cgtitle=this.$t('data.inv.Sdetails'),//"收发明细",
+            	this.searchNo1isshow=true
+            },
+          
+            searchNo6(){
+            	this.reNo1=''//采购单号
+				this.beginNo1='',//查询开始日期
+				this.endNo1=''//查询结束日期
+				this.skuid='',
+				this.skunmae=''
+				this.ckname=''
+				this.ckid=''
+				this.gysname=''
+				this.gysid=''
+            	this.cgtitle=this.$t('data.inv.Cdata'),//"出入库统计",
+            	this.searchNo1isshow=true
+            },
+           
+            //模糊搜索fuzzySearch
+            search(){
+            	//GET /statusReporting/stockBal 库存余额表
+            	if(this.fhindex==0){
+            		this.axios.post('/statusReporting/stockBal?fuzzySearch='+this.fuzzySearch+'&uid='+this.uid,{}).then(res=>{
+            			if(res.data.status==200){
+            				this.dataList=res.data.rows
+							this.total=res.data.total
+							this.pageSize=res.data.pageSize
+							// this.fuzzySearch=''
+            			}else{
+            				this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+            			}
+            		})
+            	}
+            	//GET /statusReporting/stockInOut 收发存统计表
+            	if(this.fhindex==1){
+            		this.axios.post('/statusReporting/stockInOut?fuzzySearch='+this.fuzzySearch+'&uid='+this.uid,{}).then(res=>{
+            			if(res.data.status==200){
+            				this.mxdataList=res.data.rows
+							this.mxtotal=res.data.total
+							this.mxpageSize=res.data.pageSize
+							// this.fuzzySearch=''
+            			}else{
+            				this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+            			}
+            		})
+            	}
+            	//GET /statusReporting/stockInv 出入库明细表
+            	if(this.fhindex==2){
+            		this.axios.post('/statusReporting/stockInv?fuzzySearch='+this.fuzzySearch+'&uid='+this.uid,{}).then(res=>{
+            			if(res.data.status==200){
+            				this.dhdataList=res.data.rows
+							this.dhtotal=res.data.total
+							this.dhpageSize=res.data.pageSize
+							// this.fuzzySearch=''
+            			}else{
+            				this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+            			}
+            		})
+            	}
+            	//GET /statusReporting/stockNiq 负库存量存货查询
+            	if(this.fhindex==3){
+            		this.axios.post('/statusReporting/stockNiq?fuzzySearch='+this.fuzzySearch+'&uid='+this.uid,{}).then(res=>{
+            			if(res.data.status==200){
+            				this.mldataList=res.data.rows
+							this.mltotal=res.data.total
+							this.mlpageSize=res.data.pageSize
+							// this.fuzzySearch=''
+            			}else{
+            				this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+            			}
+            		})
+            	}
+            	//GET /statusReporting/stockRep 收发明细表
+            	if(this.fhindex==4){
+            		this.axios.post('/statusReporting/stockRep?fuzzySearch='+this.fuzzySearch+'&uid='+this.uid,{}).then(res=>{
+            			if(res.data.status==200){
+            				this.dhmxdataList=res.data.rows
+							this.dhmxtotal=res.data.total
+							this.dhmxpageSize=res.data.pageSize
+							// this.fuzzySearch=''
+            			}else{
+            				this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+            			}
+            		})
+            	}
+            	//GET /statusReporting/stockSta 出入库统计表
+            	if(this.fhindex==5){
+            		this.axios.post('/statusReporting/stockSta?fuzzySearch='+this.fuzzySearch+'&uid='+this.uid,{}).then(res=>{
+            			if(res.data.status==200){
+            				this.skudataList=res.data.rows
+							this.skutotalR=res.data.total
+							this.skupageSizeR=res.data.pageSize
+							// this.fuzzySearch=''
+            			}else{
+            				this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+            			}
+            		})
+            	}
+            	
+            },
+            //确认
+            sure(){
+            	//GET /statusReporting/stockBal 库存余额表
+            	if(this.fhindex==0){
+            		this.axios.post('/statusReporting/stockBal?uid='+this.uid,{
+            			recordNo:this.reNo1,//采购单号
+            			recordDateUp:this.beginNo1,//查询结束日期
+            			recordDateFloor:this.endNo1,//查询开始日期
+            			skuId:this.skuid,//商品id
+            			
+            			warehouseId:this.ckid,//仓库id
+            			skuName:this.skunmae,//商品名称
+            			warehouseName:this.ckname,//仓库名称
+            			partnerName:this.gysname,//客户名称
+            			partnerId:this.gysid//客户id
+            		}).then(res=>{
+						if(res.data.status==200){
+							this.dataList=res.data.rows
+							this.total=res.data.total
+							this.pageSize=res.data.pageSize
+							this.searchNo1isshow=false
+							// this.reNo1=''//采购单号
+							// this.beginNo1='',//查询开始日期
+							// this.endNo1=''//查询结束日期
+							// this.skuid='',
+							// this.skunmae=''
+							// this.ckname=''
+							// this.ckid=''
+							// this.gysname=''
+							// this.gysid=''
+
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+            	}
+            	//GET /statusReporting/stockInOut 收发存统计表
+            	if(this.fhindex==1){
+            		this.axios.post('statusReporting/stockInOut?uid='+this.uid,{
+            			recordNo:this.reNo1,
+            			recordDateUp:this.beginNo1,
+            			recordDateFloor:this.endNo1,
+            			skuId:this.skuid,
+            			warehouseId:this.ckid,
+            			skuName:this.skunmae,//商品名称
+            			warehouseName:this.ckname,//仓库名称
+            			partnerName:this.gysname,//客户名称
+            			partnerId:this.gysid
+            		}).then(res=>{
+						if(res.data.status==200){
+							this.mxdataList=res.data.rows
+							this.mxtotal=res.data.total
+							this.mxpageSize=res.data.pageSize
+							this.searchNo1isshow=false
+							// this.reNo1=''//采购单号
+							// this.beginNo1='',//查询开始日期
+							// this.endNo1=''//查询结束日期
+							// this.skuid='',
+							// this.skunmae=''
+							// this.ckname=''
+							// this.ckid=''
+							// this.gysname=''
+							// this.gysid=''
+						}else{
+							this.$notify({
+                        title:"",//
+                        message:  res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+						}
+					})
+            	}
+            	//GET /statusReporting/stockInv 出入库明细表
+            	if(this.fhindex==2){
+            		this.axios.post('/statusReporting/stockInv?uid='+this.uid,{
+            			recordNo:this.reNo1,
+            			recordDateUp:this.beginNo1,
+            			recordDateFloor:this.endNo1,
+            			skuId:this.skuid,
+            			warehouseId:this.ckid,
+            			skuName:this.skunmae,//商品名称
+            			warehouseName:this.ckname,//仓库名称
+            			partnerName:this.gysname,//客户名称
+            			partnerId:this.gysid
+            		}).then(res=>{
+						if(res.data.status==200){
+							this.dhdataList=res.data.rows
+							this.dhtotal=res.data.total
+							this.dhpageSize=res.data.pageSize
+							this.searchNo1isshow=false
+							// this.reNo1=''//采购单号
+							// this.beginNo1='',//查询开始日期
+							// this.endNo1=''//查询结束日期
+							// this.skuid='',
+							// this.skunmae=''
+							// this.ckname=''
+							// this.ckid=''
+							// this.gysname=''
+							// this.gysid=''
+						}else{
+							this.$notify({
+                        title:"",//
+                        message:  res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+						}
+					})
+            	}
+            	//GET /statusReporting/stockNiq 负库存量存货查询
+            	if(this.fhindex==3){
+            		this.axios.post('/statusReporting/stockNiq?uid='+this.uid,{
+            			recordNo:this.reNo1,
+            			recordDateUp:this.beginNo1,
+            			recordDateFloor:this.endNo1,
+            			skuId:this.skuid,
+            			warehouseId:this.ckid,
+            			skuName:this.skunmae,//商品名称
+            			warehouseName:this.ckname,//仓库名称
+            			partnerName:this.gysname,//客户名称
+            			partnerId:this.gysid
+            		}).then(res=>{
+						if(res.data.status==200){
+							this.mldataList=res.data.rows
+							this.mltotal=res.data.total
+							this.mlpageSize=res.data.pageSize
+							this.searchNo1isshow=false
+							// this.reNo1=''//采购单号
+							// this.beginNo1='',//查询开始日期
+							// this.endNo1=''//查询结束日期
+							// this.skuid='',
+							// this.skunmae=''
+							// this.ckname=''
+							// this.ckid=''
+							// this.gysname=''
+							// this.gysid=''
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+            	}
+            	//GET /statusReporting/stockRep 收发明细表
+            	if(this.fhindex==4){
+            		this.axios.post('/statusReporting/stockRep?uid='+this.uid,{
+            			recordNo:this.reNo1,
+            			recordDateUp:this.beginNo1,
+            			recordDateFloor:this.endNo1,
+            			skuId:this.skuid,
+            			warehouseId:this.ckid,
+            			skuName:this.skunmae,//商品名称
+            			warehouseName:this.ckname,//仓库名称
+            			partnerName:this.gysname,//客户名称
+            			partnerId:this.gysid
+            		}).then(res=>{
+						if(res.data.status==200){
+							this.dhmxdataList=res.data.rows
+							this.dhmxtotal=res.data.total
+							this.dhmxpageSize=res.data.pageSize
+							this.searchNo1isshow=false
+							// this.reNo1=''//采购单号
+							// this.beginNo1='',//查询开始日期
+							// this.endNo1=''//查询结束日期
+							// this.skuid='',
+							// this.skunmae=''
+							// this.ckname=''
+							// this.ckid=''
+							// this.gysname=''
+							// this.gysid=''
+						}else{
+							this.$notify({
+                        title:"",//
+                        message:  res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+						}
+					})
+            	}
+            	//GET /statusReporting/stockSta 出入库统计表
+            	if(this.fhindex==5){
+            		this.axios.post('/statusReporting/stockSta?uid='+this.uid,{
+            			recordNo:this.reNo1,
+            			recordDateUp:this.beginNo1,
+            			recordDateFloor:this.endNo1,
+            			skuId:this.skuid,
+            			warehouseId:this.ckid,
+            			skuName:this.skunmae,//商品名称
+            			warehouseName:this.ckname,//仓库名称
+            			partnerName:this.gysname,//客户名称
+            			partnerId:this.gysid
+            		}).then(res=>{
+						if(res.data.status==200){
+							this.skudataList=res.data.rows
+							this.skutotalR=res.data.total
+							this.skupageSizeR=res.data.pageSize
+							this.searchNo1isshow=false
+							// this.reNo1=''//采购单号
+							// this.beginNo1='',//查询开始日期
+							// this.endNo1=''//查询结束日期
+							// this.skuid='',
+							// this.skunmae=''
+							// this.ckname=''
+							// this.ckid=''
+							// this.gysname=''
+							// this.gysid=''
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+            	}
+            	
+            	
+            },
+            //取消
+            secancel(){
+            	this.reNo1=''//采购单号
+				this.beginNo1='',//查询开始日期
+				this.endNo1=''//查询结束日期
+				this.skuid='',
+				this.skunmae=''
+				this.ckname=''
+				this.ckid=''
+				this.gysname=''
+				this.gysid=''
+            	this.searchNo1isshow=false
+            },
+            //<!--导出-->
+            exportNo1(n){
+            	//库存余额表GET /statusReporting/downBal 库存余额表导
+            	if(n==0){
+            		this.axios.get('/statusReporting/downBal?uid='+this.uid,{
+            			params:{
+            				fuzzySearch:this.fuzzySearch,
+            				pono:this.reNo1,
+	            			poDateFloor:this.beginNo1,
+	            			poDateUp:this.endNo1,
+	            			skuId:this.skuid,
+	            			warehouseId:this.ckid,
+	            			skuName:this.skunmae,//商品名称
+            				warehouseName:this.ckname,//仓库名称
+            				partnerName:this.gysname,//客户名称
+	            			supplierId:this.gysid
+            			}
+            		}).then(res=>{
+            			window.location.href=res.request.responseURL
+            		})
+            	}
+            	//收发存货统计表GET /statusReporting/downInOut 收发存统计表导出
+            	if(n==1){
+            		this.axios.get('/statusReporting/downInOut?uid='+this.uid,{
+            			params:{
+            				fuzzySearch:this.fuzzySearch,
+            				pono:this.reNo1,
+	            			poDateFloor:this.beginNo1,
+	            			poDateUp:this.endNo1,
+	            			skuId:this.skuid,
+	            			warehouseId:this.ckid,
+	            			skuName:this.skunmae,//商品名称
+            				warehouseName:this.ckname,//仓库名称
+            				partnerName:this.gysname,//客户名称
+	            			supplierId:this.gysid
+            			}
+            		}).then(res=>{
+            			window.location.href=res.request.responseURL
+            		})
+            	}
+            	//出入库明细表POST /statusReporting/downInv 出入库明细表导出
+            	if(n==2){
+            		this.axios.get('/statusReporting/downInv?uid='+this.uid,{
+            			params:{
+            				fuzzySearch:this.fuzzySearch,
+            				pono:this.reNo1,
+	            			poDateFloor:this.beginNo1,
+	            			poDateUp:this.endNo1,
+	            			skuId:this.skuid,
+	            			warehouseId:this.ckid,
+	            			skuName:this.skunmae,//商品名称
+            				warehouseName:this.ckname,//仓库名称
+            				partnerName:this.gysname,//客户名称
+	            			supplierId:this.gysid
+            			}
+            		}).then(res=>{
+            			window.location.href=res.request.responseURL
+            		})
+            	}
+            	//负库存量存货查询POST /statusReporting/downNiq 负库存量存货查询导
+            	if(n==3){
+            		this.axios.get('/statusReporting/downNiq?uid='+this.uid,{
+            			params:{
+            				fuzzySearch:this.fuzzySearch,
+            				pono:this.reNo1,
+	            			poDateFloor:this.beginNo1,
+	            			poDateUp:this.endNo1,
+	            			skuId:this.skuid,
+	            			warehouseId:this.ckid,
+	            			skuName:this.skunmae,//商品名称
+            				warehouseName:this.ckname,//仓库名称
+            				partnerName:this.gysname,//客户名称
+	            			supplierId:this.gysid
+            			}
+            		}).then(res=>{
+            			window.location.href=res.request.responseURL
+            		})
+            	}
+            	//收发明细表GET /statusReporting/downRep 收发明细表导出
+            	if(n==4){
+            		this.axios.get('/statusReporting/downRep?uid='+this.uid,{
+            			params:{
+            				fuzzySearch:this.fuzzySearch,
+            				pono:this.reNo1,
+	            			poDateFloor:this.beginNo1,
+	            			poDateUp:this.endNo1,
+	            			skuId:this.skuid,
+	            			warehouseId:this.ckid,
+	            			skuName:this.skunmae,//商品名称
+            				warehouseName:this.ckname,//仓库名称
+            				partnerName:this.gysname,//客户名称
+	            			supplierId:this.gysid
+            			}
+            		}).then(res=>{
+            			window.location.href=res.request.responseURL
+            		})
+            	}
+            	//出入库统计表GET /statusReporting/downSta 出入库统计表导出
+            	if(n==5){
+            		this.axios.get('/statusReporting/downSta?uid='+this.uid,{
+            			params:{
+            				fuzzySearch:this.fuzzySearch,
+            				pono:this.reNo1,
+	            			poDateFloor:this.beginNo1,
+	            			poDateUp:this.endNo1,
+	            			skuId:this.skuid,
+	            			warehouseId:this.ckid,
+	            			skuName:this.skunmae,//商品名称
+            				warehouseName:this.ckname,//仓库名称
+            				partnerName:this.gysname,//客户名称
+	            			supplierId:this.gysid
+            			}
+            		}).then(res=>{
+            			window.location.href=res.request.responseURL
+            		})
+            	}
+            	////全渠道库存导出
+            	if(n==6){
+
+            	}
+            	
+            },
+
+            //全渠道库存
+            searchqqd(){
+
+            },
+            //翻页
+            qqdgetData(){
+
+            },
+            qqdchangePageSize(){
+
+            },
+		},
+		mounted() {
+			this.getcgList();//库存余额表
+
+		}
+	}
+</script>
+
+<style lang="css" scoped>
+p.edit:hover{
+	color:blue;
+}
+	.units-box {
+		width: 100%;
+		background: rgb(230,233,236);
+	}
+	.btns-box {
+		width: 100%;
+		height: 50px;
+		display:flex;
+		justify-content: space-between;
+		background: #fff;
+		line-height: 50px;
+	}
+	 .wldw{
+    	margin-left:15px;
+    }
+	.right{
+		margin-right:10px;
+		margin-bottom:10px;
+		display: flex
+	}
+	.ivu-icon-chevron-down {
+		font-size: 10px;
+	}
+	.btns img {
+		width: 14px;
+		height: 14px;
+		vertical-align: middle;
+	}
+	.main-left{
+		width: 120px;
+		margin-right: 3px;
+		flex: 0 0 120px;
+		font-size: 14px;
+		background: #fff;
+	}
+	.main-left li{
+		list-style: none;
+		padding:10px 0;
+		width:100%;
+		
+	}
+	.main-left li span{
+		margin-left:20px;
+	}
+	.table {
+	    width: 100%;
+	    height: 100%;
+	    overflow: auto;
+	    background: #fff;
+	    padding: 0 10px;
+	}
+	.bor{
+		background:rgb(241,245,247);
+        color:rgb(59,119,227);
+	}
+	.page-box {
+		text-align: center;
+		margin-top:2px;
+		margin-bottom:120px;
+	}
+	.footer-mark{
+	  width:100%;
+	  height:40px;
+	  border-top:1px solid #E4E4E4;
+	  display: flex;
+	  justify-content: space-around;
+
+	  margin-bottom:-10px;
+	}
+.footer-mark span{
+  height:40px;
+  line-height: 40px
+}
+</style>

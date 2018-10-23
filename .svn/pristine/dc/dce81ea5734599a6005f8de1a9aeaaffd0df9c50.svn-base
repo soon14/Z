@@ -1,0 +1,4771 @@
+<template>
+	<div class='setting'>
+		<!--管理设置-->
+		<div  class='settingList'>
+			<div class="head">
+
+				<div class='left'>
+					<span style='font-size:18px;font-weight:600;margin-left:10px'>{{$t('manage.setting.Msetting')}}</span><!--管理-->
+				</div>
+
+				<div class='right'>
+				<span style='font-size:18px;font-weight:600;margin-left:10px'>{{item}}</span>
+				<!--员工职位-->
+					<div v-if='leftIndex==0' class='rightbtn'>
+						<Button type="primary" style='background:#3b77e3' shape="circle" @click="positiontype">
+							 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.addnew')}}
+						</Button>
+					</div>
+					<!--仓库-->
+					<div v-if='leftIndex==1' class='rightbtn'>
+						<Button type="primary" style='background:#3b77e3' shape="circle" @click="addwaretype">
+							 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.addnew')}}
+						</Button>
+					</div>
+					<!--商品品牌-->
+					<div v-if='leftIndex==2' class='rightbtn'>
+						<Button type="primary" style='background:#3b77e3' shape="circle" @click="skubrandtype">
+							 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.addnew')}}
+						</Button>
+					</div>
+					<!--商品分类-->
+					<div v-if='leftIndex==3' class='rightbtn'>
+						<Button type="primary" style='background:#3b77e3' shape="circle" @click="addClass">
+							 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.addnewLevle1')}}
+						</Button>
+					</div>
+				<!--商品属性-->
+					<div v-if='leftIndex==4' class='rightbtn'>
+						<Button type="primary" style='background:#3b77e3' shape="circle" @click="addattrs">
+							 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.addnew')}}
+						</Button>
+					</div>
+					<!--商品单位-->
+					<div v-if='leftIndex==5' class='rightbtn'>
+						<Button type="primary" style='background:#3b77e3' shape="circle" @click="addunit">
+							 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.addnew')}}
+						</Button>
+					</div>
+
+					<!--店铺类型-->
+					<div v-if='leftIndex==6' class='rightbtn'>
+						<Button type="primary" style='background:#3b77e3' shape="circle" @click="adddptype">
+							 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.addnew')}}
+						</Button>
+					</div>
+					<!--组织管理-->
+					<div v-if='leftIndex==7' class='rightbtn'>
+						<Button type="primary" style='background:#3b77e3' shape="circle" @click="addorg">
+							 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.addnew')}}
+						</Button>
+					</div>
+					<!--条码规则-->
+					<div v-if='leftIndex==8' class='rightbtn'>
+						<Button type="primary" style='background:#3b77e3' shape="circle" @click="addBarcodeRule">
+							 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>
+							 保存
+						</Button>
+					</div>
+					<!--库区-->
+					<div v-if='leftIndex==9' class='rightbtn'>
+						<Button type="primary" style='background:#3b77e3' shape="circle" @click="addkq">
+							 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.addnew')}}
+						</Button>
+					</div>
+					<!--库位-->
+					<div v-if='leftIndex==10' class='rightbtn'>
+						<Button type="primary" style='background:#3b77e3' shape="circle" @click="addlocation">
+							 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.addnew')}}
+						</Button>
+					</div>
+				</div>
+			</div>
+			<!-- <div style='height:50px'></div> -->
+			<!--管理右侧内容-->
+			<div class='main'>
+				<div class="main-left">
+					<li v-for='(item,index) in dataListGL' @click='clickLeftList(index,item)' :class="{bg:leftIndex==index}">
+					<span style='margin-left:10px'>{{item}}</span>
+					</li>
+				</div>
+				<!--员工职位-->
+				<div class='main-right' v-if='leftIndex==0'>
+					
+					<div style='width:98%;margin:10px auto'>
+							<Table border  :columns="positionkey1" :data="positiondata"></Table>
+							<div style='margin-top:10px' class='page-box'>
+							<Page :total="totalzw" size="small" show-total  :pageSize='pageSizezw'  @on-change="getDatazw" @on-page-size-change="changePageSizezw"></Page>
+							</div>
+						</div>
+				</div>
+				<div class='main-right' v-if='leftIndex==1'>
+					<!--仓库类型表格数据-->
+						<div style='width:98%;margin:10px auto'>
+							<Table border :columns="waretypekey1" :data="waretypedata"></Table>
+							<div style='margin-top:10px' class='page-box'>
+							<Page :total="totalck" show-total size="small" :pageSize='pageSizeck'  @on-change="getDatack" @on-page-size-change="changePageSizeck"></Page>
+							</div>
+						</div>
+				</div>
+				<!--商品品牌-->
+				<div class='main-right' v-if='leftIndex==2'>
+					
+					<div style='width:98%;margin:10px auto'>
+							<Table border :columns="skubrandkey1" :data="skubranddata"></Table>
+							<div style='margin-top:10px' class='page-box'>
+								<Page :total="totalpp" size="small" show-total  :pageSize='pageSizepp'  @on-change="getDatapp" @on-page-size-change="changePageSizepp"></Page>
+							</div>
+						</div>
+				</div>
+				<!--商品分类-->
+				<div class='main-right' v-if='leftIndex==3'>
+					<div style='width:98%;margin:10px auto;overflow:auto;height:100%'>
+						<div>
+				            <ul>
+				                <ul class='levelTitle'>
+				                    <li v-for='(item,index) in AllflTitle' :key='index' style='margin-left: -50px;font-size:14px;font-weight:600'>{{item}}</li>
+				                </ul>
+				                <div v-if='Allfl.length==0' class='noDataTxt'>{{$t('public.NoData')}}</div>
+				                <li v-for='(item,index) in Allfl' :key='index' v-else>
+				                    <div>
+				                        <ul class='level1ul'>
+				                            <li class='level1Name'>
+				                                <span class='crow' @click='clickAdd(item,index)' v-if='!item._check'>+</span>
+				                                <span class='crow' @click='clickReduce(item,index)' v-if='item._check'>-</span>
+				                                <div class='editInput' @focus='level1focus(item,index)' @blur='level1Blur(item,index)' contenteditable="true">{{item.title}}</div>
+				                            </li>
+				                            <a class='level1A'>
+				                                <img :src='item.icon'/>
+				                            </a>
+				                            <div class='action'>
+				                                <a @click='EditLevel1(item)'>修改</a>
+				                                <a @click='delLevel1(item)'>删除</a>
+				                                <a @click='addlevel2(item)'>添加子分类</a>
+				                            </div>
+				                        </ul>
+				                        <div>
+				                            <li v-for='(i,n) in item.children' :key='n' v-if='item._check'>
+				                                <div>
+				                                    <ul class='level1ul'>
+				                                        
+
+				                                        <li class='level2NameT'>
+				                                            <span class='crow' @click='clickSubAdd(item,index)' v-if='!i._check'>+</span>
+				                                            <span class='crow' @click='clickSubReduce(item,index)' v-if='i._check'>-</span>
+				                                            <div class='level2Name' @focus='level2focus(i,item,n)' @blur='level2Blur(i,item,n)' contenteditable="true">{{i.title}}</div>
+				                                        </li>
+				                                        <a class='level1A level1B'>
+				                                            <img :src='i.icon'/>
+				                                           
+				                                        </a>
+				                                        <div class='action'>
+				                                            <a @click.stop='EditLevel2(i)'>修改</a>
+				                                            <a @click='delLevel2(i)'>删除</a>
+				                                            <a @click='addlevel3(i)'>添加子分类</a>
+				                                        </div>
+				                                    </ul>
+				                                    <div>
+				                                        <li v-for='(j,m) in i.children' :key='index'>
+				                                            <div>
+				                                                <ul class='level1ul'>
+				                                                    <li class='level3NameT ' >
+				                                                        <span class='crow' @click='clickSub3Add(item,index)' v-if='!j._check'>+</span>
+				                                                         <span class='crow' @click='clickSub3Reduce(item,index)' v-if='j._check'>-</span>
+				                                                        <div class='level3Name' @focus='level3focus(j,i,item,m)' @blur='level3Blur(j,i,item,m)' contenteditable="true">{{j.title}}</div>
+				                                                    </li>
+				                                                    <a class='level1A level1C'><img :src='j.icon' /></a>
+				                                                    <div class='action'>
+				                                                        <a @click.stop='EditLevel3(j)'>修改</a>
+				                                                        <a @click='delLevel3(j)'>删除</a>
+				                                                    </div>
+				                                                </ul>
+				                                            </div>
+				                                        </li>
+				                                    </div>
+				                                </div>
+				                            </li>
+				                        </div>
+				                    </div>
+				                </li>
+				            </ul>
+				            <div style='margin-top:10px' class='page-box'>
+								<Page :total="totalfl" size="small" show-total  :pageSize='pageSizefl'  @on-change="getDatafl" @on-page-size-change="changePageSizefl"></Page>
+							</div>
+				        </div>
+					</div>
+				</div>
+				<!--商品属性表格数据-->
+				<div class='main-right' v-if='leftIndex==4'>
+					
+						<div style='width:98%;margin:10px auto'>
+							<Table border :columns="columns" :data="dataList"></Table>
+							<div style='margin-top:10px' class='page-box'>
+							<Page :total="totalattr" size="small" show-total  :pageSize='pageSizeattr'  @on-change="getDataattr" @on-page-size-change="changePageSizeattr"></Page>
+							</div>
+						</div>
+				</div>
+				<!--单位-->
+				<div class='main-right' v-if='leftIndex==5'>
+					<!--商品得表格数据-->
+					<div style='width:98%;margin:10px auto'>
+						<Table border :columns="unittypekey1" :data="unittypedata"></Table>
+						<div style='margin-top:10px' class='page-box'>
+							<Page :total="totalunit" size="small" show-total  :pageSize='pageSizeunit'  @on-change="getDataunit" @on-page-size-change="changePageSizeunit"></Page>
+							</div>
+					</div>
+				</div>
+				<div class='main-right' v-if='leftIndex==6'>
+					<!--店铺类型-->
+					<div style='width:98%;margin:10px auto'>
+						<Table border :columns="dptypekey1" :data="dptypedata"></Table>
+						<div style='margin-top:10px' class='page-box'>
+						<Page :total="totaldp" show-total size="small" :pageSize='pageSizedp'  @on-change="getDatadp" @on-page-size-change="changePageSizedp"></Page>
+							</div>
+					</div>
+				</div>
+				<!--组织管理-->
+				<div class='main-right' v-if='leftIndex==7'>
+					<div style='width:98%;margin:10px auto'>
+						<ul>
+			                <ul class='levelTitle'>
+			                    <li v-for='(item,index) in AllorgTitle' :key='index' style='font-size:14px;font-weight:600'>{{item}}</li>
+			                </ul>
+			                <div v-if='orgdata.length==0' class='noDataTxt'>{{$t('public.NoData')}}</div>
+			                <li v-for='(item,index) in orgdata' :key='index' v-else>
+			                    <div>
+			                        <ul class='level1ulorg'>
+			                            <li class='level1Nameorg'>
+			                                <span class='croworg' @click='clickAddorg(item,index)' v-if='!item._check'>+</span>
+			                                <span class='croworg' @click='clickReduceorg(item,index)' v-if='item._check'>-</span>
+			                                <div>{{item.title}}</div>
+			                            </li>
+			                            <li class="orgli" style="text-align:right">
+			                               {{item.mobile}}
+			                            </li>
+			                            <li  class="orgli">
+			                               {{item.tel}}
+			                            </li>
+			                            <li  class="orgli">
+			                               {{item.tel}}
+			                            </li>
+			                            <div class='action'>
+			                                <a @click='EditLevel1org(item)'>修改</a>
+			                                <a @click='delLevel1org(item)'>删除</a>
+			                                <a @click='addlevel2org(item)'>添加二级</a>
+			                            </div>
+			                        </ul>
+			                        <div>
+			                            <li v-for='(i,n) in item.children' :key='n' v-if='item._check'>
+			                                <div>
+			                                    <ul class='level1ulorg'>
+			                                        <li class='level2NameT'>
+			                                            <span class='croworg' @click='clickSubAddorg(item,index)' v-if='!i._check'>+</span>
+			                                            <span class='croworg' @click='clickSubReduceorg(item,index)' v-if='i._check'>-</span>
+			                                            <div>{{i.title}}</div>
+			                                        </li>
+			                                        <li  class="orgli">
+						                               {{i.mobile}}
+						                            </li>
+						                            <li class="orgli">
+						                               {{i.tel}}
+						                            </li>
+						                            <li  class="orgli">
+						                               {{i.tel}}
+						                            </li>
+			                                        <div class='action'>
+			                                            <a @click.stop='EditLevel2org(i)'>修改</a>
+			                                            <a @click='delLevel2org(i)'>删除</a>
+			                                            <a @click='addlevel3org(i)'>添加三级</a>
+			                                        </div>
+			                                    </ul>
+			                                    <div>
+			                                        <li v-for='(j,m) in i.children' :key='index'>
+			                                            <div>
+			                                                <ul class='level1ulorg'>
+			                                                    <li class='level3NameT ' >
+			                                                        <span class='croworg' @click='clickSub3Addorg(item,index)' v-if='!j._check'>+</span>
+			                                                         <span class='croworg' @click='clickSub3Reduceorg(item,index)' v-if='j._check'>-</span>
+			                                                        <div >{{j.title}}</div>
+			                                                    </li>
+			                                                    <li  class="orgli">
+									                               {{j.mobile}}
+									                            </li>
+									                            <li  class="orgli">
+									                               {{j.tel}}
+									                            </li>
+									                            <li class="orgli">
+									                               {{j.tel}}
+									                            </li>
+			                                                    <div class='action'>
+			                                                        <a @click.stop='EditLevel3org(j)'>修改</a>
+			                                                        <a @click='delLevel3(j)'>删除</a>
+			                                                    </div>
+			                                                </ul>
+			                                            </div>
+			                                        </li>
+			                                    </div>
+			                                </div>
+			                            </li>
+			                        </div>
+			                    </div>
+			                </li>
+				        </ul>
+						<div style='margin-top:10px' class='page-box'>
+						<Page :total="totalorg" size="small" show-total  :pageSize='pageSizeorg'  @on-change="getDataorg" @		on-page-size-change="changePageSizeorg"></Page>
+							</div>
+					</div>
+				</div>
+				<!--条码规则-->
+				<div class='main-right' v-if='leftIndex==8'>
+					
+					<div style='width:98%;margin:10px auto'>
+						<div class='Barcodelist2'>
+							<!-- <div v-if='list2.length==0'>拖拽下方标签至此处</div> -->
+							<div>
+								<draggable element="span" v-model="list2" :options="dragOptions" :move="onMove" > 
+						          <transition-group name="no" class="list-group" tag="ul" style='display:flex'>
+
+						            <li class="list-group-item list-group-item2" v-for="(item,index) in list2" :key="index"style="margin:0 5px"> 
+						              
+						              <Tag closable  @on-close="delList2Index(item,index)">{{item.name}}</Tag>
+						              
+						            </li> 
+						          </transition-group>
+						      </draggable>
+					      </div>
+				      </div>
+				      <div style='margin-top:10px;box-shadow: 0 0 5px #e4e4e4;border: 1px solid #e4e4e4;'>
+							<draggable class="list-group" element="ul" v-model="list" :options="dragOptions" :move="onMove" @start="isDragging=true" @end="isDragging=false"> 
+						          <transition-group type="transition" :name="'flip-list'" style='display:flex;padding:10px 0'>
+						            <li class="list-group-item" v-for="item in list" :key="item.index" style="margin:0 5px"> 
+						              <Tag >{{item.name}}</Tag>
+						            </li> 
+						          </transition-group>
+						      </draggable>
+					    </div>
+					    <!-- <pre>{{list2}}</pre> -->
+					</div>
+				</div>
+				<!--库区管理-->
+				<div class='main-right' v-if='leftIndex==9'>
+					
+					<div style='width:98%;margin:10px auto'>
+						
+						<Table border :columns="reservoirkey" :data="reservoirdata"></Table>
+						<div style='margin-top:10px' class='page-box'>
+							<Page :total="reservoirtotal" show-total size="small" :pageSize='reservoirpageSize'  @on-change="getDatareservoir" @on-page-size-change="changePageSizereservoir"></Page>
+						</div>
+					</div>
+				</div>
+				<!--库区管理-->
+				<div class='main-right' v-if='leftIndex==10'>
+					
+					<div style='width:98%;margin:10px auto'>
+						
+						<Table border :columns="locationkey" :data="locationdata"></Table>
+							<div style='margin-top:10px' class='page-box'>
+								<Page :total="locationtotal" size="small" show-total  :pageSize='locationpageSize'  @on-change="getDatalocation" 
+								@on-page-size-change="changePageSizelocation"></Page>
+						</div>
+					</div>
+				</div>
+		</div>
+		<!--{{$t('public.addnew')}}属性弹出框-->
+	<Modal v-model="attrsisshow" width="660px">
+		<p slot="header" style="height:30px;line-height:30px">
+
+			<span>{{$t('public.addnew')}}</span><!--属性-->
+		</p>
+		<div style='margin-bottom:-30px;margin-left:-50px'>
+			<Form ref="formValidateattr" :model="formValidateattr" :rules="ruleValidateattr" :label-width="100" v-if='sx'>
+				<FormItem :label="$t('manage.setting.ckname')" prop="attrName">
+                    <Input v-model="formValidateattr.attrName" :placeholder="$t('manage.setting.ckname')"></Input>
+                </FormItem>
+			</Form>
+			<Form ref="formValidateattrE" :model="formValidateattr" :rules="ruleValidateattr" :label-width="100" v-if='!sx'>
+				<FormItem :label="$t('manage.setting.ckname')" prop="attrName">
+                    <Input v-model="formValidateattr.attrName" :placeholder="$t('manage.setting.ckname')"></Input>
+                </FormItem>
+			</Form>
+		</div>
+		<div slot="footer">
+			<!--属性表格-->
+			<Table  border height='300' :columns="attrkey" :data="attrdata" >
+			</Table>
+			<div class='title'>
+				<div style='color:#D15151;font-size:14px'>
+					</div>
+				<div style='margin-top:10px'>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='acancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#3b77e3;color:#fff" @click="addattrssure('formValidateattr')" v-if='sx'><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>
+					{{$t('public.sure')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#40ca98;color:#fff" @click="editattrssure('formValidateattrE')" v-if='!sx'><i class="el-icon-edit" style=";margin-right:5px;"></i>{{$t('public.EditBtn')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+
+		<!--添加属性弹出框-->
+	<Modal v-model="atisshow" width="460px">
+		<p slot="header" style="height:30px;line-height:30px">
+
+			<span>{{$t('public.addnew')}}</span>
+		</p>
+		<div style=';display:flex;height:40px;line-height:35px'>
+			<span style='width:40px'>{{$t('manage.setting.ckname')}}：</span><Input v-model='attrName1'></Input><!--名称-->
+		</div>
+		<div style=';margin-top:10px;display:flex;height:40px;line-height:35px'>
+			<span style='width:40px'>{{$t('manage.setting.sq')}}：</span><Input v-model='code'></Input>
+		</div>
+		<div style=';margin-top:10px;display:flex;height:40px;line-height:35px'>
+			<span style='width:40px'>{{$t('manage.sku.attrsq')}}：</span><Input v-model='sequence' number></Input>
+		</div>
+		<div slot="footer">
+
+			<div class='title'>
+				<div style='color:#D15151;font-size:14px'>
+					</div>
+				<div style='margin-top:10px'>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='ggcancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#3b77e3;color:#fff" @click="ggsure"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+		<!--新增仓库类型-->
+	<Modal v-model="waretypeisshow" width="460px">
+		<p slot="header" style="height:30px;line-height:30px">
+
+			<span>{{$t('public.addnew')}}</span>
+		</p>
+		<Form ref="formValidatewaretype" :model="formValidatewaretype" :rules="ruleValidatewaretype" :label-width="80" v-if='ck'>
+			<FormItem :label="$t('manage.setting.ckname')" prop="waretypetitle">
+	           <Input v-model='formValidatewaretype.waretypetitle'></Input>
+	        </FormItem>
+			<FormItem :label="$t('manage.setting.key')" prop='waretypekey'>
+	           <Input v-model='formValidatewaretype.waretypekey'></Input>
+	        </FormItem>
+		</Form>
+		<Form ref="formValidatewaretypeE" :model="formValidatewaretype" :rules="ruleValidatewaretype" :label-width="80" v-if='!ck'>
+			<FormItem :label="$t('manage.setting.ckname')" prop="waretypetitle">
+	           <Input v-model='formValidatewaretype.waretypetitle'></Input>
+	        </FormItem>
+			<FormItem :label="$t('manage.setting.key')" prop='waretypekey'>
+	           <Input v-model='formValidatewaretype.waretypekey'></Input>
+	        </FormItem>
+		</Form>
+		<div slot="footer">
+			<div class='title'>
+				<div style='color:#D15151;font-size:14px'>
+					</div>
+				<div style='margin-top:10px'>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='waretypecancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#3b77e3;color:#fff" @click="waretypesure('formValidatewaretype')" v-if='ck'><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:##40ca98;color:#fff" @click="editwaretype('formValidatewaretypeE')" v-if='!ck'><i class="el-icon-edit" style=";margin-right:5px;"></i>{{$t('public.EditBtn')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+
+
+	<!--新增职位管理-->
+	<Modal v-model="positionisshow" width="460px">
+		<p slot="header" style="height:30px;line-height:30px">
+
+			<span>{{$t('public.addnew')}}</span>
+		</p>
+		<Form ref="formValidateposition" :model="formValidateposition" :rules="ruleValidateposition" :label-width="100" v-if='d'>
+			<FormItem :label="$t('manage.setting.ckname')" prop="positionname">
+                <Input v-model='formValidateposition.positionname'></Input>
+            </FormItem>
+			<FormItem :label="$t('manage.setting.cksq')" prop="positioncode">
+                <Input v-model='formValidateposition.positioncode'></Input>
+            </FormItem>
+		 </Form>
+		 <Form ref="formValidatepositionE" :model="formValidateposition" :rules="ruleValidateposition" :label-width="100" v-if='!d'>
+			<FormItem :label="$t('manage.setting.ckname')" prop="positionname">
+                <Input v-model='formValidateposition.positionname'></Input>
+            </FormItem>
+			<FormItem :label="$t('manage.setting.cksq')" prop="positioncode">
+                <Input v-model='formValidateposition.positioncode'></Input>
+            </FormItem>
+		 </Form>
+		<div slot="footer">
+
+			<div class='title'>
+				<div style='color:#D15151;font-size:14px'>
+					</div>
+				<div style='margin-top:10px'>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='positioncancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#3b77e3;color:#fff" @click="positionsure('formValidateposition')" v-if='d'><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#40ca98;color:#fff" @click="editposition('formValidatepositionE')" v-if='!d'><i class="el-icon-edit" style=";margin-right:5px;"></i>{{$t('public.EditBtn')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+		<!--新增商品品牌-->
+	<Modal v-model="skubrandisshow" width="460px">
+		<p slot="header" style="height:30px;line-height:30px">
+
+			<span>{{$t('public.addnew')}}</span>
+		</p>
+		<Row>
+			<Col span="6">
+				<div class='right-left'>
+					<el-upload
+					  class="avatar-uploader"
+					 :action="logoUrlBrnd"
+					name='file'
+					  :show-file-list="false"
+					  :on-success="addsucess"
+					  accept="image/*"
+					  >
+					  <img v-if="skubrandlogo" :src="skubrandlogo" class="avatar" width='80' height='80'>
+					  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+					</el-upload>
+
+				</div>
+			</Col>
+			<Col span="18">
+				<div style='margin-left:-20px;'>
+					<Form ref="formValidatebrand" :model="formValidatebrand" :rules="ruleValidatebrand" :label-width="100" v-if='c'>
+						<FormItem :label="$t('manage.setting.ckname')" prop="skubrandname">
+			                <Input v-model='formValidatebrand.skubrandname'></Input>
+			            </FormItem>
+			            <FormItem :label="$t('manage.setting.sq')" >
+			                <Input v-model='skubrandcode'></Input>
+			            </FormItem>
+					</Form>
+					<Form ref="formValidatebrandE" :model="formValidatebrand" :rules="ruleValidatebrand" :label-width="100" v-if='!c'>
+						<FormItem :label="$t('manage.setting.ckname')" prop="skubrandname">
+			                <Input v-model='formValidatebrand.skubrandname'></Input>
+			            </FormItem>
+			            <FormItem :label="$t('manage.setting.sq')" >
+			                <Input v-model='skubrandcode'></Input>
+			            </FormItem>
+					</Form>
+				</div>
+			</Col>
+		</Row>
+		<div slot="footer">
+			<div class='title'>
+				<div style='color:#D15151;font-size:14px'>
+					</div>
+				<div style='margin-top:10px'>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='skubrandcancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#3b77e3;color:#fff" @click="skubrandsure('formValidatebrand')" v-if='c'><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#40ca98;color:#fff" @click="editskubrand('formValidatebrandE')" v-if='!c'><i class="el-icon-edit" style=";margin-right:5px;"></i>{{$t('public.EditBtn')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+	<!--店铺类型-->
+	<Modal v-model="dptypeisshow" width="460px">
+		<p slot="header" style="height:30px;line-height:30px">
+
+			<span>{{$t('public.addnew')}}</span>
+		</p>
+		<Form ref="formValidatedptype" :model="formValidatedptype" :rules="ruleValidatedptype" :label-width="80" v-if='dp'>
+			<FormItem :label="$t('manage.setting.ckname')" prop="dptypetitle">
+              <Input v-model='formValidatedptype.dptypetitle'></Input>
+            </FormItem>
+			<FormItem :label="$t('manage.setting.key')" prop='dptypekey'>
+              <Input v-model='formValidatedptype.dptypekey'></Input>
+            </FormItem>
+		</Form>
+		<Form ref="formValidatedptypeE" :model="formValidatedptype" :rules="ruleValidatedptype" :label-width="80" v-if='!dp'>
+			<FormItem :label="$t('manage.setting.ckname')" prop="dptypetitle">
+              <Input v-model='formValidatedptype.dptypetitle'></Input>
+            </FormItem>
+			<FormItem :label="$t('manage.setting.key')" prop='dptypekey'>
+              <Input v-model='formValidatedptype.dptypekey'></Input>
+            </FormItem>
+		</Form>
+		<div slot="footer">
+
+			<div class='title'>
+				<div style='color:#D15151;font-size:14px'>
+					</div>
+				<div style='margin-top:10px'>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='dptypecancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#3b77e3;color:#fff" @click="dptypesure('formValidatedptype')" v-if='dp'><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#40ca98;color:#fff" @click="editdptype('formValidatedptypeE')" v-if='!dp'><i class="el-icon-edit" style=";margin-right:5px;"></i>{{$t('public.EditBtn')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+		<!--新增商品单位-->
+	<Modal v-model="unittypeisshow" width="460px">
+		<p slot="header" style="height:30px;line-height:30px">
+
+			<span>{{$t('public.addnew')}}</span>
+		</p>
+		<Form ref="formValidateunit" :model="formValidateunit" :rules="ruleValidateunit" :label-width="80" v-if='unit'>
+			<FormItem :label="$t('manage.setting.title')" prop="unittypetitle">
+              <Input v-model='formValidateunit.unittypetitle'></Input>
+            </FormItem>
+			<!-- <FormItem :label="$t('manage.setting.key')" >
+              <Input v-model='formValidateunit.unittypetitle'></Input>
+            </FormItem> -->
+		</Form>
+		<Form ref="formValidateunitE" :model="formValidateunit" :rules="ruleValidateunit" :label-width="80" v-if='!unit'>
+			<FormItem :label="$t('manage.setting.title')" prop="unittypetitle">
+              <Input v-model='formValidateunit.unittypetitle'></Input>
+            </FormItem>
+			<!-- <FormItem :label="$t('manage.setting.key')" >
+              <Input v-model='formValidateunit.unittypetitle'></Input>
+            </FormItem> -->
+		</Form>
+		<div slot="footer">
+
+			<div class='title'>
+				<div style='color:#D15151;font-size:14px'>
+					</div>
+				<div style='margin-top:10px'>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='unittypecancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#3b77e3;color:#fff" @click="unittypesure('formValidateunit')" v-if='unit'><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#40ca98;color:#fff" @click="editunittype('formValidateunitE')" v-if='!unit'><i class="el-icon-edit" style=";margin-right:5px;"></i>{{$t('public.EditBtn')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+	<!--新建一级组织-->
+	<Modal v-model="orgisshow" width="460px">
+            <p slot="header" style="height:30px;line-height:30px">
+                <span v-if='orglevel1Editisshow'>新建一级组织</span>
+                <span v-if='!orglevel1Editisshow'>修改一级组织</span>
+            </p>
+            <Form ref="formValidateorg" :model="formValidateorg" :rules="ruleValidateorg" :label-width="60" v-if='orglevel1Editisshow'>
+                	<FormItem label="编码" prop="code">
+                        <Input v-model='formValidateorg.code'></Input>
+                    </FormItem>
+                    <FormItem label="名称" prop="orgName">
+                        <Input v-model='formValidateorg.orgName'></Input>
+                    </FormItem>
+                    <FormItem label="手机" prop="mobile">
+                        <Input v-model='formValidateorg.mobile'></Input>
+                    </FormItem>
+                    <FormItem label="电话" prop="tel">
+                        <Input v-model='formValidateorg.tel'></Input>
+                    </FormItem>
+                     <FormItem label="邮箱" prop="email">
+                        <Input v-model='formValidateorg.email'></Input>
+                    </FormItem>
+                
+            </Form>
+            <Form ref="formValidateorgE" :model="formValidateorg" :rules="ruleValidateorg" :label-width="60" v-if='!orglevel1Editisshow'>
+              		<FormItem label="编码" prop="code">
+                        <Input v-model='formValidateorg.code'></Input>
+                    </FormItem>
+                    <FormItem label="名称" prop="orgName">
+                        <Input v-model='formValidateorg.orgName'></Input>
+                    </FormItem>
+                    <FormItem label="手机" prop="mobile">
+                        <Input v-model='formValidateorg.mobile'></Input>
+                    </FormItem>
+                    <FormItem label="电话" prop="tel">
+                        <Input v-model='formValidateorg.tel'></Input>
+                    </FormItem>
+                     <FormItem label="邮箱" prop="email">
+                        <Input v-model='formValidateorg.email'></Input>
+                    </FormItem>
+               
+            </Form>
+                
+            <div slot="footer">
+                <div class='title'>
+                    <div style='color:#D15151;font-size:14px'>
+                        </div>
+                    <div >
+                    	<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='orgcancelClassLevel1'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+                        <Button type="primary" style='background:#3b77e3' shape="circle" @click="orgsaveClassLevel1('formValidateorg')" v-if='orglevel1Editisshow'>
+                             <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.SaveBtn')}}
+                        </Button>
+                        <Button type="primary" style='background:#40ca98;border:none' shape="circle" @click="orgEditClassLevel1('formValidateorgE')" v-if='!orglevel1Editisshow'>
+                              <i class="el-icon-edit" style=";margin-right:5px;"></i>{{$t('public.EditBtn')}}
+                        </Button>
+                    </div>
+                </div>
+            </div>
+    </Modal>
+    <!--添加二级组织-->
+    <Modal v-model="orglevel2Ml" width="460px">
+        <p slot="header" style="height:30px;line-height:30px">
+            <span v-if='orglevel2Editisshow'>添加二级组织</span>
+            <span v-if='!orglevel2Editisshow'>修改二级组织</span>
+        </p>
+        <Form ref="orglevel2class" :model="orglevel2class" :rules="orglevel2ruleclass" :label-width="80" v-if='orglevel2Editisshow'>
+            	<FormItem label="编码" prop="code">
+                        <Input v-model='orglevel2class.code'></Input>
+                </FormItem>
+                <FormItem label="名称" prop="level2Name">
+                    <Input v-model='orglevel2class.level2Name'></Input>
+                </FormItem>
+               
+                <FormItem label="手机" prop="mobile">
+                    <Input v-model='orglevel2class.mobile'></Input>
+                </FormItem>
+                <FormItem label="电话" prop="tel">
+                    <Input v-model='orglevel2class.tel'></Input>
+                </FormItem>
+                 <FormItem label="邮箱" prop="email">
+                    <Input v-model='orglevel2class.email'></Input>
+                </FormItem>
+           
+        </Form>
+        <Form ref="orgElevel2class" :model="orglevel2class" :rules="orglevel2ruleclass" :label-width="80" v-if='!orglevel2Editisshow'>
+        	<FormItem label="编码" prop="code">
+                        <Input v-model='orglevel2class.code'></Input>
+            </FormItem>
+            <FormItem label="名称" prop="level2Name">
+                <Input v-model='orglevel2class.level2Name'></Input>
+            </FormItem>
+            <FormItem label="手机" prop="mobile">
+                <Input v-model='orglevel2class.mobile'></Input>
+            </FormItem>
+            <FormItem label="电话" prop="tel">
+                <Input v-model='orglevel2class.tel'></Input>
+            </FormItem>
+             <FormItem label="邮箱" prop="email">
+                <Input v-model='orglevel2class.email'></Input>
+            </FormItem>
+        </Form>
+        <div slot="footer">
+            <div class='title'>
+                <div style='color:#D15151;font-size:14px'>
+                    </div>
+                <div>
+                	<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='orgcancelClassLevel2'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+                    <Button type="primary" style='background:#3b77e3' shape="circle" @click="orgsaveClassLevel2('orglevel2class')" v-if='orglevel2Editisshow'>
+                         <Icon type="plus-round" style="margin-right:5px;color:#fff">
+                         </Icon>{{$t('public.SaveBtn')}}
+                    </Button>
+                    <Button type="primary" style='background:#40ca98;border:none' shape="circle" @click="orgEditClassLevel2('orgElevel2class')" v-if='!orglevel2Editisshow'>
+                          <i class="el-icon-edit" style=";margin-right:5px;"></i>{{$t('public.EditBtn')}}
+                    </Button>
+                </div>
+            </div>
+        </div>
+    </Modal>
+    <!--添加三级组织-->
+    <Modal v-model="orglevel3Ml" width="460px">
+        <p slot="header" style="height:30px;line-height:30px">
+            <span v-if='orglevel3Editisshow'>添加三级组织</span>
+            <span v-if='!orglevel3Editisshow'>修改三级组织</span>
+        </p>
+        
+        <Form ref="orglevel3class" :model="orglevel3class" :rules="orglevel3ruleclass" :label-width="80" v-if='orglevel3Editisshow'>
+                <FormItem label="编码" prop="code">
+                        <Input v-model='orglevel3class.code'></Input>
+                </FormItem>
+                <FormItem label="名称" prop="level3Name">
+                    <Input v-model='orglevel3class.level3Name'></Input>
+                </FormItem>
+                <FormItem label="手机" prop="mobile">
+                    <Input v-model='orglevel3class.mobile'></Input>
+                </FormItem>
+                <FormItem label="电话" prop="tel">
+                    <Input v-model='orglevel3class.tel'></Input>
+                </FormItem>
+                 <FormItem label="邮箱" prop="email">
+                    <Input v-model='orglevel3class.email'></Input>
+                </FormItem>
+           
+        </Form>
+        <Form ref="orglevel3classE" :model="orglevel3class" :rules="orglevel3ruleclass" :label-width="80" v-if='!orglevel3Editisshow'>
+                <FormItem label="编码" prop="code">
+                        <Input v-model='orglevel3class.code'></Input>
+                </FormItem>
+                <FormItem label="名称" prop="level3Name">
+                    <Input v-model='orglevel3class.level3Name'></Input>
+                </FormItem>
+                <FormItem label="手机" prop="mobile">
+                    <Input v-model='orglevel3class.mobile'></Input>
+                </FormItem>
+                <FormItem label="电话" prop="tel">
+                    <Input v-model='orglevel3class.tel'></Input>
+                </FormItem>
+                 <FormItem label="邮箱" prop="email">
+                    <Input v-model='orglevel3class.email'></Input>
+                </FormItem>
+        </Form>
+        <div slot="footer">
+            <div class='title'>
+                <div style='color:#D15151;font-size:14px'>
+                    </div>
+                <div style='margin-top:10px'>
+                	<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='orgcancelClassLevel3'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+                    <Button type="primary" style='background:#3b77e3' shape="circle" @click="orgsaveClassLevel3('orglevel3class')" v-if='orglevel3Editisshow'>
+                         <Icon type="plus-round" style="margin-right:5px;color:#fff">
+                         </Icon>{{$t('public.SaveBtn')}}
+                    </Button>
+                    <Button type="primary" style='background:#40ca98;border:none' shape="circle" @click="orgEditClassLevel3('orglevel3classE')" v-if='!orglevel3Editisshow'>
+                          <i class="el-icon-edit" style=";margin-right:5px;"></i>{{$t('public.EditBtn')}}
+                    </Button>
+                </div>
+            </div>
+        </div>
+    </Modal>
+
+	<!--新建一级分类-->
+	<Modal v-model="skuclassisshow" width="460px">
+            <p slot="header" style="height:30px;line-height:30px">
+                <span v-if='level1Editisshow'>{{$t('public.addnewLevle1')}}</span>
+                <span v-if='!level1Editisshow'>{{$t('public.editnewLevle1')}}</span>
+            </p>
+            <Row>
+            <Col span="4">
+                    <div class='right-left'>
+                        <el-upload
+                          class="avatar-uploader"
+                         :action="logoUrl"
+                            name='file'
+                          :show-file-list="false"
+                          :on-success="addClassImgSuccess"
+                          accept="image/*"
+                          >
+                          <img v-if="skuclassphoto" :src="skuclassphoto" class="avatar" width='80' height='80'>
+                          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                        </el-upload>
+                    </div>
+                </Col>
+                <Col span="20">
+                    <Form ref="formValidateskuclass" :model="formValidateskuclass" :rules="ruleValidateskuclass" :label-width="140" v-if='level1Editisshow'>
+                        <div style='margin-top:40px'>
+                            <FormItem :label="$t('manage.setting.classname')" prop="skuclassName">
+                                <Input v-model='formValidateskuclass.skuclassName'></Input>
+                            </FormItem>
+                        </div>
+                    </Form>
+                    <Form ref="formValidateskuclassE" :model="formValidateskuclass" :rules="ruleValidateskuclass" :label-width="140" v-if='!level1Editisshow'>
+                        <div style='margin-top:40px'>
+                            <FormItem :label="$t('manage.setting.classname')" prop="skuclassName">
+                                <Input v-model='formValidateskuclass.skuclassName'></Input>
+                            </FormItem>
+                        </div>
+                    </Form>
+                </Col>
+            </Row>
+            <div slot="footer">
+                <div class='title'>
+                    <div style='color:#D15151;font-size:14px'>
+                        </div>
+                    <div style='margin-top:10px'>
+                    	<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='cancelClassLevel1'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+                        <Button type="primary" style='background:#3b77e3' shape="circle" @click="saveClassLevel1('formValidateskuclass')" v-if='level1Editisshow'>
+                             <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.SaveBtn')}}
+                        </Button>
+                        <Button type="primary" style='background:#40ca98;border:none' shape="circle" @click="EditClassLevel1('formValidateskuclassE')" v-if='!level1Editisshow'>
+                              <i class="el-icon-edit" style=";margin-right:5px;"></i>{{$t('public.EditBtn')}}
+                        </Button>
+                    </div>
+                </div>
+            </div>
+    </Modal>
+    <!--添加二级分类-->
+    <Modal v-model="level2Ml" width="460px">
+        <p slot="header" style="height:30px;line-height:30px">
+            <span v-if='level2Editisshow'>{{$t('public.classlevel2')}}</span><!--添加二级分类-->
+            <span v-if='!level2Editisshow'>{{$t('public.editeditclasslevel2')}}</span><!--修改二级分类-->
+        </p>
+        <Row>
+        <Col span="4">
+                <div class='right-left'>
+                    <el-upload
+                      class="avatar-uploader"
+                     :action="logoUrl"
+                        name='file'
+                      :show-file-list="false"
+                      :on-success="addlevel2Success"
+                      accept="image/*"
+                      >
+                      <img v-if="level2photo" :src="level2photo" class="avatar" width='80' height='80'>
+                      <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                    </el-upload>
+                </div>
+            </Col>
+            <Col span="20">
+                <Form ref="level2class" :model="level2class" :rules="level2ruleclass" :label-width="140" v-if='level2Editisshow'>
+                    <div style='margin-top:40px'>
+                        <FormItem :label="$t('manage.setting.classname')" prop="level2Name">
+                            <Input v-model='level2class.level2Name'></Input>
+                        </FormItem>
+                    </div>
+                </Form>
+                <Form ref="Elevel2class" :model="level2class" :rules="level2ruleclass" :label-width="140" v-if='!level2Editisshow'>
+                    <div style='margin-top:40px'>
+                        <FormItem :label="$t('manage.setting.classname')" prop="level2Name">
+                            <Input v-model='level2class.level2Name'></Input>
+                        </FormItem>
+                    </div>
+                </Form>
+            </Col>
+        </Row>
+        <div slot="footer">
+           
+            <div class='title'>
+                <div style='color:#D15151;font-size:14px'>
+                    </div>
+                <div style='margin-top:10px'>
+                	<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='cancelClassLevel2'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+                    <Button type="primary" style='background:#3b77e3' shape="circle" @click="saveClassLevel2('level2class')" v-if='level2Editisshow'>
+                         <Icon type="plus-round" style="margin-right:5px;color:#fff">
+                         </Icon>{{$t('public.SaveBtn')}}
+                    </Button>
+                    <Button type="primary" style='background:#40ca98;border:none' shape="circle" @click="EditClassLevel2('Elevel2class')" v-if='!level2Editisshow'>
+                          <i class="el-icon-edit" style=";margin-right:5px;"></i>{{$t('public.EditBtn')}}
+                    </Button>
+                </div>
+            </div>
+        </div>
+    </Modal>
+    <!--添加三级分类-->
+    <Modal v-model="level3Ml" width="460px">
+        <p slot="header" style="height:30px;line-height:30px">
+            <span v-if='level3Editisshow'>{{$t('public.classlevel3')}}</span><!--添加三级分类-->
+            <span v-if='!level3Editisshow'>{{$t('public.editclasslevel3')}}</span><!--添加三级分类-->
+        </p>
+        <Row>
+        <Col span="4">
+                <div class='right-left'>
+                    <el-upload
+                      class="avatar-uploader"
+                     :action="logoUrl"
+                        name='file'
+                      :show-file-list="false"
+                      :on-success="addlevel3Success"
+                      accept="image/*"
+                      >
+                      <img v-if="level3photo" :src="level3photo" class="avatar" width='80' height='80'>
+                      <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                    </el-upload>
+                </div>
+            </Col>
+            <Col span="20">
+                <Form ref="level3class" :model="level3class" :rules="level3ruleclass" :label-width="140" v-if='level3Editisshow'>
+                    <div style='margin-top:40px'>
+                        <FormItem :label="$t('manage.setting.classname')" prop="level3Name">
+                            <Input v-model='level3class.level3Name'></Input>
+                        </FormItem>
+                    </div>
+                </Form>
+                <Form ref="level3classE" :model="level3class" :rules="level3ruleclass" :label-width="140" v-if='!level3Editisshow'>
+                    <div style='margin-top:40px'>
+                        <FormItem :label="$t('manage.setting.classname')" prop="level3Name">
+                            <Input v-model='level3class.level3Name'></Input>
+                        </FormItem>
+                    </div>
+                </Form>
+            </Col>
+        </Row>
+        <div slot="footer">
+            <div class='title'>
+                <div style='color:#D15151;font-size:14px'>
+                    </div>
+                <div style='margin-top:10px'>
+                	<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='cancelClassLevel3'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+                    <Button type="primary" style='background:#3b77e3' shape="circle" @click="saveClassLevel3('level3class')" v-if='level3Editisshow'>
+                         <Icon type="plus-round" style="margin-right:5px;color:#fff">
+                         </Icon>{{$t('public.SaveBtn')}}
+                    </Button>
+                    <Button type="primary" style='background:#40ca98;border:none' shape="circle" @click="EditClassLevel3('level3classE')" v-if='!level3Editisshow'>
+                          <i class="el-icon-edit" style=";margin-right:5px;"></i>{{$t('public.EditBtn')}}
+                    </Button>
+                </div>
+            </div>
+        </div>
+    </Modal>
+    <!--库区-->
+    <Modal v-model="kqisshow" width="460px">
+		<p slot="header" style="height:30px;line-height:30px">
+
+			<span>{{$t('public.addnew')}}</span>
+		</p>
+		<Form ref="formValidatekq" :model="formValidatekq" :rules="ruleValidatekq" :label-width="100">
+			<FormItem :label="$t('manage.setting.ckname')" prop="name">
+                <Input v-model='formValidatekq.name'></Input>
+            </FormItem>
+			<FormItem :label="$t('manage.setting.cksq')" prop="code">
+                <Input v-model='formValidatekq.code'></Input>
+            </FormItem>
+            <FormItem label="选择仓库" prop="wouse">
+            	<span @click="getstoreList">
+               	 <Input v-model='formValidatekq.wouse' ></Input>
+                </span>
+            </FormItem>
+		 </Form>
+		 <!-- <Form ref="formValidatekqE" :model="formValidatekq" :rules="ruleValidatekq" :label-width="100" v-if='!d'>
+			<FormItem :label="$t('manage.setting.ckname')" prop="positionname">
+                <Input v-model='formValidatekq.positionname'></Input>
+            </FormItem>
+			<FormItem :label="$t('manage.setting.cksq')" prop="positioncode">
+                <Input v-model='formValidatekq.positioncode'></Input>
+            </FormItem>
+		 </Form> -->
+		<div slot="footer">
+
+			<div class='title'>
+				<div style='color:#D15151;font-size:14px'>
+					</div>
+				<div style='margin-top:10px'>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='kqcancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#3b77e3;color:#fff" @click="saveKQ('formValidatekq')"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+					<!-- <Button shape="circle" type="ghost" style="display:inline-block;background:#40ca98;color:#fff" @click="" v-if='!d'><i class="el-icon-edit" style=";margin-right:5px;"></i>{{$t('public.EditBtn')}}</Button> -->
+				</div>
+			</div>
+		</div>
+	</Modal>
+	<!--库区选择仓库-->
+    <Modal v-model="storeAllisshow" width="700px">
+		<p slot="header" style="height:30px;line-height:30px">
+			<span>选择仓库</span>
+		</p>
+		<div style="position:relative;text-align:center;width:100%;height:35px;line-height:35px;display:flex;margin-bottom:10px">
+			<Input   :placeholder="$t('public.codeandname')" style="padding:2px 0" v-model="storeAllkeyword" @on-enter='storeAllenterSearch'></Input>
+			<span @click="storeAllsearchInput" style=';cursor:pointer'>
+			<Icon type="search" size="16" style="display:inline-block;position:absolute;top:10px;right:18px;z-index:9" ></Icon>
+			</span>
+		</div>
+
+		 <Table border highlight-row :columns="storeAllkey" :data="storeAlldata" @on-row-click='clickRowStore'></Table>
+		<div style='margin-top:10px'>
+			<Page :total="storeAlltotal" show-total  :pageSize='storeAllpageSize' 
+			 @on-change="getDatarestoreAll" @on-page-size-change="changePageSizestoreAll"></Page>
+		</div>
+		<div slot="footer">
+
+			<div class='title'>
+				<div style='color:#D15151;font-size:14px'>
+				</div>
+				<div >
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='storecancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#3b77e3;color:#fff" @click="storeSure"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+				
+				</div>
+			</div>
+		</div>
+	</Modal>
+
+
+	<!--库位-->
+    <Modal v-model="locationisshow" width="460px">
+		<p slot="header" style="height:30px;line-height:30px">
+
+			<span>{{$t('public.addnew')}}</span>
+		</p>
+		<Form ref="formValidatelocation" :model="formValidatelocation" :rules="ruleValidatelocation" :label-width="100">
+			<FormItem :label="$t('manage.setting.ckname')" prop="name">
+                <Input v-model='formValidatelocation.name'></Input>
+            </FormItem>
+			<FormItem :label="$t('manage.setting.cksq')" prop="code">
+                <Input v-model='formValidatelocation.code'></Input>
+            </FormItem>
+            <FormItem label="选择库区" prop="kqname">
+            	<span @click="getkqList">
+               	 <Input v-model='formValidatelocation.kqname' ></Input>
+                </span>
+            </FormItem>
+		 </Form>
+		<div slot="footer">
+			<div class='title'>
+				<div style='color:#D15151;font-size:14px'>
+					</div>
+				<div style='margin-top:10px'>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='locationcancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#3b77e3;color:#fff" @click="savelocation('formValidatelocation')"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+					
+				</div>
+			</div>
+		</div>
+	</Modal>
+
+	<!--//库位选择库区-->
+	<Modal v-model="kqAllisshow" width="700px">
+		<p slot="header" style="height:30px;line-height:30px">
+			<span>选择库区</span>
+		</p>
+		<div style="position:relative;text-align:center;width:100%;height:35px;line-height:35px;display:flex;margin-bottom:10px">
+			<Input   :placeholder="$t('public.codeandname')" style="padding:2px 0" v-model="kqkeyword" @on-enter='kqenterSearch'></Input>
+			<span @click="kqsearchInput" style=';cursor:pointer'>
+			<Icon type="search" size="16" style="display:inline-block;position:absolute;top:10px;right:18px;z-index:9" ></Icon>
+			</span>
+		</div>
+		 <Table border highlight-row :columns="kqAllkey" :data="kqAlldata" @on-row-click='clickRowkq'></Table>
+		<div style='margin-top:10px'>
+			<Page :total="kqAlltotal" show-total  :pageSize='kqAllpageSize' 
+			 @on-change="getDatarekqAll" @on-page-size-change="changePageSizekqAll"></Page>
+		</div>
+		<div slot="footer">
+
+			<div class='title'>
+				<div style='color:#D15151;font-size:14px'>
+				</div>
+				<div >
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='kqcancel1'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#3b77e3;color:#fff" @click="kqSure"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+				
+				</div>
+			</div>
+		</div>
+	</Modal>
+	</div>
+	</div>
+</template>
+<script type="text/javascript">
+import LoadUrl from '@/components/common/actionLoad'
+import Uediter from '@/components/ue.vue'
+import draggable from 'vuedraggable'
+const message = [ '条码', '品牌', '单位']
+export default{
+	components:{
+		draggable,
+	},
+	data(){
+		return{
+			//条码规则
+			delayedDragging:false,
+			isDragging: false,
+			list:message.map( (name,index) => {return {name, index: index, fixed: false}}),//可拖动的项目
+			list2:[],//拖动后组成的项目
+			//组织管理
+			AllorgTitle:["名称","手机","电话","邮箱","操作"],//
+			orgisshow:false,
+			orglevel1Editisshow:true,//一级组织保存于修改
+			orglevel1classId:"",//一级组织id
+			formValidateorg:{
+				orgName:"",
+				mobile:"",
+				tel:"",
+				email:"",
+				code:""
+			},
+			ruleValidateorg:{
+				orgName:[
+					{ required: true, message: '名称不能为空', trigger: 'blur' },
+                    { pattern:/^[A-Za-z\d_\-\u4e00-\u9fa5]{1,20}$/, message: '存在非法字符或超过指定长度20个字符' }
+				],
+				mobile:[{ pattern: /^1[3|4|5|7|8][0-9]{9}$/, message: '请输入正确的手机号码' }],
+				tel:[ { pattern: /(^[0-9]{3,4}\-[0-9]{3,8}$)|(^[0-9]{3,8}$)|(^\([0-9]{3,4}\)[0-9]{3,8}$)|(^0{0,1}13[0-9]{9}$)/, message: '请输入正确的电话号码' }],
+				email:[{ pattern: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/, message: '请输入正确的邮箱',trigger: 'blur' }],
+			},
+
+			//二级组织
+			orglevel2Editisshow:true,//二级分类新增还是修改
+            orglevel2classId:"",//二级组织id
+            orglevel2Ml:false,//二级组织弹框
+			orglevel2class:{
+                level2Name:"",
+                mobile:"",
+                tel:"",
+                email:"",
+                code:""
+            },
+            orglevel2ruleclass:{
+                level2Name:[
+					{ required: true, message: '名称不能为空', trigger: 'blur' },
+                    { pattern:/^[A-Za-z\d_\-\u4e00-\u9fa5]{1,20}$/, message: '存在非法字符或超过指定长度20个字符' }
+				],
+				mobile:[{ pattern: /^1[3|4|5|7|8][0-9]{9}$/, message: '请输入正确的手机号码' }],
+				tel:[ { pattern: /(^[0-9]{3,4}\-[0-9]{3,8}$)|(^[0-9]{3,8}$)|(^\([0-9]{3,4}\)[0-9]{3,8}$)|(^0{0,1}13[0-9]{9}$)/, message: '请输入正确的电话号码' }],
+				email:[{ pattern: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/, message: '请输入正确的邮箱',trigger: 'blur' }],
+            },
+            //三级
+            orglevel3Editisshow:true,//三级分类新增还是修改
+            orglevel3classId:"",//三级分类id
+            orglevel3Ml:false,//三级分类弹框
+            orgskuclassisshow:false,//分类弹框
+            orglevel3class:{
+            	level3Name:"",
+                mobile:"",
+                tel:"",
+                email:"",
+                code:""
+            },
+            orglevel3ruleclass:{
+            	level3Name:[
+					{ required: true, message: '名称不能为空', trigger: 'blur' },
+                    { pattern:/^[A-Za-z\d_\-\u4e00-\u9fa5]{1,20}$/, message: '存在非法字符或超过指定长度20个字符' }
+				],
+				mobile:[{ pattern: /^1[3|4|5|7|8][0-9]{9}$/, message: '请输入正确的手机号码' }],
+				tel:[ { pattern: /(^[0-9]{3,4}\-[0-9]{3,8}$)|(^[0-9]{3,8}$)|(^\([0-9]{3,4}\)[0-9]{3,8}$)|(^0{0,1}13[0-9]{9}$)/, message: '请输入正确的电话号码' }],
+				email:[{ pattern: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/, message: '请输入正确的邮箱',trigger: 'blur' }],
+            },
+			//组织管理
+			totalorg:0,
+			pageSizeorg:0,
+			orgdata:[],
+			
+			
+			//库位
+			locationisshow:false,
+			locationkey:[
+				{
+					title:"货位编号",
+					key:"code"
+				},
+				{
+					title:"名称",
+					key:"name"
+				},
+				{
+					title:"库区",
+					key:"zoneId"
+				},
+				{
+					title:"操作",
+					key:"action",
+					width:80,
+					render:(h,params)=>{
+						return h("div",[
+							h("a",{
+								on:{
+									"click":()=>{
+										console.log(params.row)
+										//DELETE /location/delete/{id} 删除库位
+										this.axios.delete('/location/delete/'+params.row.id+'?uid='+this.uid).then(res=>{
+											if(res.data.status==200){
+												this.$notify({
+							                        title:"",//
+							                        message:"删除成功",//
+							                        type: 'success',
+							                        position: 'bottom-right'
+							                    });
+							                    this.getlocation()
+											}else{
+												this.$notify({
+							                        title:"",
+							                        message:res.data.errorMessage,//
+							                        type: 'error',
+							                        position: 'bottom-right'
+							                    });
+											}
+										})
+									}
+								}
+							},"删除")
+						])
+					}
+				}
+			],
+    		locationdata:[],
+    		locationtotal:0,
+    		locationpageSize:0,
+    		locationCurrent:1,
+
+    		//库位选择库区
+    		kqAllisshow:false,
+    		kqAllkey:[
+    			{
+					title:"货位编号",
+					key:"code"
+				},
+				{
+					title:"名称",
+					key:"name"
+				},
+				{
+					title:"仓库",
+					key:"wareId"
+				},
+    		],
+    		kqkeyword:"",
+    		kqAlldata:[],
+    		kqObj:{},
+    		kqAlltotal:0,
+    		kqAllpageSize:0,
+    		kqAllCurrent1:1,
+    		kqid:"",
+    		formValidatelocation:{
+    			name:"",
+    			code:"",
+    			kqname:""
+    		},
+    		ruleValidatelocation:{
+    			name:[{ required: true, message:"库位名称不能为空", trigger: 'blur'}],
+    			kqname:[{ required: true, message:"请选择库区", trigger: 'change'}],
+    		},
+
+			//库区
+			kqisshow:false,
+			reservoirkey:[
+				{
+					title:"货位编号",
+					key:"code"
+				},
+				{
+					title:"名称",
+					key:"name"
+				},
+				{
+					title:"仓库",
+					key:"wareId"
+				},
+				{
+					title:"操作",
+					key:"action",
+					width:80,
+					render:(h,params)=>{
+						return h("div",[
+							h("a",{
+								on:{
+									"click":()=>{
+										console.log(params.row)
+										//DELETE /zone/delete/{id} 删除库区
+										this.axios.delete('/zone/delete/'+params.row.id+'?uid='+this.uid).then(res=>{
+											if(res.data.status==200){
+												this.$notify({
+							                        title:"",//
+							                        message:"删除成功",//
+							                        type: 'success',
+							                        position: 'bottom-right'
+							                    });
+							                    this.getreservoir()
+											}else{
+												this.$notify({
+							                        title:"",
+							                        message:res.data.errorMessage,//
+							                        type: 'error',
+							                        position: 'bottom-right'
+							                    });
+											}
+										})
+									}
+								}
+							},"删除")
+						])
+					}
+				}
+			],
+    		reservoirdata:[],
+    		reservoirtotal:0,
+    		reservoirpageSize:0,
+    		reservoirCurrent:1,
+    		wareId:"",
+    		formValidatekq:{
+    			name:"",//名称
+    			code:"",//货位编号
+    			wouse:"",
+    		},
+    		ruleValidatekq:{
+    			name:[{ required: true, message:"库区名称不能为空", trigger: 'blur'}],
+    			wouse:[{ required: true, message:"请选择仓库", trigger: 'change'}],
+    		},
+
+    		storeAllisshow:false,
+    		storeAllkey:[
+    			{
+    				title:"编码",
+    				key:"code"
+    			},
+    			{
+    				title:"名称",
+    				key:"name"
+    			},
+    			{
+    				title:"类型",
+    				key:"category"
+    			},
+    			{
+    				title:"联系人",
+    				key:"person"
+    			},
+    			{
+    				title:"电话",
+    				key:"phone"
+    			},
+    			{
+    				title:"状态",
+    				key:"statusDesc"
+    			}
+    		],
+    		storeAllkeyword:"",
+    		storeAlldata:[],
+    		storeAlltotal:0,
+    		storeAllpageSize:0,
+    		storeAllCurrent:1,
+    		storeAllObj:{},//点击一行仓库
+
+    		//商品分类
+			skuclassphotoSunclass:"",
+			flObj:{},//分类对象
+			totalfl:0,
+			pageSizefl:0,
+			logoUrl:LoadUrl.httpPrefix.Url+'file/action/upload/image/url?c=商品分类图片&uid='+this.$store.state.common.token,
+			logoUrlBrnd:LoadUrl.httpPrefix.Url+'file/action/upload/image/url?uid='+this.$store.state.common.token,
+			c:true,//商品品牌
+			ck:true,//仓库
+			d:true,//职位管理的切换{{$t('public.addnew')}}，修改
+			s:true,//商品分类的切换{{$t('public.addnew')}}，修改
+			sz:true,//收支项目的切换{{$t('public.addnew')}}，修改
+			zf:true,//支付方式的切换{{$t('public.addnew')}}，修改
+
+			sx:true,//支付方式的切换{{$t('public.addnew')}}，修改
+			unit:true,//单位
+
+			dp:true,//店铺类型
+			// AllflTitle:["分类名称","分类图片","操作"],
+			AllflTitle:[this.$t('manage.setting.classname'),this.$t('manage.setting.img'),this.$t('public.action')],
+            Allfl:[],//分类数组
+            level1Editisshow:true,//一级分类新增还是修改
+            level1classId:"",//一级分类id
+            level2Editisshow:true,//二级分类新增还是修改
+            level2classId:"",//二级分类id
+            level2photo:"",//二级分类图片
+            level2Ml:false,//二级分类弹框
+            level3Editisshow:true,//三级分类新增还是修改
+            level3classId:"",//三级分类id
+            level3photo:"",//三级分类图片
+            level3Ml:false,//三级分类弹框
+            skuclassisshow:false,//分类弹框
+            totalfl:0,
+            pageSizefl:0,
+            skuclassphoto:"",//一级分类图片
+            formValidateskuclass:{
+                skuclassName:"",//分类名称
+            },
+            ruleValidateskuclass:{
+                skuclassName:[{ required: true, message: '分类名称不能为空', trigger: 'blur' }]
+            },
+            
+            uid: this.$store.state.common.token,
+            //添加二级分类
+            level2class:{
+                level2Name:"",
+            },
+            level2ruleclass:{
+                level2Name:[{ required: true, message: '分类名称不能为空', trigger: 'blur' }]
+            },
+            //添加三级分类
+            level3class:{
+                level3Name:"",
+            },
+            level3ruleclass:{
+                level3Name:[{ required: true, message: '分类名称不能为空', trigger: 'blur' }]
+            },
+			atisshow:false,
+			attrsname:'',
+			editattrisshow:false,
+			numIndex1:0,
+			uid: this.$store.state.common.token,
+			attrschildren:false,
+			attrsisshow:false,
+			isshow:false,
+			switch1:true,
+			numIndex:0,
+			leftIndex:0,
+			item:this.$t('manage.setting.eyposition'),//"员工职位",//管理下第一个
+			// dataListGL:['员工职位','仓库类型','商品品牌','商品分类','商品属性','商品单位','店铺类型'],
+			dataListGL:[this.$t('manage.setting.eyposition'),this.$t('manage.setting.cktype'),this.$t('manage.setting.barnd'),this.$t('manage.setting.FL'),this.$t('manage.setting.ATTRS'),this.$t('manage.setting.Unit'),this.$t('manage.setting.shopType'),"组织管理","条码规则","库区管理","库位管理"],
+
+			columns:[
+				{
+					title:this.$t('manage.setting.ckname'),//名称
+					key:"name",
+					width:'140',
+					align:'center'
+				},
+				{
+					title:this.$t('manage.setting.flchild'),//规格
+					key:"attrname",
+
+				},
+				{
+					title:this.$t('manage.sku.action'),//操作
+					key:"action",
+					width:'140',
+					align:'center',
+					render:(h,parmas)=>{
+						return h('div',[
+								h('a',{
+									on:{
+										'click':()=>{
+											this.attrsisshow=true
+											this.sx=false
+											this.formValidateattr.attrName=parmas.row.name
+											this.attrsid=parmas.row.id
+											this.detailVos=parmas.row.detailVos
+											this.attrdata=parmas.row.detailVos
+											if(parmas.row.detailVos==null || parmas.row.detailVos.length==''){
+												this.attrdata=[{name:""}]
+											}else{
+												this.attrdata=parmas.row.detailVos
+											}
+										}
+									}
+								},this.$t('public.EditBtn')),
+								h('a',{
+									style:{
+										marginLeft:'20px'
+									},
+									on:{
+										'click':()=>{
+											//console.log(parmas.row.id)
+											this.axios.delete('skuspec/delete/'+parmas.row.id+'?uid='+this.uid).then(res=>{
+												if(res.data.status==200){
+													this.$notify({
+								                        title:"",//
+								                        message:this.$t('public.deleteSuccess'),//
+								                        type: 'success',
+								                        position: 'bottom-right'
+								                    });
+													this.getattrs()
+												}
+											})
+										}
+									}
+								},this.$t('public.del'))
+							])
+					}
+
+				}
+			],
+			formValidateattr:{
+				attrName:''
+			},
+			ruleValidateattr:{
+				attrName:[{ required: true, message: '属性名称不能为空', trigger: 'blur' }]
+			},
+			arr:{},
+			dataList:[],//属性data
+			attrname:'',
+			attrsid:'',
+			totalattr:0,
+			pageSizeattr:0,
+			attrName:'',//属性一级名
+			attrName1:'',//属性明细名
+			sequence:'',//属性明细排序
+			code:'',//属性明细编码
+			detailVos:[],//属性明细编码
+			//添加规格属性
+			attrdata:[{name:""}],
+			attrkey:[
+
+				{
+					title: this.$t('public.action'),//'操作',
+					key: 'action',
+					width: 100,
+					align: 'center',
+					render: (h, params) => {
+						return h('div', [
+							h('div', {
+								style: {
+									float: 'left',
+									marginRight: '5px'
+								},
+
+								}, [
+								h('img', {
+									domProps: {
+										src: 'http://img.zsydian.com/icon/add.png',
+										style: "width:20px;height:20px;cursor:pointer"
+									},
+									on:{
+										'click':()=>{
+											// if(this.s==false){
+											// 	return
+											// }else{
+											// 	this.atisshow=true
+											// }
+											// this.atisshow=true
+											this.attrdata.push({
+												name:""
+											})
+
+										}
+									}
+								})
+								]),
+							h('div', {
+								style: {
+									float: 'left',
+									marginRight: '5px'
+
+								},
+								on: {
+									click: () => {
+
+										}
+									}
+								}, [
+								h('img', {
+									domProps: {
+										src: 'http://img.zsydian.com/icon/tabledel.png',
+										style: "width:20px;height:20px;cursor:pointer"
+									},
+									on:{
+										click:(e)=>{
+											e.stopPropagation()
+												//删除行
+
+												if(params.index==0){
+													return
+												}else if(this.s==false){
+													return
+												}else{
+													this.attrdata.splice(params.index,1)
+												}
+
+
+											}
+										}
+
+									})
+								])
+							]);
+					}
+				},
+				{
+					title:this.$t('manage.setting.ckname'),//名称
+					key:"name",
+					render:(h,parmas)=>{
+						return h('Input',{
+							props:{
+								value:parmas.row.name
+							},
+							on:{
+								'on-change':(e)=>{
+									parmas.row.name=e.target.value
+								},
+								"on-blur":()=>{
+									// this.detailVos[parmas.index].name=parmas.row.name
+									this.attrdata[parmas.index].name=parmas.row.name
+								}
+							}
+						},parmas.row.name)
+					}
+
+				},
+				{
+					title:this.$t('manage.setting.sq'),//编码
+					key:"code",
+					render:(h,parmas)=>{
+						return h('Input',{
+							props:{
+								value:parmas.row.code
+							},
+							on:{
+								'on-change':(e)=>{
+									parmas.row.code=e.target.value
+
+
+								},
+								"on-blur":()=>{
+									// this.detailVos[parmas.index].code=parmas.row.code
+									this.attrdata[parmas.index].code=parmas.row.code
+								}
+							}
+						},parmas.row.code)
+					}
+
+				},
+				// {
+				// 	title:this.$t('manage.sku.attrsq'),//排序
+				// 	key:"sequence",
+				// 	render:(h,parmas)=>{
+				// 		return h('Input',{
+				// 			props:{
+				// 				value:parmas.row.sequence,
+				// 				number:true
+				// 			},
+				// 			on:{
+				// 				'on-change':(e)=>{
+				// 					parmas.row.sequence=e.target.value
+
+
+				// 				},
+				// 				"on-blur":()=>{
+				// 					this.detailVos[parmas.index].sequence=parmas.row.sequence
+				// 				}
+				// 			}
+				// 		},parmas.row.sequence)
+				// 	}
+				// },
+			],
+			//仓库类型
+			formValidatewaretype:{
+				waretypetitle:"",
+				waretypekey:"",
+			},
+			ruleValidatewaretype:{
+				waretypetitle:[{ required: true, message:this.$t('finance.nameEmpty'), trigger: 'blur' }],
+				waretypekey:[{ required: true, message:"key值不能为空", trigger: 'blur' }],
+			},
+			waretypedata:[],
+			totalck:0,
+			pageSizeck:0,
+			waretypekey:'',//key值
+			waretypeid:'',//ID
+			waretypeisshow:false,//key值
+			waretypekey1:[
+
+				{
+					title:this.$t('manage.setting.title'),//标题
+					key:"title"
+				},
+				{
+					title:this.$t('manage.setting.key'),//key值
+					key:"key"
+				},
+				{
+					title:this.$t('public.time'),//更新时间
+					key:"updateTime"
+				},
+				{
+					title:this.$t('manage.sku.action'),//操作
+					key:"action",
+					width:'140',
+					align:'center',
+					render:(h,parmas)=>{
+						return h('div',[
+								h('a',{
+									on:{
+										'click':()=>{
+											//console.log(parmas.row)
+											this.ck=false
+											this.waretypeid=parmas.row.id
+											this.waretypeisshow=true
+											this.formValidatewaretype.waretypetitle=parmas.row.title
+											this.formValidatewaretype.waretypekey=parmas.row.key
+
+										}
+									}
+								},this.$t('public.EditBtn')),
+								h('a',{
+									style:{
+										marginLeft:'20px'
+									},
+									on:{
+										'click':()=>{
+											//console.log(parmas.row.id)
+											this.axios.delete('waretype/delete/'+parmas.row.id+'?uid='+this.uid).then(res=>{
+												if(res.data.status==200){
+													this.$notify({
+								                        title:"",//
+								                        message:this.$t('public.deleteSuccess'),//
+								                        type: 'success',
+								                        position: 'bottom-right'
+								                    });
+													this.getwaretype()
+												}
+											})
+										}
+									}
+								},this.$t('public.del'))
+							])
+					}
+
+				}
+			],
+			//销售类型
+
+			sotypedata:[],
+			sotypetitle:'',//名称
+			sotypekey:'',//key值
+			sotypeid:'',//id
+			sotypeisshow:false,//key值
+			sotypekey1:[
+
+				{
+					title:this.$t('manage.setting.title'),//标题
+					key:"title"
+				},
+				{
+					title:this.$t('manage.setting.key'),//key值
+					key:"key"
+				},
+				{
+					title:this.$t('public.time'),//更新时间
+					key:"updateTime"
+				},
+				{
+					title:this.$t('manage.sku.action'),//操作
+					key:"action",
+					width:'140',
+					align:'center',
+					render:(h,parmas)=>{
+						return h('div',[
+								h('a',{
+									on:{
+										'click':()=>{
+											//console.log(parmas.row)
+											this.xs=false
+											this.sotypeid=parmas.row.id
+											this.sotypeisshow=true
+											this.sotypetitle=parmas.row.title
+											this.sotypekey=parmas.row.key
+
+										}
+									}
+								},this.$t('public.EditBtn')),
+								h('a',{
+									style:{
+										marginLeft:'20px'
+									},
+									on:{
+										'click':()=>{
+											//console.log(parmas.row.id)
+											this.axios.delete('sotype/delete/'+parmas.row.id+'?uid='+this.uid).then(res=>{
+												if(res.data.status==200){
+													this.$notify({
+								                        title:"",//
+								                        message:this.$t('public.deleteSuccess'),//
+								                        type: 'success',
+								                        position: 'bottom-right'
+								                    });
+													this.getsotype()
+												}
+											})
+										}
+									}
+								},this.$t('public.del'))
+							])
+					}
+
+				}
+			],
+
+			//职位管理
+			formValidateposition:{
+				positionname:'',
+				positioncode:'',
+			},
+			ruleValidateposition:{
+				positionname:[{ required: true, message: '职位名称不能为空', trigger: 'blur' }],
+			},
+			positiondata:[],
+			totalzw:0,
+			pageSizezw:0,
+
+			positionid:'',//id
+			positionisshow:false,//key值
+			positionkey1:[
+
+				{
+					title:this.$t('manage.setting.eyposition'),//"职位",
+					key:"name"
+				},
+				{
+					title:this.$t('manage.setting.sq'),//编码
+					key:"code"
+				},
+				{
+					title:this.$t('public.time'),//创建时间
+					key:"createTime"
+				},
+				{
+					title:this.$t('manage.sku.action'),//操作
+					key:"action",
+					width:'140',
+					align:'center',
+					render:(h,parmas)=>{
+						return h('div',[
+								h('a',{
+									on:{
+										'click':()=>{
+											//console.log(parmas.row)
+											this.d=false
+											this.positionid=parmas.row.id
+											this.positionisshow=true
+											this.formValidateposition.positionname=parmas.row.name
+											this.formValidateposition.positioncode=parmas.row.code
+
+										}
+									}
+								},this.$t('public.EditBtn')),
+								h('a',{
+									style:{
+										marginLeft:'20px'
+									},
+									on:{
+										'click':()=>{
+											//console.log(parmas.row.id)
+											this.axios.delete('position/delete/'+parmas.row.id+'?uid='+this.uid).then(res=>{
+												if(res.data.status==200){
+													this.$notify({
+								                        title:"",//
+								                        message:this.$t('public.deleteSuccess'),//
+								                        type: 'success',
+								                        position: 'bottom-right'
+								                    });
+													this.getposition()
+												}
+											})
+										}
+									}
+								},this.$t('public.del')),
+								h('a',{
+									style:{
+										marginLeft: '-44px',
+    									marginTop: '5px',
+										display:"block"
+									},
+									on:{
+										'click':()=>{
+											this.axios.post('position/enabled/'+parmas.row.id+'?uid='+this.uid).then(res=>{
+												if(res.data.status==200){
+													this.$notify({
+								                        title:"",//
+								                        message:this.$t('public.normalS'),
+								                        type: 'success',
+								                        position: 'bottom-right'
+								                    });
+													// this.getposition()
+												}
+											})
+										}
+									}
+								},this.$t('public.start')),
+								h('a',{
+									style:{
+
+										marginLeft: '40px',
+    									marginTop: '-18px',
+										display:"block"
+									},
+									on:{
+										'click':()=>{
+											this.axios.post('position/disabled/'+parmas.row.id+'?uid='+this.uid).then(res=>{
+												if(res.data.status==200){
+													this.$notify({
+								                        title:"",//
+								                        message:this.$t('public.normalT'),
+								                        type: 'success',
+								                        position: 'bottom-right'
+								                    });
+													// this.getposition()
+												}
+											})
+										}
+									}
+								},this.$t('public.stop'))
+							])
+					}
+
+				}
+			],
+			//商品品牌
+			formValidatebrand:{
+				skubrandname:"",
+			},
+			ruleValidatebrand:{
+				skubrandname:[{ required: true, message: '品牌名称不能为空', trigger: 'blur' }]
+			},
+			skubranddata:[],
+			totalpp:0,
+			pageSizepp:0,
+
+			skubrandcode:'',//key值
+			skubrandlogo:'',//图标
+			skubrandid:'',//key值
+			skubrandisshow:false,//key值
+			skubrandkey1:[
+				{
+                        title: this.$t('manage.setting.img'),//'图片',
+                        key:'mainPhoto',
+                         width: 120,
+                        align: 'center',
+                        render:(h, params) =>{
+                        	return h('div',[
+                        			h('img',{
+                        				attrs:{
+                        					src:params.row.logo
+                        				},
+                        				style:{
+                        					width:'40px',
+                        					height:'40px',
+                        					marginTop:'4px'
+                        				}
+                        			})
+                        		])
+                        }
+                    },
+
+				{
+					title:this.$t('manage.setting.sq'),//编码
+					key:"code"
+				},
+				{
+					title:this.$t('manage.setting.ckname'),//名称
+					key:"name"
+				},
+				{
+					title:this.$t('public.time'),//创建时间
+					key:"createTime"
+				},
+				{
+					title:this.$t('manage.sku.action'),//操作
+					key:"action",
+					width:'140',
+					align:'center',
+					render:(h,parmas)=>{
+						return h('div',[
+								h('a',{
+									on:{
+										'click':()=>{
+											//console.log(parmas.row)
+											this.c=false
+											this.skubrandid=parmas.row.id
+											this.skubrandisshow=true
+											this.formValidatebrand.skubrandname=parmas.row.name
+											this.skubrandcode=parmas.row.code
+											this.skubrandlogo=parmas.row.logo
+
+										}
+									}
+								},this.$t('public.EditBtn')),
+								h('a',{
+									style:{
+										marginLeft:'20px'
+									},
+									on:{
+										'click':()=>{
+											//console.log(parmas.row.id)
+											this.axios.delete('skubrand/delete/'+parmas.row.id+'?uid='+this.uid).then(res=>{
+												if(res.data.status==200){
+													this.$notify({
+								                        title:"",//
+								                        message:this.$t('public.deleteSuccess'),//
+								                        type: 'success',
+								                        position: 'bottom-right'
+								                    });
+													this.getskubrand()
+												}
+											})
+										}
+									}
+								},this.$t('public.del')),
+								h('a',{
+									style:{
+										marginLeft: '-44px',
+    									marginTop: '5px',
+										display:"block"
+									},
+									on:{
+										'click':()=>{
+											this.axios.post('skubrand/enabled/'+parmas.row.id+'?uid='+this.uid).then(res=>{
+												if(res.data.status==200){
+													this.$notify({
+								                        title:"",//
+								                        message:this.$t('public.normalS'),
+								                        type: 'success',
+								                        position: 'bottom-right'
+								                    });
+													// this.getposition()
+												}
+											})
+										}
+									}
+								},this.$t('public.start')),
+								h('a',{
+									style:{
+
+										marginLeft: '40px',
+    									marginTop: '-18px',
+										display:"block"
+									},
+									on:{
+										'click':()=>{
+											this.axios.post('skubrand/disabled/'+parmas.row.id+'?uid='+this.uid).then(res=>{
+												if(res.data.status==200){
+													this.$notify({
+								                        title:"",//
+								                        message:this.$t('public.normalT'),
+								                        type: 'success',
+								                        position: 'bottom-right'
+								                    });
+
+													// this.getposition()
+												}
+											})
+										}
+									}
+								},this.$t('public.stop'))
+							])
+					}
+
+				}
+			],
+			
+			//供应商等级
+			formValidategystype:{
+				gystypetitle:''
+			},
+			ruleValidategystype:{
+				gystypetitle:[{ required: true, message:this.$t('finance.nameEmpty'), trigger: 'blur' }]
+			},
+			gystypedata:[],
+			totalgys:0,
+			pageSizegys:0,
+			gystypekey:'',//key值
+			gystypeid:'',//key值
+			gystypeisshow:false,//key值
+			gystypekey1:[
+
+				{
+					title:this.$t('manage.setting.title'),//标题
+					key:"title",
+
+				},
+				{
+					title:this.$t('manage.setting.key'),//key值
+					key:"key"
+				},
+				{
+					title:this.$t('public.time'),//更新时间
+					key:"updateTime"
+				},
+
+				{
+					title:this.$t('manage.sku.action'),//操作
+					key:"action",
+					width:'140',
+					align:'center',
+					render:(h,parmas)=>{
+						return h('div',[
+								h('a',{
+									on:{
+										'click':()=>{
+											console.log(parmas.row)
+											this.gys=false
+											this.gystypeid=parmas.row.id
+											this.gystypeisshow=true
+											this.formValidategystype.gystypetitle=parmas.row.title
+											this.gystypekey=parmas.row.key
+
+										}
+									}
+								},this.$t('public.EditBtn')),
+								h('a',{
+									style:{
+										marginLeft:'20px'
+									},
+									on:{
+										'click':()=>{
+											//console.log(parmas.row.id)
+											this.axios.delete('partnerl/delete/'+parmas.row.id+'?uid='+this.uid).then(res=>{
+												if(res.data.status==200){
+
+													this.$notify({
+								                        title:"",//
+								                        message: this.$t('public.deleteSuccess'),//
+								                        type: 'success',
+								                        position: 'bottom-right'
+								                    });
+													this.getgystype()
+												}
+											})
+										}
+									}
+								},this.$t('public.del'))
+							])
+					}
+
+				}
+			],
+			//店铺类型
+			formValidatedptype:{
+				dptypetitle:'',
+				dptypekey:"",
+			},
+			ruleValidatedptype:{
+				dptypetitle:[{ required: true, message: this.$t('finance.nameEmpty'), trigger: 'blur' }],
+				dptypekey:[{ required: true, message:"key值不能为空", trigger: 'blur' }],
+			},
+			dptypedata:[],
+			totaldp:0,
+			pageSizedp:0,
+
+			dptypekey:'',//key值
+			dptypeid:'',//key值
+			dptypeisshow:false,//key值
+			dptypekey1:[
+
+				{
+					title:this.$t('manage.setting.title'),//标题
+					key:"title",
+
+				},
+				{
+					title:this.$t('manage.setting.key'),//key值
+					key:"key"
+				},
+				{
+					title:this.$t('public.time'),//更新时间
+					key:"updateTime"
+				},
+
+				{
+					title:this.$t('manage.sku.action'),//操作
+					key:"action",
+					width:'140',
+					align:'center',
+					render:(h,parmas)=>{
+						return h('div',[
+								h('a',{
+									on:{
+										'click':()=>{
+											console.log(parmas.row)
+											this.dp=false
+											this.dptypeid=parmas.row.id
+											this.dptypeisshow=true
+											this.formValidatedptype.dptypetitle=parmas.row.title
+											this.formValidatedptype.dptypekey=parmas.row.key
+
+										}
+									}
+								},this.$t('public.EditBtn')),
+								h('a',{
+									style:{
+										marginLeft:'20px'
+									},
+									on:{
+										'click':()=>{
+											//DELETE /storetype/delete/{id} 删
+											this.axios.delete('storetype/delete/'+parmas.row.id+'?uid='+this.uid).then(res=>{
+												if(res.data.status==200){
+
+													this.$notify({
+								                        title:"",//
+								                        message: this.$t('public.deleteSuccess'),//
+								                        type: 'success',
+								                        position: 'bottom-right'
+								                    });
+													this.getdptype()
+												}
+											})
+										}
+									}
+								},this.$t('public.del'))
+							])
+					}
+
+				}
+			],
+			//商品单位
+			formValidateunit:{
+				unittypetitle:''
+			},
+			ruleValidateunit:{
+				unittypetitle:[{ required: true, message: this.$t('finance.nameEmpty'), trigger: 'blur' }]
+			},
+			unittypedata:[],
+			totalunit:0,
+			pageSizeunit:0,
+
+			unittypekey:'',//key值
+			unittypeid:'',//id
+			unittypeisshow:false,//key值
+			unittypekey1:[
+
+				{
+					title:this.$t('manage.setting.title'),//标题
+					key:"title"
+				},
+				{
+					title:this.$t('manage.setting.key'),//key值
+					key:"key"
+				},
+				{
+					title:this.$t('public.time'),//更新时间
+					key:"updateTime"
+				},
+				{
+					title:this.$t('manage.sku.action'),//操作
+					key:"action",
+					width:'140',
+					align:'center',
+					render:(h,parmas)=>{
+						return h('div',[
+								h('a',{
+									on:{
+										'click':()=>{
+											//console.log(parmas.row)
+											this.unit=false
+											this.unittypeid=parmas.row.id
+											this.unittypeisshow=true
+											this.formValidateunit.unittypetitle=parmas.row.title
+											this.unittypekey=parmas.row.key
+
+										}
+									}
+								},this.$t('public.EditBtn')),
+								h('a',{
+									style:{
+										marginLeft:'20px'
+									},
+									on:{
+										'click':()=>{
+											//DELETE /skuunit/delete/{id}
+											this.axios.delete('skuunit/delete/'+parmas.row.id+'?uid='+this.uid).then(res=>{
+												if(res.data.status==200){
+
+													this.$notify({
+								                        title:"",//
+								                        message: this.$t('public.deleteSuccess'),//
+								                        type: 'success',
+								                        position: 'bottom-right'
+								                    });
+													this.getunittype()
+												}
+											})
+										}
+									}
+								},this.$t('public.del'))
+							])
+					}
+
+				}
+			],
+			
+		}
+	},
+	methods:{
+		//管理
+		clickLeftList(index,item){
+			this.leftIndex=index
+			this.item=item
+			switch(index){
+				case 0:
+					this.getposition()
+				break;
+				case 1:
+					this.getwaretype()//仓库类型
+				break;
+				case 2:
+					this.getskubrand()//品牌
+				break;
+				case 3:
+					this.getAllfl()//商品分类
+				break;
+				case 4:
+					this.getattrs()//规格
+				break;
+				case 5:
+					this.getunittype()//商品单位
+				break;
+				case 6:
+					this.getdptype()//店铺类型
+				break;
+				case 7:
+					this.getOrg()//组织管理
+				break;
+				case 8:
+					//条码管理
+				break;
+				case 9:
+					this.getreservoir()//库区管理
+				break;
+				case 10:
+					this.getlocation()//库位
+				break;
+			}
+		},
+
+		//{{$t('public.addnew')}}属性
+		addattrs(){
+			this.attrsisshow=true
+			this.sx=true
+			this.formValidateattr.attrName=''
+			this.attrdata=[{name:""}]
+			this.detailVos=[]
+		},
+		acancel(){
+			this.attrsisshow=false
+		},
+		//确认保存
+		addattrssure(name){
+			this.$refs[name].validate((valid) => {
+				if(valid){
+					this.axios.post('skuspec/add?uid='+this.uid,{
+						name:this.formValidateattr.attrName,
+						detailVos:this.attrdata
+					}).then(res=>{
+						if(res.data.status==200){
+							this.$notify({
+		                        title:"",//
+		                        message:this.$t('public.SaveSuccess'),//
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+		                    this.formValidateattr.attrName=''
+							this.attrsisshow=false
+							this.attrdata=[{name:""}]
+							this.getattrs()
+						}else{
+							this.$notify({
+	                        title:"",//
+	                        message:res.data.errorMessage,
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+						}
+					})
+				}
+			})
+
+		},
+		//修改
+		editattrssure(name){
+			this.$refs[name].validate((valid) => {
+				if(valid){
+					this.axios.put('skuspec/update/?uid='+this.uid,{
+						id:this.attrsid,
+						name:this.formValidateattr.attrName,
+						// detailVos:this.detailVos
+						detailVos:this.attrdata
+					}).then(res=>{
+						if(res.data.status==200){
+							this.$notify({
+		                        title:"",//
+		                        message:this.$t('public.editSuccess'),//
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+							this.formValidateattr.attrName=''
+							this.attrsisshow=false
+							this.attrdata=[{name:""}]
+							this.getattrs()
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+				}
+			})
+		},
+		//添加规格
+		ggsure(){
+			if(this.attrName1==''){
+				this.$notify({
+                    title:"",//
+                    message:this.$t('finance.nameEmpty'),
+                    type: 'error',
+                    position: 'bottom-right'
+                });
+			}else{
+				let arr={
+				name:this.attrName1,
+				code:this.code,
+				sequence:this.sequence
+			}
+				this.attrdata.push(arr)
+				this.detailVos.push(arr)
+					this.attrName1=''
+					this.code=''
+					this.sequence=''
+				//console.log(this.detailVos)
+			}
+
+
+		},
+		ggcancel(){
+			this.atisshow=false
+		},
+		// editcancel(){
+		// 	this.editattrisshow=false
+		// },
+		//获取属性
+		getattrs(){
+			this.axios.get('skuspec/list?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					console.log(res.data.rows)
+					this.dataList=res.data.rows
+					this.totalattr=res.data.total
+					this.pageSizeattr=res.data.pageSize
+					this.dataList.forEach((item,index)=>{
+						let strname=[]
+						for(let i =0;i<item.detailVos.length;i++){
+
+							strname.push(item.detailVos[i].name)
+						}
+						let s2 = strname.join(',')
+						this.attrname = s2
+						this.dataList[index]['attrname']=this.attrname
+					})
+				}
+			})
+		},
+		getDataattr(current){
+            this.axios.get('/skuspec/list?offset='+current+'&uid='+this.uid).then((res)=>{
+                this.totalattr=res.data.total
+				this.pageSizeattr=res.data.pageSize
+              	this.dataList=res.data.rows
+              	this.dataList.forEach((item,index)=>{
+						let strname=[]
+						for(let i =0;i<item.detailVos.length;i++){
+							strname.push(item.detailVos[i].name)
+						}
+						let s2 = strname.join(',')
+						this.attrname = s2
+						this.dataList[index]['attrname']=this.attrname
+					})
+            })
+        },
+        //翻页
+        changePageSizeattr(size){
+            this.pageSizeattr = size
+        },
+		//仓库类型
+		getwaretype(){
+			this.axios.get('/waretype/query?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					this.waretypedata=res.data.rows
+					this.totalck=res.data.total
+					this.pageSizeck=res.data.pageSize
+					this.waretypedata.forEach((x,index)=>{
+						x.updateTime=new Date(x.updateTime).toLocaleDateString().replace(/\//g,'-')
+					})
+				}
+			})
+		},
+		getDatack(current){
+            this.axios.get('/waretype/query?offset='+current+'&uid='+this.uid).then((res)=>{
+               	this.waretypedata=res.data.rows
+				this.totalck=res.data.total
+				this.pageSizeck=res.data.pageSize
+				this.waretypedata.forEach((x,index)=>{
+					x.updateTime=new Date(x.updateTime).toLocaleDateString().replace(/\//g,'-')
+				})
+            })
+        },
+        //翻页
+        changePageSizeck(size){
+            this.pageSizeck = size
+        },
+		//新增仓库类型
+		addwaretype(){
+			this.ck=true
+			this.waretypeisshow=true
+			this.formValidatewaretype.waretypetitle=''
+			this.formValidatewaretype.waretypekey=''
+		},
+		waretypecancel(){
+			this.waretypeisshow=false
+		},
+		//waretypekey:'',//key值
+		waretypesure(name){
+			this.$refs[name].validate((valid) => {
+				if(valid){
+					this.axios.post('waretype/add?uid='+this.uid,{
+						title:this.formValidatewaretype.waretypetitle,
+						key:this.formValidatewaretype.waretypekey,
+					}).then(res=>{
+						if(res.data.status==200){
+							this.$notify({
+		                        title:"",//
+		                        message:this.$t('public.SaveSuccess'),
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+							this.formValidatewaretype.waretypetitle=''
+							this.formValidatewaretype.waretypekey=''
+							this.waretypeisshow=false
+							this.getwaretype()
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+				}
+			})
+
+
+		},
+		//修改仓库类型
+		editwaretype(name){
+			this.$refs[name].validate((valid) => {
+				if(valid){
+					this.axios.put('waretype/update?uid='+this.uid,{
+						id:this.waretypeid,
+						title:this.formValidatewaretype.waretypetitle,
+						key:this.formValidatewaretype.waretypekey,
+					}).then(res=>{
+						if(res.data.status==200){
+							this.$notify({
+		                        title:"",//
+		                        message:this.$t('public.editSuccess'),//
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+							this.formValidatewaretype.waretypetitle=''
+							this.formValidatewaretype.waretypekey=''
+							this.waretypeisshow=false
+							this.getwaretype()
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+				}
+			})
+		},
+
+		//职位管理
+		//职位管理
+		getposition(){
+			this.axios.get('/position/query?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					this.positiondata=res.data.rows
+					 this.totalzw=res.data.total
+					this.pageSizezw=res.data.pageSize
+					this.positiondata.forEach((x,index)=>{
+						x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+					})
+				}
+			})
+		},
+		getDatazw(current){
+            this.axios.get('/position/query?offset='+current+'&uid='+this.uid).then((res)=>{
+                this.totalzw=res.data.total
+				this.pageSizezw=res.data.pageSize
+                this.positiondata = res.data.rows
+                this.positiondata.forEach((x,index)=>{
+						x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+					})
+            })
+        },
+        //翻页
+        changePageSizezw(size){
+            this.pageSizezw = size
+        },
+		//新增职位管理
+		positiontype(){
+			this.d=true
+			this.formValidateposition.positionname=''
+			this.formValidateposition.positioncode=''
+			this.positionisshow=true
+		},
+		positioncancel(){
+			this.positionisshow=false
+		},
+		//职位管理:'',//key值
+		positionsure(name){
+			this.$refs[name].validate((valid) => {
+				if(valid){
+					this.axios.post('position/add?uid='+this.uid,{
+						name:this.formValidateposition.positionname,
+						code:this.formValidateposition.positioncode,
+					}).then(res=>{
+						if(res.data.status==200){
+							this.$notify({
+		                        title:"",//
+		                        message: this.$t('public.SaveSuccess'),
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+							this.formValidateposition.positionname=''
+							this.formValidateposition.positioncode=''
+							this.positionisshow=false
+							this.getposition()
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+				}
+			})
+
+
+		},
+		//修改职位管理
+		editposition(name){
+			this.$refs[name].validate((valid) => {
+				if(valid){
+					this.axios.put('position/update?uid='+this.uid,{
+						id:this.positionid,
+						name:this.formValidateposition.positionname,
+						code:this.formValidateposition.positioncode,
+					}).then(res=>{
+						if(res.data.status==200){
+							this.$notify({
+		                        title:"",//
+		                        message:this.$t('public.editSuccess'),//
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+							this.formValidateposition.positionname=''
+							this.formValidateposition.positioncode=''
+							this.positionisshow=false
+							this.getposition()
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+				}
+			})
+		},
+		//商品品牌
+		getskubrand(){
+			this.axios.get('/skubrand/query?order=asc&uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					this.skubranddata=res.data.rows
+					this.totalpp=res.data.total
+					this.pageSizepp=res.data.pageSize
+					this.skubranddata.forEach((x,index)=>{
+						x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+					})
+				}
+			})
+		},
+		getDatapp(current){
+            this.axios.get('/skubrand/query?offset='+current+'&uid='+this.uid).then((res)=>{
+               	this.skubranddata=res.data.rows
+				this.totalpp=res.data.total
+				this.pageSizepp=res.data.pageSize
+				this.skubranddata.forEach((x,index)=>{
+						x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+					})
+            })
+        },
+        //翻页
+        changePageSizepp(size){
+            this.pageSizepp = size
+        },
+		//新增商品品牌
+		skubrandtype(){
+			this.c=true
+			this.skubrandisshow=true
+			this.formValidatebrand.skubrandname=''
+			this.skubrandcode=''
+			this.skubrandlogo=''
+		},
+		skubrandcancel(){
+			this.skubrandisshow=false
+		},
+		//商品品牌:'',//key值
+		skubrandsure(name){
+			this.$refs[name].validate((valid) => {
+				if(valid){
+					this.axios.post('skubrand/add?uid='+this.uid,{
+						name:this.formValidatebrand.skubrandname,
+						code:this.skubrandcode,
+						logo:this.skubrandlogo
+					}).then(res=>{
+						if(res.data.status==200){
+							this.$notify({
+	                        title:"",//
+	                        message:this.$t('public.SaveSuccess'),
+	                        type: 'success',
+	                        position: 'bottom-right'
+	                    });
+							this.formValidatebrand.skubrandname=''
+							this.skubrandcode=''
+							this.skubrandlogo=''
+							this.skubrandisshow=false
+							this.getskubrand()
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+				}
+			})
+		},
+		//上传图片成功
+			addsucess(res,file){
+				this.skubrandlogo=res.rows.url
+			},
+			
+		//修改商品品牌
+		editskubrand(name){
+			this.$refs[name].validate((valid) => {
+				if(valid){
+					this.axios.put('skubrand/update?uid='+this.uid,{
+						id:this.skubrandid,
+						name:this.formValidatebrand.skubrandname,
+						code:this.skubrandcode,
+						logo:this.skubrandlogo,
+					}).then(res=>{
+						if(res.data.status==200){
+							this.$notify({
+	                        title:"",//
+	                        message:this.$t('public.editSuccess'),//
+	                        type: 'success',
+	                        position: 'bottom-right'
+	                    });
+							this.formValidatebrand.skubrandname=''
+							this.skubrandcode=''
+							this.skubrandlogo=''
+							this.skubrandisshow=false
+							this.getskubrand()
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+				}
+			})
+		},
+		 //商品分类i
+        //增加一级分类
+        addClass(){
+            this.skuclassisshow=true
+            this.level1Editisshow=true
+            this.skuclassphoto=''
+            this.formValidateskuclass.skuclassName=''
+        },
+        //商品一级分类上传图片成功
+        addClassImgSuccess(res,file){
+            this.skuclassphoto=res.rows.url
+        },
+        addsucessSunclass(res,file){
+            this.skuclassphotoSunclass=res.rows.url
+        },
+        //保存一级分类
+        saveClassLevel1(name){
+             this.$refs[name].validate((valid) => {
+                if(valid){
+                    this.axios.post('skuclass/add?uid='+this.uid,{
+                        name:this.formValidateskuclass.skuclassName,
+                        photo:this.skuclassphoto,
+                        childs:[]
+                    }).then(res=>{
+                        if(res.data.status==200){
+                            this.$notify({
+                            title:"",//
+                            message:this.$t('public.SaveSuccess'),//
+                            type: 'success',
+                            position: 'bottom-right'
+                        });
+                            this.skuclassisshow=false
+                            this.formValidateskuclass.skuclassName=''
+                            this.skuclassphoto=''
+                            this.getAllfl()
+                        }else{
+                            this.$notify({
+                                title:"",//
+                                message:res.data.errorMessage,
+                                type: 'error',
+                                position: 'bottom-right'
+                            });
+                        }
+                    })
+                }
+             })
+        },
+        //取消
+        cancelClassLevel1(){
+            this.skuclassisshow=false
+            this.formValidateskuclass.skuclassName=''
+            this.skuclassphoto=''
+            
+        },
+        //一级分类获取焦点
+        level1focus(item,index){
+            $('.editInput').eq(index).text(item.title)
+            console.log($('.editInput').eq(index).text())
+        },
+        //一级分类失去焦点{{$t('public.EditBtn')}}一级分类PUT /skuclass/update {{$t('public.EditBtn')}}
+        level1Blur(item,index){
+            if($('.editInput').eq(index).text()==''){
+                this.$notify({
+                    title:"",//
+                    message:this.$t('public.classNameEmpty'),//'分类名称不能为空',
+                    type: 'error',
+                    position: 'bottom-right'
+                });
+            }else if($('.editInput').eq(index).text()==item.title){
+                return
+            }else{
+                this.axios.put('/skuclass/update?uid='+this.uid,{
+                    id:item.id,
+                    name:$('.editInput').eq(index).text()
+                }).then(res=>{
+                    if(res.data.status==200){
+                        this.$notify({
+                            title:"",//
+                            message:this.$t('public.editSuccess'),//
+                            type: 'success',
+                            position: 'bottom-right'
+                        });
+                        this.getAllfl()
+                    }else{
+                        this.$notify({
+                            title:"",//
+                            message:res.data.errorMessage,
+                            type: 'error',
+                            position: 'bottom-right'
+                        });
+                    }
+                })
+            }
+            
+        },
+        //点击{{$t('public.EditBtn')}}一级分类
+        EditLevel1(item){
+            this.skuclassisshow=true
+            this.level1Editisshow=false
+            this.level1classId=item.id
+            this.skuclassphoto=item.icon
+            this.formValidateskuclass.skuclassName=item.title
+        },
+        //{{$t('public.EditBtn')}}一级分类
+        EditClassLevel1(){
+            this.axios.put('/skuclass/update?uid='+this.uid,{
+                id:this.level1classId,
+                name:this.formValidateskuclass.skuclassName,
+                photo:this.skuclassphoto
+            }).then(res=>{
+                if(res.data.status==200){
+                    this.$notify({
+                        title:"",//
+                        message:this.$t('public.editSuccess'),//
+                        type: 'success',
+                        position: 'bottom-right'
+                    });
+                    this.skuclassisshow=false
+                    this.skuclassphoto=''
+                    this.level1classId=''
+                    this.formValidateskuclass.skuclassName=''
+                    this.getAllfl()
+                }else{
+                    this.$notify({
+                        title:"",//
+                        message:res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+            })
+        },
+        //{{$t('public.del')}}一级分类
+        delLevel1(item){
+            this.axios.delete('skuclass/delete/'+item.id+'?uid='+this.uid).then(res=>{
+               if(res.data.status==200){
+                    this.$notify({
+                        title:"",//
+                        message:this.$t('public.deleteSuccess'),//
+                        type: 'success',
+                        position: 'bottom-right'
+                    });
+                    this.getAllfl()
+                }else{
+                    this.$notify({
+                        title:"",//
+                        message:res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+            })
+        },
+
+        //二级分类获取焦点
+        level2focus(i,item,index){
+
+            $('.level2Name').eq(index).text(i.title)
+            console.log($('.level2Name').eq(index).text())
+            console.log(i)
+        },
+        //二级分类失去焦点{{$t('public.EditBtn')}}一级分类PUT /skuclass/update {{$t('public.EditBtn')}}
+        level2Blur(i,item,index){
+            if($('.level2Name').eq(index).text()==''){
+                this.$notify({
+                    title:"",//
+                    message:this.$t('public.classNameEmpty'),//'分类名称不能为空',
+                    type: 'error',
+                    position: 'bottom-right'
+                });
+            }else if($('.level2Name').eq(index).text()==i.title){
+                return
+            }else{
+                this.axios.put('/skuclass/update?uid='+this.uid,{
+                    id:i.id,
+                    parentId:item.id,
+                    name:$('.level2Name').eq(index).text()
+                }).then(res=>{
+                    if(res.data.status==200){
+                        this.$notify({
+                            title:"",//
+                            message:this.$t('public.editSuccess'),//
+                            type: 'success',
+                            position: 'bottom-right'
+                        });
+                        this.getAllfl()
+                    }else{
+                        this.$notify({
+                            title:"",//
+                            message:res.data.errorMessage,
+                            type: 'error',
+                            position: 'bottom-right'
+                        });
+                    }
+                })
+            }
+            
+        },
+        //点击{{$t('public.EditBtn')}}二级分类
+        EditLevel2(item){
+            this.level2Ml=true
+            this.level2Editisshow=false
+            this.level1classId=item.parentId//上级id
+            this.level2classId=item.id//当前id
+            this.level2photo=item.icon
+            this.level2class.level2Name=item.title
+        },
+        //{{$t('public.EditBtn')}}二级分类
+        EditClassLevel2(){
+            this.axios.put('/skuclass/update?uid='+this.uid,{
+                id:this.level2classId,
+                parentId:this.level1classId,
+                name:this.level2class.level2Name,
+                photo:this.level2photo
+            }).then(res=>{
+                if(res.data.status==200){
+                    this.$notify({
+                        title:"",//
+                        message:this.$t('public.editSuccess'),//
+                        type: 'success',
+                        position: 'bottom-right'
+                    });
+                    this.level2Ml=false
+                    this.level2classId=''
+                    this.level1classId=''
+                    this.level2class.level2Name=''
+                    this.level2photo=''
+                    this.getAllfl()
+                }else{
+                    this.$notify({
+                        title:"",//
+                        message:res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+            })
+        },
+        //{{$t('public.del')}}二级分类
+        delLevel2(item){
+            this.axios.delete('skuclass/delete/'+item.id+'?uid='+this.uid).then(res=>{
+               if(res.data.status==200){
+                    this.$notify({
+                        title:"",//
+                        message:this.$t('public.deleteSuccess'),//
+                        type: 'success',
+                        position: 'bottom-right'
+                    });
+                    this.getAllfl()
+                }else{
+                    this.$notify({
+                        title:"",//
+                        message:res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+            })
+        },
+        //三级分类获取焦点
+        level3focus(j,i,item,index){
+
+            $('.level3Name').eq(index).text(i.title)
+            
+        },
+        //三级分类失去焦点{{$t('public.EditBtn')}}一级分类PUT /skuclass/update {{$t('public.EditBtn')}}
+        level3Blur(j,i,item,index){
+            if($('.level3Name').eq(index).text()==''){
+                this.$notify({
+                    title:"",//
+                    message:this.$t('public.classNameEmpty'),//'分类名称不能为空',
+                    type: 'error',
+                    position: 'bottom-right'
+                });
+            }else if($('.level3Name').eq(index).text()==j.title){
+                return
+            }else{
+                this.axios.put('/skuclass/update?uid='+this.uid,{
+                    id:j.id,
+                    parentId:i.id,
+                    name:$('.level3Name').eq(index).text()
+                }).then(res=>{
+                    if(res.data.status==200){
+                        this.$notify({
+                            title:"",//
+                            message:this.$t('public.editSuccess'),//
+                            type: 'success',
+                            position: 'bottom-right'
+                        });
+                        this.getAllfl()
+                    }else{
+                        this.$notify({
+                            title:"",//
+                            message:res.data.errorMessage,
+                            type: 'error',
+                            position: 'bottom-right'
+                        });
+                    }
+                })
+            }
+            
+        },
+        //点击{{$t('public.EditBtn')}}二级分类
+        EditLevel3(item){
+            this.level3Ml=true
+            this.level3Editisshow=false
+            this.level2classId=item.parentId//上级id
+            this.level3classId=item.id//当前id
+            this.level3photo=item.icon
+            this.level3class.level3Name=item.title
+        },
+        //{{$t('public.EditBtn')}}二级分类
+        EditClassLevel3(){
+            this.axios.put('/skuclass/update?uid='+this.uid,{
+                id:this.level3classId,
+                parentId:this.level2classId,
+                name:this.level3class.level3Name,
+                photo:this.level3photo
+            }).then(res=>{
+                if(res.data.status==200){
+                    this.$notify({
+                        title:"",//
+                        message:this.$t('public.editSuccess'),//
+                        type: 'success',
+                        position: 'bottom-right'
+                    });
+                    this.level3Ml=false
+                    this.level3classId=''
+                    this.level2classId=''
+                    this.level3class.level3Name=''
+                    this.level3photo=''
+                    this.getAllfl()
+                }else{
+                    this.$notify({
+                        title:"",//
+                        message:res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+            })
+        },
+        //{{$t('public.del')}}三级分类
+        delLevel3(item){
+            this.axios.delete('skuclass/delete/'+item.id+'?uid='+this.uid).then(res=>{
+               if(res.data.status==200){
+                    this.$notify({
+                        title:"",//
+                        message:this.$t('public.deleteSuccess'),//
+                        type: 'success',
+                        position: 'bottom-right'
+                    });
+                    this.getAllfl()
+                }else{
+                    this.$notify({
+                        title:"",//
+                        message:res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+            })
+        },
+        //添加二级分类
+        addlevel2(item){
+            this.level2Ml=true
+            this.level2Editisshow=true
+            this.level1classId=item.id//一级分类id
+            this.level2photo=''
+            this.level2class.level2Name=''
+        },
+         //添加图片二级分类
+        addlevel2Success(res,file){
+            this.level2photo=res.rows.url
+        },
+        //保存二级分类
+        saveClassLevel2(name){
+             this.$refs[name].validate((valid) => {
+                if(valid){
+                    this.axios.post('skuclass/add?uid='+this.uid,{
+                        parentId:this.level1classId,
+                        name:this.level2class.level2Name,
+                        photo:this.level2photo
+                    }).then(res=>{
+                        if(res.data.status==200){
+                            this.$notify({
+                                title:"",//
+                                message:this.$t('public.SaveSuccess'),//
+                                type: 'success',
+                                position: 'bottom-right'
+                            });
+                            this.getAllfl()
+                            this.level2Ml=false
+                            this.level2photo=''
+                            this.level1classId=''
+                            this.level2class.level2Name=''
+                        }else{
+                            this.$notify({
+                                title:"",//
+                                message:res.data.errorMessage,
+                                type: 'error',
+                                position: 'bottom-right'
+                            });
+                        }
+                    })
+                }
+             })
+        },
+        //取消
+        cancelClassLevel2(){
+            this.level2Ml=false
+            this.level2photo=''
+            this.level1classId=''
+            this.level2class.level2Name=''
+        },
+        //点击添加三级分类
+        addlevel3(item){
+            this.level3Ml=true
+            this.level3Editisshow=true
+            this.level2classId=item.id//二级分类id
+            this.level3photo=''
+            this.level3class.level3Name=''
+        },
+        //添加图片三级分类
+        addlevel3Success(res,file){
+            this.level3photo=res.rows.url
+        },
+        //保存三级分类
+        saveClassLevel3(name){
+            this.$refs[name].validate((valid) => {
+                if(valid){
+                    this.axios.post('skuclass/add?uid='+this.uid,{
+                        parentId:this.level2classId,
+                        name:this.level3class.level3Name,
+                        photo:this.level3photo
+                    }).then(res=>{
+                        if(res.data.status==200){
+                            this.$notify({
+                                title:"",//
+                                message:this.$t('public.SaveSuccess'),//
+                                type: 'success',
+                                position: 'bottom-right'
+                            });
+                            this.getAllfl()
+                            this.level3Ml=false
+                            this.level2classId=''
+                            this.level3photo=''
+                            this.level3class.level3Name=''
+                        }else{
+                            this.$notify({
+                                title:"",//
+                                message:res.data.errorMessage,
+                                type: 'error',
+                                position: 'bottom-right'
+                            });
+                        }
+                    })
+                }
+             })
+        },
+        cancelClassLevel3(){
+            this.level3Ml=false
+            this.level2classId=''
+            this.level3photo=''
+            this.level3class.level3Name=''
+        },
+        //1展开
+        clickAdd(item,index){
+            item._check=true
+        },
+        //1收起
+        clickReduce(item,index){
+            item._check=false
+        },
+        //2展开
+        clickSubAdd(item,index){
+            item._check=true
+        },
+        //2收起
+        clickSubReduce(item,index){
+            item._check=false
+        },
+        //3展开
+        clickSub3Add(item,index){
+            item._check=true
+        },
+        //3收起
+        clickSub3Reduce(item,index){
+            item._check=false
+        },
+        //获取所有付类
+        getAllfl(){
+            this.axios.get('skuclass/query?uid='+this.uid).then(res=>{
+
+                if(res.data.status==200){
+                    let arr=[]
+                    arr=res.data.rows
+                    this.totalfl=res.data.total
+                    this.pageSizefl=res.data.pageSize
+                    console.log(this.total1)
+                    this.Allfl=arr.map(x=>{
+                        let bj={
+                            title:x.name,
+                            id:x.id,
+                            icon:x.photo,
+                            children:x.childs,
+                            _check:false,
+
+                        }
+                        bj.children=bj.children.map(j=>{
+                            let b={
+                                title:j.name,
+                                id:j.id,
+                                parentId:x.id,
+                                icon:j.photo,
+                                children:j.childs,
+                                _check:false,
+                            }
+                            return b
+                        })
+                        bj.children.forEach(n=>{
+                            n.children=n.children.map(m=>{
+                                let c={
+                                    title:m.name,
+                                    id:m.id,
+                                    parentId:j.id,
+                                    icon:m.photo,
+                                }
+                                return m
+                            })
+                        })
+                        return bj
+                    })
+                    console.log(this.Allfl)
+                }
+            })
+        },
+        //付类翻页
+        changePageSizefl(size){
+            this.pageSizefl = size
+        },
+        //切换分类一条页
+        getDatafl(current){
+            this.axios.get('skuclass/query?offset='+current+'&uid='+this.uid).then((res)=>{
+                if(res.data.status==200){
+                        let arr=[]
+                        arr=res.data.rows
+                        this.Allfl=arr.map(x=>{
+                            let bj={
+                                title:x.name,
+                                id:x.id,
+                                icon:x.photo,
+                                children:x.childs,
+                                _check:false,
+
+                            }
+                            bj.children=bj.children.map(j=>{
+                                let b={
+                                    title:j.name,
+                                    id:j.id,
+                                    parentId:x.id,
+                                    icon:j.photo,
+                                    children:j.childs,
+                                     _check:false,
+                                }
+                                return b
+                            })
+                            bj.children.forEach(n=>{
+                                n.children=n.children.map(m=>{
+                                    let c={
+                                        title:m.name,
+                                        id:m.id,
+                                        parentId:j.id,
+                                        icon:m.photo,
+                                    }
+                                    return m
+                                })
+                            })
+                            return bj
+                        })
+                        
+                    }
+            })
+
+        },
+		 //店铺类型GET /storetype/query 列表
+		getdptype(){
+			this.axios.get('/storetype/query?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					this.dptypedata=res.data.rows
+					this.totaldp=res.data.total
+					this.pageSizedp=res.data.pageSize
+					console.log(this.dptypedata)
+					this.dptypedata.forEach((x,index)=>{
+						x.updateTime=new Date(x.updateTime).toLocaleDateString().replace(/\//g,'-')
+					})
+				}
+			})
+		},
+		//切换一条页
+        getDatadp(current){
+            this.axios.get('/storetype/query?offset='+current+'&uid='+this.uid).then((res)=>{
+                console.log(res)
+                this.dptypedata=res.data.rows
+				this.totaldp=res.data.total
+				this.pageSizedp=res.data.pageSize
+				this.dptypedata.forEach((x,index)=>{
+						x.updateTime=new Date(x.updateTime).toLocaleDateString().replace(/\//g,'-')
+					})
+            })
+        },
+        //翻页
+        changePageSizedp(size){
+            this.pageSizedp = size
+        },
+		//新增店铺类型
+		adddptype(){
+			this.dp=true
+			this.dptypeisshow=true
+			this.formValidatedptype.dptypetitle=''
+			this.formValidatedptype.dptypekey=''
+		},
+		dptypecancel(){
+			this.dptypeisshow=false
+		},
+		//店铺类型:'',//key值
+		dptypesure(name){
+			this.$refs[name].validate((valid) => {
+				if(valid){
+					this.axios.post('storetype/add?uid='+this.uid,{
+						title:this.formValidatedptype.dptypetitle,
+						key:this.formValidatedptype.dptypekey,
+					}).then(res=>{
+						if(res.data.status==200){
+							this.$notify({
+			                    title:"",//
+			                    message:this.$t('public.SaveSuccess'),
+			                    type: 'success',
+			                    position: 'bottom-right'
+			                });
+							this.formValidatedptype.dptypetitle=''
+							this.formValidatedptype.dptypekey=''
+							this.dptypeisshow=false
+							this.getdptype()
+						}else{
+							this.$notify({
+			                    title:"",//
+			                    message: res.data.errorMessage,
+			                    type: 'error',
+			                    position: 'bottom-right'
+			                });
+						}
+					})
+				}
+			})
+		},
+		//修改店铺类型
+		editdptype(name){
+			this.$refs[name].validate((valid) => {
+				if(valid){
+					this.axios.put('storetype/update?uid='+this.uid,{
+						id:this.dptypeid,
+						title:this.formValidatedptype.dptypetitle,
+						key:this.formValidatedptype.dptypekey,
+					}).then(res=>{
+						if(res.data.status==200){
+							this.$notify({
+			                    title:"",//
+			                    message: this.$t('public.editSuccess'),//
+			                    type: 'success',
+			                    position: 'bottom-right'
+			                });
+							this.formValidatedptype.dptypetitle=''
+							this.formValidatedptype.dptypekey=''
+							this.dptypeisshow=false
+							this.getdptype()
+						}else{
+							this.$notify({
+			                    title:"",//
+			                    message: res.data.errorMessage,
+			                    type: 'error',
+			                    position: 'bottom-right'
+			                });
+						}
+					})
+				}
+			})
+		},
+		//商品单位skuunit/query
+		getunittype(){
+			this.axios.get('/skuunit/query?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					this.unittypedata=res.data.rows
+					this.unittypedata.forEach((x,index)=>{
+						x.updateTime=new Date(x.updateTime).toLocaleDateString().replace(/\//g,'-')
+					})
+
+					this.totalunit=res.data.total
+					this.pageSizeunit=res.data.pageSize
+				}
+			})
+		},
+		getDataunit(current){
+            this.axios.get('/skuunit/query?offset='+current+'&uid='+this.uid).then((res)=>{
+                this.totalunit=res.data.total
+				this.pageSizeunit=res.data.pageSize
+                this.unittypedata = res.data.rows
+                this.unittypedata.forEach((x,index)=>{
+						x.updateTime=new Date(x.updateTime).toLocaleDateString().replace(/\//g,'-')
+					})
+            })
+        },
+        //翻页
+        changePageSizeunit(size){
+            this.pageSizeunit = size
+        },
+		//新商品单位
+		addunit(){
+			this.unit=true
+			this.unittypeisshow=true
+			this.formValidateunit.unittypetitle=''
+		},
+		unittypecancel(){
+			this.unittypeisshow=false
+		},
+		//waretypekey:'',//key值
+		unittypesure(name){
+			this.$refs[name].validate((valid) => {
+				if(valid){
+					this.axios.post('skuunit/add?uid='+this.uid,{
+						title:this.formValidateunit.unittypetitle,
+						key:this.formValidateunit.unittypetitle,
+					}).then(res=>{
+						if(res.data.status==200){
+							this.$notify({
+			                    title:"",//
+			                    message:this.$t('public.SaveSuccess'),
+			                    type: 'success',
+			                    position: 'bottom-right'
+			                });
+							this.formValidateunit.unittypetitle=''
+							this.unittypekey=''
+							this.unittypeisshow=false
+							this.getunittype()
+						}else{
+							this.$notify({
+			                    title:"",//
+			                    message: res.data.errorMessage,
+			                    type: 'error',
+			                    position: 'bottom-right'
+			                });
+						}
+					})
+				}
+			})
+
+		},
+		//修改商品单位PUT /skuunit/update 修改
+		editunittype(name){
+			this.$refs[name].validate((valid) => {
+				if(valid){
+					this.axios.put('skuunit/update?uid='+this.uid,{
+						id:this.unittypeid,
+						title:this.formValidateunit.unittypetitle,
+						key:this.formValidateunit.unittypetitle,
+					}).then(res=>{
+						if(res.data.status==200){
+							this.$notify({
+			                    title:"",//
+			                    message: this.$t('public.editSuccess'),//
+			                    type: 'success',
+			                    position: 'bottom-right'
+			                });
+							this.formValidateunit.unittypetitle=''
+							this.unittypekey=''
+							this.unittypeisshow=false
+							this.getunittype()
+						}else{
+							this.$notify({
+			                    title:"",//
+			                    message: res.data.errorMessage,
+			                    type: 'error',
+			                    position: 'bottom-right'
+			                });
+						}
+				})
+				}
+			})
+
+
+		},
+		renderContent (h, { root, node, data }) {
+            return h('span', {
+                style: {
+                    display: 'inline-block',
+                    width: '100%'
+                }
+            });
+        },
+         //组织管理
+        addorg(){
+        	this.orgisshow=true
+        	this.orglevel1Editisshow=true
+        	this.orglevel1classId=''
+            this.ruleValidateorg.orgName=''
+            this.ruleValidateorg.mobile=''
+            this.ruleValidateorg.tel=''
+            this.ruleValidateorg.email=''
+            this.ruleValidateorg.code=''
+        },
+        //获取组织管理数据
+        getOrg(){
+            this.axios.get('org/query?uid='+this.uid).then(res=>{
+                if(res.data.status==200){
+                    let arr=[]
+                    arr=res.data.rows
+                    this.totalorg=res.data.total
+                    this.pageSizeorg=res.data.pageSize
+                    console.log(this.total1)
+                    this.orgdata=arr.map(x=>{
+                        let bj={
+                            title:x.name,
+                            id:x.id,
+                            mobile:x.principalPhone,
+                            tel:x.principalTel,
+                            children:x.childs,
+                            _check:false,
+                        }
+                        bj.children=bj.children.map(j=>{
+                            let b={
+                                title:j.name,
+                                id:j.id,
+                                parentId:x.id,
+                                mobile:j.principalPhone,
+                            	tel:j.principalTel,
+                                children:j.childs,
+                                _check:false,
+                            }
+                            return b
+                        })
+                        bj.children.forEach(n=>{
+                            n.children=n.children.map(m=>{
+                                let c={
+                                    title:m.name,
+                                    id:m.id,
+                                    parentId:j.id,
+                                    mobile:m.principalPhone,
+                                    tel:m.tel,
+                                }
+                                return m
+                            })
+                        })
+                        return bj
+                    })
+                    console.log(this.orgdata)
+                }
+            })
+        },
+        //翻页
+        getDataorg(current){
+        	this.axios.get('org/query?offset='+current+'&uid='+this.uid).then(res=>{
+                if(res.data.status==200){
+                    let arr=[]
+                    arr=res.data.rows
+                    this.totalorg=res.data.total
+                    this.pageSizeorg=res.data.pageSize
+                    this.orgdata=arr.map(x=>{
+                        let bj={
+                            title:x.name,
+                            id:x.id,
+                            mobile:x.principalPhone,
+                            tel:x.principalTel,
+                            children:x.childs,
+                            _check:false,
+                        }
+                        bj.children=bj.children.map(j=>{
+                            let b={
+                                title:j.name,
+                                id:j.id,
+                                parentId:x.id,
+                                mobile:j.principalPhone,
+                            	tel:j.principalTel,
+                                children:j.childs,
+                                _check:false,
+                            }
+                            return b
+                        })
+                        bj.children.forEach(n=>{
+                            n.children=n.children.map(m=>{
+                                let c={
+                                    title:m.name,
+                                    id:m.id,
+                                    parentId:j.id,
+                                    mobile:m.principalPhone,
+                                    tel:m.tel,
+                                }
+                                return m
+                            })
+                        })
+                        return bj
+                    })
+                    console.log(this.orgdata)
+                }
+            })
+        },
+        changePageSizeorg(size){
+			this.pageSizeorg=size
+        },
+        //新建一级组织
+        //保存一级组织
+        orgsaveClassLevel1(name){
+        	this.$refs[name].validate((valid) => {
+        		if(valid){
+        			this.axios.post('/org/add?uid='+this.uid,{
+        				name:this.ruleValidateorg.orgName,
+        				principalPhone:this.ruleValidateorg.mobile,
+        				principalTel:this.ruleValidateorg.tel,
+        				principalEmail:this.ruleValidateorg.email,
+        				code:this.ruleValidateorg.code,
+        				childs:[]
+        			}).then(res=>{
+        				if(res.data.status==200){
+		                    this.$notify({
+		                        title:"",//
+		                        message:"保存成功",//
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+		                    this.orgisshow=false
+		                    this.ruleValidateorg.orgName=''
+		                    this.ruleValidateorg.mobile=''
+		                    this.ruleValidateorg.tel=''
+		                    this.ruleValidateorg.email=''
+		                    this.ruleValidateorg.code=''
+		                    this.getOrg()
+		                }else{
+		                    this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+		                }
+        			})
+        		}
+        	})
+        },
+        //点击修改一级组织
+        EditLevel1org(item){
+            this.orgisshow=true
+            this.orglevel1Editisshow=false
+            this.orglevel1classId=item.id
+            this.ruleValidateorg.orgName=item.title
+            this.ruleValidateorg.mobile=item.mobile
+            this.ruleValidateorg.tel=item.tel
+            this.ruleValidateorg.email=item.email
+        },
+         //修改一级组织POST /org/add 新增组织
+        orgEditClassLevel1(name){
+        	this.$refs[name].validate((valid) => {
+        		if(valid){
+        			this.axios.put('/org/update?uid='+this.uid,{
+        				id:this.orglevel1classId,
+        				name:this.ruleValidateorg.orgName,
+        				principalPhone:this.ruleValidateorg.mobile,
+        				principalTel:this.ruleValidateorg.tel,
+        				principalEmail:this.ruleValidateorg.email,
+        				code:this.ruleValidateorg.code,
+        			}).then(res=>{
+        				if(res.data.status==200){
+		                    this.$notify({
+		                        title:"",//
+		                        message:"保存成功",//
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+		                    this.orgisshow=false
+		                    this.ruleValidateorg.orgName=''
+		                    this.ruleValidateorg.mobile=''
+		                    this.ruleValidateorg.tel=''
+		                    this.ruleValidateorg.email=''
+		                    this.ruleValidateorg.code=''
+		                    this.getOrg()
+		                }else{
+		                    this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+		                }
+        			})
+        		}
+        	})
+        },
+        //一级组织取消
+        orgcancelClassLevel1(){
+        	this.orgisshow=false
+        	this.orglevel1classId=''
+            this.ruleValidateorg.orgName=''
+            this.ruleValidateorg.mobile=''
+            this.ruleValidateorg.tel=''
+            this.ruleValidateorg.email=''
+            this.ruleValidateorg.code=''
+        },
+        //刪除一级组织DELETE /org/delete/{id} 删除组织
+        delLevel1org(item){
+        	this.axios.delete('org/delete/'+item.id+'?uid='+this.uid).then(res=>{
+               if(res.data.status==200){
+                    this.$notify({
+                        title:"",//
+                        message:"刪除成功",//
+                        type: 'success',
+                        position: 'bottom-right'
+                    });
+                    this.getAllfl()
+                }else{
+                    this.$notify({
+                        title:"",//
+                        message:res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+            })
+        },
+        //添加二级组织
+        addlevel2org(item){
+            this.orglevel2Ml=true
+            this.orglevel2Editisshow=true
+            this.orglevel1classId=item.parentId//上级id
+            this.orglevel2class.level2Name=''
+            this.orglevel2class.mobile=''
+            this.orglevel2class.tel=''
+            this.orglevel2class.email=''
+            this.orglevel2class.code=''
+        },
+        //修改二级组织
+        EditLevel2org(i){
+        	this.orglevel2Ml=true
+        	this.orglevel2Editisshow=false
+        	this.orglevel2classId=i.id
+        	this.orglevel1classId=i.parentId
+        	this.orglevel2class.level2Name=i.title
+            this.orglevel2class.mobile=i.mobile
+            this.orglevel2class.tel=i.tel
+            this.orglevel2class.email=i.email
+            this.orglevel2class.code=i.code
+        },
+        //二级组织取消
+        orgcancelClassLevel2(){
+        	this.orglevel2Ml=false
+        	this.orglevel1classId=''//上级id
+            this.level2classId=''//一级组织id
+            this.orglevel2class.level2Name=''
+            this.orglevel2class.mobile=''
+            this.orglevel2class.tel=''
+            this.orglevel2class.email=''
+            this.orglevel2class.code=''
+        },
+        //二级组织保存POST /org/add 新增组织
+        orgsaveClassLevel2(name){
+        	this.$refs[name].validate((valid) => {
+        		if(valid){
+        			this.axios.post('/org/add?uid='+this.uid,{
+        				parentId:this.orglevel1classId,
+        				name:this.orglevel2class.level2Name,
+        				principalPhone:this.orglevel2class.mobile,
+        				principalTel:this.orglevel2class.tel,
+        				principalEmail:this.orglevel2class.email,
+        				code:this.orglevel2class.code,
+        			}).then(res=>{
+        				if(res.data.status==200){
+		                    this.$notify({
+		                        title:"",//
+		                        message:"保存成功",//
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+		                    this.orglevel2Ml=false
+		                    this.orglevel1classId=''
+		                    this.orglevel2class.level2Name=''
+		                    this.orglevel2class.mobile=''
+		                    this.orglevel2class.tel=''
+		                    this.orglevel2class.email=''
+		                    this.orglevel2class.code=''
+		                    this.getOrg()
+		                }else{
+		                    this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+		                }
+        			})
+        		}
+        	})
+        },
+        //二级组织修改	
+        orgEditClassLevel2(){
+        	this.$refs[name].validate((valid) => {
+        		if(valid){
+        			this.axios.put('/org/update?uid='+this.uid,{
+        				id:this.orglevel2classId,//当前id
+        				parentId:this.orglevel1classId,//一级id
+        				name:this.orglevel2class.level2Name,
+        				principalPhone:this.orglevel2class.mobile,
+        				principalTel:this.orglevel2class.tel,
+        				principalEmail:this.orglevel2class.email,
+        				code:this.orglevel2class.code,
+        			}).then(res=>{
+        				if(res.data.status==200){
+		                    this.$notify({
+		                        title:"",//
+		                        message:"保存成功",//
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+		                    this.orglevel2Ml=false
+		                    this.orglevel2class.level2Name=''
+		                    this.orglevel2class.mobile=''
+		                    this.orglevel2class.tel=''
+		                    this.orglevel2class.email=''
+		                    this.orglevel2class.code=''
+		                    this.getOrg()
+		                }else{
+		                    this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+		                }
+        			})
+        		}
+        	})
+        },
+        //二级组织删除
+        delLevel2org(i){
+            this.axios.delete('org/delete/'+i.id+'?uid='+this.uid).then(res=>{
+               if(res.data.status==200){
+                    this.$notify({
+                        title:"",//
+                        message:"删除成功",//
+                        type: 'success',
+                        position: 'bottom-right'
+                    });
+                    this.getOrg()
+                }else{
+                    this.$notify({
+                        title:"",//
+                        message:res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+                }
+            })
+        },
+
+        //添加三级组织
+        addlevel3org(i){
+        	this.orglevel3Ml=true
+        	this.orglevel3Editisshow=true
+            this.orglevel2classId=i.id//二级分类id
+            this.orglevel3class.level3Name=''
+            this.orglevel3class.mobile=''
+            this.orglevel3class.tel=''
+            this.orglevel3class.email=''
+            this.orglevel3class.code=''
+        },
+        //保存三级
+        orgsaveClassLevel3(name){
+        	this.$refs[name].validate((valid) => {
+        		this.axios.post('/org/add?uid='+this.uid,{
+        				parentId:this.orglevel2classId,
+        				name:this.orglevel3class.level3Name,
+        				principalPhone:this.orglevel3class.mobile,
+        				principalTel:this.orglevel3class.tel,
+        				principalEmail:this.orglevel3class.email,
+        				code:this.orglevel3class.code,
+        			}).then(res=>{
+        				if(res.data.status==200){
+		                    this.$notify({
+		                        title:"",//
+		                        message:"保存成功",//
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+		                    this.orglevel3Ml=false
+		                    this.orglevel2classId=''
+		                    this.orglevel3class.level3Name=''
+		                    this.orglevel3class.mobile=''
+		                    this.orglevel3class.tel=''
+		                    this.orglevel3class.email=''
+		                    this.orglevel3class.code=''
+		                    this.getOrg()
+		                }else{
+		                    this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+		                }
+        			})
+        	})
+        },
+        //取消三级保存
+        orgcancelClassLevel3(){
+        	this.orglevel3Ml=false
+        	this.orglevel2classId=''
+        	this.orglevel3class.level3Name=''
+            this.orglevel3class.mobile=''
+            this.orglevel3class.tel=''
+            this.orglevel3class.email=''
+            this.orglevel3class.code=''
+        },
+        //修改三级级分类
+        EditLevel3org(j){
+            this.orglevel3Ml=true
+            this.orglevel3Editisshow=false
+            this.orglevel2classId=j.parentId//上级id
+            this.orglevel3classId=j.id//当前id
+            this.orglevel3class.level3Name=j.title
+            this.orglevel3class.mobile=j.mobile
+            this.orglevel3class.tel=j.tel
+            this.orglevel3class.email=j.email
+            this.orglevel3class.code=j.code
+        },
+        //修改三级分类
+        orgEditClassLevel3(){
+        	this.$refs[name].validate((valid) => {
+        		this.axios.put('/org/update?uid='+this.uid,{
+        				id:this.orglevel3classId,
+        				parentId:this.orglevel2classId,
+        				name:this.orglevel3class.level3Name,
+        				principalPhone:this.orglevel3class.mobile,
+        				principalTel:this.orglevel3class.tel,
+        				principalEmail:this.orglevel3class.email,
+        				code:this.orglevel3class.code,
+        			}).then(res=>{
+        				if(res.data.status==200){
+		                    this.$notify({
+		                        title:"",//
+		                        message:"修改成功",//
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+		                    this.orglevel3Ml=false
+		                    this.orglevel2classId=''
+		                    this.orglevel3classId=''
+		                    this.orglevel3class.level3Name=''
+		                    this.orglevel3class.mobile=''
+		                    this.orglevel3class.tel=''
+		                    this.orglevel3class.email=''
+		                    this.orglevel3class.code=''
+		                    this.getOrg()
+		                }else{
+		                    this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+		                }
+        			})
+        	})
+        },
+        //1展开
+        clickAddorg(item,index){
+            item._check=true
+        },
+        //1收起
+        clickReduceorg(item,index){
+            item._check=false
+        },
+        //2展开
+        clickSubAddorg(item,index){
+            item._check=true
+        },
+        //2收起
+        clickSubReduceorg(item,index){
+            item._check=false
+        },
+        //3展开
+        clickSub3Addorg(item,index){
+            item._check=true
+        },
+        //3收起
+        clickSub3Reduceorg(item,index){
+            item._check=false
+        },
+
+
+
+
+
+
+        //库区
+        //选择仓库GET /warehouse/query 仓库清单
+        getstoreAll(){
+        	this.axios.get('/warehouse/query?uid='+this.uid).then(res=>{
+        		if(res.data.status==200){
+        			this.storeAlldata=res.data.rows
+        			this.storeAlltotal=res.data.total
+        			this.storeAllpageSize=res.data.pageSize
+        		}
+        	})
+        },
+        //搜索仓库
+        storeAllsearchInput(){
+        	this.axios.get('/warehouse/query?keyword='+this.storeAllkeyword+'&uid='+this.uid).then(res=>{
+        		if(res.data.status==200){
+        			this.storeAlldata=res.data.rows
+        			this.storeAlltotal=res.data.total
+        			this.storeAllpageSize=res.data.pageSize
+        		}
+        	})
+        },
+        storeAllenterSearch(){
+        	this.storeAllsearchInput()
+        },
+        //仓库翻页
+        getDatarestoreAll(current){
+        	this.axios.get('/warehouse/query?offset='+current+'&uid='+this.uid).then(res=>{
+        		if(res.data.status==200){
+        			this.storeAlldata=res.data.rows
+        			this.storeAlltotal=res.data.total
+        			this.storeAllpageSize=res.data.pageSize
+        		}
+        	})
+        },
+        changePageSizestoreAll(size){
+        	this.storeAllpageSize=size
+        },
+
+        //点击新建库区
+        addkq(){
+        	this.kqisshow=true
+        },
+        //点击取消
+        kqcancel(){
+        	this.kqisshow=false
+        	this.formValidatekq.name=''
+			this.formValidatekq.code=''
+			this.wareId=''
+			this.formValidatekq.wouse=''
+			this.storeAllObj={}
+        },
+        //点击选择仓库弹框
+        getstoreList(){
+        	this.storeAllisshow=true
+        	this.getstoreAll()
+        },
+        //点击仓库一行
+        clickRowStore(data){
+        	this.storeAllObj=data
+        },
+        //仓库确认
+        storeSure(){
+        	this.wareId=this.storeAllObj.id
+        	this.formValidatekq.wouse=this.storeAllObj.name
+        	this.storeAllisshow=false
+        },
+        //仓库取消
+        storecancel(){
+        	this.storeAllisshow=false
+        },
+        //库区取消保存
+        cancelKQ(){
+        	this.formValidatekq.name=''
+			this.formValidatekq.code=''
+			this.formValidatekq.wouse=''
+			this.kqisshow=false
+        },
+        //保存库区POST /zone/add 新增库区
+        saveKQ(name){
+        	this.$refs[name].validate((valid) => {
+        		if(valid){
+        			this.axios.post('/zone/add?uid='+this.uid,{
+        				name:this.formValidatekq.name,
+        				code:this.formValidatekq.code,
+        				wareId:this.wareId
+        			}).then(res=>{
+        				if(res.data.status==200){
+							this.$notify({
+			                    title:"",//
+			                    message: "保存成功",//
+			                    type: 'success',
+			                    position: 'bottom-right'
+			                });
+							this.formValidatekq.name=''
+							this.formValidatekq.code=''
+							this.formValidatekq.wouse=''
+							this.kqisshow=false
+							this.getreservoir()
+						}else{
+							this.$notify({
+			                    title:"",//
+			                    message: res.data.errorMessage,
+			                    type: 'error',
+			                    position: 'bottom-right'
+			                });
+						}
+        			})
+        		}
+        	})
+        },
+        //GET /zone/query 库区管理
+    	getreservoir(){
+    		this.axios.get('/zone/query?uid='+this.uid).then(res=>{
+    			if(res.data.status==200){
+    				this.reservoirdata=res.data.rows
+    				this.reservoirtotal=res.data.total
+    				this.reservoirpageSize=res.data.pageSize
+    			}
+    		})
+    	},
+    	//库区翻页
+    	getDatareservoir(current){
+    		this.axios.get('/zone/query?offset='+current+'&uid='+this.uid).then(res=>{
+    			if(res.data.status==200){
+    				this.reservoirdata=res.data.rows
+    				this.reservoirtotal=res.data.total
+    				this.reservoirpageSize=res.data.pageSize
+    			}
+    		})
+    	},
+    	changePageSizereservoir(size){
+    		this.reservoirpageSize=size
+    	},
+    	//新建库位前检查是否有库区
+    	//新建库位
+    	addlocation(){
+    		this.axios.get('/zone/query?uid='+this.uid).then(res=>{
+    			if(res.data.status==200){
+    				let len=res.data.rows.length
+    				if(len==0){
+    					this.$notify({
+		                    title:"",//
+		                    message: "请先创建库区！",
+		                    type: 'error',
+		                    position: 'bottom-right'
+		                });
+    				}else{
+    					this.locationisshow=true
+    				}
+    			}
+    		})
+    		
+    	},
+    	//取消保存
+    	locationcancel(){
+    		this.locationisshow=false
+    	},
+    	//点击获取库区
+    	getkqList(){
+    		this.kqAllisshow=true
+    		this.getKQALL()
+    	},
+    	//选择库位的库区数据
+    	getKQALL(){
+    		this.axios.get('/zone/query?uid='+this.uid).then(res=>{
+    			if(res.data.status==200){
+    				this.kqAlldata=res.data.rows
+    				this.kqAlltotal=res.data.total
+    				this.kqAllpageSize=res.data.pageSize
+    			}
+    		})
+    	},
+    	//搜索库区
+       kqsearchInput(){
+        	this.axios.get('/zone/query?keyword='+this.kqkeyword+'&uid='+this.uid).then(res=>{
+        		if(res.data.status==200){
+        			this.kqAlldata=res.data.rows
+    				this.kqAlltotal=res.data.total
+    				this.kqAllpageSize=res.data.pageSize
+        		}
+        	})
+        },
+        kqenterSearch(){
+        	this.kqsearchInput()
+        },
+    	//取消选择库位的库区数据
+    	kqcancel1(){
+    		this.kqAllisshow=false
+    	},
+    	//单击一行选择库位的库区数据
+    	clickRowkq(data){
+    		this.kqObj=data
+    	},
+    	//确认
+    	kqSure(){
+    		this.formValidatelocation.kqname=this.kqObj.name
+    		this.kqid=this.kqObj.id
+    		this.kqAllisshow=false
+    	},
+    	//选的库区翻页
+    	getDatarekqAll(current){
+    		this.axios.get('/zone/query?offset='+current+'&uid='+this.uid).then(res=>{
+    			if(res.data.status==200){
+    				this.kqAlldata=res.data.rows
+    				this.kqAlltotal=res.data.total
+    				this.kqAllpageSize=res.data.pageSize
+    			}
+    		})
+    	},
+    	changePageSizekqAll(size){
+    		this.kqAllpageSize=size
+    	},
+    	//库位保存POST /location/add 新增库位
+    	savelocation(name){
+    		this.$refs[name].validate((valid) => {
+    			if(valid){
+    				this.axios.post('/location/add?uid='+this.uid,{
+    					name:this.formValidatelocation.name,
+    					code:this.formValidatelocation.code,
+    					zoneId:this.kqid
+    				}).then(res=>{
+    					if(res.data.status==200){
+							this.$notify({
+			                    title:"",//
+			                    message: "保存成功",//
+			                    type: 'success',
+			                    position: 'bottom-right'
+			                });
+							this.formValidatelocation.name=''
+							this.formValidatelocation.code=''
+							this.formValidatelocation.kqname=''
+							this.kqid=''
+							this.getlocation()
+						}else{
+							this.$notify({
+			                    title:"",//
+			                    message: res.data.errorMessage,
+			                    type: 'error',
+			                    position: 'bottom-right'
+			                });
+						}
+    				})
+    			}
+    		})
+    	},
+    	//GET /location/query 库位管理
+    	getlocation(){
+    		this.axios.get('/location/query?uid='+this.uid).then(res=>{
+    			if(res.data.status==200){
+    				this.locationdata=res.data.rows
+    				this.locationtotal=res.data.total
+    				this.locationpageSize=res.data.pageSize
+    			}
+    		})
+    	},
+    	//库位翻页
+    	getDatalocation(current){
+    		this.axios.get('/location/query?offset='+current+'&uid='+this.uid).then(res=>{
+    			if(res.data.status==200){
+    				this.locationdata=res.data.rows
+    				this.locationtotal=res.data.total
+    				this.locationpageSize=res.data.pageSize
+    			}
+    		})
+    	},
+    	changePageSizelocation(size){
+    		this.locationpageSize=size
+    	},
+
+
+    	//条码规则
+    	//拖动
+    	onMove ({relatedContext, draggedContext}) {
+		      const relatedElement = relatedContext.element;
+		      const draggedElement = draggedContext.element;
+		      return (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed
+		},
+        addBarcodeRule(){
+        	console.log(this.list2)
+        },
+        //删除已拖拽的并把删除的添加回原来的数据中
+        delList2Index(item,index){
+        	this.list2.splice(index,1)//删除已拖拽
+        	this.list.push(item)//添加回原来的数据中
+        	console.log(this.list2)
+        },
+	},
+	computed:{
+		dragOptions () {
+	      return  {
+	        animation: 0,
+	        group: 'description',
+	        ghostClass: 'ghost'
+	      };
+	    },
+	  
+	},
+	watch: {
+	    isDragging (newValue) {
+	      if (newValue){
+	        this.delayedDragging= true
+	        return
+	      }
+	      this.$nextTick( () =>{
+	           this.delayedDragging =false
+	      })
+	    }
+	  },
+	created(){
+		this.$nextTick(()=>{
+			this.getposition()//职位
+		})
+	},
+	mounted(){
+		if(this.$route.query.index==3){//商品分类传过来的参数
+			this.clickLeftList(this.$route.query.index,this.$route.query.title)
+		}
+	}
+}
+</script>
+
+<style type="text/css" scoped>
+.Barcodelist2{
+	padding:20px;
+	box-shadow: 0 0 5px #e4e4e4
+}
+.flip-list-move {
+  transition: transform 0.5s;
+}
+
+.no-move {
+  transition: transform 0s;
+}
+
+.ghost {
+  opacity: .5;
+  background: #C8EBFB;
+}
+
+.list-group {
+  min-height: 20px;
+}
+
+.list-group-item {
+  cursor: move;
+}
+
+.list-group-item i{
+  cursor: pointer;
+}
+
+
+.setting
+{
+	width:100%;
+	height:100%;
+	display:flex;
+	flex-direction: column;
+	background: rgb(230,233,236)
+}
+.settingList{
+	height:100%;
+	width:100%;
+	overflow: auto;
+}
+.main{
+	display:flex;
+	height:100%;
+	width:100%;
+	overflow: hidden;
+
+}
+.head{
+	width:100%;
+	line-height:50px;
+
+	display:flex;
+	height:50px;
+
+
+}
+.left{
+	 width: 120px;
+	 /*height:100%;*/
+	margin-right: 3px;
+	flex: 0 0 120px;
+	font-size: 14px;
+	background: #fff;
+	border-bottom:1px solid #EDEDED;
+}
+.right{
+width:100%;
+	background: #fff;
+	border-bottom:1px solid #EDEDED;
+	display: flex;
+	justify-content: space-between;
+}
+.btn-right{
+	margin-right:20px;
+}
+.orgli{
+	flex:0 0 150px;
+	text-align: center;
+}
+.main-left{
+	 width: 120px;
+	 /*height:100%;*/
+	margin-right: 3px;
+	flex: 0 0 120px;
+	font-size: 14px;
+	background: #fff;
+}
+.main-right{
+	width:100%;
+	height:100%;
+	background: #fff;
+
+}
+.rightbtn{
+	margin-right:10px;
+}
+li{
+	list-style: none
+}
+.main-left li{
+	height:40px;
+	line-height: 40px;
+	width:100%;
+	cursor:pointer;
+}
+.right-info{
+	display:flex;
+	flex-direction: column;
+	margin-left:20px;
+	margin-top:20px;
+}
+.right-info span{
+	margin-top:20px;
+}
+.right-info div{
+	margin-top:10px;
+}
+.bg,.bgjxc,.bgcw{
+	background: rgb(241,245,247);
+    color: rgb(59,119,227);
+}
+.page-box{
+	margin-bottom: 160px
+}
+/*属性*/
+.attrtitle{
+	display:flex;
+	justify-content: space-around;
+	height:40px;
+	line-height: 40px;
+
+	background: #f9f9f9
+}
+.attrname{
+	display:flex;
+	justify-content: space-around;
+	margin-top:20px;
+
+	border-bottom:1px dashed  #ccc;
+}
+.attrname li,.attrtitle li{
+	width:100px;
+	margin-bottom:20px;
+	text-align: center;
+}
+.table1{
+	width:100%;
+
+	display:flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+
+}
+.table2{
+	width:100%;
+	display:flex;
+	flex-direction: column;
+
+
+}
+.avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    text-align: center;
+  }
+  .avatar {
+    width: 100px;
+    height: 100px;
+    display: block;
+  }
+.right-left{
+width: 104px;
+height:100px;
+border:1px dashed #e1e1e1;
+}
+.table1 div{
+	height:50px;
+	line-height: 40px;
+	margin-top:5px;
+}
+.table1 div span{
+	text-align: left
+}
+
+.crow{
+    cursor: pointer;
+    display: inline-block;
+    width: 17px;
+    height: 17px;
+    text-align: center;
+    line-height: 14px;
+    border: 1px solid #e9e9e9;
+    user-select: none;
+    background: #fff;
+    margin-right: 10px;
+
+}
+.croworg{
+    cursor: pointer;
+    display: inline-block;
+    width: 17px;
+    height: 17px;
+    text-align: center;
+    line-height: 14px;
+    border: 1px solid #e9e9e9;
+    user-select: none;
+    background: #fff;
+    margin-right: 10px;
+    margin-top: 15px;
+}
+.levelTitle{
+    display: flex;
+    justify-content: space-around;
+    padding:10px 0;
+    background:#f5f5f5;
+}
+.level1A{
+    width:48px;
+    height: 48px;
+}
+.level1A img{
+    width: 100%;
+    height:100%;
+}
+.level1ul{
+    display: flex;
+    justify-content: space-around;
+    padding:10px 0;
+    border-bottom: 1px solid #e4e4e4;
+
+}
+.level1ul:hover{
+    background: #f4f4f4
+}
+.level1ulorg{
+	display: flex;
+    justify-content: space-around;
+    padding:10px 0;
+    border-bottom: 1px solid #e4e4e4;
+	line-height: 50px
+}
+.level1ulorg:hover{
+    background: #f4f4f4
+}
+.level1Name,.level2NameT,.level3NameT{
+    height:50px;
+    width:150px;
+    line-height: 50px;
+    display: flex;
+   align-items: center;
+}
+.level1Nameorg,.level2NameTorg,.level3NameTorg{
+	 height:50px;
+    line-height: 50px;
+    display: flex;
+   /*align-items: center;*/
+}
+
+.level2NameT,.level3Name{
+    margin-left:50px;
+}
+.level3Name{
+    margin-left:100px;
+}
+.editInput,.level2Name,.level3Name{
+    width:100%;
+    height: 30px;
+    line-height: 30px;
+    overflow: hidden;
+}
+.level1B{
+    margin-left:-50px;
+}
+.level1C{
+    margin-left:-100px;
+}
+.action{
+    line-height: 50px
+}
+.action a{
+    margin-left:5px;
+}
+ .editInput{
+    display: inline-block;
+    text-indent: 10px;
+    color: #555;
+    background-image: none;
+ 
+}
+ .editInput:focus{
+    border-color: #66afe9;
+    outline: 0;
+     border: 1px solid #eee;
+     border-color:rgba(102, 175, 233, .6);
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 4px rgba(102, 175, 233, .6);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 4px rgba(102, 175, 233, .6);
+}
+</style>
+<style type="text/css" scoped>
+	.el-upload--text{
+	width:100px!important;
+	height:100px!important;
+	border:none!important;
+}
+
+</style>

@@ -1,0 +1,110 @@
+import 'babel-polyfill'
+import Vue from 'vue'
+import App from './App'
+import axios from './api/http'
+import router from './router/index'
+import store from './store/index'
+
+
+import MuseUI from 'muse-ui';
+import 'muse-ui/dist/muse-ui.css';
+Vue.use(MuseUI);
+//canvas
+import VueParticles from 'vue-particles'  
+Vue.use(VueParticles)
+//zhb table
+import "ag-grid/dist/styles/ag-grid.css";
+import "ag-grid/dist/styles/ag-theme-balham.css";
+//baidu
+import ECharts from 'vue2-echarts/src/ECharts/ECharts.vue'
+require('echarts/theme/shine');//个性化设置
+import 'echarts/map/js/china.js';
+Vue.component('chart', ECharts);
+//International
+import VueI18n from 'vue-i18n'
+import en from './components/common/en'
+import zh from './components/common/zh'
+let lang='zh'
+//判断浏览器所用语言
+let language = navigator.browserLanguage?navigator.browserLanguage:navigator.language;
+if(language=="zh-CN"){
+  if(sessionStorage.local){
+    lang=sessionStorage.local
+  }else{
+    lang='zh'
+  }
+}else{
+  lang='en'
+}
+Vue.use(VueI18n)
+const i18n = new VueI18n({
+    locale:lang,    // 语言标识
+    messages: {
+      'zh':zh,   // 中文语言包
+      'en':en // 英文语言包
+    }
+})
+//引入百度地图
+
+import BaiduMap from 'vue-baidu-map'
+Vue.use(BaiduMap, {
+  // ak 是在百度地图开发者平台申请的密钥 详见 http://lbsyun.baidu.com/apiconsole/key */
+  ak: 'BBe8b008fb274f9544aa96828ac8c10e'
+  // ak:'l0I6Y4dBBPKe3rPLfWWMun1pRgbESfeR'//cxy
+})
+
+/****引入jquery****/
+import $ from 'jquery';
+import iView from 'iview';
+import 'iview/dist/styles/iview.css';
+Vue.use(iView);
+
+import {Collapse,CollapseItem,Button,Steps,Step,Dialog,Cascader,Notification,Upload,Carousel,carouselItem,Icon,Tag,Radio,RadioGroup} from 'element-ui'
+Vue.use(Button)
+Vue.use(Steps)
+Vue.use(Step)
+Vue.use(Dialog)
+Vue.use(Cascader)
+Vue.use(Upload)
+Vue.use(Carousel)
+Vue.use(carouselItem)
+Vue.use(Icon)
+Vue.use(Tag)
+Vue.use(Radio)
+Vue.use(RadioGroup)
+Vue.use(Collapse)
+Vue.use(CollapseItem)
+
+
+Vue.prototype.$notify = Notification;//通知组件不能使用use,否则初始化会出现一次弹框
+
+import '../static/ue/ueditor.config.js'
+import '../static/ue/ueditor.all.min.js'
+import '../static/ue/lang/zh-cn/zh-cn.js'
+import '../static/ue/ueditor.parse.min.js'
+
+//设置Vue的跨域请求  引入VUE的resource插件
+import VueResource from 'vue-resource'
+Vue.use(VueResource);
+Vue.http.options.emulateJSON = true;
+// 将axios挂载到prototype上，在组件中可以直接使用this.axios访问
+Vue.prototype.axios = axios;
+Vue.prototype.getLocalTime=function(s){
+    var myYear= new Date(s).getFullYear()
+    var myMonth= new Date(s).getMonth()+1
+    var myDay= new Date(s).getDate()
+    var showDate = myYear+"-"+myMonth+'-'+myDay   
+   return showDate
+};
+
+/* eslint-disable no-new */
+new Vue({
+  el: '#app',
+  i18n,  // vue-i18n不要忘记, region:{}
+  router,
+  axios,
+  store,
+  template: '<App/>',
+  components: { App },
+
+})

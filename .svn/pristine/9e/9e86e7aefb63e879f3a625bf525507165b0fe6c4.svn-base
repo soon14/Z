@@ -1,0 +1,155 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "dayjs@^1.6.5",
+        "scope": null,
+        "escapedName": "dayjs",
+        "name": "dayjs",
+        "rawSpec": "^1.6.5",
+        "spec": ">=1.6.5 <2.0.0",
+        "type": "range"
+      },
+      "C:\\Users\\cxy\\Desktop\\zsyd\\node_modules\\muse-ui"
+    ]
+  ],
+  "_from": "dayjs@>=1.6.5 <2.0.0",
+  "_id": "dayjs@1.7.4",
+  "_inCache": true,
+  "_location": "/dayjs",
+  "_nodeVersion": "10.6.0",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/dayjs_1.7.4_1531275589116_0.11251752118894953"
+  },
+  "_npmUser": {
+    "name": "iamkun",
+    "email": "kunhello@outlook.com"
+  },
+  "_npmVersion": "6.1.0",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "dayjs@^1.6.5",
+    "scope": null,
+    "escapedName": "dayjs",
+    "name": "dayjs",
+    "rawSpec": "^1.6.5",
+    "spec": ">=1.6.5 <2.0.0",
+    "type": "range"
+  },
+  "_requiredBy": [
+    "/muse-ui"
+  ],
+  "_resolved": "https://registry.npmjs.org/dayjs/-/dayjs-1.7.4.tgz",
+  "_shasum": "6001277372aec83021943157fa279ecf2b5f5cf8",
+  "_shrinkwrap": null,
+  "_spec": "dayjs@^1.6.5",
+  "_where": "C:\\Users\\cxy\\Desktop\\zsyd\\node_modules\\muse-ui",
+  "author": {
+    "name": "iamkun"
+  },
+  "bugs": {
+    "url": "https://github.com/iamkun/dayjs/issues"
+  },
+  "dependencies": {},
+  "description": "2KB immutable date time library alternative to Moment.js with the same modern API ",
+  "devDependencies": {
+    "@babel/cli": "^7.0.0-beta.44",
+    "@babel/core": "^7.0.0-beta.44",
+    "@babel/node": "^7.0.0-beta.44",
+    "@babel/preset-env": "^7.0.0-beta.44",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-jest": "^22.4.3",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "cross-env": "^5.1.6",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.10.0",
+    "eslint-plugin-jest": "^21.15.0",
+    "gzip-size-cli": "^2.1.0",
+    "jasmine-core": "^2.99.1",
+    "jest": "^22.4.3",
+    "karma": "^2.0.2",
+    "karma-jasmine": "^1.1.2",
+    "karma-sauce-launcher": "^1.1.0",
+    "mockdate": "^2.0.2",
+    "moment": "^2.22.0",
+    "pre-commit": "^1.2.2",
+    "rollup": "^0.57.1",
+    "rollup-plugin-babel": "^4.0.0-beta.4",
+    "rollup-plugin-uglify": "^3.0.0",
+    "size-limit": "^0.18.0",
+    "typescript": "^2.8.3"
+  },
+  "directories": {},
+  "dist": {
+    "integrity": "sha512-0uMiu5BH7AB9PUnw3KD9W2BqLB0/5yyfs5pBoF6Xp2JzEYNf35VOSbBKDD0RyMQ6p19M0qOmoGTdaAxkKJ/mqg==",
+    "shasum": "6001277372aec83021943157fa279ecf2b5f5cf8",
+    "tarball": "https://registry.npmjs.org/dayjs/-/dayjs-1.7.4.tgz",
+    "fileCount": 33,
+    "unpackedSize": 41212,
+    "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJbRWlFCRA9TVsSAnZWagAAdrMQAKC8BIRwDNbvWO3ws4Cf\n23yTGvKd44uWpDIL+/fIx4oMucxNEIgWIGfAzWOzwjqEln8QjtNt48w/76W/\nWpPxcf7NI26MamfiiZmZqHEBi/iKr0cryqw/agqnzCoHiGOHNySARbqD8FtB\nuxFoGV76kpbZ/jUUnzWrAtW0tW+ZppoxDI8VQjHRBgiDintcuA3oKtmRmKom\nukTIyUrLMdNpD+K2WK08BrE8kHUOe1aDkkAPoAc4jttMcJika1rSawZe0OEx\npKbFLgSB/Jx3eEkjDZDcxMiTQHLkWZWh32V7qoNRhzHgUC6zRTSo/0fDuox1\nm7G3Zf2ueM9JGDNGibuszW3iSxIDqgflRmvWQAWOP589VaROG0RsoAWMct8t\n1MnzJ+WzYFoeK1b0R6ZfAHaekCMVXsQGFAEXWrhkFwBXl5Px0gNC7h1xbIQF\nppGhDeCglBr5zNJrsoBTf+8w7Ev1cSEo5m/3SG4nB5BvmVhyxK8ufXRE7NJJ\n7zy2HZzLB/LEGO3qa6ipqEww1bUV6kUJftK3xOxEpHHX0dgtUI/oIoOTc7XD\nw7RC6pTCqxRL89Z/e8jPoGBvrXyR4pDU00ZyZ++05JsaQoWp7ZOIM4OCgeBY\nDiCgwxFWkZrYC9jS8WXxm/VSHHeMPhXXWnh4G5iWNu5ez0hZ4oyPkFKtlzVy\ndzJN\r\n=zNL2\r\n-----END PGP SIGNATURE-----\r\n"
+  },
+  "gitHead": "3c499f3a211f8bbdfe666095a6a4feef3d8ae12c",
+  "homepage": "https://github.com/iamkun/dayjs#readme",
+  "jest": {
+    "roots": [
+      "test"
+    ],
+    "testRegex": "test/(.*?/)?.*test.js$",
+    "coverageDirectory": "./coverage/",
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*"
+    ]
+  },
+  "keywords": [
+    "dayjs",
+    "date",
+    "time",
+    "immutable",
+    "moment"
+  ],
+  "license": "MIT",
+  "main": "dayjs.min.js",
+  "maintainers": [
+    {
+      "name": "iamkun",
+      "email": "kunhello@outlook.com"
+    }
+  ],
+  "name": "dayjs",
+  "optionalDependencies": {},
+  "pre-commit": [
+    "lint"
+  ],
+  "readme": "ERROR: No README data found!",
+  "release": {
+    "prepare": [
+      {
+        "path": "@semantic-release/changelog"
+      },
+      "@semantic-release/git"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iamkun/dayjs.git"
+  },
+  "scripts": {
+    "build": "cross-env BABEL_ENV=build node build && npm run size",
+    "lint": "eslint src/* test/* build/*",
+    "sauce": "npx karma start karma.sauce.conf.js",
+    "size": "size-limit && gzip-size dayjs.min.js",
+    "test": "jest",
+    "test:sauce": "npm run sauce -- 0 && npm run sauce -- 1 && npm run sauce -- 2  && npm run sauce -- 3"
+  },
+  "size-limit": [
+    {
+      "limit": "2.99 KB",
+      "path": "dayjs.min.js"
+    }
+  ],
+  "types": "index.d.ts",
+  "version": "1.7.4"
+}

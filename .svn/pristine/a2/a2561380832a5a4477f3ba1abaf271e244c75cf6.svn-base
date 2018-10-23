@@ -1,0 +1,112 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "ag-grid-vue",
+        "scope": null,
+        "escapedName": "ag-grid-vue",
+        "name": "ag-grid-vue",
+        "rawSpec": "",
+        "spec": "latest",
+        "type": "tag"
+      },
+      "C:\\Users\\cxy\\Desktop\\zsyd"
+    ]
+  ],
+  "_from": "ag-grid-vue@latest",
+  "_id": "ag-grid-vue@18.1.0",
+  "_inCache": true,
+  "_location": "/ag-grid-vue",
+  "_nodeVersion": "10.5.0",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/ag-grid-vue_18.1.0_1530628114633_0.4481042223249969"
+  },
+  "_npmUser": {
+    "name": "alberto.gutierrez",
+    "email": "alberto.gutierrez.campo@gmail.com"
+  },
+  "_npmVersion": "6.1.0",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "ag-grid-vue",
+    "scope": null,
+    "escapedName": "ag-grid-vue",
+    "name": "ag-grid-vue",
+    "rawSpec": "",
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/ag-grid-vue/-/ag-grid-vue-18.1.0.tgz",
+  "_shasum": "05c19857efd92f5ae3d4bf99de384abedbaf0f9a",
+  "_shrinkwrap": null,
+  "_spec": "ag-grid-vue",
+  "_where": "C:\\Users\\cxy\\Desktop\\zsyd",
+  "author": {
+    "name": "Sean Landsman",
+    "email": "sean@thelandsmans.com"
+  },
+  "bugs": {
+    "url": "https://github.com/ag-grid/ag-grid-vue/issues"
+  },
+  "dependencies": {},
+  "description": "ag-Grid Vue Component",
+  "devDependencies": {
+    "ag-grid": "^18.1.0",
+    "babel-core": "^6.0.0",
+    "babel-loader": "^6.0.0",
+    "babel-preset-es2015": "^6.0.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-rename": "^1.2.2",
+    "vue": "^2.0.0"
+  },
+  "directories": {},
+  "dist": {
+    "integrity": "sha512-dDPRTD0GnnaP6ssJNzrTnzjJN6B7+SAT5IHd8DuHAp4g1tFClZLjgpyUPgJaT64O4iE631mfjxDg4n9uVlXlOg==",
+    "shasum": "05c19857efd92f5ae3d4bf99de384abedbaf0f9a",
+    "tarball": "https://registry.npmjs.org/ag-grid-vue/-/ag-grid-vue-18.1.0.tgz",
+    "fileCount": 19,
+    "unpackedSize": 220883,
+    "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJbO4gSCRA9TVsSAnZWagAA5QYP/1CPXoulBI3lEXS8V5FD\n86fsaEnfudaz7nEWBum55Lv5rFEwklAId59xTpw1ChE7i1AqbT1x1aMyvcwH\nMnDAVJoqXtq09J6mv/v+Y80Zo4TPh7cgjXs0swVbuYsIaWIWEznqisg5evH7\nrRqtA9K/7rrlRGOVJr4vz7FfEM6enU2pCO/71Vz6W9TyOTWC/1pTy/5xuZCh\nTnBNKyij1yaAHNuI57o3EZxzDs1SvgDZiI5D7w/XyhUO5POBWeGMmonxrtBO\noylRikI8nMMBqm1HsQXcTAMwsrYpSRs510iGuPw1YkoiL1t+DGfaPzl4f3yW\nG2TY3xBhiMCp64F7JGAf2omFm7Dub0AkdGXfG2+6EPb6RJaMj7UVWcrQMxOR\nGC9uEfRirR++hxx26lQzLrZ7FJEBM8+Vw95fgi/XpR36++CDkgKUq0iNditx\nsGAl9fyvydYu4ZFvWc9wC8/jhs4sCNpRz111i7hpH6L2cRHzeL6qFOsBhbxh\nkzUbRd3eWKs/fmDPd2hq0z5RY9341lrsUi1Gqei0oCpjMa7kDBKZjDMTpe91\njbWXc6zKMw9n9/zRfEYM4VAs8lwHYSuXGRu9qZNdMlMqOUAs1nzT3v+odwjC\ndqPLlIyoRKvVtBEj32mFc+JEkNDfD8ZJTn+sn/j9WsgNf5nhz0GRrRb4kci1\nyyrR\r\n=q9X6\r\n-----END PGP SIGNATURE-----\r\n"
+  },
+  "homepage": "https://github.com/ag-grid/ag-grid-vue#readme",
+  "keywords": [
+    "grid",
+    "data",
+    "table",
+    "vue",
+    "vuejs"
+  ],
+  "license": "MIT",
+  "main": "main.js",
+  "maintainers": [
+    {
+      "name": "alberto.gutierrez",
+      "email": "alberto.gutierrez.campo@gmail.com"
+    },
+    {
+      "name": "ceolter",
+      "email": "niall.crosby@gmail.com"
+    },
+    {
+      "name": "seanlandsman",
+      "email": "sean@thelandsmans.com"
+    }
+  ],
+  "name": "ag-grid-vue",
+  "optionalDependencies": {},
+  "peerDependencies": {
+    "ag-grid": "^18.1.0",
+    "vue": "^2.0.0"
+  },
+  "readme": "ERROR: No README data found!",
+  "scripts": {
+    "build": "gulp"
+  },
+  "version": "18.1.0"
+}

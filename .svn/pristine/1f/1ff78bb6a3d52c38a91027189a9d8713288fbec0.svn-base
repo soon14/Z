@@ -1,0 +1,713 @@
+<template>
+	<div class='setting'>
+		<!--财务设置-->
+		<div v-if='numIndex==0' class='settingList'>
+			<div class="head">
+
+				<div class='left'>
+					<span style='font-size:18px;font-weight:600;margin-left:10px'>{{$t('manage.setting.Msetting')}}</span><!--财务设置-->
+				</div>
+
+				<div class='right'>
+				<span style='font-size:18px;font-weight:600;margin-left:10px'>{{item}}</span>
+					<!--支付-->
+					<div v-if='leftIndex==0' class='rightbtn'>
+						<Button type="primary" style='background:#3b77e3' shape="circle" @click="paytypetype">
+							 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.addnew')}}
+						</Button>
+					</div>
+					<!--收支项目-->
+					<div v-if='leftIndex==1' class='rightbtn'>
+						<Button type="primary" style='background:#3b77e3' shape="circle" @click="finitemtype">
+							 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.addnew')}}
+						</Button>
+					</div>
+				</div>
+			</div>
+			<!-- <div style='height:50px'></div> -->
+			<!--管理右侧内容-->
+			<div class='main'>
+				<div class="main-left">
+					<li v-for='(item,index) in dataListGL' :key='index' @click='clickLeftList(index,item)' :class="{bg:leftIndex==index}">
+					<span style='margin-left:10px'>{{item}}</span>
+					</li>
+				</div>
+				<div class='main-right' v-if='leftIndex==0'>
+					<!--支付-->
+					<div class='table'>
+						<Table border  :columns="paytypekey1" :data="paytypedata"></Table>
+					</div>
+				</div>
+				<div class='main-right' v-if='leftIndex==1'>
+					<!--收支-->
+					<div class='table'>
+						<Table border  :columns="finitemkey1" :data="finitemdata"></Table>
+					</div>
+				</div>
+			</div>
+		</div>
+	<!--新增支付类型-->
+	<Modal v-model="paytypeisshow" width="460px">
+		<p slot="header" style="height:30px;line-height:30px">
+
+			<span>{{$t('public.addnew')}}</span>
+		</p>
+
+		<Form ref="formValidatepaytype" :model="formValidatepaytype" :rules="ruleValidatepaytype" :label-width="100" v-if='zf'>
+			<FormItem :label="$t('manage.setting.ckname')" prop="paytypetitle">
+               <Input v-model='formValidatepaytype.paytypetitle'></Input>
+            </FormItem>
+            <FormItem :label="$t('manage.setting.key')" prop="paytypekey">
+               <Input v-model='formValidatepaytype.paytypekey'></Input>
+            </FormItem>
+		</Form>
+		<Form ref="formValidatepaytypeE" :model="formValidatepaytype" :rules="ruleValidatepaytype" :label-width="100" v-if='!zf'>
+			<FormItem :label="$t('manage.setting.ckname')" prop="paytypetitle">
+               <Input v-model='formValidatepaytype.paytypetitle'></Input>
+            </FormItem>
+            <FormItem :label="$t('manage.setting.key')" prop="paytypekey">
+               <Input v-model='formValidatepaytype.paytypekey'></Input>
+            </FormItem>
+		</Form>
+		<div slot="footer">
+
+			<div class='title'>
+				<div style='color:#D15151;font-size:14px'>
+					</div>
+				<div style='margin-top:10px'>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='paytypecancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#3b77e3;color:#fff" @click="paytypesure('formValidatepaytype')" v-if='zf'><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#40ca98;color:#fff" @click="editpaytype('formValidatepaytypeE')" v-if='!zf'><i class="el-icon-edit" style=";margin-right:5px;"></i>{{$t('public.EditBtn')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+	<!--新增收支项目-->
+	<Modal v-model="finitemisshow" width="460px">
+		<p slot="header" style="height:30px;line-height:30px">
+
+			<span>{{$t('public.addnew')}}</span>
+		</p>
+		<Form ref="formValidatefinitem" :model="formValidatefinitem" :rules="ruleValidatefinitem" :label-width="100" v-if='sz'>
+			<FormItem :label="$t('manage.setting.ckname')" prop="finitemname">
+                <Input v-model='formValidatefinitem.finitemname'></Input>
+            </FormItem>
+			<FormItem :label="$t('manage.setting.cksq')" prop="finitemcode">
+                <Input v-model='formValidatefinitem.finitemcode'></Input>
+            </FormItem>
+		</Form>
+		<Form ref="formValidatefinitemE" :model="formValidatefinitem" :rules="ruleValidatefinitem" :label-width="100" v-if='!sz'>
+			<FormItem :label="$t('manage.setting.ckname')" prop="finitemname">
+                <Input v-model='formValidatefinitem.finitemname'></Input>
+            </FormItem>
+			<FormItem :label="$t('manage.setting.cksq')" prop="finitemcode">
+                <Input v-model='formValidatefinitem.finitemcode'></Input>
+            </FormItem>
+		</Form>
+
+		<div slot="footer">
+
+			<div class='title'>
+				<div style='color:#D15151;font-size:14px'>
+					</div>
+				<div style='margin-top:10px'>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='finitemcancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#3b77e3;color:#fff" @click="finitemsure('formValidatefinitem')" v-if='sz'><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#40ca98;color:#fff" @click="editfinitem('formValidatefinitemE')" v-if='!sz'><i class="el-icon-edit" style=";margin-right:5px;"></i>{{$t('public.EditBtn')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+	</div>
+</template>
+<script type="text/javascript">
+
+export default{
+	data(){
+		return{
+			
+			c:true,//商品品牌
+			ck:true,//仓库
+			d:true,//职位管理的切换{{$t('public.addnew')}}，修改
+			s:true,//商品分类的切换{{$t('public.addnew')}}，修改
+			sz:true,//收支项目的切换{{$t('public.addnew')}}，修改
+			zf:true,//支付方式的切换{{$t('public.addnew')}}，修改
+			xs:true,//支付方式的切换{{$t('public.addnew')}}，修改
+			sx:true,//支付方式的切换{{$t('public.addnew')}}，修改
+			unit:true,//单位
+			gys:true,//供应商
+			dp:true,//店铺类型
+			kh:true,//客户等级
+			kh1:true,//客户类型
+			atisshow:false,
+			attrsname:'',
+			editattrisshow:false,
+			numIndex1:0,
+			uid: this.$store.state.common.token,
+			attrschildren:false,
+			attrsisshow:false,
+			isshow:false,
+			switch1:true,
+			numIndex:0,
+			leftIndex:0,
+			item:this.$t('manage.setting.paytype'),//"支付方式",
+			// dataListGL:['支付方式','收支项目',],
+			dataListGL:[this.$t('manage.setting.paytype'),this.$t('manage.setting.szxm')],
+
+			//支付类型
+			formValidatepaytype:{
+				paytypetitle:'',
+				paytypekey:''
+			},
+			ruleValidatepaytype:{
+				paytypetitle:[{ required: true, message:this.$t('finance.nameEmpty'), trigger: 'blur' }],
+				paytypekey:[{ required: true, message: '支付KEY不能为空', trigger: 'blur' }],
+			},
+			paytypedata:[],
+			paytypeid:'',//key值
+			paytypeisshow:false,//key值
+			paytypekey1:[
+
+				{
+					title:this.$t('manage.setting.title'),//标题
+					key:"title"
+				},
+				{
+					title:this.$t('manage.setting.key'),//key值
+					key:"key"
+				},
+				{
+					title:this.$t('public.time'),//更新时间
+					key:"updateTime"
+				},
+				{
+					title:this.$t('manage.sku.action'),//操作
+					key:"action",
+					
+					align:'center',
+					render:(h,parmas)=>{
+						return h('div',[
+								h('a',{
+									on:{
+										'click':()=>{
+											//console.log(parmas.row)
+											this.zf=false
+											this.paytypeid=parmas.row.id
+											this.paytypeisshow=true
+											this.formValidatepaytype.paytypetitle=parmas.row.title
+											this.formValidatepaytype.paytypekey=parmas.row.key
+
+										}
+									}
+								},this.$t('public.EditBtn')),
+								h('a',{
+									style:{
+										marginLeft:'20px'
+									},
+									on:{
+										'click':()=>{
+											//console.log(parmas.row.id)
+											this.axios.delete('paytype/delete/'+parmas.row.id+'?uid='+this.uid).then(res=>{
+												if(res.data.status==200){
+													this.$notify({
+								                        title:"",//
+								                        message:this.$t('public.deleteSuccess'),//
+								                        type: 'success',
+								                        position: 'bottom-right'
+								                    });
+													this.getpaytype()
+												}
+											})
+										}
+									}
+								},this.$t('public.del'))
+							])
+					}
+
+				}
+			],
+			//收支项目
+			formValidatefinitem:{
+				finitemname:'',
+				finitemcode:''
+			},
+			ruleValidatefinitem:{
+				finitemname:[{ required: true, message:this.$t('finance.nameEmpty'), trigger: 'blur' }]
+			},
+			finitemdata:[],
+			finitemsequence:'',//排序
+			finitemid:'',//id
+			finitemparentId:'',//上级编号
+			finitemisshow:false,//key值
+			finitemkey1:[
+
+				{
+					title:this.$t('manage.setting.ckname'),//名称
+				
+					key:"name"
+				},
+				{
+					title:this.$t('manage.setting.sq'),//编码
+					
+					key:"code"
+				},
+				{
+					title:this.$t('manage.sku.attrsq'),//排序
+					key:"sequence"
+				},
+				{
+					title:this.$t('public.time'),//创建时间
+					
+					key:"createTime"
+				},
+
+				{
+					title:this.$t('manage.sku.action'),//操作
+					key:"action",
+					
+					align:'center',
+					render:(h,parmas)=>{
+						return h('div',[
+								h('a',{
+									on:{
+										'click':()=>{
+											//console.log(parmas.row)
+											this.sz=false
+											this.finitemid=parmas.row.id
+											this.finitemparentId=parmas.row.parentId
+											this.finitemisshow=true
+											this.formValidatefinitem.finitemname=parmas.row.name
+											this.formValidatefinitem.finitemcode=parmas.row.code
+											this.finitemsequence=parmas.row.sequence
+
+										}
+									}
+								},this.$t('public.EditBtn')),
+								h('a',{
+									style:{
+										marginLeft:'20px'
+									},
+									on:{
+										'click':()=>{
+											//console.log(parmas.row.id)
+											this.axios.delete('finitem/delete/'+parmas.row.id+'?uid='+this.uid).then(res=>{
+												if(res.data.status==200){
+													this.$notify({
+								                        title:"",//
+								                        message:this.$t('public.deleteSuccess'),//
+								                        type: 'success',
+								                        position: 'bottom-right'
+								                    });
+													this.getfinitem()
+												}
+											})
+										}
+									}
+								},this.$t('public.del')),
+								h('a',{
+									style:{
+										marginLeft: '-44px',
+    									marginTop: '5px',
+										display:"block"
+									},
+									on:{
+										'click':()=>{
+											this.axios.post('finitem/enabled/'+parmas.row.id+'?uid='+this.uid).then(res=>{
+												if(res.data.status==200){
+													this.$notify({
+								                        title:"",//
+								                        message:this.$t('public.normalS'),
+								                        type: 'success',
+								                        position: 'bottom-right'
+								                    });
+													// this.getposition()
+												}
+											})
+										}
+									}
+								},this.$t('public.start')),
+								h('a',{
+									style:{
+
+										marginLeft: '40px',
+    									marginTop: '-18px',
+										display:"block"
+									},
+									on:{
+										'click':()=>{
+											this.axios.post('finitem/disabled/'+parmas.row.id+'?uid='+this.uid).then(res=>{
+												if(res.data.status==200){
+													this.$notify({
+								                        title:"",//
+								                        message:this.$t('public.normalT'),
+								                        type: 'success',
+								                        position: 'bottom-right'
+								                    });
+													// this.getposition()
+												}
+											})
+										}
+									}
+								},this.$t('public.stop'))
+							])
+					}
+
+				}
+			],
+		}
+	},
+	methods:{
+		//管理
+		clickLeftList(index,item){
+			this.leftIndex=index
+			this.item=item
+		},
+
+		//支付类型
+		getpaytype(){
+			this.axios.get('/paytype/query?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					this.paytypedata=res.data.rows
+
+					this.paytypedata.forEach((x,index)=>{
+						x.updateTime=new Date(x.updateTime).toLocaleDateString().replace(/\//g,'-')
+					})
+				}
+			})
+		},
+		//新增支付类型
+		paytypetype(){
+			this.zf=true
+			this.paytypeisshow=true
+		},
+		paytypecancel(){
+			this.paytypeisshow=false
+		},
+		//支付类型:'',//key值
+		paytypesure(name){
+			this.$refs[name].validate((valid) => {
+				if(valid){
+					this.axios.post('paytype/add?uid='+this.uid,{
+						title:this.formValidatepaytype.paytypetitle,
+						key:this.formValidatepaytype.paytypekey,
+					}).then(res=>{
+						if(res.data.status==200){
+
+							this.$notify({
+		                        title:"",//
+		                        message:this.$t('public.SaveSuccess'),
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+							this.formValidatepaytype.paytypetitle=''
+							this.formValidatepaytype.paytypekey=''
+							this.paytypeisshow=false
+							this.getpaytype()
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+				}
+			})
+		},
+		//修改支付类型
+		editpaytype(name){
+			this.$refs[name].validate((valid) => {
+				if(valid){
+					this.axios.put('paytype/update?uid='+this.uid,{
+						id:this.paytypeid,
+						title:this.formValidatepaytype.paytypetitle,
+						key:this.formValidatepaytype.paytypekey,
+					}).then(res=>{
+						if(res.data.status==200){
+
+							this.$notify({
+		                        title:"",//
+		                        message:this.$t('public.editSuccess'),//
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+							this.formValidatepaytype.paytypetitle=''
+							this.formValidatepaytype.paytypekey=''
+							this.paytypeisshow=false
+							this.getpaytype()
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+				}
+			})
+
+		},
+		//收支项目
+		getfinitem(){
+			this.axios.get('/finitem/query?uid='+this.uid).then(res=>{
+				if(res.data.status==200){
+					this.finitemdata=res.data.rows
+
+					this.finitemdata.forEach((x,index)=>{
+						x.createTime =new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+					})
+				}
+			})
+		},
+		//新增收支项目
+		finitemtype(){
+			this.sz=true
+			this.finitemisshow=true
+			this.formValidatefinitem.finitemname=''
+			this.formValidatefinitem.finitemcode=''
+			this.finitemsequence=''
+			this.finitemparentId=''
+		},
+		finitemcancel(){
+			this.finitemisshow=false
+		},
+		//收支项目:'',//key值
+		finitemsure(name){
+			this.$refs[name].validate((valid) => {
+				if(valid){
+					this.axios.post('finitem/add?uid='+this.uid,{
+						name:this.formValidatefinitem.finitemname,
+						code:this.formValidatefinitem.finitemcode,
+						// sequence:this.finitemsequence,
+						// parentId:this.finitemparentId,
+					}).then(res=>{
+						if(res.data.status==200){
+							this.$notify({
+		                        title:"",//
+		                        message:this.$t('public.SaveSuccess'),
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+							this.formValidatefinitem.finitemname=''
+							this.formValidatefinitem.finitemcode=''
+							this.finitemparentId=''
+							this.finitemsequence=''
+							this.finitemisshow=false
+							this.getfinitem()
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+				}
+			})
+
+		},
+		//修改收支项目
+		editfinitem(name){
+			this.$refs[name].validate((valid) => {
+				if(valid){
+					this.axios.put('finitem/update?uid='+this.uid,{
+						id:this.finitemid,
+						name:this.formValidatefinitem.finitemname,
+						code:this.formValidatefinitem.finitemcode,
+						// parentId:this.finitemparentId,
+						// sequence:this.finitemsequence,
+					}).then(res=>{
+						if(res.data.status==200){
+
+							this.$notify({
+		                        title:"",//
+		                        message:this.$t('public.editSuccess'),//
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+							this.formValidatefinitem.finitemname=''
+							this.formValidatefinitem.finitemcode=''
+							this.finitemparentId=''
+							this.finitemisshow=false
+							this.getfinitem()
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+				}
+			})
+
+
+		},
+	},
+	created(){
+		this.$nextTick(()=>{
+			this.getpaytype()//支付
+		this.getfinitem()//收支项目
+		})
+	},
+	mounted(){}
+}
+</script>
+
+<style type="text/css" scoped>
+.setting
+{
+	width:100%;
+	height:100%;
+	display:flex;
+	flex-direction: column;
+	background: rgb(230,233,236)
+}
+.settingList{
+	height:100%;
+	width:100%;
+}
+.main{
+	display:flex;
+	height:100%;
+	width:100%;
+
+}
+.head{
+	width:100%;
+	line-height:50px;
+
+	display:flex;
+	height:50px;
+
+
+}
+.left{
+	width: 120px;
+	margin-right: 3px;
+	flex: 0 0 120px;
+	font-size: 14px;
+	background: #fff;
+	border-bottom:1px solid #EDEDED;
+}
+.right{
+width:100%;
+	background: #fff;
+	border-bottom:1px solid #EDEDED;
+	display: flex;
+	justify-content: space-between;
+}
+.btn-right{
+	margin-right:20px;
+}
+.main-left{
+	width: 120px;
+	margin-right: 3px;
+	flex: 0 0 120px;
+	font-size: 14px;
+	background: #fff;
+}
+.main-right{
+	width:100%;
+	background: #fff;
+
+}
+.rightbtn{
+	margin-right:10px;
+}
+li{
+	list-style: none
+}
+.main-left li{
+	height:40px;
+	line-height: 40px;
+	width:100%;
+	cursor:pointer;
+}
+.right-info{
+	display:flex;
+	flex-direction: column;
+	margin-left:20px;
+	margin-top:20px;
+}
+.right-info span{
+	margin-top:20px;
+}
+.right-info div{
+	margin-top:10px;
+}
+.bg,.bgjxc,.bgcw{
+	background: rgb(241,245,247);
+    color: rgb(59,119,227);
+}
+.table{
+	width: 100%;
+		height: 100%;
+		background: #fff;
+	overflow: auto;
+	padding:0 7px;
+}
+/*属性*/
+.attrtitle{
+	display:flex;
+	justify-content: space-around;
+	height:40px;
+	line-height: 40px;
+
+	background: #f9f9f9
+}
+.attrname{
+	display:flex;
+	justify-content: space-around;
+	margin-top:20px;
+
+	border-bottom:1px dashed  #ccc;
+}
+.attrname li,.attrtitle li{
+	width:100px;
+	margin-bottom:20px;
+	text-align: center;
+}
+
+.avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    text-align: center;
+  }
+  .avatar {
+    width: 100px;
+    height: 100px;
+    display: block;
+  }
+.right-left{
+width: 104px;
+height:100px;
+border:1px dashed #e1e1e1;
+}
+
+</style>
+<style type="text/css" scoped>
+	.el-upload--text{
+	width:100px!important;
+	height:100px!important;
+	border:none!important;
+}
+
+</style>

@@ -1,0 +1,138 @@
+<template>
+    <div >
+		<div class='head-bottom1'>
+			<li class='head-bottom1-li'>
+				<div class="car-body">
+					<span >今日已完成工单</span>
+					<h3 class="f-50 font-weight-100" ><span class="span" @click="geToPath(0)">{{order1}}</span></h3>
+				</div>
+			</li>
+			<li class='head-bottom1-li'>
+				<div class="car-body">
+					<span >本周已完成工单</span>
+					<h3 class="f-50 font-weight-100" ><span class="span" @click="geToPath(1)">{{order2}}</span></h3>
+				</div>
+			</li>
+			
+			<li class='head-bottom1-li'>
+				<div class="car-body">
+					<span >合约中的客户数</span>
+					<h3 class="f-50 font-weight-100" ><span class="span" @click="geToPath(2)">{{order3}}</span></h3>
+				</div>
+			</li>
+			<li class='head-bottom1-li'>
+				<div class="car-body">
+					<span >合约中的护理员数量</span>
+					<h3 class="f-50 font-weight-100" ><span class="span" @click="geToPath(3)">{{order4}}</span></h3>
+				</div>
+			</li>
+		</div>
+    </div>
+</template>
+<script>
+export default {
+    data(){
+        return {
+            order1:0,//今日工单数量
+			order2:0,//本周工单数量
+			order3:0,//客户数
+			order4:0,//护理员人员
+        }
+    },
+    methods:{
+    	getNum(){
+    		this.axios.get('zhbStatement/overview?uid='+this.uid).then(res=>{
+    			if(res.data.status==200){
+    				let data=res.data.rows
+    				this.order1=data.dayOrderNum
+					this.order2=data.weekOrderNum
+					this.order3=data.auntNum
+					this.order4=data.caregivesNum
+    			}
+    		})
+    	},
+    	geToPath(num){
+    		switch(num){
+    			case 0:
+    				this.$router.push('/wordOrderIndex')
+    				sessionStorage.setItem('isselect','工单')
+    				sessionStorage.setItem('numberIndex', 3)
+    			break;
+    			case 1:
+    				this.$router.push('/wordOrderIndex')
+    			break;
+    			case 2:
+    				this.$router.push('/customerIndex')
+    			break;
+    			case 3:
+    				this.$router.push('/attendantIndex')
+    			break;
+    		}
+    	},
+    },
+    created(){
+    	this.$nextTick(()=>{
+    		this.getNum()
+    	})
+    }
+}
+</script>
+<style scoped>
+.order-top{
+	display:flex;
+	justify-content: space-around;
+	background: #F8F8F8;
+	height:80px;
+	
+}
+.top-list{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column
+}
+.head-bottom1{
+	display:flex;
+	flex-wrap: wrap;
+	margin: 10px 10px 10px 5px;
+}
+.head-bottom1-li{
+    position: relative;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background: #fff;
+    background-clip: border-box;
+    border: 1px solid rgba(0,0,0,.125);
+    border-radius: .25rem;
+   	width:260px;
+    margin:10px 10px 0 5px;
+
+}
+
+.head-bottom1 .head-bottom1-li:focus-within{
+	background:red;
+	border:1px solid red;
+}
+.car-body{
+	padding: 1.25rem;
+
+}
+.car-body span{
+	color:#666f73;
+
+}
+.f-50{
+	font-size:35px;
+}
+.font-weight-100{
+	font-weight:100;
+	
+}
+.span{
+	cursor:pointer;
+}
+</style>

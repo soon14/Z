@@ -1,0 +1,2565 @@
+<template>
+	<!--报价单：-->
+	<div class="add-box">
+		
+			<!--固定导航-->
+      <div class="heade" style='height:60px'> 
+                    <div class="left-top">
+                      <p class="wldw">
+                            <span style="width:42px;font-weight:900">报价单：</span>
+                             <Select style="width:100px" placeholder="全部" v-model="valueT" @on-change="orderselected">
+                                <Option v-for="item in orderListname" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                            </Select>
+                        </p>
+						<div>
+						<!--新建-->
+						<span class="top-left-btn"  @click="addUnit">
+							<Icon type="plus" style="position:absolute;top:7px;left:8px"></Icon></span>
+						
+					</div>
+                    </div> 
+                
+                    <div class="right-top">
+                        <span style="font-weight:600;font-size:19px;position: absolute;left:360px">{{reNumber}}</span>
+                        <div style="display:flex;margin-right: 10px;position: absolute;right:200px">
+                        <div>
+                            
+                            <Button type="primary" shape="circle" style="margin-right:5px;border:none;background:#3b77e3;color:#fff"  @click="saveBaseInfo('save')" v-show="addText"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>保存</Button>
+
+                               <Button type="primary" shape="circle" style="background:#3b77e3;color:#fff;border:none" @click='tjbtn'  v-if="tj"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>提交</Button>
+                                 <Button type="primary" shape="circle" style="background:#3b77e3;color:#fff;border:none" @click='surebtn'  v-if="tjsure"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>确认</Button>
+
+                                  <Button type="primary" shape="circle" style="background:#d53c39;color:#fff;border:none" @click='zfbtn'  v-if="tjzf"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>作废</Button>
+                                  <Button type="primary" shape="circle" style="background:#40ca98;color:#fff;border:none"  @click="changeUnitInfo1" v-show="xiugaibtn1"><i class="el-icon-edit" style=";margin-right:5px;"></i>修改</Button>
+                               <Button type="primary" shape="circle" style="background:#3b77e3;margin-right:5px;color:#fff;border:none"  @click="changeUnitInfo2('save1')" v-show="xiugaibtn2"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>保存</Button>
+                             <Button type="primary" shape="circle" style="background:#999999;color:#fff;"   @click="cancel" v-show="addText" ><Icon type="close" style="margin-right:5px;"></Icon>取消</Button>
+                             <span @click="cancelHome" v-show="addText" style="cursor:pointer;margin-left: 10px;"><Icon type="close" class="cha" ></Icon></span>
+                          
+						</div>
+						<div style="margin-right:70px;display:flex">
+                            <div v-show="newBusiness" class="cursor">
+                            	<Dropdown trigger="click" style="margin-left: 4px" v-if='!xiugaibtn2'>
+					                    <Button shape="circle" type="ghost" style="background:#ff7d16;color:#fff;border:none">更多
+					                <span><i class="ivu-icon ivu-icon-chevron-down"></i></span>
+					            </Button>
+					            <DropdownMenu slot="list">
+					          		<!-- <span @click='download'><DropdownItem >下载</DropdownItem></span>
+	               	 				<span @click='share'><DropdownItem >分享</DropdownItem></span> -->
+					                <span @click="delunit"><DropdownItem >删除</DropdownItem></span>
+					            </DropdownMenu>
+					            </Dropdown>	
+								<span @click="cancelHome" style="cursor:pointer;margin-left: 10px;"><Icon type="close" class="cha" ></Icon></span>
+							</div>
+                           </div>
+                        </div>
+                    </div>
+             
+     	</div> 
+		<div class="cheng"></div>
+	
+			<!--左边往来单位列表-->
+			
+		<div class="left-content">
+			<div class='locationSearch'>
+				<Input style='padding:10px 20px;' v-model='searchKeyword' :placeholder="$t('public.orderornameandphone')" @on-enter='enterSearchBjd'>
+	            <span slot="append"  @click='searchBjd' style='cursor:pointer;'>搜索</span>
+	            </Input>
+	             <!-- <a style='font-size:14px;font-weight:600;margin-left:20px;border-bottom:1px solid #3b77e3;height:35px;line-hegiht:35px;line-height: 35px;margin-top: -2px;' @click='searchLocation'>精准搜索</a> -->
+			</div>
+			<p v-if="Allunits.length==0" class='scrollFix'>
+				<Spin>
+	                <div>暂无数据</div>
+	            </Spin>
+		    </p>
+			<Scroll :on-reach-bottom="handleReachEdge" :height="height" v-else >
+				<div class="con-list" v-for="(item,index) in Allunits" :key='index' @click="updataUnit(item.id,index)" :class="{bg:numLeftList==index}">
+					 <span >
+					 	 <Checkbox :value="numLeftList==index"></Checkbox>
+					 </span>
+					 <div>
+					<p class="list-title">{{item.recordNo}}</p>
+					<p class="txt" >
+						{{item.customer.name}}
+					</p>
+					<div class="lanrenLeft" :class="{bgd6:item.status==1,bgd7:item.status==99,bgd9:item.status==88,bgd10:item.status==5}">
+
+	                   <span >{{item.ststusDesc}}</span> 
+	                </div>​
+					<!-- <span class="date">{{item.recordDate}}</span> -->
+					<span class="status">{{item.recordDate}}</span>
+					</div>
+				</div>
+				
+			</Scroll>
+		</div>
+		<!--保存-->
+		<div class="add-right">
+			<div  style="width:100%;height:100%;" v-show="addText">
+				<Form ref="save" :model="formValidate" :rules="ruleValidate" :label-width="80" style='margin:0 10px;'>
+				<Row>
+					<Col span="8" >
+					
+		           		<FormItem label="单据编号" prop="referNo">
+		                	<Input v-model='formValidate.referNo'  placeholder='单据编号'></Input>
+		           		</FormItem>
+	           		</Col>
+	           		<Col span="8" >
+		           		<FormItem label="单据日期" prop="recordDate">
+		                	<DatePicker type="date" :value='formValidate.recordDate'  placeholder="请选择日期"style='width:100%' @on-change='seleTime'></DatePicker>
+		           		</FormItem>
+	           		</Col>
+	           		
+				</Row>
+				<Row>
+					<Col span="8" >
+						<FormItem label="开始时间">
+		                	<DatePicker type="date" :options="optionsB" :value='startTime'  placeholder="请选择开始时间"style='width:100%' @on-change='selestartTime'></DatePicker>
+		           		</FormItem>
+		           	</Col>
+		           	<Col span="8" >
+		           		<FormItem label="结束时间" prop="endTime">
+		                	<DatePicker type="date" :options="optionsB" :value='formValidate.endTime' placeholder='请选择结束时间' style='width:100%' @on-change='seleEndTime'></DatePicker>
+		           		</FormItem>
+					</Col>		
+				</Row>
+				<Row>
+					<Col span="8" >
+						<FormItem label="选择客户" prop="khName">
+	                	<div style='position:relative;' >
+							<Input  v-model="formValidate.khName" placeholder="请选择客户" @on-keyup="enterSearchKh"></Input>
+							<span @click="alertchModal"><Icon type="ios-search" size="16" style='position:absolute;top:8px;right:8px;cursor:pointer'></Icon></span>
+							<div style="position:absolute;z-index:999;width:100%">
+							<Table v-if="alertch1" border highlight-row height="300" :columns="gyskey" :data="gysdata" 
+								@on-row-click="gysrow1" @on-row-dblclick="dblgysrow">
+							</Table>
+							</div>
+						</div>
+		           		</FormItem>
+		           	</Col>
+		           	
+		           	<Col span="8" >
+		           		<FormItem label="联系人">
+		                	<Input v-model='contract'  placeholder='联系人'></Input>
+		           		</FormItem>
+					</Col>
+					
+				</Row>
+				<Row>
+					<Col span="8" >
+		           		<FormItem label="联系人手机">
+		                	<Input v-model='contractPhone'  placeholder='联系人手机'></Input>
+		           		</FormItem>
+		           	</Col>
+		           	
+				</Row>
+				<Row>
+					<Col span="24" style='margin-right:10px'>
+						<Input type='textarea' v-model='remark' placeholder='备注' style='margin-top:10px;margin-bottom:10px'></Input>
+					</Col>
+
+				</Row>
+				
+				<!--关联商品-->
+				<Col span="24" >
+					<div class="table1" style='margin-bottom:200px'>
+						<div class="detail-title-mark">
+							<div v-for="(item,index) in titles" class="detail-title" @click="addborder(index)" :class="{bor:index==num2}">
+								{{item}}
+							</div>
+							<span class='quotationaddLength'>{{selectedgoodsrow.length}}</span>
+						
+						</div>
+						<!--关联商品-->
+						<div v-show="num2==0" class="detail-public">
+							<div style="position:relative;text-align:center;width:100%;height:35px;line-height:35px;display:flex;margin:5px 0">
+								<Input v-model="glkeyword" class="modelInput" placeholder="商品名称" style="padding:2px 0" @on-enter='glenterSearch'></Input>
+								<span @click="getglKeyword">
+								<Icon type="search" size="16" style="display:inline-block;position:absolute;top:10px;right:18px;z-index:9" ></Icon>
+
+								</span>
+							</div>
+							<Table size="small" border :columns="glkey" :data="glgoods" >
+								</Table>
+							<Page :total="totalgl" show-total size="small" :pageSize='pageSizegl'  @on-change="getDatagl" @on-page-size-change="changePageSizegl" style='margin-top:10px'></Page>
+						</div>
+						<!--全部商品-->
+						<div v-show="num2==1" class="detail-public">
+							<div style="position:relative;text-align:center;width:100%;height:35px;line-height:35px;display:flex;margin:5px 0">
+								<Input v-model="allkeyword" class="modelInput" placeholder="商品名称" style="padding:2px 0" @on-enter='allenterSearch'></Input>
+								<span @click="getallKeyword">
+								<Icon type="search" size="16" style="display:inline-block;position:absolute;top:10px;right:18px;z-index:9" ></Icon>
+
+								</span>
+							</div>
+							<Table  border  :columns="goodskey1" :data="selectedGoods" >
+								</Table>
+							
+								<Page :total="totalsku" show-total size="small" :pageSize='pageSizesku'  @on-change="getData" @on-page-size-change="changePageSize" style='margin-top:10px'></Page>
+							
+						</div>
+						<!--报价商品-->	
+						<div v-show="num2==2" class="detail-public">
+
+							<Table  border :columns="goodskey2" :data="selectedgoodsrow" >
+								</Table>
+							
+						</div>
+						
+					</div>
+				</Col>
+			</Form>
+			</div>
+				
+			<!-- </div>	 -->
+		<!--报价单修改-->
+			<div v-show="xiugai">
+				<Form ref="save1" :model="formValidate" :rules="ruleValidate" :label-width="80" style='margin:0 10px;'>
+				<Row>
+					<Col span="8" >
+					
+		           		<FormItem label="单据编号" prop="referNo">
+		                	<Input v-model='formValidate.referNo'  placeholder='单据编号'></Input>
+		           		</FormItem>
+	           		</Col>
+	           		<Col span="8" >
+		           		<FormItem label="单据日期" prop="recordDate">
+		                	<DatePicker type="date" :value='formValidate.recordDate'  placeholder="请选择日期"style='width:100%' @on-change='seleTime'></DatePicker>
+		           		</FormItem>
+	           		</Col>
+	           		
+				</Row>
+				<Row>
+					<Col span="8" >
+						<FormItem label="开始时间">
+		                	<DatePicker type="date" :options="optionsB" :value='startTime'  placeholder="请选择开始时间"style='width:100%' @on-change='selestartTime'></DatePicker>
+		           		</FormItem>
+		           	</Col>
+		           	<Col span="8" >
+		           		<FormItem label="结束时间" prop="endTime">
+		                	<DatePicker type="date" :options="optionsB" :value='formValidate.endTime' placeholder='请选择结束时间' style='width:100%' @on-change='seleEndTime'></DatePicker>
+		           		</FormItem>
+					</Col>		
+				</Row>
+				<Row>
+					<Col span="8" >
+						<FormItem label="选择客户" prop="khName">
+	                	<div style='position:relative;' >
+							<Input  v-model="formValidate.khName" placeholder="请选择客户" @on-keyup="enterSearchKh"></Input>
+							<span @click="alertchModal"><Icon type="ios-search" size="16" style='position:absolute;top:8px;right:8px;cursor:pointer'></Icon></span>
+							<div style="position:absolute;z-index:999;width:100%">
+							<Table v-if="alertch1" border highlight-row height="300" :columns="gyskey" :data="gysdata" 
+								@on-row-click="gysrow1" @on-row-dblclick="dblgysrow">
+							</Table>
+							</div>
+						</div>
+		           		</FormItem>
+		           	</Col>
+		           	
+		           	<Col span="8" >
+		           		<FormItem label="联系人">
+		                	<Input v-model='contract'  placeholder='联系人'></Input>
+		           		</FormItem>
+					</Col>
+					
+				</Row>
+				<Row>
+					<Col span="8" >
+		           		<FormItem label="联系人手机">
+		                	<Input v-model='contractPhone'  placeholder='联系人手机'></Input>
+		           		</FormItem>
+		           	</Col>
+		           	
+				</Row>
+				<Row>
+					<Col span="24" style='margin-right:10px'>
+						<Input type='textarea' v-model='remark' placeholder='备注' style='margin-top:10px;margin-bottom:10px'></Input>
+					</Col>
+
+				</Row>
+				
+				<!--关联商品-->
+				<Col span="24" >
+					<div class="table1" style='margin-bottom:200px'>
+						<div class="detail-title-mark">
+							<div v-for="(item,index) in titles" class="detail-title" @click="addborder(index)" :class="{bor:index==num2}">
+								{{item}}
+							</div>
+							<span class='quotationaddLength'>{{selectedgoodsrow.length}}</span>
+						
+						</div>
+						<!--关联商品-->
+						<div v-if="num2==0" class="detail-public">
+							<div style="position:relative;text-align:center;width:100%;height:35px;line-height:35px;display:flex;margin:5px 0">
+								<Input v-model="glkeyword" class="modelInput" placeholder="商品名称" style="padding:2px 0" @on-enter='glenterSearch'></Input>
+								<span @click="getglKeyword">
+								<Icon type="search" size="16" style="display:inline-block;position:absolute;top:10px;right:18px;z-index:9" ></Icon>
+
+								</span>
+							</div>
+							<Table size="small" border :columns="glkey" :data="glgoods" >
+								</Table>
+							<Page :total="totalgl" show-total size="small" :pageSize='pageSizegl'  @on-change="getDatagl" @on-page-size-change="changePageSizegl" style='margin-top:10px'></Page>
+						</div>
+						<!--全部商品-->
+						<div v-if="num2==1" class="detail-public">
+							<div style="position:relative;text-align:center;width:100%;height:35px;line-height:35px;display:flex;margin:5px 0">
+								<Input v-model="allkeyword" class="modelInput" placeholder="商品名称" style="padding:2px 0" @on-enter='allenterSearch'></Input>
+								<span @click="getallKeyword">
+								<Icon type="search" size="16" style="display:inline-block;position:absolute;top:10px;right:18px;z-index:9" ></Icon>
+
+								</span>
+							</div>
+							<Table size="small" border  :columns="goodskey1" :data="selectedGoods" >
+								</Table>
+							
+								<Page :total="totalsku" show-total  :pageSize='pageSizesku'  @on-change="getData" @on-page-size-change="changePageSize" style='margin-top:10px'></Page>
+							
+						</div>
+						<!--报价商品-->	
+						<div v-if="num2==2" class="detail-public">
+
+							<Table size="small" border :columns="goodskey2" :data="selectedgoodsrow" >
+								</Table>
+							
+						</div>
+						
+					</div>
+				</Col>
+			</Form>
+			</div>
+			<!--详情明细订单页面-->
+            <div class="right-detail" ref="details"  v-if='isdetails'>
+            	
+                <div class="detail-top" style='position:relative'>
+                	<!-- <div class="lanren" :class="{bgd1:storeDetails.ststusDesc=='待审核',bgd2:storeDetails.ststusDesc=='已作废',bgd3:storeDetails.ststusDesc=='签收完成',bgd4:storeDetails.ststusDesc=='已生效',bgd5:storeDetails.ststusDesc=='已审核'}">
+                   <span >{{storeDetails.ststusDesc}}</span> 
+                </div>​ -->
+                 <Form  :label-width="80" >
+				<Row>
+					<Col span="8" >
+					
+		           		<FormItem label="单据编号" prop="referNo">
+		                	<Input disabled v-model='formValidate.referNo'  placeholder='单据编号'></Input>
+		           		</FormItem>
+	           		</Col>
+	           		<Col span="8" >
+		           		<FormItem label="单据日期" prop="recordDate">
+		                	<DatePicker  type="date" :value='formValidate.recordDate'  placeholder="请选择日期"style='width:100%' disabled></DatePicker>
+		           		</FormItem>
+	           		</Col>
+	           			
+				</Row>
+				<Row>
+					<Col span="8" >
+						<FormItem label="开始时间">
+		                	<DatePicker type="date" :value='startTime'  placeholder="请选择开始时间"style='width:100%'disabled></DatePicker>
+		           		</FormItem>
+		           	</Col>
+		           	<Col span="8" >
+		           		<FormItem label="结束时间" prop="endTime">
+		                	<DatePicker type="date" :value='formValidate.endTime' placeholder='请选择结束时间' style='width:100%' disabled></DatePicker>
+		           		</FormItem>
+					</Col>
+				</Row>
+				<Row>
+					<Col span="8" >
+						<FormItem label="选择客户" prop="khName">
+	                	<div style='position:relative;'>
+							<Input disabled  v-model="formValidate.khName" placeholder="请选择客户" ></Input>
+							<Icon type="ios-search" size="16" style='position:absolute;top:8px;right:8px'></Icon>
+						</div>
+		           		</FormItem>
+		           	</Col>
+		           	
+		           	<Col span="8" >
+		           		<FormItem label="联系人">
+		                	<Input disabled v-model='contract'  placeholder='联系人'></Input>
+		           		</FormItem>
+					</Col>
+				</Row>  
+				<Row> 
+					<Col span="8" >
+		           		<FormItem label="联系人手机">
+		                	<Input disabled v-model='contractPhone'  placeholder='联系人手机'></Input>
+		           		</FormItem>
+		           	</Col>
+		           
+				</Row>  
+				<Row>  
+					<Col span="24" style='margin-right:10px'>
+						<Input disabled type='textarea' v-model='remark' placeholder='备注' style='margin-top:10px;margin-bottom:10px'></Input>
+					</Col>
+				</Row>  
+                </Form>
+				</div>
+                <div class="detail-bottom">
+					<div class="detail-title-mark">
+						<div v-for="(item,index) in titles1" class="detail-title" @click="addborder1(index)" :class="{bor:index==num4}">
+							{{item}}
+						</div>
+					</div>
+					<div style='margin:10px 10px 120px 10px'>
+						<Table size="small" border :columns="bjdmxkey" :data="bjdmx"></Table>
+					</div>
+						
+				</div>
+				
+            </div> 
+		</div>
+			<!--选择客户弹出框-->
+			<Modal v-model="alertch" width="660px">
+				<p slot="header" style="height:30px;line-height:30px">
+					<span>客户搜索</span>
+				</p>
+				<div style="position:relative;text-align:center;width:100%;height:35px;line-height:35px;display:flex;">
+					<Input v-model="gyskeyword" class="modelInput" placeholder="客户名称" style="padding:2px 0" @on-enter='enterSearch'></Input>
+					<span @click="getgysKeyword">
+					<Icon type="search" size="16" style="display:inline-block;position:absolute;top:10px;right:18px;z-index:9" ></Icon>
+
+					</span>
+				</div>
+				<div slot="footer" style='margin-top:-10px'>
+					<!--客户表格-->
+					<Table  border highlight-row  height="300" :columns="gyskey" :data="gysdata" 
+					@on-row-click="gysrow" @on-row-dblclick="dblgysrow">
+					</Table>
+					<!--分页-->
+		            <div class="page-box" style="text-align:left">
+					 <Page :total="gystotal" :pageSize='gyspageSize' show-total @on-change="getgysData" @on-page-size-change="changegysPageSize"></Page>
+					</div>
+					<div class='title' style='margin:0px'>
+						<div style='color:#D15151;font-size:14px'>
+							<!-- <Icon type="plus" style='margin-right:5px'></Icon> -->
+							<!-- <span >添加客户</span>
+							 -->
+							</div>
+						<div>
+							<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='modelCancel'><Icon type="close" style="margin-right:5px;" ></Icon>取消</Button>
+							<Button shape="circle" type="ghost" style="display:inline-block;background:#00A7F5;color:#fff" @click="makegys"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>确认</Button>
+						</div>
+					</div>
+				</div>
+			</Modal>
+			<!--精准搜索-->
+    <Modal v-model="psisshow" width="400px">
+    <p slot="header" style="height:30px;line-height:30px;text-align:center">
+      
+      <span>精准搜索</span>
+    </p>
+     <Form :label-width="100">
+    	<FormItem label="单号：" >
+           <Input v-model='reNoL' ></Input>
+        </FormItem>
+        <FormItem label="客户：" >
+           <Input v-model='khNameL' ></Input>
+        </FormItem>
+        <FormItem label="联系人手机：" >
+           <Input v-model='mobileL' ></Input>
+        </FormItem>
+         <FormItem label="单据日期">
+        	<div style='display: flex;justify-content: space-between;'>
+			<DatePicker type="date" :value='beginNo1' placeholder="请选择开始时间" style="width:48%" @on-change="beginChange"></DatePicker> 
+			<DatePicker type="date" :value='endNo1' placeholder="请选择结束时间" style="width:48%" @on-change="endChange"></DatePicker>
+			</div>
+        </FormItem>
+    </Form>
+    <div slot="footer">
+      <div class='footer-mark'>
+        <span><a style='color:#999;font-size:14px' @click='cancelSearchLocation'>取消</a></span>
+        <span style='font-size:20px;width:1px;height:40px;background:#e4e4e4'></span>
+        <span ><a style='color:#3B77E3;font-size:14px' @click='sureSearchLocation'>确认</a></span>
+      </div>
+    </div>
+  </Modal>	
+			<div class='totBottom'>
+		        <span>共<span style='color:#ff0000'> {{total}} </span>条</span>
+		        <span>当前第<span style='color:#ff0000'> {{current}} </span>页</span>
+		    </div>
+		</div>
+	
+</template>
+
+<script>
+
+	export default {
+		data() {
+			return {
+				//当前日期之前都无法选择
+				optionsB:this.optionsB,
+				allkeyword:"",
+				glkeyword:"",
+				alertch1:false,
+				cancelxiu:false,
+				//精准搜索
+				psisshow:false,//
+				reNoL:'',//单号
+				khNameL:'',//客户
+				mobileL:'',//手机号
+				beginNo1:'',//开始时间
+				endNo1:'',//结束时间
+				//精准搜索
+				searchKeyword:'',//关键词
+				bjdName:'',//左侧客户名称
+				isdetails:false,//详情也的显示与隐藏
+				quotationaddLen:0,//报价单选择的个数
+				//保存数据
+				formValidate:{
+					khName:'',//客户
+					recordNo:'',//单据编号
+					referNo:'',//来源编号
+					recordDate:'',//单据日期
+					endTime:'',//结束时间
+				},
+				ruleValidate:{
+					khName:[{ required: true, message: '请选择客户！', trigger: 'blur' }],
+					endTime:[{ required: true, message: '请选择结束时间！', trigger: 'change' }],
+				},
+				
+				tjzf:false,
+				bjdmx:[],
+				bjdmxkey:[
+					
+                    {
+                        title: '图片',
+                        key:'mainPhoto',
+                         width: 120,
+                        align: 'center',
+                        render:(h, params) =>{
+                        	return h('div',[
+                        			h('img',{
+                        				attrs:{
+                        					src:params.row.mainPhoto
+                        				},
+                        				style:{
+                        					width:'40px',
+                        					height:'40px',
+                        					marginTop:'4px'
+                        				}
+                        			})
+                        		])
+                        }
+                    },
+                    {
+                        title: '货号',
+                        key:'skuCode'
+                    },
+                    {
+                        title: '条码',
+                        key:'barcode'
+                    },
+                    {
+                        title: '名称',
+                        key:'skuName'
+                    },
+                    {
+                        title: '报价',
+                        key:'price'
+                    },
+                    {
+                        title: '客户',
+                        key:'name1'
+                    },
+                    {
+                        title: '开始时间',
+                        key:'startTime'
+                    },
+                    {
+                        title: '结束时间',
+                        key:'endTime'
+                    },
+                    {
+                        title: '状态',
+                        key:'statusDesc'
+                 
+                    },
+				],
+				tj:false,//提交
+				tjsure:false,//确认
+				salesPrice:0,
+				salesPrice1:0,
+				gystotal:0,
+				gyspageSize:0,
+				reNumber:'',
+			
+				glgoods:[],
+				totalgl:0,
+				pageSizegl:0,
+				alertch:false,
+				gyskeyword:'',
+				goodsnum:'',
+				recordDate:'',
+				// customer:[],//客户信息
+				customer:{},//客户信息
+				contractPhone:'',//主要联系人手机
+				contractTel:'',//主要联系人电话
+				detailList:[],//报价单
+				endTime:'',//有效结束时间
+				startTime:'',
+				remark: '',
+				contract:'',//联系人
+				recordNo:"",//单据编号
+				referNo:"",//来源编号
+				partnerId:"",//客户编号
+				referNo:'',//来源编号
+				createTime:'',
+				//关联商品
+				glgoods1:[],
+				glkey:[
+					 {
+					 	title:"编号",
+                        type: 'index',
+                        width: 80,
+                        
+                    },
+                    {
+                        title: '图片',
+                        key:'mainPhoto',
+                         width: 120,
+                        align: 'center',
+                        render:(h, parmas) =>{
+                        	return h('div',[
+                        			h('img',{
+                        				attrs:{
+                        					src:parmas.row.mainPhoto
+                        				},
+                        				style:{
+                        					width:'40px',
+                        					height:'40px',
+                        					marginTop:'4px'
+                        				}
+                        			})
+                        		])
+                        }
+                    },
+                    {
+                        title: '货号',
+                        key:'skuCode'
+                    },
+                    {
+                        title: '条码',
+                        key:'barcode'
+                    },
+                    {
+                        title: '商品名称',
+                        key:'skuName'
+                    },
+                    {
+                        title: '成本价',
+                        key:'costPrice'
+                    },
+                    {
+                        title: '批发价',
+                        key:'wholePrice'
+                    },
+                    
+                     {
+                        title: '报价',
+                        key:'price',
+                        width:100,
+                      
+                      	render:(h,parmas)=>{
+						return h('InputNumber',{
+								style:{
+									
+									width:"97px",
+									height:"40px",
+									marginLeft:"-17px",
+									lineHeight:'40px',
+									
+								},
+								props:{
+
+									value:parmas.row.price
+								},
+								
+								on:{
+									'on-click':(e)=>{
+										
+										e.stopPropagation()
+									},
+									"on-change":(e)=>{
+
+										this.salesPrice = e
+										// parmas.row.price= this.salesPrice 
+										
+										this.glgoods[parmas.index].price= this.salesPrice 
+										// console.log(this.glgoods[parmas.index].price)
+									},
+									
+									}
+								})
+					}
+                       
+                    },
+                     {
+	                	title:'操作',
+	                	key:"actiion",
+	                	width:80,
+	                	render:(h,params)=>{
+	                		return h('Button',{
+	                			props:{
+	                				type:"primary"
+	                			},
+	                			on:{
+	                				'click':()=>{
+	                					
+	                					console.log(params.row)
+	                					if(this.glgoods[params.index].price<=0){
+											this.$notify({
+							                      title:"",//
+							                      message:'请输入报价',
+							                      type: 'error',
+							                      position: 'bottom-right'
+							                  });
+	                					}else{
+	                						
+	                						let arr={
+		                						mainPhoto:params.row.mainPhoto,
+		                						partnerId:params.row.partnerId,
+		                						id:params.row.id,
+		                						skuId:params.row.skuId,
+			                                	skuCode:params.row.skuVo.skuCode,
+			                                    skuName:params.row.skuVo.skuName,
+			                                    price:this.glgoods[params.index].price,
+			                                    costPrice:this.glgoods[params.index].costPrice,
+			                                    wholePrice:this.glgoods[params.index].wholePrice,
+			                                    unit:params.row.skuVo.unit,
+			                                    unitId:params.row.skuVo.unitId,
+			                                    className:params.row.skuVo.className,
+		                                      	classId:params.row.skuVo.classId,
+		                                      	inventoryUp:params.row.skuVo.inventoryUp,
+		                                      	inventory:params.row.skuVo.inventory,
+		                                      	barcode:params.row.skuVo.barcode,
+		                                      	barnd:params.row.skuVo.barnd,
+		                                      	mainPhoto:params.row.skuVo.mainPhoto,
+		                                      	photos:params.row.skuVo.photos,
+		                                      	unitList:params.row.skuVo.unitList,
+		                                      	unitDesc:params.row.skuVo.unitDesc,
+		                                      	specs:params.row.skuVo.specs   
+		                						}
+		                					let len=this.selectedgoodsrow.length
+		                					if(len==0){
+		                						this.selectedgoodsrow.push(arr)
+		                					}else{
+		                						this.selectedgoodsrow.push(arr)
+		                						for(var i = 0; i < this.selectedgoodsrow.length - 1; i++) {
+				                                  for(var j = i+1; j < this.selectedgoodsrow.length; j++) {
+				                                    if(this.selectedgoodsrow[i].skuId == this.selectedgoodsrow[j].skuId) {
+				                                      this.$notify({
+				                                          title:"",//
+				                                          message:'该商品已添加！',
+				                                          type: 'error',
+				                                          position: 'bottom-right'
+				                                      });
+				                                      this.selectedgoodsrow.splice(j, 1)
+				                                    }else{
+				                                      
+				                                      
+				                                    }
+				                                  }
+				                                }
+		                						
+		                					}
+		                					
+	                					}
+	                					
+	                					
+	                				}
+	                			}
+	                		},'选取')
+	                	}
+	                }
+				],
+				gysdata:[],
+				//客户key
+				gyskey:[
+					{
+						title:'编码',
+						key:'code',
+						width:160,
+					},
+					{
+	                	title:"客户名称",
+	                	width:260,
+	                	key:"name"
+                	},
+                	{
+	                	title:"主要联系人手机",
+	                	width:160,
+	                	key:"contractPhone"
+                	},
+                	{
+	                	title:"主要联系人电话",
+	                	width:160,
+	                	key:"contractTel"
+                	},
+                	
+				],
+				khName:'',//客户名称
+				//商品
+				totalsku:0,
+				pageSizesku:0,
+				selectedGoods:[],
+				goodskey1: [
+					 {
+					 	title:"编号",
+                        type: 'index',
+                        width: 80,
+                        
+                    },
+                    {
+                        title: '图片',
+                        key:'mainPhoto',
+                         width: 120,
+                        align: 'center',
+                        render:(h, params) =>{
+                        	return h('div',[
+                        			h('img',{
+                        				attrs:{
+                        					src:params.row.mainPhoto
+                        				},
+                        				style:{
+                        					width:'40px',
+                        					height:'40px',
+                        					marginTop:'4px'
+                        				}
+                        			})
+                        		])
+                        }
+                    },
+                    {
+                        title: '货号',
+                        key:'skuCode'
+                    },
+                    {
+                        title: '条码',
+                        key:'barcode'
+                    },
+                    {
+                        title: '商品名称',
+                        key:'skuName'
+                    },
+                    {
+                        title: '成本价',
+                        key:'costPrice'
+                    },
+                    {
+                        title: '批发价',
+                        key:'wholePrice'
+                    },
+                     {
+                        title: '报价',
+                        key:'price',
+                        width:100,
+                      	render:(h,parmas)=>{
+						return h('InputNumber',{
+								style:{
+									width:"97px",
+									height:"40px",
+									marginLeft:"-17px",
+									lineHeight:'40px',
+									
+								},
+								props:{
+									value:parmas.row.price
+								},
+								on:{
+									'on-click':(e)=>{
+									
+										e.stopPropagation()
+									},
+									"on-change":(e)=>{
+
+										this.salesPrice1 =e
+										parmas.row.price= this.salesPrice1
+										this.selectedGoods[parmas.index]=parmas.row
+										this.selectedGoods[parmas.index].price= this.salesPrice1 
+									},
+									
+									}
+								})
+					}
+                       
+                    },
+                    
+                    {
+	                	title:'操作',
+	                	key:"actiion",
+	                	 width:80,
+	                	render:(h,params)=>{
+	                		return h('Button',{
+	                			props:{
+	                				type:"primary"
+	                			},
+	                			on:{
+	                				'click':()=>{
+	                					if(this.selectedGoods[params.index].price<=0){
+											this.$notify({
+							                      title:"",//
+							                      message:'请输入报价',
+							                      type: 'error',
+							                      position: 'bottom-right'
+							                  });
+	                					}else{
+	                					
+	                						let arr={
+		                						barcode:params.row.barcode,
+		                						barnd:params.row.barnd,
+		                						
+		                						mainPhoto:params.row.mainPhoto,
+		                						partnerId:params.row.partnerId,
+		                						price:this.selectedGoods[params.index].price,
+		                						
+		                						skuCode:params.row.skuCode,
+		                						skuId:params.row.id,
+		                					
+			                                    costPrice:params.row.costPrice,
+			                                    wholePrice:params.row.wholePrice,
+			                                    unit:params.row.unit,
+			                                    unitId:params.row.unitId,
+			                                    className:params.row.className,
+		                                      	classId:params.row.classId,
+		                                      	inventoryUp:params.row.inventoryUp,
+		                                      	inventory:params.row.inventory,
+		                                      
+		                                      	photos:params.row.photos,
+		                                      	unitList:params.row.unitList,
+		                                      	unitDesc:params.row.unitDesc,
+		                                      	specs:params.row.specs,  
+		                						skuName:params.row.skuName,
+		                					}
+		                					let len=this.selectedgoodsrow.length
+		                					if(len==0){
+		                						this.selectedgoodsrow.push(arr)
+		                					}else{
+		                						this.selectedgoodsrow.push(arr)
+		                						for(var i = 0; i < this.selectedgoodsrow.length - 1; i++) {
+				                                  for(var j = i+1; j < this.selectedgoodsrow.length; j++) {
+				                                    if(this.selectedgoodsrow[i].skuId == this.selectedgoodsrow[j].skuId) {
+				                                      this.$notify({
+				                                          title:"",//
+				                                          message:'该商品已添加！',
+				                                          type: 'error',
+				                                          position: 'bottom-right'
+				                                      });
+				                                      this.selectedgoodsrow.splice(j, 1)
+				                                    }else{
+				                                      
+				                                      
+				                                    }
+				                                  }
+				                                }
+		                						
+		                					}
+	                					
+	                					}
+	                				}
+	                			}
+	                		},'选取')
+	                	}
+	                }
+                ],
+                selectedgoodsrow:[], //选取后的报价商品
+                goodskey2: [
+					{
+					 	title:"编号",
+                        type: 'index',
+                        width: 80,
+                    },
+                    {
+                        title: '图片',
+                        key:'mainPhoto',
+                        width: 120,
+                        align: 'center',
+                        render:(h, params) =>{
+                        	return h('div',[
+                    			h('img',{
+                    				attrs:{
+                    					src:params.row.mainPhoto
+                    				},
+                    				style:{
+                    					width:'40px',
+                    					height:'40px',
+                    					marginTop:'4px'
+                    				}
+                    			})
+                    		])
+                        }
+                    },
+                    {
+                        title: '货号',
+                        key:'skuCode'
+                    },
+                    {
+                        title: '条码',
+                        key:'barcode'
+                    },
+                    {
+                        title: '商品名称',
+                        
+                        key:'skuName'
+                 
+                    },
+                    {
+                        title: '成本价',
+                        key:'costPrice'
+                    },
+                    {
+                        title: '批发价',
+                        key:'wholePrice'
+                    },
+                     {
+                        title: '报价',
+                        key:'price',
+                        width:100,
+                      	render:(h,parmas)=>{
+						return h('InputNumber',{
+								style:{
+									width:"97px",
+									height:"40px",
+									marginLeft:"-17px",
+									lineHeight:'40px'
+								},
+								props:{
+									value:parmas.row.price
+								},
+								on:{
+									'on-click':(e)=>{
+										e.stopPropagation()
+									},
+									"on-blur":(e)=>{
+										this.salesPrice1 =e
+										parmas.row.price=this.salesPrice1
+										this.selectedgoodsrow[parmas.index].price=this.salesPrice1
+										
+									},
+									
+									}
+								})
+					}
+                       
+                    },
+                  
+                    {
+	                	title:'操作',
+	                	key:"actiion",
+	                	 width:80,
+	                	render:(h,params)=>{
+	                		return h('Button',{
+	                			props:{
+	                				type:"primary"
+	                			},
+	                			style:{
+	                				background:'#d53c39',
+	                				border:"none"
+	                			},
+	                			on:{
+	                				'click':()=>{
+	                					this.selectedgoodsrow.splice(params.index,1)
+	                				}
+	                			}
+	                		},'删除')
+	                	}
+	                }
+                
+                ],
+				
+				xiugai:false,
+				xiugaibtn1:false,
+				xiugaibtn2:false,
+				num4:0,
+				index1:0,
+				valueT:1,
+				orderListname:[
+                    {
+                        label:"全部",
+                        value:0
+                    },
+                    {
+                        label:"未审核",
+                        value:1
+                    },
+                    {
+                        label:"已审核",
+                        value:5
+                    },
+                    {
+                        label:"已生效",
+                        value:88
+                    },
+                    {
+                        label:"已作废",
+                        value:99
+                    },
+                    
+                ],
+				details:false,
+				storeDetails:{},
+				num3:0,
+				titles:['关联商品','全部商品','报价商品'],
+				titles1:['报价单明细'],
+				num2:0,
+				
+				height:'',
+				current:1,
+				total:0,
+				pageSize:0,
+				
+				single:false,
+				num: 1, //判断基本信息 联系人信息的样式
+				numLeftList:0,
+				addNewUnits:"",
+				unitsText:"新增报价单",//新增客户
+				addText:true,
+				unitsDetail: false, //客户详细信息
+				flag: 1, //概览   采购  联系人 备注  哪个显示
+				newBusiness:false,
+				columns: [
+					{
+						title: '订单编号',
+						key: 'code'
+					},
+					{
+						title: '参考号',
+						key: 'ckhao'
+					},
+					{
+						title: '日期',
+						key: 'date'
+					},
+					{
+						title: '金额',
+						key: 'price'
+					},
+					{
+						title: '状态',
+						key: 'status'
+					}
+				],
+				data:[],
+				userList:[],//联系人列表
+				Allunits: [], //往来单位列表
+				id: '', //往来单位的id
+				province: '', //省
+				city: '', //市
+				district: '', //区
+				deAddress:"",//详细地址
+				youbian:"",//邮编
+				eyoubian:"",
+				code: '',
+				name: '',
+				url: '',//网址
+				yyzz: '',
+				swdjh: '',//税务登记号
+				khh: '',//默认开户行
+				bankcode: '',//银行帐号
+				address: '',
+				statusDesc:0,
+				phone: '',//单位电话
+				// chuanzhen: '',
+				email: '',
+				zyaddress: '',
+				ckObj:{},//弹框一行客户数据
+				tel:"",//往来联系人电话
+				uid: this.$store.state.common.token
+			}
+		},
+		methods: {
+			
+			//获取报价单列表信息
+			getUnitsList(s) {
+				this.axios.get('/quotation/query?uid=' + this.uid+'&status='+s).then((res) => {
+					let data = res.data;
+					if(res.data.status == '200') {
+							this.Allunits = data.rows;
+							this.pageSize = data.pageSize;
+							this.total = data.total;
+							this.Allunits.forEach(item=>{
+								item.endTime=new Date(item.endTime).toLocaleDateString().replace(/\//g,'-')
+								item.startTime=new Date(item.startTime).toLocaleDateString().replace(/\//g,'-')
+								item.recordDate=new Date(item.recordDate).toLocaleDateString().replace(/\//g,'-')
+							})
+					
+					}
+				})
+			},
+			getUnitsListS(){
+				this.axios.get('/quotation/query?uid=' + this.uid+'&status=1').then((res) => {
+					let data = res.data;
+					if(res.data.status == '200') {
+						this.Allunits = data.rows;
+						this.pageSize = data.pageSize;
+						this.total = data.total;
+						this.Allunits.forEach(item=>{
+							item.endTime=new Date(item.endTime).toLocaleDateString().replace(/\//g,'-')
+							item.startTime=new Date(item.startTime).toLocaleDateString().replace(/\//g,'-')
+							item.recordDate=new Date(item.recordDate).toLocaleDateString().replace(/\//g,'-')
+						})
+					
+					}
+					this.updataUnit(this.Allunits[0].id,0)
+					this.getUnitDefault(this.Allunits[0].id)
+				})
+				
+			},
+			//点击新建
+			addUnit(){
+				this.isdetails=false
+				// this.$refs.details.style.display='none'
+				this.formValidate.recordDate=''
+				this.startTime=''
+				this.addText = true
+				this.newBusiness = false
+				this.xiugai=false
+				this.xiugaibtn1=false
+				this.tj=false
+				this.tjzf=false
+				this.tjsure=false
+				this.xiugaibtn2=false
+				this.unitsText = "新增报价单"
+				this.partnerId=''
+				// this.recordNo=''
+				this.contractPhone=''
+				
+				this.formValidate.endTime=''
+				// this.startTime=''
+				this.remark=''
+				this.formValidate.referNo=''
+				this.reNumber=''
+				this.formValidate.khName=''
+				this.contract=''
+				this.glgoods1=[]
+				this.selectedgoodsrow=[]
+				this.gysdata =[]
+				this.alertch1 = false;
+    			this.getDate()//当前日期
+    			this.glgoods=[]
+				this.totalgl=0
+				this.pageSizegl=0
+			},
+			//双击左侧列表
+			updataUnit(id,index){
+				this.numLeftList =index
+				this.id = id
+				////console.log(id)
+				this.addText = false;
+				this.newBusiness = true
+				this.isdetails=true
+				// this.$refs.details.style.display='block'
+				
+				this.xiugai=false
+				this.xiugaibtn2=false
+				this.xiugaibtn1=true
+				this.cancelxiu=false
+
+				this.unitsText = "查看报价单: "
+				this.getUnitDefault(id)
+			},
+			//获取报价单详情
+			getUnitDefault(id){
+					this.axios.get('/quotation/get/' + id + '?uid=' + this.uid).then((res) => {
+	                    if(res.data.status == '200') {
+	                    	////console.log(res.data.rows)
+		                    if(res.data.rows.status==1 || res.data.rows.status==0){
+								this.tj=true
+								this.tjsure=false
+							}
+							if(res.data.rows.status==5){
+								this.tjsure=true
+								this.tj=false
+								this.xiugaibtn1=false
+								this.tjzf=true
+							}
+							if(res.data.rows.status==99){
+								this.tjsure=false
+								this.tj=false
+								this.xiugaibtn1=false
+								this.tjzf=false
+							}
+							if(res.data.rows.status==88){
+								this.tjsure=false
+								this.tj=false
+								this.xiugaibtn1=false
+								this.tjzf=false
+							}
+	                    let data = res.data.rows;
+	                    this.storeDetails=data
+	                    // this.glgoods1=this.storeDetails.detailList
+	                    this.selectedgoodsrow=this.storeDetails.detailList
+	                   	this.bjdmx=data.detailList//报价单明细
+	                   	this.glgoods=data.detailList//报价单明细
+	                   	this.bjdmx.forEach(x=>{
+	                   		x.name1=data.customer.name
+	                   		x.startTime=this.getLocalTime(data.startTime)
+	                   		x.endTime=this.getLocalTime(data.endTime) 
+	                   		x.statusDesc=data.ststusDesc
+	                   	})
+	                   	this.glgoods.forEach(x=>{
+	                   		x.name1=data.customer.name
+	                   		x.startTime=this.getLocalTime(data.startTime)
+	                   		x.endTime=this.getLocalTime(data.endTime) 
+	                   		x.statusDesc=data.ststusDesc
+	                   	})
+	                    this.reNumber=data.recordNo
+	                    console.log(data)
+	                    this.customer=data.customer//客户
+	                    // //console.log( this.customer.name)
+	                    this.partnerId=this.customer.id//客户ID
+						this.contractPhone=this.customer.contractPhone
+					
+						this.contract=this.customer.contract
+						this.formValidate.khName=this.customer.name
+						this.startTime=new Date(data.startTime).toLocaleDateString().replace(/\//g,'-')
+						this.formValidate.endTime=new Date(data.endTime).toLocaleDateString().replace(/\//g,'-')
+
+						this.formValidate.recordDate=data.recordDate
+						this.remark=data.remark
+	                     this.storeDetails.startTime=new Date(this.storeDetails.startTime).toLocaleDateString().replace(/\//g,'-')
+						this.storeDetails.endTime=new Date(this.storeDetails.startTime).toLocaleDateString().replace(/\//g,'-')
+						this.storeDetails.recordDate=new Date(this.storeDetails.recordDate).toLocaleDateString().replace(/\//g,'-')
+
+	                }
+	            })
+			},
+			//点击保存新建基本信息
+			saveBaseInfo(name){
+				// console.log(this.selectedgoodsrow)
+				this.$refs[name].validate((valid) => {
+					if(valid){
+						if(this.selectedgoodsrow.length==0){
+							this.$notify({
+		                        title:"",//
+		                        message: '请选择报价商品',
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}else{
+							this.axios.post('/quotation/add?uid=' + this.uid, {
+									partnerId:this.partnerId,//客户id
+									recordNo:this.formValidate.recordNo,//单号
+									referNo:this.formValidate.referNo,//来源单号
+									recordDate:this.formValidate.recordDate,
+									contractPhone:this.contractPhone,
+								
+									endTime:this.formValidate.endTime,
+									startTime:this.startTime,
+									remark:this.remark,
+			            			detailList:this.selectedgoodsrow
+							}).then((res) => {
+						
+			                    if(res.data.status=='200'){
+									this.$notify({
+					                        title:"",//
+					                        message:'新增报价单成功',
+					                        type: 'success',
+					                        position: 'bottom-right'
+					                    });
+									this.formValidate.endTime=''
+									
+									this.addUnit()
+									this.getUnitsListS()
+			                    }else{
+			                    	this.$notify({
+				                        title:"",//
+				                        message: res.data.errorMessage,
+				                        type: 'error',
+				                        position: 'bottom-right'
+				                    });
+			                    }
+							})
+						}
+						
+					}
+				})
+					
+					
+				
+			},
+			
+			addborder1(index){
+				this.num4=index
+				
+			},
+			changeUnitInfo1(){
+				this.isdetails=false
+				// this.$refs.details.style.display='none'
+				this.xiugai=true
+				this.addText=false
+				this.xiugaibtn1=false
+				this.xiugaibtn2=true
+				this.tj=false
+				this.cancelxiu=true
+			},
+			//修改客户信息
+			changeUnitInfo2(name){
+				this.$refs[name].validate((valid) => {
+					if(valid){
+						this.axios.put('/quotation/update?uid='+this.uid,{
+							id:this.id,
+							// customer:this.customer,
+							partnerId:this.partnerId,
+							recordNo:this.formValidate.recordNo,
+							recordDate:this.formValidate.recordDate,
+							contractPhone:this.contractPhone,
+							
+							endTime:this.formValidate.endTime,
+							startTime:this.startTime,
+							remark:this.remark,
+		        			detailList:this.selectedgoodsrow
+						}).then((res)=>{
+							if(res.data.status=200){
+								
+								this.$notify({
+			                        title:"",//
+			                        message: this.$t('public.editSuccess'),//
+			                        type: 'success',
+			                        position: 'bottom-right'
+			                    });
+								
+								this.addUnit()
+								this.getUnitsList(this.valueT);
+								this.updataUnit(this.id,this.numLeftList)
+								this.getUnitDefault(this.id)//获取详情
+							}else{
+								 this.$notify({
+			                        title:"",//
+			                        message: res.data.errorMessage,
+			                        type: 'error',
+			                        position: 'bottom-right'
+			                    });
+							}
+						})
+					}
+				})
+			},
+			//取消
+			cancel(){
+				this.addUnit()
+				this.cancelxiu=false
+			},
+			//获取联系人列表
+			getUserList:function(){
+				// if(this.id){
+				// 	this.axios.get('/pcontract/query?uid='+this.uid).then((res)=>{
+				// 		let data=res.data.rows;
+				// 		if(res.data.status=='200'){
+				// 			this.userList=data;
+							
+				// 		}else{
+				// 			//////this.$Message.error(res.data.errorMessage);
+				// 		}
+				// 	})
+				// }
+			},
+			 //删除客户信息
+            delunit() {
+            	if(this.id==""){
+            		this.$notify({
+                        title:"",//
+                        message:"请选择一条报价单",
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+            	}else{
+            		this.$Modal.confirm({
+	                    title: '删除门店',
+	                    content: '<p>确定要删除吗?</p>',
+	                    onOk: () => {
+	                        this.axios.delete('/quotation/delete/' + this.id + '?uid=' + this.uid).then(res=>{
+				               	if(res.data.status==200){
+			               			this.$notify({
+				                        title:"",//
+				                        message: this.$t('public.deleteSuccess'),//
+				                        type: 'success',
+				                        position: 'bottom-right'
+				                    });
+			                        this.getUnitsList(this.valueT)
+			                       this.addUnit()
+			                       this.id=''
+			               		}else{
+			                        this.$notify({
+				                        title:"",//
+				                        message: res.data.errorMessage,
+				                        type: 'error',
+				                        position: 'bottom-right'
+				                    });
+			               		}
+			            
+			               })
+	                    },
+	                })
+            	}
+            	
+            },
+           //确认
+			surebtn:function(){
+				this.axios.post('/quotation/confirm/'+this.id+'?uid='+this.uid).then((res)=>{
+					 if(res.data.status=='200'){
+						this.$notify({
+	                        title:"",//
+	                        message: '确认成功',
+	                        type: 'success',
+	                        position: 'bottom-right'
+	                    });
+						this.getUnitsList(this.valueT);
+						this.getUnitDefault(this.id)
+					 }else{
+					 	this.$notify({
+	                        title:"",//
+	                        message: res.data.errorMessage,
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+					 }
+				})
+			},
+			//提交
+			tjbtn(){
+				this.axios.post('/quotation/submit/'+this.id+'?uid='+this.uid).then((res)=>{
+					 if(res.data.status=='200'){
+						this.$notify({
+	                        title:"",//
+	                        message: '提交成功',
+	                        type: 'success',
+	                        position: 'bottom-right'
+	                    });
+						this.getUnitsList(this.valueT);
+						this.getUnitDefault(this.id)
+						this.updataUnit(this.id,this.numIndex)
+					 }else{
+					 	this.$notify({
+	                        title:"",//
+	                        message: res.data.errorMessage,
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+					 }
+				})
+			},
+			//作废
+			zfbtn(){
+				this.$Modal.confirm({
+					title: '作废报价单',
+					content: '<p>确定要作废吗?作废后，报价商品将不可用！</p>',
+					onOk: () => {
+						this.axios.post('/quotation/invalid/'+this.id+'?uid='+this.uid).then((res)=>{
+                        		//////console.log.log(res)
+                        		if(res.data.status==200){
+                        			
+                        			this.$notify({
+				                        title: '作废',
+				                        message: '作废成功',
+				                        type: 'error',
+				                        position: 'bottom-right'
+				                    });
+                        			this.getUnitsList(this.valueT);
+									this.getUnitDefault(this.id)
+									this.updataUnit(this.id,this.numIndex)
+                        		}else{
+                        			this.$notify({
+				                        title:"",//
+				                        message: res.data.errorMessage,
+				                        type: 'error',
+				                        position: 'bottom-right'
+				                    });
+                        			
+                        		}
+                        	})
+					},
+					onCancel: () => {
+						this.$Message.info('取消作废');
+					}
+				});
+			},
+           
+            
+            //点击差号
+            cancelHome(){
+                this.$router.push('/quotation')
+            },
+            //下拉加载更多
+            handleReachEdge(){
+				this.current++//默认10条
+    	 		this.axios.get('/quotation/query?offset='+this.current+'&uid='+this.uid+'&status='+this.valueT).then((res)=>{
+	 				if(res.data.status==200){
+	 					if(this.current>Math.ceil(this.total/this.pageSize)){
+	 						this.current=Math.ceil(this.total/this.pageSize)
+	 					}
+	 					res.data.rows.forEach((item)=>{
+				 			item.createTime=new Date(item.createTime).toLocaleDateString().replace(/\//g,'-')
+				 			this.Allunits.push(item)
+				 			this.Allunits.forEach((x,index)=>{
+								x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+							})
+				 		})
+	 				}
+			 	})
+	                  
+            },
+            //客户弹框出现后点击表格行数据
+			gysrow(data,index){
+				this.ckObj=data
+				this.getglsku(this.ckObj.id)
+  			},
+  			//选择客户弹框的确认按钮
+			makegys(){
+				this.partnerId=this.ckObj.id
+				this.contractPhone=this.ckObj.contractPhone//客户联系人手机
+				
+				this.contract=this.ckObj.contract//客户联系人
+				this.formValidate.khName=this.ckObj.name//客户名称
+				this.getglsku(this.partnerId)
+				this.alertch = false
+				this.alertch1 = false
+				this.gysalertch = false
+			},
+			gysrow1(data){
+				this.partnerId=data.id
+				this.contractPhone=data.contractPhone//客户联系人手机
+		
+				this.contract=data.contract//客户联系人
+				this.formValidate.khName=data.name//客户名称
+				this.getglsku(this.partnerId)
+				this.alertch = false
+				this.alertch1 = false
+				this.gysalertch = false
+			},
+  			//双击
+  			dblgysrow(){
+  				this.makegys()
+  			},
+  			//选择客户关联商品
+  			getglsku(id){
+  				this.axios.get('client/sku/'+id+'?uid='+this.uid).then(res=>{
+  					if(res.data.status==200){
+  						this.glgoods=res.data.rows
+  						this.totalgl=res.data.total
+  						this.pageSizegl=res.data.pageSize
+  						console.log(this.glgoods)
+  						this.glgoods.forEach((x,index)=>{
+  							x.id=this.glgoods[index].id
+  							x.skuCode=this.glgoods[index].skuVo.skuCode
+							x.skuId=this.glgoods[index].skuVo.id
+							
+							x.price=this.glgoods[index].skuVo.price
+							x.costPrice=this.glgoods[index].skuVo.costPrice
+							x.wholePrice=this.glgoods[index].skuVo.wholePrice
+							x.unit=this.glgoods[index].skuVo.unit
+							x.unitId=this.glgoods[index].skuVo.unitId
+							x.className=this.glgoods[index].skuVo.className
+							x.classId=this.glgoods[index].skuVo.classId
+							x.inventoryUp=this.glgoods[index].skuVo.inventoryUp
+							x.inventory=this.glgoods[index].skuVo.inventory
+							x.barcode=this.glgoods[index].skuVo.barcode
+							x.barnd=this.glgoods[index].skuVo.barnd
+							x.mainPhoto=this.glgoods[index].skuVo.mainPhoto
+							x.photos=this.glgoods[index].skuVo.photos
+							x.unitList=this.glgoods[index].skuVo.unitList
+							x.unitDesc=this.glgoods[index].skuVo.unitDesc
+							x.attrDetailList=this.glgoods[index].skuVo.attrDetailList
+							x.partnerId=this.glgoods[index].skuVo.id
+							x.specs=this.glgoods[index].skuVo.specs
+  						})
+  					}
+  				})
+  			},
+  			glenterSearch(){
+  				this.getglKeyword()
+  			},
+  			//获取客户商品
+  			getglKeyword(){
+  				this.axios.get('client/sku/'+this.partnerId+'?uid='+this.uid+'&keyword='+this.glkeyword).then(res=>{
+  					if(res.data.status==200){
+  						this.glgoods=res.data.rows
+  						this.totalgl=res.data.total
+  						this.pageSizegl=res.data.pageSize
+  						console.log(this.glgoods)
+  						this.glgoods.forEach((x,index)=>{
+  							x.id=this.glgoods[index].id
+  							x.skuCode=this.glgoods[index].skuVo.skuCode
+							x.skuId=this.glgoods[index].skuVo.id
+							
+							x.price=this.glgoods[index].skuVo.price
+							x.costPrice=this.glgoods[index].skuVo.costPrice
+							x.wholePrice=this.glgoods[index].skuVo.wholePrice
+							x.unit=this.glgoods[index].skuVo.unit
+							x.unitId=this.glgoods[index].skuVo.unitId
+							x.className=this.glgoods[index].skuVo.className
+							x.classId=this.glgoods[index].skuVo.classId
+							x.inventoryUp=this.glgoods[index].skuVo.inventoryUp
+							x.inventory=this.glgoods[index].skuVo.inventory
+							x.barcode=this.glgoods[index].skuVo.barcode
+							x.barnd=this.glgoods[index].skuVo.barnd
+							x.mainPhoto=this.glgoods[index].skuVo.mainPhoto
+							x.photos=this.glgoods[index].skuVo.photos
+							x.unitList=this.glgoods[index].skuVo.unitList
+							x.unitDesc=this.glgoods[index].skuVo.unitDesc
+							x.attrDetailList=this.glgoods[index].skuVo.attrDetailList
+							x.partnerId=this.glgoods[index].skuVo.id
+							x.specs=this.glgoods[index].skuVo.specs
+  						})
+  					}
+  				})
+  			},
+  			changePageSizegl(size){
+  				this.pageSizegl=size
+  			},
+  			getDatagl(current){
+  				this.axios.get('client/sku/'+this.partnerId+'?uid='+this.uid+'&offset='+current).then(res=>{
+  					if(res.data.status==200){
+  						this.glgoods=res.data.rows
+  						this.totalgl=res.data.total
+  						this.pageSizegl=res.data.pageSize
+  						console.log(this.glgoods)
+  						this.glgoods.forEach((x,index)=>{
+  							x.id=this.glgoods[index].id
+  							x.skuCode=this.glgoods[index].skuVo.skuCode
+							x.skuId=this.glgoods[index].skuVo.id
+							
+							x.price=this.glgoods[index].skuVo.price
+							x.costPrice=this.glgoods[index].skuVo.costPrice
+							x.wholePrice=this.glgoods[index].skuVo.wholePrice
+							x.unit=this.glgoods[index].skuVo.unit
+							x.unitId=this.glgoods[index].skuVo.unitId
+							x.className=this.glgoods[index].skuVo.className
+							x.classId=this.glgoods[index].skuVo.classId
+							x.inventoryUp=this.glgoods[index].skuVo.inventoryUp
+							x.inventory=this.glgoods[index].skuVo.inventory
+							x.barcode=this.glgoods[index].skuVo.barcode
+							x.barnd=this.glgoods[index].skuVo.barnd
+							x.mainPhoto=this.glgoods[index].skuVo.mainPhoto
+							x.photos=this.glgoods[index].skuVo.photos
+							x.unitList=this.glgoods[index].skuVo.unitList
+							x.unitDesc=this.glgoods[index].skuVo.unitDesc
+							x.attrDetailList=this.glgoods[index].skuVo.attrDetailList
+							x.partnerId=this.glgoods[index].skuVo.id
+							x.specs=this.glgoods[index].skuVo.specs
+  						})
+  					}
+  				})
+  			},
+  			//初始时间
+  			seleTime(date){
+  				this.formValidate.recordDate =date
+  			},
+  			selestartTime(date){
+  				this.startTime=date
+  			},
+  			//结束时间
+  			seleEndTime(date){
+  				this.formValidate.endTime=date
+  				
+  			},
+            //弹出框，获取客户
+			alertchModal(){
+				this.alertch = true;
+				this.getAllgysListss()
+			},
+			modelCancel(){
+				this.alertch = false;
+				this.gysalertch = false;
+			},
+			//抬起搜索客户
+			enterSearchKh(){
+				if(this.formValidate.khName==""){
+					this.gysdata =[]
+					this.alertch1 = false;
+					return
+				}else{
+					this.axios.get('/client/list?keyword='+this.formValidate.khName+'&uid=' + this.uid).then((res) => {
+						if(res.data.status==200){
+							let data = res.data;
+							this.gysdata = data.rows;
+							console.log(this.gysdata)
+							this.gystotal=res.data.total
+							this.gyspageSize=res.data.pageSize
+							
+							this.alertch1 = true;
+							
+							
+						}
+					})
+				}
+				
+			},
+			//弹框获取所有客户列表
+			getAllgysListss(){
+				this.axios.get('/client/list?uid=' + this.uid).then((res) => {
+					if(res.data.status == '200') {
+						let data = res.data;
+						this.gysdata = data.rows;
+						this.gystotal=res.data.total
+						this.gyspageSize=res.data.pageSize
+					}
+				})
+			},
+			//客户模糊搜索
+			getgysKeyword(){
+				this.axios.get('client/list?keyword='+this.gyskeyword+'&uid='+this.uid).then((res)=>{
+					if(res.data.status==200){
+						this.gysdata = res.data.rows
+						this.gystotal=res.data.total
+						this.gyspageSize=res.data.pageSize
+					}
+				})
+			
+			},
+			//按下回车调用客户模糊搜索
+			enterSearch(){
+				this.getgysKeyword()
+			},
+			//添加下边框 关联商品
+			addborder(index){
+				this.num2 = index
+				//index为1点击全部商品
+				if(index==1){
+					this.getAllgysLists()
+				}
+			},
+			//所有商品
+			getAllgysLists(){
+				this.axios.get('sku/list?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.selectedGoods=res.data.rows
+						this.totalsku=res.data.total
+						this.pageSizesku=res.data.pageSize
+					}
+				})
+			},
+			 //全部商品切换一条页
+            getData(current){
+            	this.axios.get('sku/list?offset='+current+'&uid='+this.uid).then((res)=>{
+            
+            		this.selectedGoods = res.data.rows
+            		this.totalsku=res.data.total
+					this.pageSizesku=res.data.pageSize
+            	})
+            	
+            },
+            //翻页
+            changePageSize(size){
+            	this.pageSizesku = size
+            },
+			allenterSearch(){
+				this.getallKeyword()
+			},
+			//查询所有商品
+			getallKeyword(){
+				this.axios.get('sku/list?keyword='+this.allkeyword+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.selectedGoods=res.data.rows
+						this.totalsku=res.data.total
+						this.pageSizesku=res.data.pageSize
+					}
+				})
+			},
+			 //切换一条页
+            getgysData(current){
+            	if(this.allkeyword==''){
+            		this.axios.get('client/list?offset='+current+'&uid='+this.uid).then((res)=>{
+	                    this.gysdata = res.data.rows
+	                    this.gyspageSize = res.data.pageSize;
+						this.gystotal = res.data.total;
+                   })
+            	}else{
+            		this.axios.get('client/list?offset='+current+'&uid='+this.uid+'&keyword='+this.allkeyword).then((res)=>{
+	                    this.gysdata = res.data.rows
+	                    this.gyspageSize = res.data.pageSize;
+						this.gystotal = res.data.total;
+                   })
+            	}
+               
+            },
+            //翻页
+            changegysPageSize(size){
+                this.gyspageSize = size
+            },
+               //获取当前时间
+           getDate(){
+            let date=new Date()
+			this.formValidate.recordDate=date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate()
+			this.startTime=date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate()
+           },
+           //精准搜索
+           searchBjd(){
+           		this.axios.get('/quotation/query?keyword='+this.searchKeyword+'&uid=' + this.uid).then((res) => {
+                   let data = res.data;
+					
+					if(res.data.status == '200') {
+						this.Allunits = data.rows;
+						this.pageSize = data.pageSize;
+						this.total = data.total;
+						this.Allunits.forEach(item=>{
+							this.bjdName=item.customer.name
+							item.endTime=new Date(item.endTime).toLocaleDateString().replace(/\//g,'-')
+							item.startTime=new Date(item.startTime).toLocaleDateString().replace(/\//g,'-')
+							item.recordDate=new Date(item.recordDate).toLocaleDateString().replace(/\//g,'-')
+						})
+					}
+                })
+           },
+           //回车搜索
+           enterSearchBjd(){
+           	this. searchBjd()
+           },
+           searchLocation(){
+           	this.psisshow=true
+           },
+            beginChange(d){
+            	this.beginNo1=d
+            },
+            endChange(d){
+            	this.endNo1=d
+            },
+           
+            //精准搜索取消
+            cancelSearchLocation(){
+            	this.psisshow=false
+            	this.reNoL=''
+            	this.khNameL=''
+            	this.mobileL=''
+            	this.beginNo1=''
+            	this.endNo1=''
+            },
+            //精准搜索确认
+            sureSearchLocation(){
+            	this.axios.get('/quotation/query?uid='+this.uid,{
+            		recordNo:this.reNoL,
+            		name:this.khNameL,
+            		contractPhone:this.mobileL,
+            		startTime:this.beginNo1,
+            		endTime:this.endNo1
+
+            	}).then((res)=>{
+            		if(res.data.status==200){
+						this.psisshow=false
+		            	this.reNoL=''
+		            	this.khNameL=''
+		            	this.mobileL=''
+		            	this.beginNo1=''
+		            	this.endNo1=''
+						this.Allunits = res.data.rows;
+						this.pageSize = res.data.pageSize;
+						this.total = res.data.total;
+						this.Allunits.forEach(item=>{
+							this.bjdName=item.customer.name
+							item.endTime=new Date(item.endTime).toLocaleDateString().replace(/\//g,'-')
+							item.startTime=new Date(item.startTime).toLocaleDateString().replace(/\//g,'-')
+							item.recordDate=new Date(item.recordDate).toLocaleDateString().replace(/\//g,'-')
+						})
+            		}else{
+            			this.$notify({
+	                        title:"",//
+	                        message: res.data.errorMessage,
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+            		}
+            	})
+            },
+            //点击下载
+            download(){
+
+            },
+            //点击分享
+            share(){
+
+            },
+            //下拉框选择
+            orderselected(value){
+                this.valueT = value
+               	this.getUnitsList(this.valueT)
+            },
+		},
+		mounted() {
+			this.$nextTick(()=>{
+				if(this.$route.query.id){
+					this.id = this.$route.query.id;
+					this.valueT = this.$route.query.s;
+					this.numLeftList = this.$route.query.index
+					this.updataUnit(this.id,this.numLeftList)
+					this.getUnitDefault(this.id)//获取详情
+					this.isdetails=true
+				}
+				if(this.$route.query.isNo==1){
+					this.isdetails=false
+				}
+				 this.getAllgysLists()//获取客户
+				this.getUnitsList(this.valueT)
+				this.getDate()//当前日期
+				this.goodsnum= this.selectedgoodsrow.length
+				this.height = document.documentElement.clientHeight
+				// this.handleReachEdge()//滚动加载
+				window.onresize=function(){
+					this.height = document.documentElement.clientHeight
+				}
+				
+			})
+			
+		}
+	}
+</script>
+
+<style scoped>
+
+.footer-mark{
+  width:100%;
+  height:40px;
+  border-top:1px solid #E4E4E4;
+  display: flex;
+  justify-content: space-around;
+  margin-bottom:-10px;
+}
+.footer-mark span{
+  height:40px;
+  line-height: 40px
+}
+.tot{
+    position:fixed;
+    bottom:10px;
+    left:15%;
+    z-index:12;
+}
+
+.top-left-btn{
+		background: #3B77E3;
+	    margin-right: 10px;
+	    color: #fff;
+	    border: none;
+	    width: 26px;
+	    height: 26px;
+	    border-radius: 26px;
+	    display: inline-block;
+	    position: relative;
+	    top: 12px;
+	}
+	.top-left-btn1{
+		background: #FF7D16;
+	}
+	.top-left-btn:hover{
+		cursor:pointer;
+	}
+.bg{
+	background: #dbe5f1
+}
+
+.checkbox{
+	margin-right:10px;
+	border-color:#000;
+}
+	.add-box {
+		width: 100%;
+		/*height:100%*/
+	}
+	
+	.cheng{
+        width: 100%;
+        height: 60px;
+        /*margin-top: 10px;*/
+    }
+    .heade{
+	  width:100%;
+	  height:60px;
+	  display: flex;
+	  position: fixed;
+	  z-index:10;
+	  background: #fff;
+	  border-bottom:1px solid #e4e4e4;
+	}
+    .left-top{
+		height: 60px;
+  		width:360px;
+      	flex:0 0 360px;
+  		line-height: 60px;
+  		
+  		display:flex;
+  		background: #fff;
+  		border-right:1px solid #eee;
+  		border-bottom:1px solid #eee;
+  		justify-content: space-between;
+	}
+	.right-top{
+		height: 60px;
+		line-height: 60px;
+		display:flex;
+		margin-left:360px;
+		justify-content: space-between;
+
+	}
+    .right-top button:hover{
+        color:#478FCA;
+    }
+    .right-top button img{
+        position:relative;
+        left:0px;
+        top:-2px;
+        vertical-align: middle;
+
+    }
+   .lanren {
+   position: absolute;
+    text-align: center;
+    top: -20px;
+    right: 2px;
+    width: 0;
+    height: 0;
+    border-top: 80px solid #d53c39;
+    border-left: 80px solid transparent;
+}
+.lanren span{
+    width: 60px;
+    height: 60px;
+    color: #fff;
+    display: block;
+    position: relative;
+  
+    top: -70px;
+    right: 70px;
+    font-size: 16px;
+    font-weight: 900;
+    transform: rotate(46deg);
+}
+
+.bgd2{
+ border-top: 80px solid #d53c39
+}
+.bgd3{
+ border-top: 80px solid #278A8B
+}
+.bgd4{
+ border-top: 80px solid #40ca98
+}
+.bgd5{
+ border-top: 80px solid #278fa3
+}
+.textbg1{
+	color:#3b77e3
+}
+.textbg2{
+	color:#d53c39
+}
+.textbg3{
+	color:#278A8B
+}
+.textbg4{
+	color:#40ca98
+}
+.textbg5{
+	color:#278fa3
+}
+    .detail-public{
+		width:100%;
+		padding:10px;
+	}
+	.bor{
+		border-bottom:2px solid #086CA2;
+	}
+	.bor1{
+		border-bottom:2px solid #086CA2;
+	}
+	.left-content {
+		height:100%;
+		width:360px;
+    flex: 0 0 360px;
+		margin-bottom:300px;
+		z-index:9;
+		border-right:1px solid #E6E6E6;
+		position:fixed;
+		background:#F9F9F9;
+	}
+	.add-right {
+		background: #fff;
+		height:100%;
+		margin-left:360px;
+		padding-top:20px;
+	
+	}
+
+	.add-box:after {
+		content: '';
+		display: block;
+		clear: both;
+	}
+	.title{
+    	display:flex;justify-content: space-between;margin-top:20px
+    }
+    .title:hover{
+    	cursor:pointer;
+    }
+	.add-left {
+		min-height: 600px;
+		background: #fff;
+		border-radius: 6px;
+		padding-top: 15px;
+		margin-right: 20px;
+		float: left;
+		padding-bottom: 20px;
+	}
+	
+	.add-left .left-title {
+		width: 100%;
+		height: 40px;
+		line-height: 40px;
+		padding-left: 20px;
+		border-left: 3px solid #00a8ff;
+	}
+	
+	.add-left .left-title .title-txt {
+		font-size: 14px;
+		color: #585858;
+		width: 120px;
+	}
+	
+	.left-btn {
+		height: 40px;
+		float: right;
+		margin-top: -40px;
+	}
+	
+	.left-btn button {
+		width: 70px;
+		height: 40px;
+		color: #fff;
+		font-size: 14px;
+		color: #ececec;
+		border: 0;
+		border-radius: 6px;
+	}
+	
+	.ivu-icon-navicon {
+		font-size: 20px;
+	}
+	.con-list {
+		display:flex;
+		align-items: center;
+		width: 100%;
+		word-wrap:break-word;
+		
+		border-bottom: solid 1px #E6E6E6;
+		padding: 20px 25px;
+		
+		cursor: pointer;
+		position:relative;
+	}
+ 
+
+    .detail-top{
+      padding: 0 10px
+      
+    }
+     .detail-top li{
+    	list-style: none;
+      margin:0 10px 0 0;
+    }
+    .detail-top li span.blackinfo-left{
+
+    color: #2B8F8F;
+    /* margin: 0px 10px; */
+    font-weight: 600;
+ 
+    }
+    .detail-bottom{
+    	width:100%;
+        margin-top:20px;
+    }
+	.con-list:hover{
+		cursor:pointer;
+	}
+	.con-list .date{
+		position:absolute;
+		right:10px;
+		top:10px;
+	}
+	.con-list .status{
+		/*width:100px;*/
+		
+		text-align: center;
+		position: absolute;
+	    right: 10px;
+	    top: 47px;
+	}
+	.con-list .list-title {
+		color: #0d0d0d;
+		font-size: 14px;
+		
+	}
+	
+	.quotationaddLength{
+	position: relative;
+	left: -37px;
+	height: 15px;
+    border-radius: 10px;
+    min-width:15px;
+    background: #ed3f14;
+    border: 1px solid transparent;
+    color: #fff;
+    line-height: 15px;
+    text-align: center;
+    padding: 0 10px;
+    font-size: 12px;
+    white-space: nowrap;
+    -ms-transform-origin: -10% center;
+    transform-origin: -10% center;
+    z-index: 10;
+    box-shadow: 0 0 0 1px #fff;
+	}
+	
+	.con-list .txt {
+		color: #585858;
+		font-size: 12px;;
+		position:absolute;
+		top:50px;
+	}
+	
+	.page-box {
+		margin-top:10px;
+	}
+	
+	.cursor div,.cursor div p{
+		cursor:default;
+	}
+	.right-content {
+		width: 100%;
+		height: 100%;
+		
+		padding-left: 25px;
+		padding-right: 60px;
+		
+	}
+	.bor{
+		border-bottom:2px solid #086CA2;
+	}
+	.detail-title-mark{
+		display:flex;
+		justify-content: flex-start;
+		border-bottom:1px solid #eee;
+		margin-top:1px;
+		margin-left: 10px;
+	}
+	.detail-title{
+		padding:10px 40px;
+
+	}
+	.detail-title:hover{
+		cursor:pointer;
+	}
+	.con-title {
+		width: 100%;
+		border-bottom:2px solid #086CA2;
+	}
+	
+	.con-title button {
+		width: 80px;
+		height: 30px;
+		font-size: 12px;
+		border: 0;
+		border-radius: 5px 5px 0px 0px;
+		outline: none;
+	}
+	.con-title button:hover{
+		cursor:pointer;
+	}
+	.con-title button:first-child {
+		margin-right: 10px;
+	}
+	/**激活的button样式**/
+	
+	.btnact {
+		background: #086ca2 !important;
+		color: #fff !important;
+	}
+	/***正常的样式***/
+	
+	.normal {
+		background: #d9dbdc !important;
+		color: #585858 !important;
+	}
+	
+	.list-box{
+    		display: flex;
+    		height:35px;
+    		line-height: 35px;
+    		margin:25px 10px;
+    	}
+    	.list-box span{
+    		height:40px;
+    		width:120px;
+    		text-align: center;
+    		padding:0 10px;
+    		font-weight:600;
+    	}
+	.input-box {
+		display:flex;
+		width:100%;
+		height: 40px;
+		color: #585858;
+		margin-bottom: 15px;
+
+	}
+	
+	.input-box p{
+		width:120px;
+		height: 40px;
+		text-align: center;
+		line-height: 40px;
+		color: #585858;
+		font-size: 12px;
+		
+	}
+	
+	.input-box input {
+		height: 40px;
+		border: 1px solid #ececec;
+		border-radius: 6px;
+		padding: 0 10px;
+	}
+	
+	.act-txt {
+		width: 50%;
+		margin-top: -45px;
+	}
+	
+	.act-txt span {
+		font-size: 12px;
+		color: #f37b1d;
+	}
+	
+	.act-txt span:first-child {
+		font-weight: bold;
+	}
+	/****新增联系人信息****/
+	
+	.user-box {
+		width: 100%;
+		height: auto;
+		padding: 15px 0;
+	}
+	
+	.user-box:after {
+		content: '';
+		display: block;
+		clear: both;
+	}
+	
+	.user-box .add-user {
+		width: 310px;
+		height: 250px;
+		background-color: #ffffff;
+		box-shadow: -1px 0px 7px 0px rgba(0, 0, 0, 0.35);
+		border-radius: 6px;
+		border: dotted 1px #ececec;
+		text-align: center;
+		font-size: 80px;
+		padding-top: 40px;
+		color: #999999;
+		margin-bottom: 15px;
+		margin-right: 20px;
+		float: left;
+	}
+	
+	.user-box .add-user p {
+		font-size: 18px;
+		color: #acacac;
+		margin-top: 10px;
+	}
+	button{
+		border:none;
+	}
+	
+	.wldw{
+		margin-left:20px;
+	}
+	
+	
+	
+	.po-btn {
+		position: absolute;
+		top: 15px;
+		right: 20px;
+	}
+	
+	.po-btn button {
+		border: 0;
+		background: none;
+		outline: none;
+		font-size: 14px;
+	}
+	
+	.po-btn button:first-child {
+		color: #00a8ff;
+		margin-right: 10px;
+	}
+	
+	.po-btn button:last-child {
+		color: #dd5a43;
+	}
+	.check-box {
+		width: 100%;
+	}
+	
+	.data-box {
+		margin-top: 10px;
+	}
+	
+	.text-box textarea {
+		width: 86%;
+		height: 180px;
+		padding: 10px;
+		border: 0;
+		border-radius: 6px;
+	}
+.lanrenLeft{
+	position: absolute;
+    text-align: center;
+    top: 0px;
+    right: 0px;
+    width: 0;
+    height: 0;
+    border-top:40px solid #d53c39;
+    border-left:40px solid transparent;
+}
+.lanrenLeft span{
+width: 40px;
+    height: 23px;
+    color: #fff;
+    display: block;
+    position: relative;
+    z-index: 9999999999999;
+    top: -36px;
+    right: 36px;
+    font-size: 12px;
+     font-weight: 100; 
+    transform: rotate(46deg);
+}
+.bgd6{
+ border-top: 40px solid #3b77e3;
+}
+.bgd7{
+ border-top: 40px solid #d53c39;
+}
+.bgd8{
+ border-top: 40px solid #3b77e3;
+}
+.bgd9{
+ border-top: 40px solid #40ca98;
+}
+.bgd10{
+ border-top: 40px solid #278fa3;
+}
+.con-list:last-child{
+	margin-bottom:300px;
+}
+</style>
+<style>
+	.ivu-checkbox-inner {
+		border-radius: 50%;
+	}
+	
+	.flclass:last-child{
+		margin-bottom:150px;
+	}
+	.ivu-modal-header{
+		padding:4px 6px!important;
+	}
+
+</style>

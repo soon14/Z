@@ -1,0 +1,24 @@
+
+export default {
+	//data 路由目录 
+	//name 当前路由名称 
+	//meta 用户权限
+	getMenu:(data,name,meta)=>{
+		let child=[]
+		if(data.length==0){
+			return []
+		}else{
+			let len=data.length
+			for(let i=0;i<len;i++){
+				for(let j=0;j<data[i].leafMenuVos.length;j++){
+					if( data[i].displayName==name && data[i].leafMenuVos[j].meta==meta){
+						child.push(data[i].leafMenuVos[j])
+					}
+				}
+			}
+			console.log(child)
+			return child
+		}
+		
+	}
+}

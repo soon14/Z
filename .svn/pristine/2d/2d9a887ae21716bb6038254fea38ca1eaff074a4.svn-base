@@ -1,0 +1,405 @@
+<template>
+    <div>
+    	 <div style=" height: 100%;overflow-y: scroll">
+        	<div class="head-top">
+	        	<div style="display: flex;">
+		        	<a :href="backUrl" target="_blank"><img src="http://img.zsydian.com/icon/navigation_step_logo.png" ></a>
+		        	<div style="margin-left:10px">
+	                    <div class='ZeroAfter'><b>智胜云</b></div>
+                        <div class='ZeroAfteZ'>助力零售数智化转型</div>
+	                </div>
+                </div>
+	        	<span>{{user.trueName}}</span>
+	        </div>
+	        <!--行业注册-->
+	        <div class="main-form">
+	        	<div class="logoMark"  @mouseenter="onenterMouse" @mouseleave="oneleavelMouse">
+	        		<img style="cursor:pointer" :src="industryLogo"><!--行业LOGO-->
+	        		<div class="upImg" v-if="upImgisshow">
+	        			<el-upload
+	        				
+						  	class="upload-demo"
+	                    	:action="logoUrl"
+	                    	:on-success='addsucess'
+	                    	:before-upload="beforeAvatarUpload"
+	                     	:on-progress='onprogress'
+	                    	multiple
+	                    	:show-file-list='false'
+						  >
+						  <span style="color:#fff">修改</span>
+						</el-upload>
+						<div v-if='loadingisshow' >
+	                        <Spin fix>
+	                            <mu-icon value="rotate_right" color="blue"  class="demo-spin-icon-load"></mu-icon>
+	                            
+	                            <div>Loading...</div>
+	                        </Spin>
+	                    </div>
+	        		</div>
+	        	</div>
+	        	<mu-form ref="form" :model="validateForm" class="mu-demo-form">
+	        		 <span class='title-l'>商户信息</span>
+	        		<mu-form-item label="商户名称"  prop="name" :rules="usernameRules">
+                    	<mu-text-field v-model="validateForm.name" prop="name" placeholder="请填写您的商户名"></mu-text-field>
+                	</mu-form-item>
+                	<div style="position:relative">
+	                	<mu-form-item label="商户行业"  prop="industry" :rules="industryRules" >
+	                    	<mu-text-field v-model="validateForm.industryName" prop="industry" placeholder="请选择商户行业" @click='clickIndustry'></mu-text-field>
+	                	</mu-form-item>
+	                	<ul v-if='isshowIndustry' class="isshowIndustryClass">
+	                		<Input v-model="industryKeyword" style="margin:10px" @on-enter="enterSearchIndustry">
+	                			<span slot="append" @click="searchIndustry">搜索</span>
+	                		</Input>
+	                    	<li v-for="(item,index) in industryList" :key="index">
+	                    		<span @click="clickLabel(item,index)">{{item.title}}</span>
+	                    	</li>
+	                    	<div class="page-box" v-if="total>10">
+								 <Page :total="total" show-total size='small' :pageSize='pageSize'  @on-change="getData" @on-page-size-change="changePageSize">
+								 </Page>
+							</div>
+	                    </ul>
+                	</div>
+                	<mu-form-item label="商户地址"  prop="province" :rules="provinceRules">
+                    	<div class="input-box">
+                          <el-cascader
+                            filterable
+                            expand-trigger="click"
+                            :options="cityInfo"
+                            v-model="selectedOptions2"
+                            @change="handleChange" style='width:460px'>
+                          </el-cascader>
+                      </div>
+                	</mu-form-item>
+                	<mu-form-item label="商户简介">
+                    	<Input v-model='validateForm.info' type="textarea" :maxlength='500' :rows="6" placeholder="最大字数500" style="width:100%"></Input>
+                    	<div style="text-align:right">{{validateForm.info.length}} / 500</div>
+                	</mu-form-item>
+                	<span class='title-l'>联系人信息</span>
+                	<mu-form-item >
+                    	<mu-text-field v-model="validateForm.ContactPeople"  placeholder="联系人名称" ></mu-text-field>
+                	</mu-form-item>
+	        	</mu-form>
+	        	<div style="width:460px">
+                     <Button type="primary" class='loginBtn' @click='loginIn'>创建商户</Button>
+                </div>
+	        </div>
+        </div>
+        
+    </div>
+</template>
+<script>
+import LoadUrl from '@/components/common/actionLoad'
+import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
+export default {
+    data(){
+    	return{
+    		loadingisshow:false,//上传图片加载动画
+    		upImgisshow:false,//修改图片是否显示
+    		logoUrl:LoadUrl.httpPrefix.Url+'file/action/upload/image/url?c=行业Logo&uid='+this.$store.state.common.token,
+    		backUrl:LoadUrl.Website.OffProd,//官网
+    		industryLogo:"http://img.zsydian.com/icon/industryDefault.png",
+    		isshow:true,
+        	CodeToText:CodeToText,//code转为Text
+	        TextToCode:TextToCode,//Text转为code
+	        cityInfo:regionData,//地址数据
+	        selectedOptions2:[],//绑定的数据
+	        isshowIndustry:false,//行业是否显示
+	        // city:'',//市
+	        // province:'',//省
+	        // district:'',//区
+	        pageSize:0,
+	        total:0,
+	        value:"",
+	        industryKeyword:"",//搜索行业关键词
+	        industryList:[],//行业数据
+        	validateForm:{
+        		name:"",//商户名称
+        		industry:"",//行业key
+        		industryName:"",//行业名称
+        		ContactPeople:"",//联系人
+        		info:"",
+        		city:'',//市
+		        province:'',//省
+		        district:'',//区
+        	},
+        	usernameRules:[{ validate: (val) => !!val, message: "必须填写商户名称"},
+            				{ validate: (val) => val.length<=20, message: "做多20个字"}
+            			],
+            	
+            provinceRules:[{ validate: (val) => !!val, message: "必须填写商户地址"}],
+            industryRules:[{ validate: (val) => !!val, message: "必须填写商户行业"}],
+        	backUrl:LoadUrl.Website.OffProd,//官网
+        	uid: this.$store.state.common.token,
+			user:this.$store.state.common.user,
+    	}
+    },
+    methods:{
+    	//省市区
+	    handleChange(arr){
+	          this.validateForm.province = this.CodeToText[arr[0]]
+	          this.validateForm.city =this.CodeToText[arr[1]]
+	          this.validateForm.district = this.CodeToText[arr[2]]
+	    },
+	    //点击了行业
+	    clickIndustry(){
+	    	this.isshowIndustry=true
+	    },
+	    //点击行业其中一种
+	    clickLabel(item,index){
+	    	this.validateForm.industry=item.key//要传的key
+	    	this.validateForm.industryName=item.title//要显示的名称
+	    	this.isshowIndustry=false
+	    },
+	    //鼠标移动到图片上
+	    onenterMouse(){
+	    	this.upImgisshow=true
+	    },
+	    //鼠标离开图片
+	    oneleavelMouse(){
+	    	this.upImgisshow=false
+	    },
+	    //上传时
+        onprogress(event, file, fileList){
+        	this.loadingisshow=true
+        },
+        //上传前
+        beforeAvatarUpload(file) {
+	        const isJPG = file.type === 'image/jpeg';
+	        const isPng = file.type === 'image/png';
+	        const isLt2M = file.size / 1024 / 1024 < 2;
+	        if (!isJPG && !isPng) {
+		          this.$notify({
+			        title: "",//'失败',
+			        message:this.$t('public.upJpngOrPng'),
+			        type: 'error',
+			        position: 'bottom-right'
+		        });
+	        }
+	        if (!isLt2M) {
+		         this.$notify({
+			        title: "",//'失败',
+			        message:this.$t('public.upJpngTwoM'),
+			        type: 'error',
+			        position: 'bottom-right'
+		        });
+	        }
+	        return isJPG || isPng && isLt2M;
+	      },
+	    //上传图片成功
+		addsucess(res,file){
+			if(file.response.status==200){
+				this.industryLogo=res.rows.url
+				this.loadingisshow=false
+			}else{
+				this.$notify({
+			        title: "",//'失败',
+			        message:this.$t('public.fileUpError'),
+			        type: 'error',
+			        position: 'bottom-right'
+		        });
+			}
+		},
+	    //单击搜索
+	    searchIndustry(){
+	    	this.axios.get('param/industry?keyword='+this.industryKeyword+'&uid='+this.uid).then(res=>{
+	    		if(res.data.status==200){
+	    			this.industryList=res.data.rows
+	    			this.total=res.data.total
+	    			this.pageSize=res.data.pageSize
+	    		}
+	    	})
+	    },
+	    //回车搜索
+	    enterSearchIndustry(){
+	    	this.searchIndustry()
+	    },
+	    //获取行业数据
+	    getIndustryList(){
+	    	this.axios.get('param/industry?uid='+this.uid).then(res=>{
+	    		if(res.data.status==200){
+	    			this.industryList=res.data.rows
+	    			this.total=res.data.total
+	    			this.pageSize=res.data.pageSize
+	    		}
+	    	})
+	    },
+	    //行业翻页
+	    getData(current){
+	    	this.axios.get('param/industry?offset='+current+'&uid='+this.uid).then(res=>{
+	    		if(res.data.status==200){
+	    			this.industryList=res.data.rows
+	    			this.total=res.data.total
+	    			this.pageSize=res.data.pageSize
+	    		}
+	    	})
+	    },
+	    changePageSize(size){
+	    	this.pageSize=size
+	    },
+	    //创建商户
+	  //POST /enter 完善信息【注册-4
+    	loginIn(){
+    		this.$refs.form.validate().then((result) => {
+    			if(result){
+    				this.axios.post('/enter?uid='+this.uid,{
+    					enterName:this.validateForm.name,
+    					industry:this.validateForm.industryName,
+    					role:this.value,//选择的产品、行业value
+    					customerId:this.user.ownerId,
+    					// this.validateForm.info,
+    					// logo:this.industryLogo,
+    					contactor:this.validateForm.ContactPeople,
+    					province:this.validateForm.province,
+	          			city:this.validateForm.city,
+	          			district:this.validateForm.district
+    				}).then(res=>{
+    					if(res.data.status==200){
+    						this.$router.replace({
+	        					name: 'navigationIndex'
+	        				})
+    					}else{
+    						this.$notify({
+                                title:"",//
+                                message: res.data.errorMessage,
+                                type: 'error',
+                                position: 'bottom-right'
+                            });
+    					}
+    				})
+    			}
+    		})
+    	},
+    },
+    mounted(){
+    	console.log(this.user)
+    	//industry传过来的数据
+    	if(this.$route.query.value&&this.$route.query.value!=undefined){
+    		this.value=this.$route.query.value
+    	}else{
+    		this.value=this.user.roleId
+    	}
+		this.getIndustryList()//行业
+	}
+}
+</script>
+<style scoped>
+.head-top{
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding:0 25px;
+	height:60px;
+	box-shadow: 0 0 10px #ccc;
+	position: fixed;
+	background-color: #fff;
+	width:100%;
+	z-index: 3;
+}
+.head-top img{
+	vertical-align: middle;
+}
+.mu-demo-form {
+  width: 100%;
+  max-width: 460px;
+  margin-top:20px
+}
+.main-form{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	margin-bottom:20px;
+	margin-top:40px;
+	z-index: 3;
+}
+.title-l{
+   font-size: 16px;
+    color: #666;
+    line-height: 42px;
+   
+}
+.isshowIndustryClass{
+    position: absolute;
+    top: 60px;
+    left: 115px;
+    box-shadow: 0 0 10px #e4e4e4;
+    border: 1px solid #e4e4e4;
+    background-color: #fff;
+    border-radius: 4px;
+    width: 100%;
+    z-index: 2;
+    padding: 0 0 10px;
+    margin: 0;
+    width: 580px;
+    font-size: 12px;
+    max-height: 300px;
+    overflow-y: scroll;
+    display: -ms-flexbox;
+    display: flex;
+    flex-wrap: wrap;
+    -ms-flex-pack: distribute;
+    /*justify-content: space-around;*/
+}
+.isshowIndustryClass li{
+	
+	padding:20px;
+
+}
+.isshowIndustryClass li span{
+	padding: 6px 20px;
+    border-radius: 4px;
+}
+.isshowIndustryClass span:hover{
+	background-color: #F2F1F6;
+	cursor:pointer;
+	
+}
+.loginBtn{
+    width:100%;
+    height:55px;
+    font-size:16px;
+    /* background: #5C8AD9 */
+}
+.login-left,.login-left-l{
+    display: flex;
+}
+.ZeroAfter{
+    font-size: 16px;
+    letter-spacing: 3px;
+    margin-left: 15px;
+    margin-top: 10px;
+}
+.ZeroAfteZ{
+    font-size:12px;
+    margin-left: 15px;
+}
+.page-box{
+	text-align: right;
+    width: 100%;
+}
+.logoMark{
+    width: 80px;
+    height: 80px;
+    border-radius: 100%;
+    overflow: hidden;
+    margin-top: 40px;
+    text-align: center;
+    position: relative
+}
+.logoMark img{
+	width:100%;
+	height:100%;
+}
+.upImg{
+	position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 40px;
+    border-bottom-left-radius: 40px;
+    border-bottom-right-radius: 40px;
+    padding-top: 10px;
+    background-color: rgba(0,0,0,.5);
+
+}
+</style>

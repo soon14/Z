@@ -1,0 +1,1118 @@
+<template>
+	<div class='addCrm'>
+	<!--固定导航-->
+		<div class="head">
+			<Col span='6'>
+				<div class="left-top">
+					<p class="wldw">
+						<span style="width:42px;font-weight:900">全部员工：</span>
+						 <Select style="width:100px" size="small" placeholder="全部"  @on-change="orderselected">
+					        <Option v-for="item in orderListname" :value="item.value" :key="item.value">{{ item.label }}</Option>
+					    </Select>
+					</p>
+					<div>
+						<!--新建-->
+						<span class="top-left-btn"  @click="add">
+							<Icon type="plus" style="position:absolute;top:7px;left:8px"></Icon></span>
+						<span class="top-left-btn top-left-btn1">
+							<Icon type="navicon-round" style="position:absolute;top:7px;left:8px"></Icon></span>
+					</div>
+				</div>
+			</Col>
+			<Col span='18'>
+				<div class="right-top">
+
+				<div >
+					<span style="margin-left:40px;font-size:14px;font-weight:900">{{addoredit}}  {{crmDetail.code}}</span> 
+				</div>
+				<div style="margin-right:120px">
+					<div v-if="addText">
+						<Button shape="circle"  style="background:#00A8FF;margin-right:5px;color:#fff;border:none" @click="saveCgInfo" >
+						<Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>保存</Button>
+						
+						<Button shape="circle"  @click="addCancel"  style="background:#999999;color:#fff;margin-right:10px;" ><Icon type="close" style="margin-right:5px;"></Icon>取消</Button>
+						
+						<span @click="cancelHome" style="cursor:pointer"><Icon type="close" class="cha" ></Icon></span>
+					</div>
+
+					<div v-if="!addText" class="changebutton">
+
+						<Button type="ghost"  shape="circle"  @click="edit" v-if="editshow" style="background:#278A8B;margin-right:5px;color:#fff;border:none">
+							<Icon type="edit" style="position:relative;right:5px"></Icon>
+						修改
+						</Button>
+
+						<Button type="ghost"  shape="circle" @click="saveEdit" v-if="!editshow" style="background:#00A8FF;margin-right:5px;color:#fff;border:none">
+							<Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>完成
+						</Button>
+						<Button shape="circle" v-if="!editshow"  @click="editCancel"  style="background:#999999;color:#fff;margin-right:10px;" ><Icon type="close" style="margin-right:5px;"></Icon>取消</Button>
+						<Poptip placement="bottom-end">
+							<div type="ghost">
+								<Button shape="circle"  type="ghost" style="color:#308DBF">
+									<Icon type="navicon" size="14" style="position:relative;right:5px;top:1px"></Icon>更多
+									
+								</Button>
+							</div>
+							<div slot="content" style="width:80px;overflow: hidden;">
+								<p style="font-size:14px;color:#0d0d0d;margin-bottom:10px;" @click="del">删除</p>
+								<p style="font-size:14px;color:#0d0d0d;margin-bottom:10px;" @click="stop">停用</p>
+								<p style="font-size:14px;color:#0d0d0d;margin-bottom:10px;" @click="start">启用</p>
+
+									
+								</div>
+						</Poptip>
+						<span @click="cancelHome" style="cursor:pointer;margin-left:5px" ><Icon type="close" class="cha" ></Icon>
+						</span>
+					</div>	
+				</div>		
+				</div>
+			</Col>
+		</div>
+		<!--左侧列表-->
+		<div class="left-content">
+			<p v-if="Allcrm.length==0">
+				<Spin fix>
+	                <Icon type="load-c" size=18 class="demo-spin-icon-load"></Icon>
+	                <div>Loading......</div>
+	            </Spin>
+		    </p>
+			<Scroll :on-reach-bottom="handleReachEdge" :height="height" v-else>
+				<div class="con-list" v-for="(item,index) in Allcrm" @click="getcginfo(item.id,index)" :class="{bg:numIndex==index}">
+					  <span class='left-img'>
+					 	 <img :src="item.headPic" width='60' height='60'>
+					 </span> 
+
+					 <div>
+					<p class="list-title">{{item.code}}</p>
+					<p style='position: absolute;right: 10px;top: 50px;'>权限嘻嘻嘻{{item.jopTitle}}</p>
+					<p class="txt" style="margin-top:10px;">
+						{{item.name}} 
+						<span style='margin-left:4px'
+				:class="{colorGender1:item.gender=='男',colorGender0:item.gender=='女'}">{{item.gender}}</span>
+					</p>
+					
+					<span class="date">{{item.createTime}}</span>
+					
+					</div>
+				</div>
+				
+			</Scroll>
+		</div>
+		<!--右侧-->
+		<div class="add-right" >
+			<!--新增-->
+			<div class='right-right' v-if='addText'>
+				<Col span='12'>
+				<div class="list-box">
+						<span><i style="position:relative;top:5px;right:4px;color:red;font-size:16px">*</i>手机号 : </span>
+						<Input v-model='mobile' placeholder='请输入手机号 / 邮箱 / 姓名'></Input>
+						
+					</div>
+					<div class="list-box">
+						<span><i style="position:relative;top:5px;right:4px;color:red;font-size:16px">*</i>预约人 : </span>
+						<Input v-model='name' placeholder='姓名'></Input>
+						
+					</div>
+					<div class="list-box">
+						<span> <i style="position:relative;top:5px;right:4px;color:red;font-size:16px">*</i>预约门店 : </span>
+						<!-- <Select  @on-change="getdztype">
+							<Option v-for="(item,index) in jops" :label-in-value='true' :value='item.label' :key='item.value'>{{item.label}}</Option>
+						</Select> -->
+						
+					</div>
+					<div class="list-box" >
+						<span>职位 : </span>
+						<Select  @on-change="getdztype">
+							<Option v-for="(item,index) in jops" :label-in-value='true' :value='item.label' :key='item.value'>{{item.label}}</Option>
+						
+						</Select>
+						
+					</div>
+					
+					
+					
+				</Col>
+				<Col span='12'>
+				<div class="list-box">
+						<span><i style="position:relative;top:5px;right:4px;color:red;font-size:16px">*</i>登录密码 : </span>
+						<Input type='password' v-model='accountPs' placeholder='请输入登录密码'></Input>
+						
+					</div>
+				<div class="list-box">
+						<span><i style="position:relative;top:5px;right:4px;color:red;font-size:16px;position:relative;top:5px;right:4px;">*</i>性别 : </span>
+						<RadioGroup v-model="gender" @on-change="selsectedSex">
+					        <Radio label="1">
+					            <span>男</span>
+					        </Radio>
+					        <Radio label="0">
+					          
+					            <span>女</span>
+					        </Radio>
+					       
+					    </RadioGroup>
+					</div>
+					
+					<div class="list-box" >
+						<span>邮箱: </span>
+						<Input v-model='email' placeholder='邮箱'></Input>
+					</div>
+					<div class="list-box">
+						<span>权限组: </span>
+						<Input placeholder='权限组'></Input>
+					</div>
+				</Col>
+				<div class="list-box" style='width:100%'>
+						<span style="display:inline-block">地址 : </span>
+						<Cascader :data="cityData" @on-change="change" style='width:300px'></Cascader>
+                           
+                            
+						<input type="text" name="" class='addressDetail' v-model='address' placeholder='详细地址'>
+					</div>
+					
+			</div>
+			<!--修改-->
+			
+			<!--详情-->
+			<!--详情明细订单页面-->
+				<div class="right-content right-detail" ref="detail" style="display:none">
+					<div >
+							
+					<div style='display:inline-block;margin: 0 20px;border-radius:50%;overflow:hidden;vertical-align: middle;'>
+
+						<img :src="crmDetail.headPic" width='120' height='120' style='vertical-align:middle'>
+					</div>
+					<div style='display:inline-block;vertical-align:middle;margin-left:20px'>
+					<div  style='display:inline-block'>
+						<div class="list-box list-box1">
+							<span>姓名 : </span><div>{{crmDetail.name}}</div>
+							
+						</div>
+						<div class="list-box list-box1">
+						<span>性别 : </span><div>{{crmDetail.gender}}</div>
+						
+						</div>
+						<div class="list-box list-box1">
+							<span> 手机 : </span><div>{{crmDetail.phone}}</div>
+							
+							
+						</div>
+						<div class="list-box list-box1">
+						<span>创建时间: </span><div>{{crmDetail.createTime}}</div>
+						
+						</div>
+					</div>
+				<div style='display:inline-block;margin-left:20px'>
+					
+					<div class="list-box list-box1" >
+							<span>帐号 : </span><div>{{crmDetail.accountName}}</div>
+							
+					</div>
+					<div class="list-box list-box1">
+							<span>邮箱 : </span>
+							<div >{{crmDetail.email}}</div><span></span>
+						</div>
+					
+					<div class="list-box list-box1" >
+						<span>所属部门:</span> <div >{{crmDetail.orgId}}</div>
+						
+					</div>
+					<div class="list-box list-box1">
+							<span>社保编号 : </span><div>{{crmDetail.socialNo}}</div>
+						</div>
+				</div>
+				<div style='display:inline-block;margin-left:20px;vertical-align:top'>
+
+					<div class="list-box list-box1">
+						<span>职位: </span><div>{{crmDetail.jobTitle}}</div>
+					</div>
+					<div class="list-box list-box1">
+					<span>地址：</span><div>{{crmDetail.address}}</div>
+				</div>
+					<div class="list-box list-box1">
+						<span>备注 : </span><div>{{crmDetail.remark}}</div>
+					</div>
+				</div>
+				
+				</div>			
+				<!--**********下方数据***********-->
+							<div class="detail-bottom">
+								<div class="detail-title-mark">
+									<div v-for="(item,index) in titles" class="detail-title" @click="addborder(index)" :class="{bor:index==num2}">
+										{{item}}
+									</div>
+								</div>
+								<!--基本信息-->
+								<div v-if="num2==0" class="detail-public">
+									<!--订单详情页面cgxqInfo-->
+									<div class="detail-top">
+								<table class="cgtable">
+									<tr>
+										<th>员工编号</th>
+										<th>姓名</th>
+										
+										<th>帐号</th>
+										 <th>职位</th>
+									</tr>
+									<tr>
+										<td>{{crmDetail.code}}</td>
+										<td>{{crmDetail.name}}</td>
+										
+										<td>{{crmDetail.accountName}}</td>
+										<td>{{crmDetail.jobTitle}}</td>
+									</tr>
+								</table>
+								<table class="cgtable">
+									<tr>
+										
+										<th>手机</th> 
+										<th>邮箱</th>
+										<th>性别</th>
+										<th>创建时间</th>
+										
+									</tr>
+									<tr>
+										<td>{{crmDetail.phone}}</td>
+										<td>{{crmDetail.email}}</td>
+										
+										
+										<td>{{crmDetail.gender}}</td>
+										
+										 <td>{{crmDetail.createTime}}</td>
+									</tr>
+								</table>
+								
+							</div>
+								</div>
+								<!--订单-->
+								<div v-if="num2==1" class="detail-public">
+									
+									
+								</div>
+								
+								<!--积分-->
+								<div v-if="num2==2" class="detail-public">
+									
+									
+								</div>
+								<!--充值历史-->
+								<div v-if='num2==3'>
+									
+								</div>
+								<!--消费历史-->
+								<div v-if='num2==4'>
+									
+								</div>
+							</div>
+						</div>
+						
+				</div>	
+		</div>
+
+		
+	</div>
+</template>
+<script type="text/javascript">
+import cityData from '../../../../static/js/citydata.js'
+	export default{
+		data(){
+			return{
+				cityData:cityData,
+				addoredit:"新增员工",
+				leftphoto:true,
+				photo:'',
+				xiugai:false,
+				current:1,
+				height:'',
+				numIndex:0,
+				indexId:'',
+				addText:true,
+				editshow:false,
+				storeisshow:false,
+				crmCardisshow:false,
+				storekeyword:'',
+				cartype:'',
+				num2:0,
+				orderdataList:[],
+				 pageSize:1,
+				 total:1,
+				 titles:["基本信息"],//,"订单","积分","充值历史","消费历史"
+				
+				crmDetail:{},
+			
+				
+				Allcrm:[],
+				uid: this.$store.state.common.token,
+				orderListname:[
+					{
+						label:"全部",
+						value:1
+					},
+					{
+						label:"待审核",
+						value:2
+					},
+					{
+						label:"待签收",
+						value:3
+					},
+					{
+						label:"退审单",
+						value:4
+					}
+				],
+
+				mobile:'',
+				value:'',
+				
+				email:'',
+				code:'',//会员号
+				name:'',//会员名
+				phone:'',//手机号
+				address:'',//地址
+				
+				remark:'',
+				
+				gender:1,//
+				address:'',
+				jobTitle:'',
+				accountName:'',//开户帐号
+				accountPs:'',//密码
+				jops:[]
+			}
+		},
+		methods:{
+			//点击新增
+			add(){
+				this.addoredit='新增员工'
+				this.addText = true
+				this.xiugai=false
+				this.leftphoto=true
+				this.$refs.detail.style.display='none'
+				
+				this.accountName=''
+				this.accountPs=''
+				this.photo=''
+				this.name=''//会员名
+				this.phone ='' //手机号
+				this.address=''//地址
+				
+				this.gender=1
+				this.email=''
+				this.remark=''
+				
+			},
+			//查找职位
+			getdztype(label){
+				this.jobTitle=label
+				console.log(label)
+			},
+			getjop(){
+				this.axios.get('position/query?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						
+						res.data.rows.forEach((item,index)=>{
+            				let arr={
+            					value:res.data.rows[index].id,
+            					label:res.data.rows[index].name
+            				}
+            				this.jops.push(arr)
+            				
+            			})
+					}
+				})
+			},
+			//点击新增取消
+			addCancel(){
+				this.add()
+			},
+			
+			//新建点击完成
+			saveCgInfo(){
+				
+				
+				 if(this.name==''){
+					this.$Notice.error({
+							title: '错误！',
+							desc: '姓名不能为空'
+						});
+				}else if(this.accountName==''){
+					this.$Notice.error({
+							title: '错误！',
+							desc: '帐号不能为空'
+						});
+				}else if(this.accountPs==''){
+					this.$Notice.error({
+							title: '错误！',
+							desc: '密码不能为空'
+						});
+				}else if(this.phone==''){
+					this.$Notice.error({
+							title: '错误！',
+							desc: '手机号不能为空'
+						});
+				}else{
+					this.axios.post('/employee/add?uid='+this.uid,{
+						accountName:this.accountName,
+						accountPs:this.accountPs,
+						
+						headPic:this.photo,
+						name:this.name,//员工员名
+						phone:this.phone,//手机号
+						address:this.address,
+						email:this.email,
+						gender:this.gender
+						
+					}).then((res)=>{
+						console.log(res)
+						if(res.data.status==200){
+							this.$Notice.success({
+								title:"",//
+								desc: '新建会员成功'
+							});
+							this.accountName=''
+							this.accountPs=''
+							
+							this.photo=''
+							this.name=''//员工员名
+							this.phone=''//手机号
+							this.address=''
+							this.email=''
+							this.gender=1
+							this.getMentList()
+						}else{
+
+							this.$Notice.error({
+								title:"",//
+								desc: res.data.errorMessage
+							});
+						}
+					})
+				}
+			},
+			//取消修改
+			editCancel(){
+				this.accountName=''
+				this.accountPs=''
+				
+				this.photo=''
+				this.name=''//员工员名
+				this.phone=''//手机号
+				this.address=''
+				this.email=''
+				this.gender=1
+				this.addText = false
+				this.xiugai=false
+				this.editshow=true
+				this.leftphoto=false
+				this.$refs.detail.style='block'
+			},
+			//点击修改
+			edit(){
+				this.$refs.detail.style.display='none'
+				this.editshow=false
+				this.xiugai=true
+				this.leftphoto=true
+				this.addoredit='修改员工'
+				this.getCrmDetail(this.indexId)
+			},
+			//保存修改
+			saveEdit(){
+				if(this.name==''){
+					this.$Notice.error({
+							title: '错误！',
+							desc: '姓名不能为空'
+						});
+				}else if(this.accountName==''){
+					this.$Notice.error({
+							title: '错误！',
+							desc: '帐号不能为空'
+						});
+				}else if(this.accountPs==''){
+					this.$Notice.error({
+							title: '错误！',
+							desc: '密码不能为空'
+						});
+				}else if(this.phone==''){
+					this.$Notice.error({
+							title: '错误！',
+							desc: '手机号不能为空'
+						});
+				}
+				else{
+					this.axios.put('employee/update?uid='+this.uid,{
+						id:this.indexId,
+						accountName:this.accountName,
+						accountPs:this.accountPs,
+						
+						headPic:this.photo,
+						name:this.name,//员工员名
+						phone:this.phone,//手机号
+						address:this.address,
+						email:this.email,
+						gender:this.gender
+					}).then(res=>{
+						if(res.data.status==200){
+							this.$Notice.success({
+								title:"",//
+								desc: '修改成功'
+							});
+							this.accountName=''
+							this.accountPs=''
+							
+							this.photo=''
+							this.name=''//员工员名
+							this.phone=''//手机号
+							this.address=''
+							this.email=''
+							this.gender=1
+							this.addText = false
+							this.xiugai=false
+							this.editshow=true
+							this.leftphoto=false
+							this.$refs.detail.style='block'
+							this.getMentList()
+						}
+					})
+				}
+				
+			},
+			//点击差号
+			cancelHome(){
+				this.$router.push('/shopyyHome')
+			},
+			//单击左侧列表
+			getcginfo(id,index){
+				this.numIndex = index
+				this.indexId = id
+				this.addText = false
+				this.xiugai=false
+				this.editshow=true
+				this.leftphoto=false
+				this.addoredit='员工详情'
+				this.$refs.detail.style.display='block'
+				this.getCrmDetail(id)
+			},
+			//获取员工详情
+			getCrmDetail(id){
+				this.axios.get('yy/get/'+id+'?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						console.log(res.data.rows)
+						this.crmDetail=res.data.rows
+						if(this.crmDetail.gender==1){
+		                    this.crmDetail.gender='男'
+		                  }else{
+		                     this.crmDetail.gender='女'
+		                  }
+					
+					this.crmDetail.createTime=new Date(this.crmDetail.createTime).toLocaleDateString().replace(/\//g,'-')
+							this.accountName=res.data.rows.accountName
+							this.accountPs=res.data.rows.accountPs
+							
+							this.photo=res.data.rows.headPic
+							this.name=res.data.rows.name//员工员名
+							this.phone=res.data.rows.phone//手机号
+							this.address=res.data.rows.address
+							this.email=res.data.rows.email
+							this.gender=res.data.rows.gender
+						// this.code=res.data.rows.code
+						// this.crmCardName=res.data.rows.crmCardName
+						// this.crmCardId=res.data.rows.crmCardId
+						// this.photo=res.data.rows.photo
+						// this.name=res.data.rows.name//会员名
+						// this.mobile=res.data.rows.mobile //手机号
+						
+						// this.address=res.data.rows.address//地址
+						
+						// this.storeName=res.data.rows.storeName
+						// this.storeId=res.data.rows.storeId
+						// this.gender=res.data.rows.gender,
+						// this.chargeMoney=res.data.rows.chargeMoney,
+						// this.dqjf=res.data.rows.dqjf,
+						// this.loginPs=res.data.rows.loginPs
+					}
+				})
+			},
+			 //下拉框选择
+			
+			orderselected(value){
+				this.value = value
+				// this.axios.get('/employee/query/'+'?uid=' + this.uid).then((res) => {
+				// 	if(res.data.status == '200') {
+				// 		//console.log(this.value)
+				// 		let data = res.data
+				// 		this.Allcrm = data.rows;
+						
+				// 		this.isLoading = false
+						
+						
+						
+				// 	} else {
+				// 		 this.$Message.error(res.data.errorMessage);
+				// 	}
+				// })
+			},
+			//地址
+			 change(value,data){
+                console.log(data)
+                this.address=data[1].__label
+                // console.log(data[1].__label)
+            },
+			//下拉加载更多
+            handleReachEdge(){
+				this.current++//默认10条
+    	 		this.axios.get('yy/query?offset='+this.current+'&uid='+this.uid).then((res)=>{
+	 				
+			 		res.data.rows.forEach((item)=>{
+			 			
+			 			this.Allcrm.push(item)
+			 			this.Allcrm.forEach((x,index)=>{
+			 				if(x.gender==1){
+		                    	x.gender='男'
+			                  }else{
+			                    x.gender='女'
+			                  }
+							x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+						})
+			 		})
+
+			 	})
+	                  
+            },
+          
+            //选择性别
+            selsectedSex(label){
+            	this.gender = label
+            	console.log(this.gender)
+            },
+            //取消确认
+            cancelStore(){
+            	this.crmCardisshow=false
+            },
+          
+            //获取员工
+            selecteStore(){
+            	this.storeisshow=true
+            	this.axios.get('employee/query?uid='+this.uid).then((res)=>{
+            		if(res.data.status==200){
+            			this.allStore = res.data.rows
+
+            		}
+            	})
+            },
+           
+          
+             //上传图片成功
+            addsucess(res,file){
+                console.log(file)
+                console.log(res)
+                this.photo=res.rows.url
+            },
+            del(){
+            	if(this.indexId){
+             		this.axios.delete('employee/delete/'+this.indexId+'?uid='+this.uid).then((res)=>{
+            		if(res.data.status==200){
+            			this.$Notice.success({
+								title: '删除',
+								desc: '删除成功'
+							});
+            			this.getMentList()
+            		}else{
+            			this.$Notice.error({
+								title:"",//
+								desc: '删除失败'+res.data.errorMessage
+							});
+            		}
+            	})
+             	}
+            },
+             stop(){
+            	if(this.indexId){
+             		this.axios.post('employee/disabled/'+this.indexId+'?uid='+this.uid).then((res)=>{
+            		if(res.data.status==200){
+            			this.$Notice.success({
+								title:"",//
+								desc: '停用成功'
+							});
+            		}else{
+            			this.$Notice.error({
+								title:"",//
+								desc: '失败'+res.data.errorMessage
+							});
+            		}
+            	})
+             	}
+            },
+             start(){
+             	if(this.indexId){
+             		this.axios.post('employee/enabled/'+this.indexId+'?uid='+this.uid).then((res)=>{
+            		if(res.data.status==200){
+            			this.$Notice.success({
+								title:"",//
+								desc: '启用成功'
+							});
+            		}else{
+            			this.$Notice.error({
+								title:"",//
+								desc: '启用失败'+res.data.errorMessage
+							});
+            		}
+            	})
+             	}
+            	
+            },
+            //添加下边框 
+			addborder(index){
+				this.num2 = index
+				//index为1点击了订单orderdataList
+				if(index==1){
+					this.axios.get('crm/order?uid='+this.uid).then(res=>{
+						if(res.data.status==200){
+							this.orderdataList = res.data.rows
+							this.total=res.data.total;
+							this.pageSize = res.data.pageSize
+						}
+					})
+				}
+				//点击积分
+				if(index==2){
+					
+				}
+				//点击充值历史
+				if(index==3){
+					
+				}
+				//点击消费历史
+				if(index==4){
+					
+				}
+			},
+			
+			
+			 //切换一条页
+            getData(current){
+                this.axios.get('crm/order?offset='+current+'&uid='+this.uid).then((res)=>{
+                    //console.log(res)
+                    this.orderdataList = res.data.rows
+                    this.orderdataList.forEach((x,index)=>{
+						
+							x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+						})
+                })
+            },
+            //翻页
+            changePageSize(size){
+                this.pageSize = size
+            },
+          
+			//获取所有会员
+	        getMentList(){
+	            this.axios.get('yy/query?uid='+this.uid).then((res)=>{
+	            	console.log(this.Allcrm)
+	                if(res.data.status==200){
+	                	this.Allcrm = res.data.rows
+	                	console.log(this.Allcrm)
+	                }
+	                
+	               this.Allcrm.forEach((item)=>{
+	               	if(item.gender==1){
+		                    item.gender='男'
+		                  }else{
+		                     item.gender='女'
+		                  }
+	               	item.createTime = new Date(item.createTime).toLocaleDateString().replace(/\//g,'-')
+	               })
+	            })
+	        },
+		},
+		created(){
+			this.$nextTick(()=>{
+				this.getMentList()
+				this.getjop()
+
+			})
+		
+		},
+		mounted(){
+			if(this.$route.query.id){
+				this.indexId = this.$route.query.id
+				this.numIndex = this.$route.query.index
+				this.getcginfo(this.indexId,this.numIndex)
+			}
+			this.height = document.documentElement.clientHeight
+			this.handleReachEdge()//滚动加载
+			window.onresize=function(){
+				this.height = document.documentElement.clientHeight
+			}
+		}
+	}
+</script>
+<style type="text/css" scoped>
+.head{
+	height:60px;
+	background: #fff;
+	
+}
+.left-top{
+	height: 60px;
+	width:25%;
+	line-height: 60px;
+	position:fixed;
+	z-index:9;
+	display:flex;
+	background: #fff;
+	padding-right:10px;
+	border-bottom:1px solid #eee;
+	border-right:1px solid #eee;
+	justify-content: space-between;
+}
+.right-top{
+	height: 60px;
+
+	border-bottom:1px solid #eee;
+	line-height: 60px;
+	position:fixed;
+	z-index:10;
+	display:flex;
+	width:70%;
+	margin-left:25%;
+	background: #fff;
+	justify-content: space-between;
+
+}
+.colorGender1{
+	color:#72B7EA;
+}
+.colorGender0{
+	color:#FF934D;
+}
+.wldw{
+	margin-left:40px;
+}
+.left-img{
+    margin-right: 10px;
+width: 60px;
+height: 60px;
+border-radius: 50%;
+overflow: hidden;
+/* margin-bottom: -8px; */
+display: block;
+
+line-height: 80px;
+text-align: center;
+}
+.top-left-btn{
+background: #3B77E3;
+margin-right: 10px;
+color: #fff;
+border: none;
+width: 26px;
+height: 26px;
+border-radius: 26px;
+display: inline-block;
+position: relative;
+top: 12px;
+}
+.top-left-btn1{
+background: #FF7D16;
+}
+.top-left-btn:hover{
+cursor:pointer;
+}
+.left-content {
+	height:100%;
+	width:25%;
+	
+	margin-bottom:300px;
+	
+	border-right:1px solid #E6E6E6;
+	position:fixed;
+	background:#F9F9F9;
+}
+.con-list {
+	display:flex;
+	align-items: center;
+	width: 100%;
+	word-wrap:break-word;
+	
+	border-bottom: solid 1px #E6E6E6;
+	padding: 15px 25px;
+	
+	cursor: pointer;
+	position:relative;
+}
+.con-list:hover{
+	cursor:pointer;
+}
+.con-list .date{
+	position:absolute;
+	right:10px;
+	top:10px;
+}
+.con-list .status{
+	width:100px;
+	
+	text-align: center;
+	position: absolute;
+    right: 0px;
+    top: 47px;
+}
+.con-list .list-title {
+	color: #0d0d0d;
+	font-size: 14px;
+	margin-bottom: 10px;
+}
+
+.con-list .txt {
+	color: #585858;
+	font-size: 12px;
+}
+.bg{
+	background:#f5f5f5;
+}
+.add-right {
+	width: 100%;
+	background: #fff;
+	height:100%;
+	width:70%;
+	margin-left:30%;
+	padding-right:20px;
+	padding-top:10px;
+	display:flex;
+}
+.list-box{
+	display: flex;
+	height:35px;
+	line-height: 35px;
+	margin:25px 10px;
+}
+.list-box1{
+		margin:4px 10px;
+}
+.list-box span{
+	height:40px;
+	width:120px;
+	text-align: center;
+	padding:0 10px;
+	font-weight:600;
+}
+.list-box input.ivu-input{
+	height:40px!important;
+}
+.list-box1{
+	margin-left:20px;
+}
+.list-box1 span{
+	width:auto;
+	text-align: left
+}
+.right-left{
+	width: 230px;
+    margin-top: 26px;
+	
+}
+.right-right{
+	width:100%;
+}
+.avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
+   .title{
+    	display:flex;justify-content: space-between;margin-top:20px
+    }
+    .title:hover{
+    	cursor:pointer;
+    }
+	.right-content{
+		width: 100%;
+		height:100%;
+		/*	margin-bottom:100px;*/
+	}
+    .cgtable{
+		width:100%;
+		margin-top:20px;
+		text-align: center
+	}
+	.cgtable th{
+		width:200px;
+		text-align: center;
+		color:#2B8F8F;
+	}
+	.cgtable td{
+		text-align: center
+	}
+	.detail-bottom{
+		margin-bottom: 120px
+	}
+	.detail-title-mark{
+		display:flex;
+		justify-content: flex-start;
+		border-bottom:1px solid #eee;
+		margin-top:1px;
+		margin-left: 10px;
+	}
+	.detail-title{
+		padding:10px 40px;
+
+	}
+	.table{
+
+	}
+	.page-box{
+		margin-top:4px;
+	}
+	.detail-public{
+		width:100%;
+		margin:10px;
+	}
+	.bor{
+		border-bottom:2px solid #086CA2;
+	}
+	.addressDetail{
+		display: inline-block;
+		
+		height: 34px;
+		margin-left:28px;
+		text-indent: 10px;
+		color: #555;
+		background-color: #fff;
+		background-image: none;
+		border: 1px solid #eee;
+		
+		-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+		box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+		-webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+		-o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+		transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+	}
+</style>
+<style type="text/css">
+ .demo-spin-icon-load{
+        animation: ani-demo-spin 1s linear infinite;
+    }
+ @keyframes ani-demo-spin {
+    from { transform: rotate(0deg);}
+    50%  { transform: rotate(180deg);}
+    to   { transform: rotate(360deg);}
+}
+
+</style>

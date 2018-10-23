@@ -1,0 +1,2019 @@
+<template>
+	<!--销售报表-->
+	<div class="units-box">
+		<input type="hidden">
+		<!--顶部的按钮-->
+		
+		<div style='display:flex;height:100%'>
+			<div class='main-left'>
+				<div style='display:flex;border-bottom:1px solid #e4e4e4;'>
+					<span  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+						<div style='margin:0 10px;'>{{$t('data.sales.salesData')}}</div>	<!--销售统计-->
+					</span>
+				</div>
+				<li class='flclass' v-for='(item,index) in fhlist' :key='index' @click='getfhlistbg(index)' :class="{bor:index==fhindex}">
+					<span>{{item.label}}</span>
+				</li>
+			</div>
+			<!--销售统计数据-->
+			<div class="table1" v-show='fhindex==0'>
+				<div style='display:flex;justify-content: space-between;border-bottom:1px solid #e4e4e4;margin-bottom:7px'>
+					<div style='display:flex'>
+					<span  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+						<div style='margin:0 10px;'>{{$t('data.sales.salesData')}}</div>	
+					</span>
+					<Input style='margin-top:10px;width:300px;' v-model='fuzzySearch' :placeholder="$t('public.PreciseSearchPlaceholder')">
+	                    <span slot="append" style='cursor:pointer' @click='search'>{{$t('public.search')}}</span><!--搜索-->
+	                </Input>
+	                <div style='margin-left:10px;margin-top:15px'>
+						<!-- <a style='font-size:14px;font-weight:600;margin-left:10px;margin-right:20px;border-bottom:1px solid #3b77e3;height:40px' @click='searchNo1'>{{$t('public.PreciseSearch')}}</a><!--精准搜索-->
+						
+	                </div>
+	                </div>
+	               	<div>
+	               		<Button type="primary" shape="circle" @click="exportNo1(0)" style='margin-top:10px;margin-right:10px'>
+							 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>
+							 {{$t('public.export')}}<!--导出-->
+						</Button>
+	               	</div>
+				</div>
+				<div >
+					<Table border  ref="tableM" highlight-row :columns="columns" :data="dataList"  @on-select="selected" @on-row-click='clickRow'></Table>
+					<div class="page-box">
+						 <Page :total="total" show-total size="small" :pageSize='pageSize'  @on-change="getData" @on-page-size-change="changePageSize"></Page>
+					</div>
+				</div>
+			</div>
+			<!--销售明细数据-->
+			<div class="table1" v-show='fhindex==1'>
+				<div style='display:flex;justify-content: space-between;border-bottom:1px solid #e4e4e4;margin-bottom:7px'>
+					<div style='display:flex'>
+					<span  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+						<div style='margin:0 10px;'>{{$t('data.sales.salesDetails')}}</div><!--销售明细-->	
+					</span>
+				<Input style='margin-top:10px;width:300px;' v-model='fuzzySearch' :placeholder="$t('public.PreciseSearchPlaceholder')">
+                    <span slot="append" style='cursor:pointer' @click='search'>{{$t('public.search')}}</span>
+                </Input>
+                <div style='margin-left:10px;margin-top:15px'>
+				<!-- <a style='font-size:14px;font-weight:600;margin-left:10px;margin-right:20px;border-bottom:1px solid #3b77e3;height:40px' @click='searchNo2'>{{$t('public.PreciseSearch')}}</a> -->
+				
+				</div>
+				</div>
+				<div>
+					<Button type="primary" shape="circle" @click="exportNo1(1)" style='margin-top:10px;margin-right:10px' >
+					 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.export')}}<!--导出-->
+				</Button>
+				</div>
+			</div>
+				<div >
+					<Table border   highlight-row :columns="mxcolumns" :data="mxdataList"  @on-select="selected" @on-row-click='clickRow'></Table>
+					<div class="page-box">
+						 <Page :total="mxtotal" show-total size="small" :pageSize='mxpageSize'  @on-change="mxgetData" @on-page-size-change="mxchangePageSize"></Page>
+					</div>
+				</div>
+			</div>
+			<!--销售订货统计数据-->
+			<div class="table1" v-show='fhindex==2'>
+				<div style='display:flex;justify-content: space-between;border-bottom:1px solid #e4e4e4;margin-bottom:7px'>
+					<div style='display:flex'>
+					<span  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+						<div style='margin:0 10px;'>{{$t('data.sales.salesDh')}}</div>	<!--销售订货-->
+					</span>
+					<Input style='margin-top:10px;width:300px;' v-model='fuzzySearch' :placeholder="$t('public.search')">
+	                    <span slot="append" style='cursor:pointer' @click='search'>{{$t('public.search')}}</span>
+	                </Input>
+	                <div style='margin-left:10px;margin-top:15px'>
+					<!-- <a style='font-size:14px;font-weight:600;margin-left:10px;margin-right:20px;border-bottom:1px solid #3b77e3;height:40px' @click='searchNo3'>{{$t('public.PreciseSearch')}}</a> -->
+					</div>
+					</div>
+					<div>
+						<Button type="primary" shape="circle" @click="exportNo1(2)" style='margin-top:10px;margin-right:10px' >
+						 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.export')}}
+					</Button>
+					</div>
+				</div>
+				<div >
+					<Table border  highlight-row :columns="dhcolumns" :data="dhdataList"  @on-select="selected" @on-row-click='clickRow'></Table>
+					<div class="page-box">
+						 <Page :total="dhtotal" show-total size="small" :pageSize='dhpageSize'  @on-change="dhgetData" @on-page-size-change="dhchangePageSize"></Page>
+					</div>
+				</div>
+			</div>
+			<!--销售毛利数据-->
+			<div class="table1" v-show='fhindex==3'>
+				<div style='display:flex;justify-content: space-between;border-bottom:1px solid #e4e4e4;margin-bottom:7px'>
+					<div style='display:flex'>
+						<span  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+							<div style='margin:0 10px;'>{{$t('data.sales.salesML')}}</div>	<!--销售毛利-->
+						</span>
+						<Input style='margin-top:10px;width:300px;' v-model='fuzzySearch' :placeholder="$t('public.search')">
+		                    <span slot="append" style='cursor:pointer' @click='search'>{{$t('public.search')}}</span>
+		                </Input>
+		                <div style='margin-left:10px;margin-top:15px'>
+						<!-- <a style='font-size:14px;font-weight:600;margin-left:10px;margin-right:20px;border-bottom:1px solid #3b77e3;height:40px' @click='searchNo4'>{{$t('public.PreciseSearch')}}</a> -->
+						
+						</div>
+					</div>
+				<div>
+					<Button type="primary" shape="circle" @click="exportNo1(3)" style='margin-top:10px;margin-right:10px'>
+						 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.export')}}
+					</Button>
+				</div>
+				</div>
+				<div >
+					<Table border  highlight-row :columns="mlcolumns" :data="mldataList"  @on-select="selected" @on-row-click='clickRow'></Table>
+					<div class="page-box">
+						 <Page :total="mltotal" show-total size="small" :pageSize='mlpageSize'  @on-change="mlgetData" @on-page-size-change="mlchangePageSize"></Page>
+					</div>
+				</div>
+			</div>
+			<!--销售订货明细-->
+			<div class="table1" v-show='fhindex==4'>
+				<div style='display:flex;justify-content: space-between;border-bottom:1px solid #e4e4e4;margin-bottom:7px'>
+					<div style='display:flex'>
+						<span  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+							<div style='margin:0 10px;'>{{$t('data.sales.salesdhmx')}}</div>	<!--销售订货明细-->
+						</span>
+						<Input style='margin-top:10px;width:300px;' v-model='fuzzySearch' :placeholder="$t('public.search')" >
+		                    <span slot="append" style='cursor:pointer' @click='search'>{{$t('public.search')}}</span>
+		                </Input>
+		                <div style='margin-left:10px;margin-top:15px'>
+						<!-- <a style='font-size:14px;font-weight:600;margin-left:10px;margin-right:20px;border-bottom:1px solid #3b77e3;height:40px' @click='searchNo5'>{{$t('public.PreciseSearch')}}</a> -->
+						
+						</div>
+					</div>
+					<div>
+					<Button type="primary" shape="circle" @click="exportNo1(4)" style='margin-top:10px;margin-right:10px' >
+						 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.export')}}
+					</Button>
+					</div>
+				</div>
+				<div >
+					<Table border  highlight-row :columns="dhmxcolumns" :data="dhmxdataList"  @on-select="selected" @on-row-click='clickRow'></Table>
+					<div class="page-box">
+						 <Page :total="dhmxtotal" show-total size="small" :pageSize='dhmxpageSize'  @on-change="dhmxgetData" @on-page-size-change="dhmxchangePageSize"></Page>
+					</div>
+				</div>
+			</div>
+			<!--商品销售排名-->
+			<div class="table1" v-show='fhindex==5'>
+				<div style='display:flex;justify-content: space-between;border-bottom:1px solid #e4e4e4;margin-bottom:7px'>
+					<div style='display:flex'>
+					<span  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+						<div style='margin:0 10px;'>{{$t('data.sales.salespm')}}</div><!--商品销售排名-->	
+					</span>
+					<Input style='margin-top:10px;width:300px;' v-model='fuzzySearch' :placeholder="$t('public.search')">
+	                    <span slot="append" style='cursor:pointer' @click='search'>{{$t('public.search')}}</span>
+	                </Input>
+	                <div style='margin-left:10px;margin-top:15px'>
+					<!-- <a style='font-size:14px;font-weight:600;margin-left:10px;margin-right:20px;border-bottom:1px solid #3b77e3;height:40px' @click='searchNo6'>{{$t('public.PreciseSearch')}}</a> -->
+					
+				</div>
+				</div>
+				<div>
+					<Button type="primary" shape="circle" @click="exportNo1(5)" style='margin-top:10px;margin-right:10px'>
+						 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.export')}}
+					</Button>
+				</div>
+				</div>
+				<div >
+					<Table border  highlight-row :columns="skucolumns" :data="skudataList"  @on-select="selected" @on-row-click='clickRow'></Table>
+					<div class="page-box">
+						 <Page :total="skutotal" show-total size="small" :pageSize='skupageSize'  @on-change="skugetData" @on-page-size-change="skuchangePageSize"></Page>
+					</div>
+				</div>
+			</div>
+			<!--客户销售排名-->
+			<div class="table1" v-show='fhindex==6'>
+				<div style='display:flex;justify-content: space-between;border-bottom:1px solid #e4e4e4;margin-bottom:7px'>
+					<div style='display:flex'>
+					<span  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+						<div style='margin:0 10px;'>{{$t('data.sales.khpm')}}</div>	<!--客户销售排名-->
+					</span>
+				<Input style='margin-top:10px;width:300px;' v-model='fuzzySearch' :placeholder="$t('public.search')">
+                    <span slot="append" style='cursor:pointer' @click='search'>{{$t('public.search')}}</span>
+                </Input>
+                <div style='margin-left:10px;margin-top:15px'>
+					<!-- <a style='font-size:14px;font-weight:600;margin-left:10px;margin-right:20px;border-bottom:1px solid #3b77e3;height:40px' @click='searchNo7'>{{$t('public.PreciseSearch')}}</a> -->
+				</div>
+				</div>
+				<div>
+					<Button type="primary" shape="circle" @click="exportNo1(6)" style='margin-top:10px;margin-right:10px' >
+						 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.export')}}
+					</Button>
+				</div>
+			</div>
+				<div >
+					<Table border  highlight-row :columns="khcolumns" :data="khdataList"  @on-select="selected" @on-row-click='clickRow'></Table>
+					<div class="page-box">
+						 <Page :total="khtotal" show-total size="small" :pageSize='khpageSize'  @on-change="khgetData" @on-page-size-change="khchangePageSize"></Page>
+					</div>
+				</div>
+			</div>
+		</div>
+		<Modal v-model="searchNo1isshow" width="460px">
+		    <p slot="header" style="height:30px;line-height:30px;text-align:center">
+		      
+		      <span>{{cgtitle}}</span>
+		    </p>
+		    <Form :label-width="120">
+		  
+		        <FormItem :label="$t('data.orderNo')" >
+		           <Input v-model='reNo1' ></Input>
+		        </FormItem>
+		        
+		        <FormItem :label="$t('orders.TKskuname')" >
+		           <Input v-model='skunmae'></Input>
+		           <span @click="clickSku"><Icon type="ios-search" size="16" style='position:absolute;top:8px;right:8px;cursor:pointer' ></Icon></span>
+		        </FormItem>
+		        <FormItem :label="$t('data.sales.ckname')" >
+		           <Input v-model='ckname'></Input>
+		           <span @click="clickStore"><Icon type="ios-search" size="16" style='position:absolute;top:8px;right:8px;cursor:pointer' ></Icon></span>
+		        </FormItem>
+		        <FormItem :label="$t('data.cw.khname')" >
+		           <Input v-model='gysname'></Input>
+		           <span @click="clickSupplier"><Icon type="ios-search" size="16" style='position:absolute;top:8px;right:8px;cursor:pointer' ></Icon></span>
+		        </FormItem>
+		        <FormItem :label="$t('data.orderTime')">
+		        	<div style='display: flex;justify-content: space-between;'>
+					<DatePicker type="date" :value='endNo1' :placeholder="$t('operation.yhqHome.beginTime')" style="width:48%" @on-change="beginChange"></DatePicker> 
+					<DatePicker type="date" :value='beginNo1' :placeholder="$t('operation.yhqHome.endTime')" style="width:48%" @on-change="endChange"></DatePicker>
+					</div>
+		        </FormItem>
+		    </Form>
+		    <div slot="footer">
+		      <div class='footer-mark'>
+		        <span><a style='color:#999;font-size:14px' @click='secancel'>{{$t('public.cancel')}}</a></span>
+		        <span style='font-size:20px;width:1px;height:40px;background:#e4e4e4'></span>
+		        <span ><a style='color:#3B77E3;font-size:14px' @click='sure'>{{$t('public.sure')}}</a></span>
+		      </div>
+		    </div>
+	  	</Modal>
+	  	 <!--选择商品-->
+	<Modal v-model="goodsinshow" width="700px">
+		<p slot="header" style="height:30px;line-height:30px">
+			
+			<span>{{$t('public.search')}}</span>
+		</p>
+		<div style="position:relative;text-align:center;width:100%;height:35px;line-height:35px;display:flex;">
+			<Input  style="padding:2px 0" v-model="goodskeyword" ></Input>
+			<span @click="searchInput">
+			<Icon type="search" size="16" style="display:inline-block;position:absolute;top:10px;right:18px;z-index:9" ></Icon>
+			</span>
+		</div>
+		<!--商品数据-->
+		<div slot="footer">
+			<div  style='margin-top:-10px;'>
+				<Table  border  height='200' highlight-row  :columns="goodskey" :data="goods" @on-row-click="clickgoodsrow">
+				</Table>
+				<div style='text-align:left;margin-top:5px'>
+				 <Page :total="skutotal" show-total  :pageSize='skupageSize'  @on-change="skugetData" @on-page-size-change="skuchangePageSize"></Page>
+				</div>
+           	</div>
+			
+			<div class='title' style='margin:0px'>
+				<div style='color:#D15151;font-size:14px'>
+					<!-- <Icon type="plus" style='margin-right:5px'></Icon>
+					<span >添加商品</span> -->
+				</div>
+				<div>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='skucancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#00A7F5;color:#fff" @click="skusure"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+	<!--选择仓库弹出框-->
+	<Modal v-model="warehouseshow" width="660px">
+		<p slot="header" style="height:30px;line-height:30px">
+			
+			<span>{{$t('public.search')}}</span>
+		</p>
+		<div style="position:relative;text-align:center;width:100%;height:35px;line-height:35px;display:flex;">
+			<Input v-model="ckkeyword"  style="padding:2px 0;"></Input>
+			<span @click="getckKeyword">
+				<Icon type="search" size="16" style="display:inline-block;position:absolute;top:10px;right:18px;z-index:9" ></Icon>
+			</span>
+		</div>
+		<div slot="footer">
+			<!--仓库表格-->
+			<Table  border height='200' highlight-row  :columns="ckkey" :data="allwarehouse" @on-row-click="ckrow">
+			</Table>
+			<!--分页-->
+            <div class="page-box" style="text-align:left">
+			 <Page :total="cktotal" :pageSize='ckpageSize' show-total @on-change="getckData" @on-page-size-change="changeckPageSize"></Page>
+			</div>
+			<div class='title' style='margin:0px'>
+				<div style='color:#D15151;font-size:14px'>
+					<!-- <Icon type="plus" style='margin-right:5px'></Icon>
+					<span >添加仓库</span> -->
+				</div>
+				<div>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='modelCancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#00A7F5;color:#fff" @click="makeck"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+	<!--选择客户弹出框-->
+	<Modal v-model="alertch" width="660px">
+		<p slot="header" style="height:30px;line-height:30px">
+			
+			<span>{{$t('public.search')}}</span>
+		</p>
+		<div style="position:relative;text-align:center;width:100%;height:35px;line-height:35px;display:flex;">
+			<Input v-model="gyskeyword" style="padding:2px 0"></Input>
+			<span @click="getgysKeyword">
+			<Icon type="search" size="16" style="display:inline-block;position:absolute;top:10px;right:18px;z-index:9" ></Icon>
+
+			</span>
+		</div>
+		<div slot="footer">
+			<!--客户表格-->
+			<Table  border height="200" highlight-row  :columns="gyskey" :data="gysdata" @on-row-click="gysrow">
+			</Table>
+			<!--分页-->
+            <div class="page-box" style="text-align:left">
+			 <Page :total="gystotal" :pageSize='gyspageSize' show-total @on-change="getgysData" @on-page-size-change="changegysPageSize"></Page>
+			</div>
+			<div class='title' style='margin:0px'>
+				<div style='color:#D15151;font-size:14px'>
+					<!-- <Icon type="plus" style='margin-right:5px'></Icon>
+					<span >添加往来单位</span> -->
+				</div>
+				<div>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='modelCancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#00A7F5;color:#fff" @click="makegys"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+	</div>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				fuzzySearch:'',//模糊搜索关键词
+				// fuzzySearchC:'',//模糊搜索关键词导出备份
+				cgtitle:this.$t('data.sales.salesData'),//"销售统计",
+				searchNo1isshow:false,//采购统计查询
+				reNo1:'',//采购单号
+				beginNo1:'',//查询开始日期
+				endNo1:'',//查询结束日期
+				goodsinshow:false,//商品弹框是否显示
+				//弹出框商品data
+				skutotal:0,
+				skupageSize:0,
+				numindex:'',
+				skuObj:{},//一行商品数据
+				skuid:'',//商品id
+				skunmae:'',//商品名称
+				goodskeyword:'',//查询关键字
+				goods:[],
+                goodskey:[
+	                {
+	                	title:"",
+	                	width:100,
+	                	key:"mainPhoto",
+	                	 render:(h, params) =>{
+                        	return h('div',[
+                        			h('img',{
+                        				attrs:{
+                        					src:params.row.mainPhoto
+                        				},
+                        				style:{
+                        					width:'40px',
+                        					height:'40px'
+                        				}
+                        			})
+                        		])
+                        }
+	                },
+	                {
+	                	title:this.$t('data.sku.skuname'),//"商品名称",
+	             		ellipsis:true,
+	                	ellipsis:'true',
+	                	key:"skuName"
+	                },
+	                {
+	                	title: this.$t('manage.sku.SkuCode'),//'商品货号',
+	                	key:'skuCode',
+	               		
+	                	align: 'center'
+	                },
+	                {
+	                	title: this.$t('manage.sku.barnd'),//'商品品牌',
+	                	key:'barnd',
+	               		
+	                	align: 'center'
+	                },
+	                {
+	                	title:this.$t('manage.sku.FL'),// '商品分类',
+	                	key:'className',
+	               		
+	                	align: 'center'
+	                },
+	              	{
+	                	title:this.$t('manage.sku.price'),// '单价',
+	                	key:'price',
+						
+	                	align: 'center'
+	                },
+	                {
+	                	title: this.$t('manage.sku.inventory'),//'库存',
+	                	key:'inventoryUp',
+						
+	                	align: 'center'
+	                },
+	                
+                ],
+                //仓库
+                warehouseshow:false,
+                ckkeyword:'',//仓库搜索关键字
+                cktotal:0,
+                ckpageSize:0,
+                ckObj:{},//一行仓库数据
+                ckname:"",//仓库名称
+                ckid:'',//仓库id
+                allwarehouse:[],
+                ckkey:[
+					{
+						title:this.$t('data.sales.ckname'),//"仓库名",data.sales.ckname
+						ellipsis:true,
+						key:"name"
+					},
+					{
+						title:this.$t('manage.warehouse.Code'),//"仓库编号",
+						ellipsis:true,
+						key:"code"
+					},
+					{
+						title:this.$t('manage.warehouse.Type'),//"类型",
+						ellipsis:true,
+						key:"category"
+					},
+					{
+						title:this.$t('public.status'),//"状态",
+						ellipsis:true,
+						key:"statusDesc"
+					},
+				],
+				//客户
+				alertch:false,
+				gyskeyword:'',//关键词
+				//弹出框客户table
+				gystotal:0,
+				gyspageSize:0,
+				gysObj:{},//一行数据
+				gysname:"",//客户名称
+				gysid:"",//客户id
+				gysdata:[],
+                gyskey:[
+	                {
+	                	title:this.$t('sales.client.clientName'),//"客户名称",
+	                	
+	                	key:"name"
+	                },
+	                {
+	                	title:this.$t('sales.client.code'),//"客户编码",
+	                
+	                	key:"code"
+	                },
+	                {
+	                	title:this.$t('sales.client.level'),//"等级",
+	                	
+	                	key:"level"
+	                },
+	                {
+	                	title:this.$t('manage.sku.FL'),// '分类',
+	               
+	                	key:"classify"
+	                },
+	                {
+	                	title:this.$t('public.status'),//"状态",
+	               
+	                	key:"statusDesc"
+	                }
+                ],
+				fhindex:0,
+				row:{},//选中一行的数据
+				visible: false,
+				dataList: [], //销售统计
+				fhlist:[
+					{
+						label:this.$t('data.sales.salesData'),//"销售统计",
+						value:0
+					},
+					{
+						label:this.$t('data.sales.salesDetails'),//"销售明细",
+						value:1
+					},
+					{
+						label:this.$t('data.sales.salesDh'),//"销售订货",
+						value:2
+					},
+					{
+						label:this.$t('data.sales.salesML'),//"销售毛利",
+						value:3
+					},
+					
+					{
+						label:this.$t('data.sales.salesdhmx'),//"销售订货明细",
+						value:4
+					},
+					{
+						label:this.$t('data.sales.salespm'),//"商品销售排名",
+						value:5
+					},
+					{
+						label:this.$t('data.sales.khpm'),//"客户销售排名",
+						value:6
+					},
+				],
+				total: 0,
+				pageSize: 0,
+				valId:"",
+				type:'',//下拉选中
+				uid: this.$store.state.common.token,
+				columns: [
+					
+					{
+						title:this.$t('data.orderNo'),//"单号",
+						width:140,
+						key:"recordNo",
+						
+					},
+					{
+						title:this.$t('data.khname'),//"客户",
+						width:140,
+						ellipsis:true,
+						key:"partnerName"
+					},
+					{
+
+						title:this.$t('data.sales.ckname'),//"仓库名",
+						width:100,
+						ellipsis:true,
+						key:"warehouseName"
+					},
+					{
+						title:this.$t('data.sku.skuname'),//"商品名称",
+						ellipsis:true,
+						width:160,
+						key: 'skuName'
+					},
+					
+					{
+						title:this.$t('public.num'),//"数量",
+						ellipsis:true,
+						width:140,
+						ellipsis:true,
+						key:"qty"
+					},
+					{
+						title:this.$t('manage.sku.price'),//"零售价",
+						width:140,
+						ellipsis:true,
+						key:'price'
+					},
+					
+					{
+						title: this.$t('data.sales.scalejj'),//'销售均价',
+						width:140,
+						ellipsis:true,
+						key: 'avgPrice'
+					},
+					{
+						title:this.$t('manage.sku.ATTRS'),//
+						width:140,
+						ellipsis:true,
+						key:'skuTypeDesc'
+					},
+					{
+						title:this.$t('data.orderTime'),//
+						width:160,
+						ellipsis:true,
+						key: 'recordDate'
+					},
+				],
+				//销售明细
+				mxtotal:0,
+				mxpageSize:0,
+				mxcolumns:[
+					
+					{
+						title:this.$t('data.orderNo'),//"单号",
+						width:140,
+						key:"recordNo",
+						
+					},
+					{
+						title:this.$t('data.khname'),//"客户",
+						ellipsis:true,
+						width:140,
+						key:"partnerName"
+					},
+					{
+						title:this.$t('data.sales.ckname'),//"仓库名",
+						width:100,
+						ellipsis:true,
+						key:"warehouseName"
+					},
+					{
+						title:this.$t('data.sku.skuname'),//"商品名称",
+						width:140,
+						ellipsis:true,
+						key: 'skuName'
+					},
+					
+					{
+						title:this.$t('public.num'),//"数量",
+						ellipsis:true,
+						width:140,
+						key:"qty"
+					},
+					{
+						title:this.$t('manage.sku.price'),//"零售价",
+						width:140,
+						key:'price'
+					},
+					{
+						title: this.$t('inventory.inventoryDetail.salesCost'),//'销售价',
+						ellipsis:true,
+						width:140,
+						key: 'salesPrice'
+					},
+					{
+						title:this.$t('manage.sku.ATTRS'),//
+						ellipsis:true,
+						width:140,
+						key: 'skuTypeDesc'
+					},
+					
+					{
+						title:this.$t('data.orderTime'),//
+						ellipsis:true,
+						width:160,
+						key: 'recordDate'
+					},
+				],
+				mxdataList: [],
+				//销售订货
+				dhtotal:0,
+				dhpageSize:0,
+				dhcolumns: [
+					
+					{
+						title:this.$t('data.orderNo'),//"单号",
+						width:140,
+						key:"recordNo",
+						
+					},
+					{
+						title:this.$t('data.khname'),//"客户",
+						width:140,
+						ellipsis:true,
+						key:"partnerName"
+					},
+					{
+						title:this.$t('data.sales.ckname'),//"仓库名",
+						width:100,
+						ellipsis:true,
+						key:"warehouseName"
+					},
+					{
+						title:this.$t('data.sku.skuname'),//"商品名称",
+						ellipsis:true,
+						width:140,
+						key: 'skuName'
+					},
+					
+					{
+						title:this.$t('public.num'),//"数量",
+					
+						width:80,
+					
+						key:"qty"
+					},
+					{
+						title:this.$t('manage.sku.price'),//"零售价",
+						width:140,
+						
+						key:'price'
+					},
+					{
+						title: this.$t('data.cg.pjj'),//'平均价',
+						width:140,
+						
+						key: 'avgPrice'
+					},
+					{
+						title:this.$t('manage.sku.SkuUnit'),//"单位",
+						width:140,
+						
+						key:'unit'
+					},
+					{
+						title:this.$t('operation.yhqHome.yfnum'),//"已发数量",
+						width:120,
+						
+						key:'deliveryQty'
+					},
+					
+					{
+						title:this.$t('data.orderTime'),//
+						
+						width:160,
+						key: 'recordDate'
+					},
+				],
+				dhdataList: [],
+				//销售毛利
+				mltotal:0,
+				mlpageSize:0,
+				mlcolumns: [
+					
+					{
+						title:this.$t('data.orderNo'),//"单号",
+						width:140,
+						key:"recordNo",
+						fixed:"left"
+					},
+					{
+						title:this.$t('data.khname'),//"客户",
+						width:140,
+						ellipsis:true,
+						key:"partnerName"
+					},
+					{
+						title:this.$t('data.sales.ckname'),//"仓库名",
+						width:100,
+						ellipsis:true,
+						key:"warehouseName"
+					},
+					{
+						title:this.$t('data.sku.skuname'),//"商品名称",
+						ellipsis:true,
+						width:160,
+						key: 'skuName'
+					},
+					{
+						title:this.$t('public.num'),//"数量",
+						ellipsis:true,
+						width:140,
+						
+						key:"qty"
+					},
+					{
+						title:this.$t('data.sales.scalecb'),//"销售成本",
+						width:120,
+						
+						key:'costPrice'
+					},
+					{
+						title: this.$t('data.sales.scaleje'),//'销售金额',
+						width:120,
+						
+						key: 'salesAmount'
+					},
+					{
+						title: this.$t('data.sales.salesML'),//'销售毛利',
+						width:120,
+						
+						key: 'salesMargin'
+					},
+					{
+						title:this.$t('data.sales.scalemlv'),// '销售毛利率',
+						width:100,
+						
+						key: 'grossProfit'
+					},
+					{
+						title:this.$t('data.orderTime'),//
+						
+						width:160,
+						key: 'recordDate',
+						
+					}
+				],
+				mldataList: [],
+				//销售订货明细
+				dhmxtotal:0,
+				dhmxpageSize:0,
+				dhmxcolumns:[
+					
+					{
+						title:this.$t('data.orderNo'),//"单号",
+						width:140,
+						key:"recordNo",
+						
+					},
+					{
+						title:this.$t('data.khname'),//"客户",
+						ellipsis:true,
+						width:140,
+						key:"partnerName"
+					},
+					{
+						title:this.$t('data.sales.ckname'),//"仓库名",
+						width:100,
+						ellipsis:true,
+						key:"warehouseName"
+					},
+					{
+						title:this.$t('data.sku.skuname'),//"商品名称",
+						ellipsis:true,
+						width:140,
+						key: 'skuName'
+					},
+					
+					{
+						title:this.$t('public.num'),//"数量",
+						ellipsis:true,
+						width:140,
+						key:"qty"
+					},
+					{
+						title:this.$t('manage.sku.price'),//"零售价",
+						width:140,
+						key:'price'
+					},
+					{
+						title: this.$t('inventory.inventoryDetail.salesCost'),//'销售价',
+						ellipsis:true,
+						width:140,
+						key: 'salesPrice'
+					},
+					{
+						title:this.$t('data.sales.scaleAmount'),//"销售总额",
+						ellipsis:true,
+						width:140,
+						key: 'amount'
+					},
+					{
+						title:this.$t('manage.sku.SkuUnit'),//"单位",
+						width:140,
+						key:'unit'
+					},
+					{
+						title:this.$t('manage.sku.ATTRS'),//
+						width:140,
+						key:'skuTypeDesc'
+					},
+					{
+						title:this.$t('data.orderTime'),//
+						ellipsis:true,
+						width:140,
+						key: 'recordDate'
+					},
+				],
+				dhmxdataList: [],
+				//商品销售排名
+				skutotal:0,
+				skupageSize:0,
+				skucolumns:[
+					
+					{
+						title:this.$t('data.orderNo'),//"单号",
+						width:140,
+						key:"recordNo"
+					},
+					
+					{
+						title:this.$t('data.sku.skuname'),//"商品名称",
+						ellipsis:true,
+						
+						key: 'skuName'
+					},
+					
+					{
+						title:this.$t('public.num'),//"数量",
+						ellipsis:true,
+						width:140,
+						key:"qty"
+					},
+					{
+						title:this.$t('data.orderTime'),//
+						ellipsis:true,
+						width:180,
+						key: 'recordDate'
+					},
+				],
+				skudataList: [],
+				//客户销售排名
+
+				khtotal:0,
+				khpageSize:0,
+				khcolumns:[
+					
+					{
+						title:this.$t('data.orderNo'),//"单号",
+						
+						key:"recordNo"
+					},
+					
+					{
+						title:this.$t('sales.client.clientName'),//"客户名称",
+						ellipsis:true,
+						
+						key: 'partnerName'
+					},
+					
+					{
+						title:this.$t('data.sales.scaleAmount'),//"销售总额",
+						ellipsis:true,
+						
+						key:"salesAmount"
+					},
+					{
+						title:this.$t('data.orderTime'),//
+						ellipsis:true,
+						
+						key: 'recordDate'
+					},
+				],
+				khdataList: [],
+			}
+		},
+		methods: {
+			getfhlistbg(index){
+				this.fhindex=index
+				if(this.fhindex==0){
+					this.getcgList()
+				}
+				//销售明细
+				if(this.fhindex==1){
+					//销售明细POST /salesreport/salessopar
+					this.axios.post('/salesreport/salessopar?uid='+this.uid,{}).then(res=>{
+						if(res.data.status==200){
+
+							this.mxdataList=res.data.rows
+							this.mxtotal=res.data.total
+							this.mxpageSize=res.data.pageSize
+						}
+					})
+				}
+				//销售订货统计
+				if(this.fhindex==2){
+					//salesreport/salessosta
+					this.axios.post('salesreport/salessosta?uid='+this.uid,{}).then(res=>{
+						if(res.data.status==200){
+							this.dhdataList=res.data.rows
+							this.dhtotal=res.data.total
+							this.dhpageSize=res.data.pageSize
+						}
+					})
+				}
+				//销售毛利统计
+				if(this.fhindex==3){
+					//salesreport/salessosmg
+					this.axios.post('salesreport/salessosmg?uid='+this.uid,{}).then(res=>{
+						if(res.data.status==200){
+							this.mldataList=res.data.rows
+							this.mltotal=res.data.total
+							this.mlpageSize=res.data.pageSize
+						}
+					})
+				}
+				//销售订货明细
+				if(this.fhindex==4){
+					//salesreport/salesdetail
+					this.axios.post('salesreport/salesdetail?uid='+this.uid,{}).then(res=>{
+						if(res.data.status==200){
+							this.dhmxdataList=res.data.rows
+							this.dhmxtotal=res.data.total
+							this.dhmxpageSize=res.data.pageSize
+						}
+					})
+				}
+				//商品销售排名
+				if(this.fhindex==5){
+					this.getpming()
+				}
+				//客户销售排名
+				if(this.fhindex==6){
+					//salesreport/salessorank
+					this.axios.post('salesreport/salessorank?uid='+this.uid,{}).then(res=>{
+						if(res.data.status==200){
+							this.khdataList=res.data.rows
+							this.khtotal=res.data.total
+							this.khpageSize=res.data.pageSize
+						}
+					})
+				}
+			},
+			getpming(){
+				this.axios.post('salesreport/salessomerrank?uid='+this.uid,{}).then(res=>{
+						if(res.data.status==200){
+							this.skudataList=res.data.rows
+							this.skutotal=res.data.total
+							this.skupageSize=res.data.pageSize
+						}
+					})
+			},
+			//默认显示获取销售统计列表POST /salesreport/salessolis
+			getcgList() {
+				this.axios.post('/salesreport/salessolis?uid='+this.uid,{}).then(res=>{
+					//console.log(res.data)
+					if(res.data.status==200){
+
+						this.dataList=res.data.rows
+						this.total=res.data.total
+						this.pageSize=res.data.pageSize
+					}else{
+						console.log(res)
+						
+					}
+				})
+			},
+			
+			 //销售统计切换一条页
+            getData(current){
+                this.axios.post('/salesreport/salessolis?offset='+current+'&uid='+this.uid,{}).then((res)=>{
+                   	this.dataList=res.data.rows
+					this.total=res.data.total
+					this.pageSize=res.data.pageSize
+                })
+            },
+            //翻页
+            changePageSize(size){
+                this.pageSize = size
+            },
+             //销售明细切换一条页
+            mxgetData(current){
+                this.axios.post('/salesreport/salessopar?offset='+current+'&uid='+this.uid,{}).then((res)=>{
+                   	this.mxdataList=res.data.rows
+					this.mxtotal=res.data.total
+					this.mxpageSize=res.data.pageSize
+                })
+            },
+            //翻页
+            mxchangePageSize(size){
+                this.mxpageSize = size
+            },
+             //销售订货统计切换一条页
+            dhgetData(current){
+                this.axios.post('salesreport/salessosta?offset='+current+'&uid='+this.uid,{}).then((res)=>{
+                   	this.dhdataList=res.data.rows
+					this.dhtotal=res.data.total
+					this.dhpageSize=res.data.pageSize
+                })
+            },
+            //翻页
+            dhchangePageSize(size){
+                this.dhpageSize = size
+            },
+            //销售毛利切换一条页
+            mlgetData(current){
+                this.axios.post('salesreport/salessosta?offset='+current+'&uid='+this.uid,{}).then((res)=>{
+                   	this.mldataList=res.data.rows
+					this.mltotal=res.data.total
+					this.mlpageSize=res.data.pageSize
+                })
+            },
+            //翻页
+            mlchangePageSize(size){
+                this.mlpageSize = size
+            },
+            //销售订货明细切换一条页
+            dhmxgetData(current){
+                this.axios.post('salesreport/salesdetail?offset='+current+'&uid='+this.uid,{}).then((res)=>{
+                   	this.dhmxdataList=res.data.rows
+					this.dhmxtotal=res.data.total
+					this.dhmxpageSize=res.data.pageSize
+                })
+            },
+            //翻页
+            dhmxchangePageSize(size){
+                this.mlpageSize = size
+            },
+            //商品销售排名
+            skugetData(current){
+                this.axios.post('salesreport/salessomerrank?offset='+current+'&uid='+this.uid,{}).then((res)=>{
+                   	this.skudataList=res.data.rows
+					this.skutotal=res.data.total
+					this.skupageSize=res.data.pageSize
+                })
+            },
+            //翻页
+            skuchangePageSize(size){
+                this.skupageSize = size
+            },
+            //客户销售排名
+            khgetData(current){
+                this.axios.post('salesreport/salessorank?offset='+current+'&uid='+this.uid,{}).then((res)=>{
+                   	this.khdataList=res.data.rows
+					this.khtotal=res.data.total
+					this.khpageSize=res.data.pageSize
+                })
+            },
+            //翻页
+            khchangePageSize(size){
+                this.khpageSize = size
+            },
+            //表格选中时的数据，数组
+			selected(selection,row){
+				this.row = row
+				//console.log(row)
+			},
+			//单击一行
+			clickRow(data,index){
+				this.numindex=index
+				//console.log(index)
+				this.row = data
+			},
+			//商品客户仓库
+			//查询商品
+            clickSku(){
+            	this.goodsinshow=true
+            	this.axios.get('sku/query?uid='+this.uid).then(res=>{
+            		if(res.data.status==200){
+            			this.goods=res.data.rows
+            			this.skutotal=res.data.total
+            			this.skupageSize=res.data.pageSize
+            		}
+            	})
+            },
+            //商品弹框点击一行获取数据
+			clickgoodsrow(data){
+				this.skuObj=data
+				//console.log(data)
+			},
+			//商品确认
+			skusure(){
+				this.skuid=this.skuObj.id
+				this.skunmae=this.skuObj.skuName
+				this.goodsinshow=false
+			},
+			//商品取消
+			skucancel(){
+				this.goodsinshow=false
+			},
+			  //商品模糊搜索
+            searchInput(){
+				this.axios.get('sku/query?keyword='+this.goodskeyword+'&uid='+this.uid).then((res)=>{
+					if(res.data.status==200){
+						this.goods = res.data.rows
+						this.skutotal=res.data.total
+						this.skupageSize=res.data.pageSize
+					}
+				})
+			
+            },
+            //回车搜索商品
+           enterSearch(){
+           	this.searchInput()
+           },
+           //商品切换
+            skugetData(current){
+                this.axios.get('sku/query?offset='+current+'&uid='+this.uid).then((res)=>{
+                    this.goods = res.data.rows
+					this.skutotal=res.data.total
+					this.skupageSize=res.data.pageSize
+                })
+            },
+            //翻页
+            skuchangePageSize(size){
+                this.skupageSize = size
+            },
+            //查询仓库
+            clickStore(){
+            	this.axios.get('/warehouse/list?uid='+this.uid).then((res)=>{
+					this.allwarehouse=res.data.rows
+					this.cktotal=res.data.total
+					this.ckpageSize=res.data.pageSize
+				})
+            	this.warehouseshow=true
+            },
+             //仓库翻页
+            getckData(current){
+                this.axios.get('warehouse/list?offset='+current+'&uid='+this.uid).then((res)=>{
+                    this.allwarehouse = res.data.rows
+                    this.cktotal=res.data.total
+					this.ckpageSize=res.data.pageSize
+                })
+            },
+            //翻页
+           changeckPageSize(size){
+                this.ckpageSize = size
+            },
+            //单击仓库列表一行
+			ckrow(data,index){
+				this.ckObj=data
+				
+			},
+			//仓库确认
+			makeck(){
+				this.ckname=this.ckObj.name
+				this.ckid=this.ckObj.id
+				this.warehouseshow=false
+			},
+			//仓库取消
+			modelCancel(){
+				this.warehouseshow=false
+			},
+            //仓库模糊搜索
+			getckKeyword(){
+				this.axios.get('warehouse/list?keyword='+this.ckkeyword+'&uid='+this.uid).then((res)=>{
+					if(res.data.status==200){
+						this.allwarehouse = res.data.rows
+						this.cktotal=res.data.total
+						this.ckpageSize=res.data.pageSize
+					}
+				})
+			},
+            //查询客户
+            clickSupplier(){
+            	this.axios.get('/client/query?uid=' + this.uid).then((res) => {
+					
+					if(res.data.status == '200') {
+						let data = res.data;
+						this.gysdata = data.rows;
+						this.gyspageSize = data.pageSize;
+						this.gystotal = data.total;
+					}
+				})
+            	this.alertch=true
+            },
+             //客户切换
+            getgysData(current){
+                this.axios.get('/client/query?offset='+current+'&uid='+this.uid).then((res)=>{
+                    if(res.data.status == '200') {
+						let data = res.data;
+						this.gysdata = data.rows;
+						this.gyspageSize = data.pageSize;
+						this.gystotal = data.total;
+					}
+                })
+            },
+            //翻页
+           changegysPageSize(size){
+                this.gyspageSize = size
+            },
+            //客户弹框出现后点击表格行数据
+			gysrow(data){
+				this.gysObj=data
+  			},
+  			//客户确认
+  			makegys(){
+  				this.gysid=this.gysObj.id
+  				this.gysname=this.gysObj.name
+  				this.alertch=false
+  			},
+  			modelCancel(){
+				this.alertch=false
+  			},
+            //客户模糊搜索
+			getgysKeyword(){
+				this.axios.get('client/query?keyword='+this.gyskeyword+'&uid='+this.uid).then((res)=>{
+				if(res.data.status==200){
+					this.gysdata = res.data.rows
+					}
+				})
+			},
+
+            //开始日期选择
+            beginChange(d){
+            	this.endNo1=d
+            },
+            endChange(d){
+            	this.beginNo1=d
+            },
+			//查询
+            searchNo1(){
+            	
+            	this.reNo1=''//采购单号
+				this.beginNo1='',//查询开始日期
+				this.endNo1=''//查询结束日期
+				this.skuid='',//商品id
+				this.skunmae=''//商品名称
+				this.ckname=''//出库名称
+				this.ckid=''//出库id
+				this.gysname=''//客户名称
+				this.gysid=''//客户id
+				this.cgtitle=this.$t('data.sales.salesData'),//'销售统计查询'
+            	this.searchNo1isshow=true
+            },
+           
+            searchNo2(){
+            	this.reNo1=''//采购单号
+				this.beginNo1='',//查询开始日期
+				this.endNo1=''//查询结束日期
+				this.skuid='',//商品id
+				this.skunmae=''//商品名称
+				this.ckname=''//出库名称
+				this.ckid=''//出库id
+				this.gysname=''//客户名称
+				this.gysid=''//客户id
+            	this.cgtitle=this.$t('data.sales.salesDetails'),//'销售明细查询'
+            	this.searchNo1isshow=true
+            },
+           
+            searchNo3(){
+            	this.reNo1=''//采购单号
+				this.beginNo1='',//查询开始日期
+				this.endNo1=''//查询结束日期
+				this.skuid='',//商品id
+				this.skunmae=''//商品名称
+				this.ckname=''//出库名称
+				this.ckid=''//出库id
+				this.gysname=''//客户名称
+				this.gysid=''//客户id
+            	this.cgtitle=this.$t('data.sales.salesDh'),//'销售订货统计查询'
+            	this.searchNo1isshow=true
+            },
+          
+            searchNo4(){
+            	this.reNo1=''//采购单号
+				this.beginNo1='',//查询开始日期
+				this.endNo1=''//查询结束日期
+				this.skuid='',//商品id
+				this.skunmae=''//商品名称
+				this.ckname=''//出库名称
+				this.ckid=''//出库id
+				this.gysname=''//客户名称
+				this.gysid=''//客户id
+            	this.cgtitle=this.$t('data.sales.salesML'),//'销售毛利统计查询'
+            	this.searchNo1isshow=true
+            },
+            searchNo5(){
+            	this.reNo1=''//采购单号
+				this.beginNo1='',//查询开始日期
+				this.endNo1=''//查询结束日期
+				this.skuid='',//商品id
+				this.skunmae=''//商品名称
+				this.ckname=''//出库名称
+				this.ckid=''//出库id
+				this.gysname=''//客户名称
+				this.gysid=''//客户id
+            	this.cgtitle=this.$t('data.sales.salesdhmx'),//'销售订货明细查询'
+            	this.searchNo1isshow=true
+            },
+          
+            searchNo6(){
+            	this.reNo1=''//采购单号
+				this.beginNo1='',//查询开始日期
+				this.endNo1=''//查询结束日期
+				this.skuid='',//商品id
+				this.skunmae=''//商品名称
+				this.ckname=''//出库名称
+				this.ckid=''//出库id
+				this.gysname=''//客户名称
+				this.gysid=''//客户id
+            	this.cgtitle=this.$t('data.sales.salespm'),//'商品销售排名查询'
+            	this.searchNo1isshow=true
+            },
+             searchNo7(){
+             	this.reNo1=''//采购单号
+				this.beginNo1='',//查询开始日期
+				this.endNo1=''//查询结束日期
+				this.skuid='',//商品id
+				this.skunmae=''//商品名称
+				this.ckname=''//出库名称
+				this.ckid=''//出库id
+				this.gysname=''//客户名称
+				this.gysid=''//客户id
+            	this.cgtitle=this.$t('data.sales.khpm'),//'客户销售排名查询'
+            	this.searchNo1isshow=true
+            },
+            //模糊搜索fuzzySearch
+            search(){
+            	//销售统计
+            	if(this.fhindex==0){
+            		this.axios.post('/salesreport/salessolis?fuzzySearch='+this.fuzzySearch+'&uid='+this.uid,{}).then(res=>{
+            			if(res.data.status==200){
+            				this.dataList=res.data.rows
+							this.total=res.data.total
+							this.pageSize=res.data.pageSize
+							// this.fuzzySearch=''
+            			}else{
+            				this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+            			}
+            		})
+            	}
+            	//销售明细
+            	if(this.fhindex==1){
+            		this.axios.post('/salesreport/salessopar?fuzzySearch='+this.fuzzySearch+'&uid='+this.uid,{}).then(res=>{
+            			if(res.data.status==200){
+            				this.mxdataList=res.data.rows
+							this.mxtotal=res.data.total
+							this.mxpageSize=res.data.pageSize
+							// this.fuzzySearch=''
+            			}else{
+            				this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+            			}
+            		})
+            	}
+            	//销售订货
+            	if(this.fhindex==2){
+            		this.axios.post('/salesreport/salessosta?fuzzySearch='+this.fuzzySearch+'&uid='+this.uid,{}).then(res=>{
+            			if(res.data.status==200){
+            				this.dhdataList=res.data.rows
+							this.dhtotal=res.data.total
+							this.dhpageSize=res.data.pageSize
+							// this.fuzzySearch=''
+            			}else{
+            				this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+            			}
+            		})
+            	}
+            	//销售毛利
+            	if(this.fhindex==3){
+            		this.axios.post('/salesreport/salessosmg?fuzzySearch='+this.fuzzySearch+'&uid='+this.uid,{}).then(res=>{
+            			if(res.data.status==200){
+            				this.mldataList=res.data.rows
+							this.mltotal=res.data.total
+							this.mlpageSize=res.data.pageSize
+							// this.fuzzySearch=''
+            			}else{
+            				this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+            			}
+            		})
+            	}
+            	//订货明细
+            	if(this.fhindex==4){
+            		this.axios.post('/salesreport/salesdetail?fuzzySearch='+this.fuzzySearch+'&uid='+this.uid,{}).then(res=>{
+            			if(res.data.status==200){
+            				this.dhmxdataList=res.data.rows
+							this.dhmxtotal=res.data.total
+							this.dhmxpageSize=res.data.pageSize
+							// this.fuzzySearch=''
+            			}else{
+            				this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+            			}
+            		})
+            	}
+            	//商品销售排名
+            	if(this.fhindex==5){
+            		this.axios.post('/salesreport/salessomerrank?fuzzySearch='+this.fuzzySearch+'&uid='+this.uid,{}).then(res=>{
+            			if(res.data.status==200){
+            				this.skudataList=res.data.rows
+							this.skutotal=res.data.total
+							this.skupageSize=res.data.pageSize
+							// this.fuzzySearch=''
+            			}else{
+            				this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+            			}
+            		})
+            	}
+            	//客户销售排名
+            	if(this.fhindex==6){
+            		this.axios.post('/salesreport/salessorank?fuzzySearch='+this.fuzzySearch+'&uid='+this.uid,{}).then(res=>{
+            			if(res.data.status==200){
+            				this.khdataList=res.data.rows
+							this.khtotal=res.data.total
+							this.khpageSize=res.data.pageSize
+							// this.fuzzySearch=''
+            			}else{
+            				this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+            			}
+            		})
+            	}
+            },
+            //确认
+            sure(){
+            	//销售统计
+            	//ownerId='+this.user.ownerId+'&pono='+this.reNo1+'&supplierId='+this.gysid+'&warehouseId='+this.ckid+'&skuId='+this.skuid+'&poDateUp='+this.beginNo1+'&poDateFloor='+this.endNo1+'&
+            	if(this.fhindex==0){
+            		this.axios.post('/salesreport/salessolis?uid='+this.uid,{
+            			recordNo:this.reNo1,//采购单号
+            			recordDateUp:this.beginNo1,//查询结束日期
+            			recordDateFloor:this.endNo1,//查询开始日期
+            			skuId:this.skuid,//商品id
+            			warehouseId:this.ckid,//仓库id
+            			skuName:this.skunmae,//商品名称
+            			warehouseName:this.ckname,//仓库名称
+            			partnerName:this.gysname,//客户名称
+            			partnerId:this.gysid//客户id
+            		}).then(res=>{
+						if(res.data.status==200){
+							this.dataList=res.data.rows
+							this.total=res.data.total
+							this.pageSize=res.data.pageSize
+							this.searchNo1isshow=false
+							// this.reNo1=''//采购单号
+							// this.beginNo1='',//查询开始日期
+							// this.endNo1=''//查询结束日期
+							// this.skuid='',
+							// this.skunmae=''
+							// this.ckname=''
+							// this.ckid=''
+							// this.gysname=''
+							// this.gysid=''
+
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+            	}
+            	//销售明细ownerId='+this.user.ownerId+'&pono='+this.reNo1+'&supplierId='+this.gysid+'&warehouseId='+this.ckid+'&skuId='+this.skuid+'&poDateUp='+this.beginNo1+'&poDateFloor='+this.endNo1+'&
+            	if(this.fhindex==1){
+            		this.axios.post('salesreport/salessopar?uid='+this.uid,{
+            			recordNo:this.reNo1,
+            			recordDateUp:this.beginNo1,
+            			recordDateFloor:this.endNo1,
+            			skuId:this.skuid,
+            			warehouseId:this.ckid,
+            			skuName:this.skunmae,//商品名称
+            			warehouseName:this.ckname,//仓库名称
+            			partnerName:this.gysname,//客户名称
+            			partnerId:this.gysid
+            		}).then(res=>{
+						if(res.data.status==200){
+							this.mxdataList=res.data.rows
+							this.mxtotal=res.data.total
+							this.mxpageSize=res.data.pageSize
+							this.searchNo1isshow=false
+							// this.reNo1=''//采购单号
+							// this.beginNo1='',//查询开始日期
+							// this.endNo1=''//查询结束日期
+							// this.skuid='',
+							// this.skunmae=''
+							// this.ckname=''
+							// this.ckid=''
+							// this.gysname=''
+							// this.gysid=''
+						}else{
+							this.$notify({
+                        title:"",//
+                        message:  res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+						}
+					})
+            	}
+            	//销售订货ownerId='+this.user.ownerId+'&pono='+this.reNo1+'&supplierId='+this.gysid+'&warehouseId='+this.ckid+'&skuId='+this.skuid+'&poDateUp='+this.beginNo1+'&poDateFloor='+this.endNo1+'&
+            	if(this.fhindex==2){
+            		this.axios.post('/salesreport/salessosta?uid='+this.uid,{
+            			recordNo:this.reNo1,
+            			recordDateUp:this.beginNo1,
+            			recordDateFloor:this.endNo1,
+            			skuId:this.skuid,
+            			warehouseId:this.ckid,
+            			skuName:this.skunmae,//商品名称
+            			warehouseName:this.ckname,//仓库名称
+            			partnerName:this.gysname,//客户名称
+            			partnerId:this.gysid
+            		}).then(res=>{
+						if(res.data.status==200){
+							this.dhdataList=res.data.rows
+							this.dhtotal=res.data.total
+							this.dhpageSize=res.data.pageSize
+							this.searchNo1isshow=false
+							// this.reNo1=''//采购单号
+							// this.beginNo1='',//查询开始日期
+							// this.endNo1=''//查询结束日期
+							// this.skuid='',
+							// this.skunmae=''
+							// this.ckname=''
+							// this.ckid=''
+							// this.gysname=''
+							// this.gysid=''
+						}else{
+							this.$notify({
+                        title:"",//
+                        message:  res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+						}
+					})
+            	}
+            	//销售毛利ownerId='+this.user.ownerId+'&pono='+this.reNo1+'&supplierId='+this.gysid+'&warehouseId='+this.ckid+'&skuId='+this.skuid+'&poDateUp='+this.beginNo1+'&poDateFloor='+this.endNo1+'&
+            	if(this.fhindex==3){
+            		this.axios.post('/salesreport/salessosmg?uid='+this.uid,{
+            			recordNo:this.reNo1,
+            			recordDateUp:this.beginNo1,
+            			recordDateFloor:this.endNo1,
+            			skuId:this.skuid,
+            			warehouseId:this.ckid,
+            			skuName:this.skunmae,//商品名称
+            			warehouseName:this.ckname,//仓库名称
+            			partnerName:this.gysname,//客户名称
+            			partnerId:this.gysid
+            		}).then(res=>{
+						if(res.data.status==200){
+							this.mldataList=res.data.rows
+							this.mltotal=res.data.total
+							this.mlpageSize=res.data.pageSize
+							this.searchNo1isshow=false
+							// this.reNo1=''//采购单号
+							// this.beginNo1='',//查询开始日期
+							// this.endNo1=''//查询结束日期
+							// this.skuid='',
+							// this.skunmae=''
+							// this.ckname=''
+							// this.ckid=''
+							// this.gysname=''
+							// this.gysid=''
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+            	}
+            	//订货明细ownerId='+this.user.ownerId+'&pono='+this.reNo1+'&supplierId='+this.gysid+'&warehouseId='+this.ckid+'&skuId='+this.skuid+'&poDateUp='+this.beginNo1+'&poDateFloor='+this.endNo1+'&
+            	if(this.fhindex==4){
+            		this.axios.post('/salesreport/salesdetail?uid='+this.uid,{
+            			recordNo:this.reNo1,
+            			recordDateUp:this.beginNo1,
+            			recordDateFloor:this.endNo1,
+            			skuId:this.skuid,
+            			warehouseId:this.ckid,
+            			skuName:this.skunmae,//商品名称
+            			warehouseName:this.ckname,//仓库名称
+            			partnerName:this.gysname,//客户名称
+            			partnerId:this.gysid
+            		}).then(res=>{
+						if(res.data.status==200){
+							this.dhmxdataList=res.data.rows
+							this.dhmxtotal=res.data.total
+							this.dhmxpageSize=res.data.pageSize
+							this.searchNo1isshow=false
+							// this.reNo1=''//采购单号
+							// this.beginNo1='',//查询开始日期
+							// this.endNo1=''//查询结束日期
+							// this.skuid='',
+							// this.skunmae=''
+							// this.ckname=''
+							// this.ckid=''
+							// this.gysname=''
+							// this.gysid=''
+						}else{
+							this.$notify({
+                        title:"",//
+                        message:  res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+						}
+					})
+            	}
+            	//商品销售排名ownerId='+this.user.ownerId+'&pono='+this.reNo1+'&supplierId='+this.gysid+'&warehouseId='+this.ckid+'&skuId='+this.skuid+'&poDateUp='+this.beginNo1+'&poDateFloor='+this.endNo1+'&
+            	if(this.fhindex==5){
+            		this.axios.post('/salesreport/salessomerrank?uid='+this.uid,{
+            			recordNo:this.reNo1,
+            			recordDateUp:this.beginNo1,
+            			recordDateFloor:this.endNo1,
+            			skuId:this.skuid,
+            			warehouseId:this.ckid,
+            			skuName:this.skunmae,//商品名称
+            			warehouseName:this.ckname,//仓库名称
+            			partnerName:this.gysname,//客户名称
+            			partnerId:this.gysid
+            		}).then(res=>{
+						if(res.data.status==200){
+							this.skudataList=res.data.rows
+							this.skutotal=res.data.total
+							this.skupageSize=res.data.pageSize
+							this.searchNo1isshow=false
+							// this.reNo1=''//采购单号
+							// this.beginNo1='',//查询开始日期
+							// this.endNo1=''//查询结束日期
+							// this.skuid='',
+							// this.skunmae=''
+							// this.ckname=''
+							// this.ckid=''
+							// this.gysname=''
+							// this.gysid=''
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+            	}
+            	//客户销售排名ownerId='+this.user.ownerId+'&pono='+this.reNo1+'&supplierId='+this.gysid+'&warehouseId='+this.ckid+'&skuId='+this.skuid+'&poDateUp='+this.beginNo1+'&poDateFloor='+this.endNo1+'&
+            	if(this.fhindex==6){
+            		this.axios.post('/salesreport/salessorank?uid='+this.uid,{
+            			recordNo:this.reNo1,
+            			recordDateUp:this.beginNo1,
+            			recordDateFloor:this.endNo1,
+            			skuId:this.skuid,
+            			warehouseId:this.ckid,
+            			skuName:this.skunmae,//商品名称
+            			warehouseName:this.ckname,//仓库名称
+            			partnerName:this.gysname,//客户名称
+            			partnerId:this.gysid
+            		}).then(res=>{
+						if(res.data.status==200){
+							this.khdataList=res.data.rows
+							this.khtotal=res.data.total
+							this.khpageSize=res.data.pageSize
+							this.searchNo1isshow=false
+							// this.reNo1=''//采购单号
+							// this.beginNo1='',//查询开始日期
+							// this.endNo1=''//查询结束日期
+							// this.skuid='',
+							// this.skunmae=''
+							// this.ckname=''
+							// this.ckid=''
+							// this.gysname=''
+							// this.gysid=''
+						}else{
+							this.$notify({
+                        title:"",//
+                        message:  res.data.errorMessage,
+                        type: 'error',
+                        position: 'bottom-right'
+                    });
+						}
+					})
+            	}
+            	
+            },
+            //取消
+            secancel(){
+            	this.reNo1=''//采购单号
+				this.beginNo1='',//查询开始日期
+				this.endNo1=''//查询结束日期
+				this.skuid='',//商品id
+				this.skunmae=''//商品名称
+				this.ckname=''//出库名称
+				this.ckid=''//出库id
+				this.gysname=''//客户名称
+				this.gysid=''//客户id
+            	this.searchNo1isshow=false
+            },
+            //导出
+            exportNo1(n){
+            	//统计
+            	if(n==0){
+            		//console.log(this.fuzzySearch)
+            		this.axios.get('salesreport/downsolis?uid='+this.uid,{
+            			params:{
+            				fuzzySearch:this.fuzzySearch,
+            				recordNo:this.reNo1,//采购单号
+	            			recordDateUp:this.beginNo1,//查询结束日期
+	            			recordDateFloor:this.endNo1,//查询开始日期
+	            			skuId:this.skuid,//商品id
+	            			warehouseId:this.ckid,//仓库id
+	            			skuName:this.skunmae,//商品名称
+            				warehouseName:this.ckname,//仓库名称
+            				partnerName:this.gysname,//客户名称
+	            			partnerId:this.gysid//客户id
+            			}
+            		}).then(res=>{
+          				console.log(res)
+            			window.location.href=res.request.responseURL
+            		})
+            	}
+            	//明细
+            	if(n==1){
+            		this.axios.get('salesreport/downsopar?uid='+this.uid,{
+            			params:{
+            				fuzzySearch:this.fuzzySearch,
+            				recordNo:this.reNo1,//采购单号
+	            			recordDateUp:this.beginNo1,//查询结束日期
+	            			recordDateFloor:this.endNo1,//查询开始日期
+	            			skuId:this.skuid,//商品id
+	            			warehouseId:this.ckid,//仓库id
+	            			skuName:this.skunmae,//商品名称
+            				warehouseName:this.ckname,//仓库名称
+            				partnerName:this.gysname,//客户名称
+	            			partnerId:this.gysid//客户id
+            			}
+            		}).then(res=>{
+            			window.location.href=res.request.responseURL
+            		})
+            	}
+            	//销售订货统计表
+            	if(n==2){
+            		this.axios.get('salesreport/downsosta?uid='+this.uid,{
+            			params:{
+            				fuzzySearch:this.fuzzySearch,
+            				recordNo:this.reNo1,//采购单号
+	            			recordDateUp:this.beginNo1,//查询结束日期
+	            			recordDateFloor:this.endNo1,//查询开始日期
+	            			skuId:this.skuid,//商品id
+	            			warehouseId:this.ckid,//仓库id
+	            			skuName:this.skunmae,//商品名称
+            				warehouseName:this.ckname,//仓库名称
+            				partnerName:this.gysname,//客户名称
+	            			partnerId:this.gysid//客户id
+            			}
+            		}).then(res=>{
+            			window.location.href=res.request.responseURL
+            		})
+            	}
+            	//销售毛利统计表
+            	if(n==3){
+            		this.axios.get('salesreport/downsosmg?uid='+this.uid,{
+            			params:{
+            				fuzzySearch:this.fuzzySearch,
+            				recordNo:this.reNo1,//采购单号
+	            			recordDateUp:this.beginNo1,//查询结束日期
+	            			recordDateFloor:this.endNo1,//查询开始日期
+	            			skuId:this.skuid,//商品id
+	            			warehouseId:this.ckid,//仓库id
+	            			skuName:this.skunmae,//商品名称
+            				warehouseName:this.ckname,//仓库名称
+            				partnerName:this.gysname,//客户名称
+	            			partnerId:this.gysid//客户id
+            			}
+            		}).then(res=>{
+            			window.location.href=res.request.responseURL
+            		})
+            	}
+            	//销售订货明细表
+            	if(n==4){
+            		this.axios.get('salesreport/downdetail?uid='+this.uid,{
+            			params:{
+            				fuzzySearch:this.fuzzySearch,
+            				recordNo:this.reNo1,//采购单号
+	            			recordDateUp:this.beginNo1,//查询结束日期
+	            			recordDateFloor:this.endNo1,//查询开始日期
+	            			skuId:this.skuid,//商品id
+	            			warehouseId:this.ckid,//仓库id
+	            			skuName:this.skunmae,//商品名称
+            				warehouseName:this.ckname,//仓库名称
+            				partnerName:this.gysname,//客户名称
+	            			partnerId:this.gysid//客户id
+            			}
+            		}).then(res=>{
+            			window.location.href=res.request.responseURL
+            		})
+            	}
+            	//商品销售排名
+            	if(n==5){
+            		this.axios.get('salesreport/downsomerrank?uid='+this.uid,{
+            			params:{
+            				fuzzySearch:this.fuzzySearch,
+            				recordNo:this.reNo1,//采购单号
+	            			recordDateUp:this.beginNo1,//查询结束日期
+	            			recordDateFloor:this.endNo1,//查询开始日期
+	            			skuId:this.skuid,//商品id
+	            			warehouseId:this.ckid,//仓库id
+	            			skuName:this.skunmae,//商品名称
+            				warehouseName:this.ckname,//仓库名称
+            				partnerName:this.gysname,//客户名称
+	            			partnerId:this.gysid//客户id
+            			}
+            		}).then(res=>{
+            			window.location.href=res.request.responseURL
+            		})
+            	}
+            	//客户销售排名
+            	if(n==6){
+            		this.axios.get('salesreport/downsorank?uid='+this.uid,{
+            			params:{
+            				fuzzySearch:this.fuzzySearch,
+            				recordNo:this.reNo1,//采购单号
+	            			recordDateUp:this.beginNo1,//查询结束日期
+	            			recordDateFloor:this.endNo1,//查询开始日期
+	            			skuId:this.skuid,//商品id
+	            			warehouseId:this.ckid,//仓库id
+	            			skuName:this.skunmae,//商品名称
+            				warehouseName:this.ckname,//仓库名称
+            				partnerName:this.gysname,//客户名称
+	            			partnerId:this.gysid//客户id
+            			}
+            		}).then(res=>{
+            			window.location.href=res.request.responseURL
+            		})
+            	}
+            	
+            },
+		},
+		mounted() {
+			this.getcgList();//销售统计
+			if(this.$route.query.index==5){
+				this.fhindex=5
+				this.getpming()
+			}
+		}
+	}
+</script>
+
+<style lang="css" scoped>
+p.edit:hover{
+	color:blue;
+}
+	.units-box {
+		width: 100%;
+		background: rgb(230,233,236);
+	}
+	.btns-box {
+		width: 100%;
+		height: 50px;
+		display:flex;
+		justify-content: space-between;
+		background: #fff;
+		line-height: 50px;
+	}
+	 .wldw{
+    	margin-left:15px;
+    }
+	.right{
+		margin-right:10px;
+		margin-bottom:10px;
+		display: flex
+	}
+	.ivu-icon-chevron-down {
+		font-size: 10px;
+	}
+	.btns img {
+		width: 14px;
+		height: 14px;
+		vertical-align: middle;
+	}
+	.main-left{
+		width: 120px;
+		margin-right: 3px;
+		flex: 0 0 120px;
+		font-size: 14px;
+		background: #fff;
+	}
+	.main-left li{
+		list-style: none;
+		padding:10px 0;
+		width:100%;
+		
+	}
+	.main-left li span{
+		margin-left:20px;
+	}
+	.table {
+		width: 100%;
+		height: 100%;
+		padding:0 7px;
+		background: #fff;
+		overflow: auto
+	}
+	.table1{
+		width:100%;
+		background:#fff;
+		overflow: auto;
+		padding:0 7px;
+	}
+	.bor{
+		background:rgb(241,245,247);
+        color:rgb(59,119,227);
+	}
+	.page-box {
+		text-align: center;
+		margin-top:2px;
+	}
+	.footer-mark{
+	  width:100%;
+	  height:40px;
+	  border-top:1px solid #E4E4E4;
+	  display: flex;
+	  justify-content: space-around;
+	  margin-bottom:-10px;
+	}
+.footer-mark span{
+  height:40px;
+  line-height: 40px
+}
+</style>

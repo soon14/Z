@@ -1,0 +1,1374 @@
+<template>
+	<!--盘点任务-->
+	<div class="units-box">
+		
+		<div style='display:flex;height:100%;overflow:hidden'>
+			<div class='main-left'>
+				<div style='height: 50px; border-bottom: 1px solid rgb(228, 228, 228); font-size: 18px; font-weight: 900; line-height: 50px;'>
+					<div style='margin-left:10px'>{{$t('inventory.pd.pd')}}</div><!--库存盘点-->
+				</div>
+				<li class='flclass' v-for='(item,index) in fhlist' :key='index' @click='getfhlistbg(index)' :class="{bor:index==fhindex}">
+					<span>{{item.label}}</span>
+				</li>
+			</div>
+			<!--盘点任务-->
+			<div class="table" v-if='fhindex==0'>
+				<div class='taskTop'>
+					<div  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+						<div style='margin:0 10px;'>{{$t('inventory.pd.slide1')}}</div>	<!--盘点任务-->
+					</div>
+					<div style='margin-right:10px'>
+						<Button type="primary" style='background:#3b77e3;border:none' shape="circle" @click="addTask">
+						 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('inventory.pd.addnew')}}<!--发布盘点-->
+						</Button>
+						<Button type="primary" style='background:#40ca98;border:none' shape="circle" @click="taskTb">
+						 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('inventory.pd.tbIn')}}<!--同步库存-->
+						</Button>
+						<!-- <Dropdown trigger="click" >
+		                    <Button shape="circle" type="ghost" style="background:#ff7d16;color:#fff;border:none">{{$t('public.more')}}
+		                		<span><i class="ivu-icon ivu-icon-chevron-down"></i></span>
+		                    
+		            		</Button>
+		            		<DropdownMenu slot="list">
+		                		<span @click="del"><DropdownItem >删除</DropdownItem></span>
+		                		<span @click="stop"><DropdownItem >停用</DropdownItem></span>
+		                		<span @click="start"><DropdownItem >启用</DropdownItem></span>
+		            		</DropdownMenu>
+	            		</Dropdown> -->
+	            		
+					</div>
+				</div>
+
+				<div style='margin:10px'>
+					<Table border highlight-row :columns="taskKey" :data="taskData" @on-row-click='clickPre'></Table>
+					<div style='margin-top:5px'>
+						 <Page  :total="tasktotal" show-total size='small'  :pageSize='taskpageSize'  @on-change="taskgetData" @on-page-size-change="taskchangePageSize"></Page>
+					</div>
+				</div>
+				<div class='line'></div>
+				<div style='margin:10px'>
+					<div class='storePdTop'>
+						<span style='font-size:14px'>{{$t('inventory.pd.storeInfo')}}</span><!--店铺盘点详情-->
+						<div>
+							<Button type="ghost"  shape="circle"  @click="pdComit"  style="background:#3b77e3;margin-right:5px;color:#fff;border:none">
+								<Icon type="checkmark-round" style="position:relative;right:5px"></Icon>
+							{{$t('inventory.pd.Comit')}}<!--审核-->
+							</Button>
+						</div>
+					</div>
+					<!--盘点任务详情-->
+					<Table border highlight-row :columns="taskKeyInfo" :data="taskDataInfo" @on-row-dblclick='dblclickInfopd' @on-row-click='clickInfopd'></Table>
+					<div class="page-box">
+						 <Page  :total="tasktotalInfo" show-total size='small'  :pageSize='taskpageSizeInfo'  @on-change="taskgetDataInfo" @on-page-size-change="taskchangePageSizeInfo"></Page>
+					</div>
+				</div>
+			</div>
+			
+    		
+			<!--盘点历史-->
+			<div class="table" v-if='fhindex==1'>
+				<div style='display:flex;border-bottom:1px solid #e4e4e4'>
+					<span  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+						<div style='margin:0 10px;'>{{$t('inventory.pd.slide1')}}</div>	<!--盘点历史-->
+					</span>
+				</div>
+				<div style='margin:10px'>
+					<Table border highlight-row :columns="historyKey" :data="historyData" ></Table>
+					<div class="page-box">
+						 <Page v-if='historytotal!=0' size='small' :total="historytotal" show-total  :pageSize='historypageSize'  @on-change="historygetData" @on-page-size-change="historychangePageSize"></Page>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		<!--选择商品-->
+	<Modal v-model="skuisshow" width="760px">
+		<p slot="header" style="height:30px;line-height:30px">
+			
+			<span>{{$t('public.search')}}</span><!--商品搜索-->
+		</p>
+		<div style="position:relative;text-align:center;width:100%;height:35px;line-height:35px;display:flex;">
+			<Input  :placeholder="$t('public.codeandname')" style="padding:2px 0" v-model="goodskeyword" @on-enter='enterSearch'></Input>
+			<span @click="searchInput">
+			<Icon type="search" size="16" style="display:inline-block;position:absolute;top:10px;right:18px;z-index:9" ></Icon>
+			</span>
+		</div>
+		<!--商品数据-->
+		<div slot="footer" style='margin-top:-10px'>
+			<div style='width:100%'>
+				<Table  border  height='300' highlight-row :columns="goodskeyModel" :data="goodsModel" @on-row-click="clickgoodsrow">
+				</Table>
+				<div style='text-align:left;margin-top:5px'>
+				 <Page :total="goodsModeltotal" show-total size='small' :pageSize='goodsModelpageSize'  @on-change="goodsModelgetData" @on-page-size-change="goodsModelchangePageSize"></Page>
+				</div>
+           	</div>
+			
+			<div class='title' style='margin:0px'>
+				<div style='color:#D15151;font-size:14px'>
+						<!-- <Icon type="plus" style='margin-right:5px'></Icon>
+					<span >添加商品</span> -->
+					</div>
+				<div>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='cancelsure'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#3b77e3;color:#fff" @click="suresku"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+	<!--新增侧栏-->
+	<div class='addHot' >
+		<div class='addHot-head'>
+			<span>{{$t('inventory.pd.addoNew')}}<!--新建任务--></span>
+			<div>
+				 <Button shape="circle" type="ghost" @click="save('formValidate')" style='margin-right:5px;border:none;background:#3b77e3;color:#fff'>
+                   <Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('inventory.pd.fb')}}<!--发布-->
+                </Button>
+                <span @click="cancelhot" style="cursor:pointer; margin-right: 30px;margin-left: 5px;"><Icon type="close" ></Icon></span>
+               
+			</div>
+		</div>
+		<div style='padding:10px'>
+			<Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="100" style='margin-top:20px'>
+    			<div style='display:flex'>
+	                <FormItem :label="$t('inventory.pd.pdtype')" prop="type"><!--盘点方式-->
+	                   	 <Select  v-model='formValidate.type'  @on-change="changetype" style='width:145px'>
+	                    	<Option v-for="(item,index) in typeData" :value="item.value" :key="index">{{ item.label }}</Option>
+	               	 	</Select>
+	               	 	
+	               	 	
+	                </FormItem>
+					<FormItem :label="$t('inventory.pd.btime')" prop="btime"><!--开始时间format="yyyy-MM-dd HH:mm"-->
+	               	 	<DatePicker type="date" :placeholder="$t('inventory.pd.btime')"  placement='bottom-start' style='width:150px' :value='formValidate.btime' @on-change="getStopDate" ></DatePicker>
+	                </FormItem>
+	                <FormItem :label="$t('inventory.pd.etime')" prop="etime"><!--截至时间format="yyyy-MM-dd HH:mm"-->
+	               	 	<DatePicker type="date" :placeholder="$t('inventory.pd.etime')"   placement='bottom-start' style='width:150px' :value='formValidate.etime' @on-change="getStopDate1" ></DatePicker>
+	                </FormItem>
+                </div>
+                   <div style='margin-left:40px'>
+	                   	<div class='pdtop'>
+		                   	<span class='pdtopspan1'>{{$t('inventory.pd.pdstores')}}</span><!--盘点仓库-->
+		                   	<span style='border-left: 1px solid #e4e4e4;padding-left: 20px;'>{{$t('inventory.pd.pdstoresInfo')}}</span><!--店仓信息-->
+	                   	</div>
+	                   	<div class='pdtop1' style='border-top:none'>
+	                   		<span class='pdtopspan2'>
+	                   			<Checkbox v-model="single" @on-change='changeSingle'>{{$t('inventory.pd.checkAll')}}</Checkbox></span><!--全选-->
+	                   		<div style='padding:0 20px;border-left: 1px solid #e4e4e4;height: 200px;overflow-y:auto'>
+	                   			<span v-for='(item,index) in stores' :key='index'>
+	                   				<Checkbox v-model="item.check"  style='margin:10px' @on-change='changeItem(item,$event)'>{{item.name}}</Checkbox>
+	                   			</span>
+	                   		</div>
+	                   	</div>
+                   </div>
+                   <!--商品-->
+                <div style='margin-left:40px;margin-top:20px' v-if='formValidate.type=="3"'>
+                	<Table border highlight-row :columns="pdGoodskey" :data="pdGoodsData" ></Table>
+                </div>
+			</Form>
+		</div>
+	</div>
+	<!--详情侧栏-->
+	<div class='addHotInfo' >
+		<div class='addHot-head'>
+			<span>{{$t('inventory.pd.pdinfo')}}</span><!--盘点详情-->
+			<div>
+				<Button shape="circle" type="ghost" @click="comitSure" style='margin-right:5px;border:none;background:#3b77e3;color:#fff'>
+                   <Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('inventory.pd.ComitPass')}}<!--审批通过-->
+                </Button>
+                <Button shape="circle" type="ghost" @click="reject" style='margin-right:5px;border:none;background:#3b77e3;color:#fff'>
+                   <Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('inventory.pd.ComitR')}}<!--发回重盘-->
+                </Button>
+                <span @click="cancelhotInfo" style="cursor:pointer; margin-right: 30px;margin-left: 5px;"><Icon type="close" ></Icon></span>
+			</div>
+		</div>
+		<div style='padding:10px'>
+			<Table border highlight-row :columns="pdInfokey" :data="pdInfoData" @on-row-click='clickclInfopd'></Table>
+			<div class="page-box">
+				<Page v-if='pdInfototal!=0'  :total="pdInfototal" show-total  :pageSize='pdInfopageSize'  @on-change="pdInfogetData" @on-page-size-change="pdInfochangePageSize"></Page>
+			</div>
+		</div>
+	</div>
+	<div class="mark"></div>
+	<div class="mark1"></div>
+	<!--添加备注-->
+		<Modal v-model="psisshow" width="360px">
+			<p slot="header" style="height:30px;line-height:30px;text-align:center">
+				
+				<span>{{this.$t('inventory.pd.remarkInfo')}}</span><!--备注信息-->
+			</p>
+			<div>
+				 <span>{{ModelRemark}}</span>
+			</div>
+			<div slot="footer">
+				<!-- <div class='footer-mark'>
+					<span><a style='color:#999;font-size:14px' @click='cancelPs'>取消</a></span>
+					<span style='font-size:20px;width:1px;height:40px;background:#e4e4e4'></span>
+					<span ><a style='color:#3B77E3;font-size:14px' @click='savePs'>确认</a></span>
+				</div> -->
+			</div>
+		</Modal>
+	</div>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				psisshow:false,//备注信息
+				ModelRemark:"",
+				title:this.$t('inventory.pd.slide1'),//"盘点任务",
+				//发布盘点任务
+				single:false,
+				stores:[],
+				storeString:"",//店铺拼接字符串
+				storeArr:[],//店铺拼接字符串数组
+				checked:false,
+				skuisshow:false,
+				seleSkuObj:{},//选中商品一行
+				detailsData:[],//存入商品data
+				detailsString:"",//存入商品id字符串拼接
+				goodskeyModel:[
+					{
+	                	title:"",
+	                	width:100,
+	                	key:"skuPic",
+	                	 render:(h, params) =>{
+                        	return h('div',[
+                    			h('img',{
+                    				attrs:{
+                    					src:params.row.skuPic
+                    				},
+                    				style:{
+                    					width:'40px',
+                    					height:'40px'
+                    				}
+                    			})
+                    		])
+                        }
+	                },
+	                {
+	                	title:this.$t('purchase.supplier.code'),//编码
+	                	key:'skuCode',
+	               		width:180,
+	                	align: 'center'
+	                },
+	                {
+	                	title:this.$t('purchase.supplier.name'),//名称
+	             		width:280,
+	                	ellipsis:true,
+	                	key:"skuName"
+	                },
+	                {
+	                	title:this.$t('sideBar.manage.warehouse'),//仓库
+	                	key:'warehouseName',
+	               		width:180,
+	                	align: 'center'
+	                },
+	                {
+	                	title:this.$t('manage.sku.SkuUnit'),//单位
+	                	key:'unit',
+	               		width:180,
+	                	align: 'center'
+	                },
+	              	{
+	                	title:this.$t('manage.sku.price'),//吊牌价
+	                	key:'price',
+						width:120,
+	                	align: 'center'
+	                },
+	                {
+	                	title:this.$t('manage.sku.costprice'),//成本价
+	                	key:'costPrice',
+						width:100,
+	                	align: 'center'
+	                },
+	                {
+	                	title:this.$t('manage.sku.wholeprice'),//批发价
+	                	key:'wholePrice',
+	                	width:100,
+	                	align: 'center'
+	                },
+	                {
+	                	title:this.$t('manage.sku.inventoryUp'),//库存
+	                	key:'qty',
+	                	width:100,
+	                	align: 'center'
+	                }
+				],
+				goodsModel:[],
+				goodsModeltotal:0,
+				goodsModelpageSize:0,
+				goodskeyword:'',
+				pdGoodskey:[
+					{
+						title:this.$t('inventory.pd.pdsku'),//"盘点商品",
+						key:"action",
+						width:120,
+						render:(h,parmas)=>{
+							return h('div',[
+									h('a',{
+										on:{
+											'click':()=>{
+												this.skuisshow=true
+												this.getSku()
+											}
+										}
+									},this.$t('inventory.pd.add')),//'新增'
+									h('a',{
+										style:{
+											marginLeft:'20px',
+											display:parmas.index==0?"none":"inline-block",
+											color:"#d53c39"
+										},
+										on:{
+											'click':()=>{
+												this.pdGoodsData.splice(parmas.index,1)
+												this.detailsData.splice(parmas.index-1,1)
+												// console.log(this.detailsData)
+												this.detailsString=this.detailsData.join(',')
+												console.log(this.detailsString)
+											}
+										}
+									},this.$t('public.del'))//删除
+								])
+						}
+					},
+					{
+						title:this.$t('inventory.pd.pdskuName'),//"名称",
+						width:180,
+						ellipsis:true,
+						key:"skuName"
+					},
+					{
+						title:this.$t('inventory.pd.pdskuCode'),//"编码",
+						width:180,
+						key:"skuCode"
+					},
+					{
+						title:this.$t('inventory.pd.pdskuAttr'),//"规格",
+						key:"skuSpec",
+						width:180,
+					},
+					
+					{
+						title:this.$t('inventory.pd.unit'),//"单位",
+						width:100,
+						key:"unit"
+					},
+				],
+				pdGoodsData:[{}],
+				typeData:[
+					{
+						label:this.$t('inventory.pd.mp'),//"盲盘",
+						value:"1",
+					},
+					{
+						label:this.$t('inventory.pd.mpzd'),//"指定商品",
+						value:"3",
+					},
+					{
+						label:this.$t('inventory.pd.allIn'),//"全库存",
+						value:"2",
+					},
+				],
+				
+				formValidate:{
+					type:"3",
+					btime:"",
+					etime:""
+				},
+				ruleValidate:{
+					type:[{ required: true, message:this.$t('inventory.pd.chooseTYPE') , trigger: 'change' }],
+					btime:[{ required: true, message:this.$t('inventory.pd.chooseBTIME'), trigger: 'change' }],
+					etime:[{ required: true, message:this.$t('inventory.pd.chooseETIME'), trigger: 'change' }],
+				},
+				taskkeyword:'',
+				tasktotal: 0,
+				taskpageSize: 0,
+				pdRowData:{},//一条盘点详情
+				taskData:[],
+				taskKey:[
+					{
+						title:this.$t('inventory.pd.reNo'),//"盘点编号",
+						key:"receiptNo",
+
+					},
+					{
+						title:this.$t('inventory.pd.type'),//盘点类型
+						key:"typeDesc"
+					},
+					{
+						title:this.$t('inventory.pd.skuNum'),//商品种数
+						key:"skuKindNum"
+					},
+					
+					{
+						title:this.$t('inventory.pd.btime'),//发布时间
+						key:"startDate"
+					},
+					{
+						title:this.$t('inventory.pd.etime'),//提交截至
+						key:"expirationDate"
+					},
+					{
+						title:this.$t('public.status'),//状态
+						key:"statusDesc",
+						render:(h,params)=>{
+                            return h('span',{
+                                style:{
+                                    color:params.row.status==12?'#2B8F8F':params.row.status==31?'#40ca98':''
+                                }
+                            },params.row.statusDesc)
+                        }
+					},
+				],
+				//详情
+				taskId:"",//盘点id
+				pdID:"",//最上级编号
+				pdclId:"",//详情侧栏编号
+				pdId:"",//主页详情编号
+				pdInfoID:"",
+				pdInfototal:0,
+				pdInfopageSize:0,
+				pdInfokey:[
+					{
+						title:this.$t('inventory.pd.pdskuName'),//"商品名称",
+						width:180,
+						ellipsis:true,
+						key:"skuName"
+					},
+					{
+						title:this.$t('inventory.pd.pdskuCode'),//"商品编码",
+						width:180,
+						key:"skuCode"
+					},
+					{
+						title:this.$t('inventory.pd.pdskuAttr'),//"规格",
+						width:180,
+						key:"specDetailName"
+					},
+					{
+						title:this.$t('inventory.pd.skuIn'),//"库存",
+						width:100,
+						key:"inventoryQty"
+					},
+					{
+						title:this.$t('inventory.pd.pdskuIn'),//"盘点库存",
+						width:100,
+						key:"cycleCountQty"
+					},
+					{
+						title:this.$t('inventory.pd.ykui'),//"盈亏",
+						width:120,
+						key:"cycleStatusTesc",
+						render:(h,params)=>{
+                            return h('span',{
+                                style:{
+                                    color:params.row.cycleStatus==0?'#333':params.row.cycleStatus==1?'#40ca98':params.row.cycleStatus==2?'#d53c39':''
+                                }
+                            },params.row.cycleStatusTesc)
+                        }
+
+					},
+					{
+						title:this.$t('inventory.pd.chae'),//"差额",
+						width:100,
+						key:"cycleAmount"
+					},
+					
+				],
+				pdInfoData:[],//侧栏详情
+				tasktotalInfo: 0,
+				taskpageSizeInfo: 0,
+				taskDataInfo:[],//主页详情
+				taskKeyInfo:[
+					{
+						title:this.$t('inventory.pd.reNo'),//"盘点编号",
+						key:"receiptNo",
+
+					},
+					{
+						title:this.$t('inventory.pd.type'),//盘点类型
+						key:"typeDesc"
+					},
+					{
+						title:this.$t('inventory.pd.skuNum'),//商品种数
+						key:"skuKindNum"
+					},
+					{
+						title:this.$t('inventory.pd.pdstores'),//盘点店铺
+						key:"storeName"
+					},
+					{
+						title:this.$t('inventory.pd.kcallnum'),//库存总数量
+						key:"inventoryTotal"
+					},
+					{
+						title:this.$t('inventory.pd.pdallnum'),//盘点总数量
+						key:"cycleCountTotal"
+					},
+					{
+						title:this.$t('inventory.pd.yk'),//"盘点总盈亏",
+						key:"cycleStatusTesc",
+						render:(h,params)=>{
+                            return h('span',{
+                                style:{
+                                    color:params.row.cycleStatus==0?'#333':params.row.cycleStatus==1?'#40ca98':params.row.cycleStatus==2?'#d53c39':''
+                                }
+                            },params.row.cycleStatusTesc)
+                        }
+					},
+					{
+						title:this.$t('inventory.pd.errotM'),//"误差金额",
+						key:"cycleAmount"
+					},
+					{
+						title:this.$t('public.status'),//状态
+						key:"statusDesc",
+						render:(h,params)=>{
+                            return h('span',{
+                                style:{
+
+                                    color:params.row.status==88?'#40ca98':params.row.status==99?'#d53c39':params.row.status==12?'#d53c39':params.row.status==3?'#3b77e3':''
+                                }
+                            },params.row.statusDesc)
+                        }
+					},
+					{
+						title:this.$t('public.remark'),//"备注",
+						key:"remark",
+						render:(h,params)=>{
+                            return h('span',{
+                                style:{
+                                	cursor:"pointer",
+                                    color:params.row.remark?'#3b77e3':"#ccc"
+                                },
+                                on:{
+                                	'click':()=>{
+                                		if(!params.row.remark){
+                                			return
+                                		}else{
+                                			this.psisshow=true
+                                			this.ModelRemark=params.row.remark
+                                		}
+                                		
+                                	}
+                                }
+                            },params.row.remark?this.$t('inventory.pd.see'):this.$t('inventory.pd.Noremark'))//"查看":"无备注"
+                        }
+					},
+				],
+				fhindex:0,
+				row:{},
+				visible: false,
+				fhlist:[
+					{
+						label:this.$t('inventory.pd.slide1'),//"盘点任务",
+						value:0
+					},
+					{
+						label:this.$t('inventory.pd.slide2'),//"盘点历史",
+						value:1
+					},
+				],
+				valId:"",
+				type:'',//下拉选中
+				historykeyword:'',
+				historytotal: 0,
+				historypageSize: 0,
+				uid: this.$store.state.common.token,
+				historyData: [], //盘点历史
+				historyKey:[
+					{
+						title:this.$t('inventory.pd.reNo'),//"盘点编号",
+						key:"receiptNo",
+
+					},
+					{
+						title:this.$t('inventory.pd.type'),//盘点类型
+						key:"typeDesc"
+					},
+					{
+						title:this.$t('inventory.pd.skuNum'),//商品种数
+						key:"skuKindNum"
+					},
+					
+					{
+						title:this.$t('inventory.pd.btime'),//发布时间
+						key:"startDate"
+					},
+					{
+						title:this.$t('inventory.pd.etime'),//提交截至
+						key:"expirationDate"
+					},
+					{
+						title:this.$t('inventory.pd.errotM'),//"误差金额",
+						key:"cycleAmount"
+					},
+					{
+						title:this.$t('inventory.pd.tbdate'),//"同步日期",
+						key:"syncDate"
+					},
+					
+					{
+						title:this.$t('public.status'),//状态
+						key:"statusDesc",
+						render:(h,params)=>{
+                            return h('span',{
+                                style:{
+                                    color:params.row.status==12?'#2B8F8F':params.row.status==31?'#40ca98':''
+                                }
+                            },params.row.statusDesc)
+                        }
+					},
+					
+				]
+
+			}
+		},
+		methods: {
+			//搜索商品GET /cycleTask/skus 盘点商品列表
+			searchInput(){
+				this.axios.get('/cycleTask/skus?keyword='+this.goodskeyword+'&uid='+this.uid).then((res)=>{
+					////////console.log(res)
+					if(res.data.status==200){
+						this.goodsModel = res.data.rows
+						this.goodsModeltotal=res.data.total
+						this.goodsModelpageSize=res.data.pageSize
+					}
+				})
+			},
+			//回车搜索
+			enterSearch(){
+				this.searchInput()
+			},
+			//获取库存商品
+			getSku(){
+				this.axios.get('/cycleTask/skus?uid='+this.uid).then((res)=>{
+					////////console.log(res)
+					if(res.data.status==200){
+						this.goodsModel = res.data.rows
+						this.goodsModeltotal=res.data.total
+						this.goodsModelpageSize=res.data.pageSize
+					}
+				})
+			},
+			//选中一行
+			clickgoodsrow(data){
+				this.seleSkuObj=data
+			},
+			//确认选中
+			suresku(){
+				this.pdGoodsData.push(this.seleSkuObj)
+				this.detailsData.push(this.seleSkuObj.id)
+				this.detailsString=this.detailsData.join(',')
+				console.log(this.detailsData)
+				this.skuisshow=false
+
+			},
+			cancelsure(){
+				this.skuisshow=false
+			},
+			//翻页
+			goodsModelgetData(current){
+				this.axios.get('/cycleTask/skus?offset='+current+'&uid='+this.uid).then((res)=>{
+					if(res.data.status==200){
+						this.goodsModel = res.data.rows
+						this.goodsModeltotal=res.data.total
+						this.goodsModelpageSize=res.data.pageSize
+					}
+				})
+			},
+			goodsModelchangePageSize(size){
+				this.goodsModelpageSize=size
+			},
+			//保存POST /cycleTask/createCycle 发布盘点任务
+			save(name){
+				this.$refs[name].validate((valid) => {
+					if(valid){
+						this.axios.post('/cycleTask/createCycle?uid='+this.uid,{
+								type:Number(this.formValidate.type),
+								storeIds:this.storeString,//店铺
+								skuInventoryIds:this.detailsString,//商品
+								startDate:this.formValidate.btime,
+								expirationDate:this.formValidate.etime,
+						}).then(res=>{
+							if(res.data.status==200){
+								this.$notify({
+							        title:"",//
+							        message:'发布盘点任务成功',
+							        type: 'success',
+							        position: 'bottom-right'
+						        });
+						        // this.formValidate.type="3"
+						        // this.detailsString=""
+						        // this.detailsData=[]
+						        // this.pdGoodsData=[]
+						        // this.storeArr=[]
+						        // this.storeString=""
+						        // this.formValidate.btime=''
+						        // this.formValidate.etime=''
+						       
+
+								this.cancelhot()
+								this.gettask()//获取全部盘点任务
+								this.getAllStore()//获取店铺
+								this.getDate()
+							}else{
+								this.$notify({
+							        title: this.$t('public.valid.error'),//'失败',
+							        message: res.data.errorMessage,
+							        type: 'error',
+							        position: 'bottom-right'
+						        });
+							}
+						})
+					}
+				})
+			},
+			//盘点任务/cycleTask/query
+			gettask(){
+				this.axios.get('/cycleTask/query?length=3&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.taskData=res.data.rows
+						this.tasktotal=res.data.total
+						this.taskpageSize=res.data.pageSize
+						this.taskData.forEach(x=>{
+							x.startDate=this.getLocalTime(x.startDate)
+							x.expirationDate=this.getLocalTime(x.expirationDate)
+						
+						})
+					}
+				})
+			},
+			//点击盘点任务一行获取receiptNo
+			clickPre(data){
+				console.log(data)
+				this.pdID=data.receiptNo
+				this.taskId=data.id
+				console.log(data)
+				this.getInfopd(this.pdID)//盘点任务明细管理详情
+			},
+			//同步库存POST /cycleTask/syncInv 同步库存
+			taskTb(){
+				if(this.taskId==''){
+					this.$notify({
+				        title:"",//
+				        message:'请选择一条盘点单！',
+				        type: 'error',
+				        position: 'bottom-right'
+			        });
+				}else{
+					this.$Modal.confirm({
+                        title: '同步库存',
+                        content: '<p>确定要同步库存吗?</p>',
+                        onOk: () => {
+                            this.axios.post('/cycleTask/syncInv?uid='+this.uid,{
+								id:this.taskId
+							}).then(res=>{
+								if(res.data.status==200){
+									this.$notify({
+								        title:"",//
+								        message:'同步成功',
+								        type: 'success',
+								        position: 'bottom-right'
+							        });
+							       this.gettask()//获取全部盘点任务
+								}else{
+									this.$notify({
+								        title:"",//
+								        message:res.data.errorMessage,
+								        type: 'error',
+								        position: 'bottom-right'
+							        });
+								}
+							})
+                        },
+                    });
+					
+				}
+				
+			},
+			//GET /cycleTask/query 盘点任务管理一行详情
+			getInfopd(n){
+				this.axios.get('/cycle/query?taskNo='+n+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.taskDataInfo=res.data.rows
+						this.tasktotalInfo=res.data.total
+						this.taskpageSizeInfo=res.data.pageSize
+						this.taskDataInfo.forEach(x=>{
+							x.startDate=this.getLocalTime(x.startDate)
+							x.expirationDate=this.getLocalTime(x.expirationDate)
+						})
+					}
+				})
+			},
+			//单击主页详情盘点一条
+			clickInfopd(data,index){
+				this.pdRowData=data
+				this.pdId=data.receiptNo
+				this.pdInfoID=data.id
+			},
+			//主页详情翻页
+			taskgetDataInfo(current){
+				this.axios.get('/cycle/query?taskNo='+this.pdID+'&offset='+current+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.taskDataInfo=res.data.rows
+						this.tasktotalInfo=res.data.total
+						this.taskpageSizeInfo=res.data.pageSize
+						this.taskDataInfo.forEach(x=>{
+							x.startDate=this.getLocalTime(x.startDate)
+							x.expirationDate=this.getLocalTime(x.expirationDate)
+						})
+				
+					}
+				})
+			},
+			//主页详情
+			taskchangePageSizeInfo(size){
+				this.taskpageSizeInfo=size
+			},
+			//双击主页下方详情盘点一条GET /cycleDetail/query 盘点单明细管理 上级this.pdId=data.receiptNo
+			dblclickInfopd(data,index){
+				this.pdInfoID=data.id//id
+				this.pdId=data.receiptNo//编号
+				this.axios.get('/cycleDetail/query?cycleCountReceiptNo='+data.receiptNo+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.pdInfoData=res.data.rows
+						this.pdInfototal=res.data.total
+						this.pdInfopageSize=res.data.pageSize
+					}
+				})
+				$('.addHotInfo').animate({right:"0px"});
+				$('.mark1').css('display','block')
+			},
+			
+			//侧栏详情翻页
+			pdInfogetData(current){
+				this.axios.get('/cycleDetail/query?cycleCountReceiptNo='+this.pdId+'&offset='+current+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.pdInfoData=res.data.rows
+						this.pdInfototal=res.data.total
+						this.pdInfopageSize=res.data.pageSize
+					}
+				})
+			},
+			//侧栏
+			pdInfochangePageSize(size){
+				this.pdInfopageSize=size
+			},
+			//单击侧栏详情一条
+			clickclInfopd(data){
+				this.pdclId=data.id
+			},
+			//审批this.pdId
+			pdComit(){
+				if(this.pdInfoID==''){
+					this.$notify({
+				        title:"",//
+				        message:'请选择一条盘点详情单！',
+				        type: 'error',
+				        position: 'bottom-right'
+			        });
+				}else{
+					this.$Modal.confirm({
+                        title: '审核',
+                        content: '<p>确定要审核吗?</p>',
+                        onOk: () => {
+                           //PUT /cycleTask/approve 通过审核
+							this.axios.put('/cycleTask/approve?uid='+this.uid,{
+								id:this.pdInfoID
+							}).then(res=>{
+								if(res.data.status==200){
+									this.$notify({
+								        title:"",//
+								        message:'通过审核',
+								        type: 'success',
+								        position: 'bottom-right'
+							        });
+
+							        this.getInfopd(this.pdID)//盘点任务明细管理详情
+							        this.pdInfoID=''
+								}else{
+									this.$notify({
+								        title:"",//
+								        message:res.data.errorMessage,
+								        type: 'error',
+								        position: 'bottom-right'
+							        });
+								}
+							})
+                        },
+                    });
+					
+				}
+			},
+			
+			//取消详情盘点
+			cancelhotInfo(){
+				$('.addHotInfo').animate({right:"-800px"});
+				$('.mark1').css('display','none')
+			},
+			//审批通过PUT /cycleTask/approve 通过审核
+			comitSure(){
+				if(this.pdInfoID==''){
+					this.$notify({
+				        title:"",//
+				        message:'请选择一条盘点详情单！',
+				        type: 'error',
+				        position: 'bottom-right'
+			        });
+				}else{
+					//PUT /cycleTask/approve 通过审核
+					this.axios.put('/cycleTask/approve?uid='+this.uid,{
+						id:this.pdInfoID
+					}).then(res=>{
+						if(res.data.status==200){
+							this.$notify({
+						        title:"",//
+						        message:'通过审核',
+						        type: 'success',
+						        position: 'bottom-right'
+					        });
+					        this.getInfopd(this.pdID)//盘点任务明细管理详情
+					        this.cancelhotInfo()
+					        this.pdInfoID=''
+						}else{
+							this.$notify({
+						        title:"",//
+						        message:res.data.errorMessage,
+						        type: 'error',
+						        position: 'bottom-right'
+					        });
+						}
+					})
+				}
+			},
+			////PUT /cycleTask/reject 驳回重盘
+			reject(){
+				this.axios.put('/cycleTask/reject?uid='+this.uid,{
+					id:this.pdInfoID
+				}).then(res=>{
+						if(res.data.status==200){
+							this.$notify({
+						        title:"",//
+						        message:'已驳回重盘',
+						        type: 'success',
+						        position: 'bottom-right'
+					        });
+					        this.getInfopd(this.pdID)//盘点任务明细管理详情
+					        this.cancelhotInfo()
+					        this.pdInfoID=''
+						}else{
+							this.$notify({
+						        title:"",//
+						        message:res.data.errorMessage,
+						        type: 'error',
+						        position: 'bottom-right'
+					        });
+						}
+					})
+			},
+			//发布盘点
+			addTask(){
+				$('.addHot').animate({right:"0px"});
+				$('.mark').css('display','block')
+			},
+			//取消
+			cancelhot(){
+				$('.addHot').animate({right:"-800px"});
+				$('.mark').css('display','none')
+				this.formValidate.type="3"
+		        this.detailsString=""
+		        this.detailsData=[]
+		        this.pdGoodsData=[{}]
+		        this.storeArr=[]
+		        this.storeString=""
+		        this.formValidate.btime=''
+		        this.formValidate.etime=''
+		        this.single=false
+		        this.getAllStore()//获取全部店铺
+		        this.getDate()
+		        this.stores.forEach(x=>{
+					x.check=false
+				})
+			},
+			//选择盘点方式
+			changetype(v){
+				//盲盘与全库存
+				if(v=='1' || v=='2'){
+					this.detailsData=[]
+		        	this.pdGoodsData=[]
+		        	this.detailsString=""
+				}else{
+					this.pdGoodsData=[{}]
+					this.formValidate.type=v
+				}
+				
+			},
+			//开始时间
+			getStopDate(d){
+				this.formValidate.btime=d
+			},
+			//结束时间
+			getStopDate1(d){
+				this.formValidate.etime=d
+			},
+			
+			//全选
+			changeSingle(d){
+				this.storeArr=[]//每次点击全选清空
+				this.stores.forEach(x=>{
+					if(d){
+						x.check=true
+						this.storeArr.push(x.id)//店铺拼接字符串数组
+						this.storeString=this.storeArr.join(',')
+						console.log(this.storeString)
+					}else{
+						x.check=false
+						this.storeArr=[]
+						this.storeString=''
+					}
+				})
+			},
+			//选中店铺字符串拼接id
+			changeItem(item,s){
+				if(s){
+					this.storeArr.push(item.id)//店铺拼接字符串数组
+					this.storeString=this.storeArr.join(',')
+					console.log(this.storeString)
+				}else if(this.storeArr.length==0){
+					return
+				}else{
+					this.storeArr.splice(this.storeArr.indexOf(item.id),1)
+					this.storeString=this.storeArr.join(',')
+					console.log(this.storeString)
+				}
+			},
+			
+			//搜索盘点任务GET /cycleTask/query 盘点任务管理
+			searchtask(){
+				
+			},
+			//回车搜索
+			entersSearchtask(){
+				this.searchtask()
+			},
+			
+			//切换
+			getfhlistbg(index){
+				this.fhindex=index
+				if(this.fhindex==0){
+					this.title='盘点任务'
+					this.gettask()
+					
+				}
+				if(this.fhindex==1){
+					this.title='盘点历史'
+					this.getpdhistory()
+					
+				}
+			},
+			//盘点任务翻页
+			taskgetData(current){
+				this.axios.get('/cycleTask/query?length=3&offset='+current+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.taskData=res.data.rows
+						this.tasktotal=res.data.total
+						this.taskpageSize=res.data.pageSize
+						this.taskData.forEach(x=>{
+							x.startDate=this.getLocalTime(x.startDate)
+							x.expirationDate=this.getLocalTime(x.expirationDate)
+						})
+					}
+				})
+			},
+			taskchangePageSize(size){
+				this.taskpageSize=size
+			},
+			//获取盘点历史GET /cycleTask/query 
+			getpdhistory(){
+				this.axios.get('/cycleTask/query?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.historyData=res.data.rows
+						this.historytotal=res.data.total
+						this.historypageSize=res.data.pageSize
+						this.historyData.forEach(x=>{
+							x.startDate=this.getLocalTime(x.startDate)
+							x.expirationDate=this.getLocalTime(x.expirationDate)
+							if(x.syncDate==null){
+								x.syncDate=this.$t('inventory.pd.Notb')//'未同步'
+							}else{
+							
+								x.startDate=this.getLocalTime(x.syncDate)
+							}
+							
+						})
+						console.log(this.historyData)
+					}
+				})
+			},
+			//盘点历史搜索
+			searchhistory(){
+
+			},
+			//回车搜索
+			entersSearchhistory(){
+				this.searchhistory()
+			},
+			//盘点历史翻页
+			historygetData(current){
+				this.axios.get('/cycleTask/query?offset='+current+'&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.historyData=res.data.rows
+						this.historytotal=res.data.total
+						this.historypageSize=res.data.pageSize
+						this.historyData.forEach(x=>{
+							x.startDate=this.getLocalTime(x.startDate)
+							x.expirationDate=this.getLocalTime(x.expirationDate)
+							if(x.syncDate==null){
+								x.syncDate=this.$t('inventory.pd.Notb')//'未同步'
+							}else{
+								x.startDate=this.getLocalTime(x.syncDate)
+							}
+						})
+					}
+				})
+			},
+			//盘点历史翻页
+			historychangePageSize(size){
+				this.historypageSize=size
+			},
+			//获取全部店铺GET /store/query 店铺管理
+			getAllStore(){
+				this.axios.get('/store/query?length=999&uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.stores=res.data.rows
+						this.stores.forEach(x=>{
+							x.check=false
+						})
+					}
+				})
+			},
+		},
+		mounted() {
+			this.getAllStore()//获取全部店铺
+			this.gettask()//获取全部盘点任务
+		}
+	}
+</script>
+
+<style lang="css" scoped>
+
+	.units-box {
+		width: 100%;
+		background: rgb(230,233,236);
+	}
+	.btns-box {
+		width: 100%;
+		height: 50px;
+		display:flex;
+		justify-content: space-between;
+		background: #fff;
+		line-height: 50px;
+	}
+.addHot{
+	position:fixed;
+	
+	height:89%;
+	width:800px;
+	right:-800px;
+	top:48px;
+	background: #fff;
+	z-index:10;
+	overflow-y: auto;
+	box-shadow: 0 0 20px #ccc
+	/*border:1px solid red;*/
+}
+.addHotInfo{
+	position:fixed;
+	z-index:9;
+	height:89%;
+	width:800px;
+	right:-800px;
+	top:48px;
+	background: #fff;
+	
+	overflow-y: auto;
+	box-shadow: 0 0 20px #ccc
+}
+.addHot-head{
+	width:100%;
+	height:50px;
+	line-height: 50px;
+	display: flex;
+	justify-content: space-between;
+	border-bottom: 1px solid #e4e4e4;
+}
+
+.addHot-head span{
+	font-size:14px;
+	font-weight:600;
+	margin-left:10px;
+}
+.mark,.mark1{
+	position:fixed;
+	display:none;
+	width:100%;
+	height:100%;
+	background: #B2B2B2;
+	opacity:0.4;
+	/*z-index:12;*/
+	top: 48px;
+}
+ .wldw{
+	margin-left: 15px;
+	font-size:18px;font-weight:bold;
+}
+.right{
+	margin-right:10px;
+	margin-bottom:10px;
+}
+.ivu-icon-chevron-down {
+	font-size: 10px;
+}
+.btns img {
+	width: 14px;
+	height: 14px;
+	vertical-align: middle;
+}
+.main-left{
+	width: 120px;
+	margin-right: 3px;
+	flex: 0 0 120px;
+	font-size: 14px;
+	background: #fff;
+}
+.main-left li{
+	list-style: none;
+	padding:10px 0;
+	width:100%;
+	
+}
+.main-left li span{
+	margin-left:20px;
+}
+.table {
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	
+	background: #fff;
+}
+.bor{
+	background:rgb(241,245,247);
+    color:rgb(59,119,227);
+}
+.mtewm{
+width:100%;
+
+display:flex;
+padding: 0px 200px 0 200px;
+
+justify-content: center;
+align-items: center;
+flex-direction: column;
+    	
+}
+.mtewm span{
+	width:260px;
+	height:30px;
+	line-height: 30px;
+	font-weight:600;
+	text-align: center
+}
+.mtewm div{
+	width:260px;
+	height:60px;
+	line-height: 35px;
+	
+}
+.line{
+	height:3px;
+	width:100%;
+	background: rgb(230,233,236);
+}
+.pdtop{
+	border:1px solid #e4e4e4;
+	border-bottom: 1px solid #e4e4e4;
+	height:40px;
+	line-height: 40px;
+	display: flex;
+}
+.pdtop1{
+	border:1px solid #e4e4e4;
+	border-bottom: 1px solid #e4e4e4;
+	/*justify-content: center;*/
+	align-items: center;
+	display: flex;
+}
+.pdtopspan1{
+	width:80px;
+	height:40px;
+	text-align: center;
+
+	
+}
+.pdtopspan2{
+	width:80px;
+	flex: 0 0 80px;
+
+	display: inline-block;
+	text-align: center;
+	
+}
+.storePdTop{
+	height:50px;
+	line-height: 50px;
+	display: flex;
+	justify-content: space-between;
+}
+.ygewm{
+	 padding:10px;
+	width:100%;
+	height:100%;
+	/*border:1px solid red;*/
+	display: flex;
+	flex-wrap: wrap;
+	 /*justify-content: center;*/
+    text-align: center;
+	/*justify-content: center;*/
+	/*flex-direction: column*/
+	background: #fff
+}
+.ygewm-list{
+	margin:10px;
+    height: 195px;
+    width:17%;
+    padding:10px;
+    justify-content: center;
+    text-align: center;
+    border: 1px solid #ccc;
+}
+.page-box{
+	width:100%;
+	margin-right:56px;
+	margin-top:15px;
+	text-align: left;
+	margin-bottom:120px;
+}
+.bottom-btn{
+	width:100%;
+	height:80px;
+	/*border:1px solid red;*/
+	margin-top:10px;
+	background: #f8f8f8;
+	line-height: 80px;
+	margin-right:56px;
+	text-align:right;
+
+}
+.taskTop{
+	display:flex;border-bottom:1px solid #e4e4e4;height:50px;line-height:50px;
+	justify-content: space-between;
+}
+</style>

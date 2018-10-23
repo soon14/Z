@@ -1,0 +1,236 @@
+<template>
+	<div>
+		<div class="selectImg" :style="{'width': width + 'px' ,'height': height + 'px' ,}"  @click.stop="openDlg">
+			<img :src="imgsrc"  :width="width" :height="height"/>
+		</div>
+		<Modal v-model="modal" :mask-closable="false" v-on:on-ok="selectOK" v-on:on-cancel="selectCancel">
+			<div class="search-bar" >
+				<p style="float:left">
+					<Input v-model="goodsname" placeholder="请输入商品名.." style="width: 200px"></Input>
+					<Button type="primary" icon="ios-search" @click.stop="seachImg" >搜索</Button> </p>
+				<p style="float:right">
+				</p>
+			</div>
+			<div class="pic-list">
+				<ul class="image-list">
+					<li class="image-item js-image-item" v-for="(item,i) in imgs" :key="item.murl">
+						<div class="image-box" :class="{'selected':item.select}">
+							<img :src="item.murl" @click.stop="select(i,item)" width="80px" />
+						</div>
+						<div class="image-meta">{{item.title}}</div>
+					</li>
+				</ul>
+			</div>
+			<div class="page-bar">
+				<p>
+					<Page :total="total" :current="current" :page-size="size" v-on:on-change="changePage"></Page>
+				</p>
+			</div>
+		</Modal>
+	</div>
+
+</template>
+
+<script>
+	export default {
+		name: 'goods_select',
+		props: {
+			bid: {
+				type: String,
+				required: true
+			},
+			size: {
+				type: Number,
+				default: 15
+			},
+			width: {
+				type: Number,
+				default: 80
+			},
+			height: {
+				type: Number,
+				default: 80
+			},
+			type: {
+				type: Number,
+				default: 1
+			}
+		},
+		data() {
+			return {
+				current: 0,
+				modal: false,
+				imgsrc: "",
+				total: 0,
+				selectImg: [],
+				imgs: [],
+				goodsname: '',
+				updata: {
+					bid: '',
+					type: ''
+				}
+			}
+		},
+		methods: {
+			changePage: function(values) {
+				this.current = values;
+				this.seach();
+			},
+			beforeUpload: function(file) {
+				this.updata.bid = this.bid;
+				this.updata.type = '1';
+			},
+			onSuccess: function() {
+				this.goodsname = '';
+				this.current = 1;
+				this.seach();
+			},
+
+			seach: function() {
+				let pp = {
+					bid: this.bid,
+					keyword: this.goodsname,
+					pageSize: this.size,
+					pageNum: this.current
+				};
+
+				this.axios.post("/shop/goods/goodswpagelist", pp)
+					.then(response => {
+						this.imgs = response.data.data.list;
+						this.current = response.data.data.pageNum;
+						this.total = response.data.data.total;
+						this.selectImg = [];
+					});
+			},
+			seachImg: function() {
+				this.current = 1;
+				this.seach();
+			},
+			
+			select: function(ind, o) {
+				for(var i = 0; i < this.imgs.length; i++) {
+					if(ind == i) {
+						this.imgs[i].title = this.imgs[i].title+"";
+						this.imgs[i].select = true;
+					} else {
+						this.imgs[i].title = this.imgs[i].title+" ";
+						this.imgs[i].select = false;
+					}
+				}
+				this.selectImg[0] = o;
+				//this.$emit('select', o);
+			},
+			selectOK:function(){
+				this.imgsrc = this.selectImg[0].murl;
+				this.$emit('select', this.selectImg);
+				this.$emit('dlgclose', '');
+			},
+			selectCancel:function(){
+				this.$emit('dlgclose', '');
+			},
+			openDlg:function(){
+				this.modal = true;
+				this.$emit('dlgopen', '');
+			}
+		},
+		computed: {
+
+		},
+
+		beforeMount: function() {
+			this.seach();
+		},
+		components: {}
+	}
+</script>
+<style scoped>
+	
+	.selectImg {
+		border: 1px dashed #0099FC;
+		overflow: hidden;
+	}
+	
+	.search-bar {
+		width: 100%;
+		height: 50px;
+	}
+	
+	.search-bar p {
+		line-height: 50px;
+		margin: 0 20px;
+	}
+	
+	.page-bar {
+		width: 100%;
+		height: 50px;
+		clear: both;
+	}
+	
+	.pic-list {
+		clear: both;
+		width: 100%;
+		position:relative;
+	}
+	
+	.image-list {
+		width: 100%;	
+	}
+	
+	.image-item {
+		cursor: pointer;
+		float: left;
+		height: 80px;
+		margin-bottom: 20px;
+		margin-left: 15px;
+		position: relative;
+		width: 80px;
+	}
+	
+	.selected {
+		border: 5px solid red;
+	}
+	
+	.image-box {
+		background: #ccc none repeat scroll 50% 50% / cover;
+		height: 80px;
+		width: 80px;
+		overflow: hidden;
+	}
+	
+    .image-box .selected {
+		border: 5px solid red;
+	}
+	
+	.image-box:hover, .image-box.selected {
+		border: 5px solid red;
+	}
+	
+	.image-meta {
+		background: rgba(0, 0, 0, 0.2) none repeat scroll 0 0;
+		bottom: 0;
+		color: #fff;
+		height: 25px;
+		line-height: 25px;
+		position: absolute;
+		text-align: center;
+		width: 80px;
+		overflow: hidden;
+	}
+	
+	.image-title {
+		margin-top: 5px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	
+	.attachment-selected {
+		border: 2px solid #07d;
+		box-sizing: border-box;
+		height: 100%;
+		left: 0;
+		position: absolute;
+		top: 0;
+		width: 100%;
+	}
+</style>

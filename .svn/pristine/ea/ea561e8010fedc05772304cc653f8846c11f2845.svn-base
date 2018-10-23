@@ -1,0 +1,50 @@
+<template>
+	<div>
+		微信授权成功跳转的页面
+		<h1>{{second}}</h1>
+		<span @click.stop='close'>关闭</span>
+	</div>
+</template>
+<script type="text/javascript">
+export default{
+	data(){
+		return{
+			second:5
+		}
+	},
+	methods:{
+		close(){
+			// var userAgent = navigator.userAgent;
+
+			// if (userAgent.indexOf("Firefox") != -1 || userAgent.indexOf("Chrome") !=-1) {
+
+			//    window.location.href="about:blank";
+
+			// } else {
+
+			//    window.opener = null;
+
+			//    window.open("", "_self");
+
+			//    window.close();
+
+			// }
+		},
+        fn(){
+          this.second--;
+          if(this.second>0){
+            setTimeout(this.fn,1000); 
+          }
+          if(this.second==0){
+          	this.close()
+          }
+        }
+	},
+	mounted(){
+		this.fn()
+	}
+}
+</script>
+<style type="text/css" scoped>
+
+</style>

@@ -1,0 +1,246 @@
+<template>
+	<div>
+		<div class="selectImg" :style="{'width': width + 'px' ,'height': height + 'px'}" @click.stop="openDlg">
+			<img :src="imgsrc"  :width="width" :height="height" />
+		</div>
+		<Modal v-model="modal" :mask-closable="false"  :styles="{'z-index':'9999'}" v-on:on-ok="selectOK" v-on:on-cancel="selectCancel">
+			<div class="search-bar" >
+				<p style="float:left">
+					<Input v-model="imgname" placeholder="请输入文件名.." style="width: 200px"></Input>
+					<Button type="primary" icon="ios-search" @click.stop="seachImg" >搜索</Button>
+				</p>
+				<p style="float:right">
+					<Upload :action="axios.defaults.baseURL+'/attach/upimg'" :show-upload-list="false" :data = "updata" :before-upload="beforeUpload" :on-success="onSuccess">
+						<Button type="ghost" icon="ios-cloud-upload-outline">上传文件</Button>
+					</Upload>
+				</p>
+			</div>
+			<div class="pic-list">
+				<ul class="image-list">
+					<li class="image-item js-image-item" v-for="(item,i) in imgs" :key="item.murl">
+						<div class="image-box" :class="{'selected':item.select}">
+							<img :src="item.murl" @click.stop="select(i,item)" width="80px" />
+						</div>
+						<div class="image-meta">{{item.name}}</div>
+					</li>
+				</ul>
+			</div>
+			<div class="page-bar">
+				<p>
+					<Page :total="total" :current="current"  :page-size="size"  v-on:on-change="changePage"></Page>
+				</p>
+			</div>
+		</Modal>
+	</div>
+
+</template>
+
+<script>
+	export default {
+		name: 'img-select',
+		props: {
+			bid: {
+				type: String,
+				required: true
+			},
+			imgsrc: {
+				type: String,
+				default: ""
+			},
+			gid: {
+				type: String,
+				default: ""
+			},
+			size: {
+				type: Number,
+				default: 15
+			},
+			width: {
+				type: Number,
+				default: 80
+			},
+			height: {
+				type: Number,
+				default: 80
+			},
+			type: {
+				type: Number,
+				default: 1
+			}
+		},
+		data() {
+			return {
+				current: 1,
+				modal: false,
+				total: 0,
+				selectImg: [],
+				imgs: [],
+				imgname: '',
+				updata: {
+					bid: '',
+					type: ''
+				}
+			}
+		},
+		methods: {
+			changePage: function(values) {
+				this.current = values;
+				this.seach();
+			},
+			beforeUpload: function(file) {
+				this.updata.bid = this.bid;
+				this.updata.type = '1';
+			},
+			onSuccess: function() {
+				this.imgname = '';
+				this.current = 0;
+				this.seach();
+			},
+
+			seach: function() {
+				let pp = {
+					bid: this.bid,
+					gid: this.gid,
+					imgname: this.imgname,
+					size: this.size,
+					page: this.current
+				};
+
+				this.axios.post("/attach/searchImg", pp)
+					.then(response => {
+						this.imgs = response.data.data.list;
+						this.current = response.data.data.pageNum;
+						this.total = response.data.data.total;
+						this.selectImg = [];
+					});
+			},
+			seachImg: function() {
+				this.current = 1;
+				this.seach();
+			},
+
+			select: function(ind, o) {
+				for(var i = 0; i < this.imgs.length; i++) {
+					if(ind == i) {
+						this.imgs[i].select = true;
+					} else {
+						this.imgs[i].name = this.imgs[i].name+" ";
+						this.imgs[i].select = false;
+					}
+				}
+				this.selectImg[0] = o;
+				this.$emit('select', o);
+			},
+			selectOK:function(){
+				this.imgsrc = this.selectImg[0].murl;
+				this.$emit('select', this.selectImg);
+				this.$emit('dlgclose', '');
+			},
+			selectCancel:function(){
+				this.$emit('dlgclose', '');
+			},
+			openDlg:function(){
+				this.modal = true;
+				this.$emit('dlgopen', '');
+			}
+		},
+		computed: {
+
+		},
+
+		beforeMount: function() {
+			this.seach();
+		},
+		components: {}
+	}
+</script>
+<style scoped>
+
+	.selectImg {
+		border: 1px dashed #0099FC;
+		overflow: hidden;
+	}
+
+	.search-bar {
+		width: 100%;
+		height: 50px;
+	}
+
+	.search-bar p {
+		line-height: 50px;
+		margin: 0 20px;
+	}
+
+	.page-bar {
+		width: 100%;
+		height: 50px;
+		clear: both;
+	}
+
+	.pic-list {
+		clear: both;
+		width: 100%;
+		position:relative;
+	}
+
+	.image-list {
+		width: 100%;
+	}
+
+	.image-item {
+		cursor: pointer;
+		float: left;
+		height: 80px;
+		margin-bottom: 20px;
+		margin-left: 15px;
+		position: relative;
+		width: 80px;
+	}
+
+	.selected {
+		border: 5px solid red;
+	}
+
+	.image-box {
+		background: #ccc none repeat scroll 50% 50% / cover;
+		height: 80px;
+		width: 80px;
+		overflow: hidden;
+	}
+
+    .image-box .selected {
+		border: 5px solid red;
+	}
+
+	.image-box:hover, .image-box.selected {
+		border: 5px solid red;
+	}
+
+	.image-meta {
+		background: rgba(0, 0, 0, 0.2) none repeat scroll 0 0;
+		bottom: 0;
+		color: #fff;
+		height: 25px;
+		line-height: 25px;
+		position: absolute;
+		text-align: center;
+		width: 80px;
+	}
+
+	.image-title {
+		margin-top: 5px;
+		overflow: hidden;
+		white-space: nowrap;
+
+	}
+
+	.attachment-selected {
+		border: 2px solid #07d;
+		box-sizing: border-box;
+		height: 100%;
+		left: 0;
+		position: absolute;
+		top: 0;
+		width: 100%;
+	}
+</style>

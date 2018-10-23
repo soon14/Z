@@ -1,0 +1,20 @@
+
+
+
+
+export	const API_URL = "http://dev.zsydian.com/pss/" ;
+
+export	const CHECKAUTH = true;//登录权限
+export const LOGIN =  'loginIn';
+export const LOGOUT = 'logout';
+export const TITLE =  'title';
+export const USER =  'USER';
+export const ACTIVITYID = 'activityid';
+export const STEP = 'step';
+export const INITWID =  'initwid';
+export const ADDWID =  'addwid';
+export const RMWID =  'rmwid';
+export const UPWID=  'upwid';
+export const UPPAGE=  'uppage';
+export const BREADCRUMB1=  'breadcrumb1';
+export const BREADCRUMB2=  'breadcrumb2';

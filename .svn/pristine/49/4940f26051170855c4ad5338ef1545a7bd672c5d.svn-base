@@ -1,0 +1,115 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "bounty",
+        "scope": null,
+        "escapedName": "bounty",
+        "name": "bounty",
+        "rawSpec": "",
+        "spec": "latest",
+        "type": "tag"
+      },
+      "C:\\Users\\cxy\\Desktop\\zsyd"
+    ]
+  ],
+  "_from": "bounty@latest",
+  "_id": "bounty@1.2.1",
+  "_inCache": true,
+  "_location": "/bounty",
+  "_nodeVersion": "8.11.2",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/bounty_1.2.1_1531128411997_0.557472263183693"
+  },
+  "_npmUser": {
+    "name": "coderitual",
+    "email": "skowronkow@gmail.com"
+  },
+  "_npmVersion": "6.1.0",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "bounty",
+    "scope": null,
+    "escapedName": "bounty",
+    "name": "bounty",
+    "rawSpec": "",
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/bounty/-/bounty-1.2.1.tgz",
+  "_shasum": "b121e2cf12245f779b5b1e6833220b9e95d7117d",
+  "_shrinkwrap": null,
+  "_spec": "bounty",
+  "_where": "C:\\Users\\cxy\\Desktop\\zsyd",
+  "author": {
+    "name": "Michal Skowronek",
+    "email": "skowronkow@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/coderitual/bounty/issues"
+  },
+  "dependencies": {},
+  "description": "SVG library for transitioning numbers with motion blur",
+  "devDependencies": {
+    "babel-core": "^6.13.2",
+    "babel-loader": "^6.2.4",
+    "babel-preset-es2015": "^6.13.2",
+    "babel-preset-stage-0": "^6.5.0",
+    "eslint": "^3.2.2",
+    "eslint-config-airbnb": "^10.0.0",
+    "eslint-plugin-import": "^1.12.0",
+    "eslint-plugin-jsx-a11y": "^2.0.1",
+    "eslint-plugin-react": "^6.0.0",
+    "webpack": "^1.13.1",
+    "webpack-dev-server": "^1.14.1"
+  },
+  "directories": {},
+  "dist": {
+    "integrity": "sha512-nWR5bvelNpcfANyY39H8oSx6sNfdD52T07V65Y+DvcXhBNlcztKlGEAUQjUYkUqc4f4I19rnABboAClJ/gYyuw==",
+    "shasum": "b121e2cf12245f779b5b1e6833220b9e95d7117d",
+    "tarball": "https://registry.npmjs.org/bounty/-/bounty-1.2.1.tgz",
+    "fileCount": 4,
+    "unpackedSize": 12059,
+    "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJbQypcCRA9TVsSAnZWagAAxaQP/1VnmgoINFpJ9MQaFvqP\nIC7OUPLPwHXzYI233qj6tB97OPb+HASJVYsDX9/KEuOI498J3Db9qo4eSWhq\nEbELnhpWizvO+rdylQ1bZXQQUrm08Y/O5ATISgTgWNsb33uxYIoikHfpiTk4\n6Bd+aVuCbt8lHIE7CieOEJTM3407atxYMdeuO4fYW/pryXfqBGpfcrOoJb+R\n7ue1MzwlC1C6sV85M0VXBAm20v1pLHhJjLRfTPzYwL9YMJdN9lfhHUe+WeYT\nnDTicnaRrmrpsbeVcGUooJK2wze/ugkj8qv3abnhKCzrsSL6Aao91+loyu7j\nLa/A0cvJU8HpQwRiIIcxzVpBkrlTMtQHajMPcOxACq7sRvqsjIEjg0zxwSDY\nXe8KXs7+xxq2lWLSvcVup8llErotLDg69QQYZQKiEBffyiiZ74QrMthEkY5F\nqxjw2smDEuxlaW0ENjNUvTdQlQDmta7yfIcL2oKcgVuimXM54oVfko09pX0o\nRLdaY7VRxDezNiwOlwBKEJvFUyFB+0Gzcie8+Va1Gj5fqcyLqEtxxpqKK68V\nWo+s/6wS38fM47n5xSBuczDS5aqeyQU1qIjczGBPPREHfr20tfihg02lpYBc\nMzWHto9BcclbGGcgwO8rf3paWde6ZUmzHzruMLf43DQ8zv/r2wZYSku4z+co\nCYPA\r\n=2K1g\r\n-----END PGP SIGNATURE-----\r\n"
+  },
+  "files": [
+    "lib/*.js"
+  ],
+  "gitHead": "44a3735a945b22b1ae307833a58247789a1790d4",
+  "homepage": "https://github.com/coderitual/bounty#readme",
+  "keywords": [
+    "svg",
+    "odometer",
+    "effect",
+    "animation",
+    "ui",
+    "library",
+    "webcomponents"
+  ],
+  "license": "MIT",
+  "main": "lib/bounty.js",
+  "maintainers": [
+    {
+      "name": "coderitual",
+      "email": "skowronkow@gmail.com"
+    }
+  ],
+  "name": "bounty",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coderitual/bounty.git"
+  },
+  "scripts": {
+    "build": "webpack -p",
+    "start": "webpack-dev-server --progress --colors --inline --host 0.0.0.0",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.2.1"
+}

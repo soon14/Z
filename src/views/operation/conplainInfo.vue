@@ -1,0 +1,496 @@
+<template>
+	<div class='addCrm'>
+	<!--固定导航-->
+		<div class="head">
+			<Col span='6'>
+				<div class="left-top">
+					<p class="wldw">
+						<span style="width:42px;font-weight:900">投诉</span>
+						<!--  <Select style="width:100px" size="small" placeholder="全部"  @on-change="orderselected">
+					        <Option v-for="item in orderListname" :value="item.value" :key="item.value">{{ item.label }}</Option>
+					    </Select> -->
+					</p>
+					<div>
+						
+					</div>
+				</div>
+			</Col>
+			<Col span='18'>
+				<div class="right-top">
+					<span style='margin-left:20px'>投诉详情</span>
+				</div>
+			</Col>
+		</div>
+		<!--左侧列表-->
+		<div class="left-content">
+			<p v-if="dataList.length==0">
+				<Spin fix>
+	                
+	                <div>暂无数据</div>
+	            </Spin>
+		    </p>
+			<Scroll :on-reach-bottom="handleReachEdge" :height="height" v-else>
+				<div class="con-list" v-for="(item,index) in dataList" @click="getcginfo(item.id,index)" :class="{bg:numIndex==index}">
+					  <span class='left-img'>
+					 	 <img :src="item.pics" width='60' height='60'>
+					 </span> 
+
+					 <div>
+					<p class="list-title">{{item.submitter}}</p>
+					<p class="txt" style="margin-top:20px;">
+						{{item.name}}
+					</p>
+					
+					<span class="date">{{item.createTime}}</span>
+					
+					</div>
+				</div>
+				
+			</Scroll>
+		</div>
+		<!--右侧-->
+		<div class="add-right" >
+			<div class='right-left' >
+				<div v-if='istx'>暂无数据</div>
+				 <div style='display:flex;width:100%' v-else>
+				 	<img :src="obj.pics">
+				 	<div style='margin-left:20px'>
+				 		<p style='margin-bottom:10px;margin-top:10px'>
+				 			<span style='color:#2B8F8F;;display:inline-block'>投诉名称：</span>
+				 			<span >{{obj.name}}</span>
+				 		</p>
+				 		<p style='margin-bottom:10px;margin-top:10px'>
+				 			<span style='color:#2B8F8F;;display:inline-block'>投诉人：</span>
+				 			<span>{{obj.submitter}}</span>
+				 		</p>
+				 		<p style='margin-bottom:10px;margin-top:10px'>
+				 			<span style='color:#2B8F8F;;display:inline-block'>投诉人手机：</span>
+				 			<span>{{obj.submitterTel}}</span>
+				 		</p>
+				 		<p style='margin-bottom:10px;margin-top:10px'>
+				 			<span style='color:#2B8F8F;;display:inline-block'>投诉时间：</span>
+				 			<span>{{obj.createTime}}</span>
+				 		</p>
+				 		<p style='margin-bottom:10px;margin-top:10px'>
+				 			<span style='color:#2B8F8F;;display:inline-block'>投诉内容：</span>
+				 			<span>{{obj.remark}}</span>
+				 		</p>
+				 		
+				 	</div>
+
+				 	
+				 </div>
+				 <div>
+
+				 </div>
+			</div>
+		</div>
+		<div class='totBottom'>
+        <span>共<span style='color:#ff0000'> {{totalcl}} </span>条</span>
+        <span>当前第<span style='color:#ff0000'> {{current}} </span>页</span>
+     </div>
+	</div>
+</template>
+<script type="text/javascript">
+
+	export default{
+		data(){
+			return{
+				totalcl:0,
+				pageSizecl:0,
+				istx:false,
+				uid: this.$store.state.common.token,
+				indexId:'',
+				numIndex:0,
+				dataList:[],
+				height:'',
+				current:1,
+				obj:{},
+			}
+		},
+		methods:{
+			getdataList(){
+				this.axios.get('complain/query?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.dataList=res.data.rows
+						this.totalcl=res.data.total
+						this.pageSizecl=res.data.pageSize
+						if(this.dataList.length==0){
+							this.istx=true
+						}else{
+							// this.getcginfo(this.dataList[0].id,0)
+							this.dataList.forEach((x,index)=>{
+								x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+							})
+						}
+					}
+				})
+			},
+			//单击左侧列表
+			getcginfo(id,index){
+				this.indexId=id
+				this.numIndex = index
+				this.getCrmDetail(id)
+			},
+			//获取会员详情complain/get/2
+			getCrmDetail(id){
+				this.axios.get('complain/get/'+id+'?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.obj=res.data.rows
+						this.obj.createTime=new Date(this.obj.createTime).toLocaleString().replace(/\//g,'-')
+					}
+				})
+			},
+			
+			//下拉加载更多
+            handleReachEdge(){
+				this.current++//默认10条
+    	 		this.axios.get('complain/query?offset='+this.current+'&uid='+this.uid).then((res)=>{
+	 				if(this.current>Math.ceil(this.totalcl/this.pageSizecl)){
+                            this.current=Math.ceil(this.totalcl/this.pageSizecl)
+                        }
+			 		res.data.rows.forEach((item)=>{
+			 			
+			 			this.dataList.push(item)
+			 			this.dataList.forEach((x,index)=>{
+			 				
+							x.createTime=new Date(x.createTime).toLocaleString().replace(/\//g,'-')
+						})
+			 		})
+
+			 	})
+	                  
+            },
+		},
+		mounted(){
+
+			if(this.$route.query.id){
+				this.indexId = this.$route.query.id
+				this.numIndex = this.$route.query.index
+				this.getcginfo(this.indexId,this.numIndex)
+				this.getCrmDetail(this.indexId)
+			}
+			this.getdataList()
+			this.height = document.documentElement.clientHeight
+		
+			window.onresize=function(){
+				this.height = document.documentElement.clientHeight
+			}
+		}
+	}
+</script>
+<style type="text/css" scoped>
+.addCrm{
+	width:100%;
+	height:100%
+}
+.head{
+	height:60px;
+	background: #fff;
+	
+}
+.tot{
+    position:fixed;
+    bottom:10px;
+    left:15%;
+    z-index:12;
+}
+.left-top{
+	height: 60px;
+	width:25%;
+	line-height: 60px;
+	position:fixed;
+	z-index:9;
+	display:flex;
+	background: #fff;
+	padding-right:10px;
+	border-bottom:1px solid #eee;
+	border-right:1px solid #eee;
+	justify-content: space-between;
+}
+.right-top{
+	height: 60px;
+
+	border-bottom:1px solid #eee;
+	line-height: 60px;
+	position:fixed;
+	z-index:10;
+	display:flex;
+	width:70%;
+	margin-left:25%;
+	background: #fff;
+	justify-content: space-between;
+
+}
+.colorGender1{
+	color:#40ca98;
+}
+.colorGender0{
+	color:#d53c39;
+}
+.wldw{
+	margin-left:10px;
+}
+.left-img{
+    margin-right: 10px;
+width: 60px;
+height: 60px;
+border-radius: 50%;
+overflow: hidden;
+/* margin-bottom: -8px; */
+display: block;
+
+line-height: 80px;
+text-align: center;
+}
+.top-left-btn{
+background: #3B77E3;
+margin-right: 10px;
+color: #fff;
+border: none;
+width: 26px;
+height: 26px;
+border-radius: 26px;
+display: inline-block;
+position: relative;
+top: 12px;
+}
+.top-left-btn1{
+background: #FF7D16;
+}
+.top-left-btn:hover{
+cursor:pointer;
+}
+.left-content {
+	height:100%;
+	width:25%;
+	
+	margin-bottom:300px;
+	
+	border-right:1px solid #E6E6E6;
+	position:fixed;
+	background:#F9F9F9;
+}
+.con-list {
+	display:flex;
+	align-items: center;
+	width: 100%;
+	word-wrap:break-word;
+	
+	border-bottom: solid 1px #E6E6E6;
+	padding: 15px 25px;
+	
+	cursor: pointer;
+	position:relative;
+}
+.con-list:hover{
+	cursor:pointer;
+}
+.con-list .date{
+	position:absolute;
+	right:10px;
+	top:20px;
+}
+.con-list .status{
+	width:100px;
+	
+	text-align: center;
+	position: absolute;
+    right: 0px;
+    top: 47px;
+}
+.con-list .list-title {
+	color: #0d0d0d;
+	font-size: 14px;
+	margin-bottom: 10px;
+}
+  .lanren {
+    position: absolute;
+    text-align: center;
+    top: 60px;
+    right: 15px;
+    width: 0;
+    height: 0;
+    border-top: 80px solid #d53c39;
+    border-left: 80px solid transparent;
+}
+.lanren span{
+    width: 60px;
+    height: 60px;
+    color: #fff;
+    display: block;
+    position: relative;
+    z-index: 9999999999999;
+    top: -70px;
+    right: 70px;
+    font-size: 16px;
+    font-weight: 900;
+    transform: rotate(46deg);
+}
+.bgd1{
+	  border-top: 80px solid #40ca98;
+}
+.bgd2{
+	  border-top: 80px solid #d53c39;
+}
+.con-list .txt {
+	width:225px;
+	overflow: hidden;
+text-overflow:ellipsis;
+white-space: nowrap;
+	color: #585858;
+	font-size: 12px;
+}
+.bg{
+	background: #dbe5f1;
+}
+
+.add-right {
+	width: 100%;
+	background: #fff;
+	height:100%;
+	width:70%;
+	margin-left:30%;
+	padding-right:20px;
+	padding-top:10px;
+	display:flex;
+}
+.list-box{
+	display: flex;
+	height:35px;
+	line-height: 35px;
+	margin:25px 10px;
+}
+.list-box1{
+		margin:4px 10px;
+}
+.list-box span{
+	height:40px;
+	width:120px;
+	text-align: center;
+	padding:0 10px;
+	font-weight:600;
+}
+.list-box input.ivu-input{
+	height:40px!important;
+}
+.list-box1{
+	margin-left:20px;
+}
+.list-box1 span{
+	width:auto;
+	text-align: left
+}
+.right-left{
+
+    margin-top: 10px;
+	
+}
+.right-right{
+	width:100%;
+}
+.avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
+   .title{
+    	display:flex;justify-content: space-between;margin-top:20px
+    }
+    .title:hover{
+    	cursor:pointer;
+    }
+	.right-content{
+		width: 100%;
+		height:100%;
+		/*	margin-bottom:100px;*/
+	}
+    .cgtable{
+		width:100%;
+		margin-top:20px;
+		text-align: center
+	}
+	.cgtable th{
+		width:200px;
+		text-align: center;
+		color:#2B8F8F;
+	}
+	.cgtable td{
+		text-align: center
+	}
+	.detail-bottom{
+		margin-bottom: 120px
+	}
+	.detail-title-mark{
+		display:flex;
+		justify-content: flex-start;
+		border-bottom:1px solid #eee;
+		margin-top:1px;
+		margin-left: 10px;
+	}
+	.detail-title{
+		padding:10px 40px;
+
+	}
+	.table{
+
+	}
+	.page-box{
+		margin-top:4px;
+	}
+	.detail-public{
+		width:100%;
+		margin:10px;
+	}
+	.bor{
+		border-bottom:2px solid #086CA2;
+	}
+	.addressDetail{
+		display: inline-block;
+		
+		height: 34px;
+		margin-left:28px;
+		text-indent: 10px;
+		color: #555;
+		background-color: #fff;
+		background-image: none;
+		border: 1px solid #eee;
+		
+		-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+		box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+		-webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+		-o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+		transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+	}
+</style>
+<style type="text/css">
+ .demo-spin-icon-load{
+        animation: ani-demo-spin 1s linear infinite;
+    }
+ @keyframes ani-demo-spin {
+    from { transform: rotate(0deg);}
+    50%  { transform: rotate(180deg);}
+    to   { transform: rotate(360deg);}
+}
+.el-upload--text{
+	width:100%!important;
+}
+</style>

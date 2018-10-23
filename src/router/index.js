@@ -1,0 +1,1208 @@
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import store from '@/store/index'
+import * as types from '@/store/types'
+import NProgress from 'nprogress' //页面顶部进度条
+import 'nprogress/nprogress.css'
+const trueName="-智胜云"
+NProgress.configure({
+	showSpinner: true
+});
+Vue.use(VueRouter)
+const routes = [
+		{
+			path: '/',
+			name: 'index',
+			component:resolve => require(['../views/loginIn.vue'], resolve),
+			meta: {title:"智胜云-助力零售数智化转型" },
+		},
+		{
+			path: '/loginIn',
+			name: 'loginIn',
+			component:resolve => require(['../views/loginIn.vue'], resolve),
+			meta: {title:"智胜云-助力零售数智化转型" },
+		},
+		{
+			path: '/lock',
+			name: 'lock',
+			component:resolve => require(['../views/lock.vue'], resolve),
+			meta: { requireAuth:types.CHECKAUTH,title:"智胜云-助力零售数智化转型" },
+		},
+		{
+			path: '/industry',
+			name: 'industry',
+			component:resolve => require(['../views/industry.vue'], resolve),
+			meta: { requireAuth:types.CHECKAUTH,title:"产品、行业选择" },
+		},
+		{
+			path: '/editIndustry',
+			name: 'editIndustry',
+			component:resolve => require(['../views/editIndustry.vue'], resolve),
+			meta: { requireAuth:types.CHECKAUTH,title:"产品、行业选择" },
+		},
+		//导览首页
+		{
+			path:'/navigationIndex',
+			name:'navigationIndex',
+			component:resolve => require(['../views/navigation/navigationIndex.vue'], resolve),
+			meta: { requireAuth: types.CHECKAUTH,title:"智胜云-助力零售数智化转型" }
+		},
+		//步骤主页
+		{
+			path:'/navigationHome',
+			name:'navigationHome',
+			component:resolve => require(['../views/navigation/navigationHome.vue'], resolve),
+			meta: { requireAuth: types.CHECKAUTH,title:"智胜云-助力零售数智化转型" },
+		},
+		{
+			path: '*',
+			name: 'p404',
+			component:resolve => require(['../views/p404.vue'], resolve)
+		},
+		{
+			path: '/p405',
+			name: 'p405',
+			component:resolve => require(['../views/p405.vue'], resolve)
+		},
+		
+		//概览
+		{
+			path:"/dashbordhome",
+			name:"dashbordhome",
+			component:resolve => require(['../views/dashbord.vue'], resolve),
+			meta: { requireAuth: types.CHECKAUTH },
+			children:[
+				//采购
+				{
+					path:"/dashbord",
+					name:"dashbord",
+					component:resolve => require(['../views/dashbord/dashbordhome.vue'], resolve),
+					meta: { requireAuth: types.CHECKAUTH,title:"智胜云-助力零售数智化转型" },
+				},
+				
+			]
+		},
+		//库存
+		{
+			path:"/skuHome",
+			name:"skuHome",
+			component:resolve => require(['../views/sku.vue'], resolve),
+			meta: { requireAuth: types.CHECKAUTH},
+			children:[
+				{
+					path:"/sku",
+					name:"sku",
+					component:resolve => require(['../views/ysgoods/sku.vue'], resolve),
+					meta: { requireAuth: types.CHECKAUTH,title:'库存'+trueName },
+				},
+				
+				//库存sku
+				{
+					path:"/skuinventory",
+					name:"skuinventory",
+					component:resolve => require(['../views/ysgoods/skuinventory.vue'], resolve),
+				},
+				
+				//新增库存
+				{
+					path:"/addskuInventory",
+					name:"addskuInventory",
+					component:resolve => require(['../views/ysgoods/addskuInventory.vue'], resolve),
+				},
+				
+				//调拨
+				{
+					path:"/investigate",
+					name:"investigate",
+					component:resolve => require(['../views/ysgoods/investigate/investigate.vue'], resolve),
+				},
+				{
+					path:"/addinvestigate",
+					name:"addinvestigate",
+					component:resolve => require(['../views/ysgoods/investigate/addinvestigate.vue'], resolve),
+				},
+				//库存调整
+				{
+					path:"/adjust",
+					name:"adjust",
+					component:resolve => require(['../views/ysgoods/adjust/adjust.vue'], resolve),
+				},
+				{
+					path:"/addadjust",
+					name:"addadjust",
+					component:resolve => require(['../views/ysgoods/adjust/addadjust.vue'], resolve),
+				},
+				//盘点channelInventory
+				{
+					path:"/pdhome",
+					name:"pdhome",
+					component:resolve => require(['../views/ysgoods/pd/pdhome.vue'], resolve),
+				},
+				//渠道库存
+				{
+					path:"/channelInventory",
+					name:"channelInventory",
+					component:resolve => require(['../views/ysgoods/channelInventory.vue'], resolve),
+				},
+				{
+					path:"/addskuInventoryChannel",
+					name:"addskuInventoryChannel",
+					component:resolve => require(['../views/ysgoods/addskuInventoryChannel.vue'], resolve),
+				},
+				//入库明细
+				{
+					path:"/Ininventoryhome",
+					name:"Ininventoryhome",
+					component:resolve => require(['../views/ysgoods/Ininventory/Ininventoryhome.vue'], resolve),
+				},
+				//出库明细
+				{
+					path:"/Outinventoryhome",
+					name:"Outinventoryhome",
+					component:resolve => require(['../views/ysgoods/Outinventory/Outinventoryhome.vue'], resolve),
+				},
+				{
+					path:"/InventorySetting",
+					name:"InventorySetting",
+					component:resolve => require(['../views/ysgoods/initInventorySetting/InventorySetting.vue'], resolve),
+				},
+			]
+		},
+		//管理
+		{
+			path: '/home',
+			name: 'home',
+			component:resolve => require(['../views/home.vue'], resolve),
+			meta: { requireAuth: types.CHECKAUTH },
+			children: [
+				{
+					path:'/enterprise',
+					name:'enterprise',
+					component:resolve => require(['../views/manage/manageHomePage/enterprise.vue'], resolve),
+					meta: { requireAuth: types.CHECKAUTH,title:'管理'+trueName },
+				},
+				{
+					path: '/storehouse',//仓库
+					name: 'storehouse',
+					component:resolve => require(['../views/manage/storehouse.vue'], resolve)
+				},
+				//管理下权限
+				{
+					path:'/power',
+					name:'power',
+					component:resolve => require(['../views/manage/power/power.vue'], resolve)
+				},
+				
+				//设置
+				// {
+				// 	path:'/setting',
+				// 	name:'setting',
+				// 	component:resolve => require(['../views/manage/setting/setting.vue'], resolve)
+				// },
+				{
+					path:'/settingDetails',
+					name:'settingDetails',
+					component:resolve => require(['../views/manage/setting/settingDetails.vue'], resolve)
+				},
+				//商品
+				{
+					path:'/goods',
+					name:'goods',
+					component:resolve => require(['../views/manage/goods/goods.vue'], resolve)
+				},
+				{
+					path:'/addgoods',
+					name:'addgoods',
+					component:resolve => require(['../views/manage/goods/addgoods.vue'], resolve)
+				},
+				{
+					path: '/addstore',
+					name: 'addstore',
+					// component: addstore,views/manage/addstore.vue
+					component:resolve => require(['../views/manage/addstore.vue'], resolve)
+				},
+				//安全下用户
+				
+				{
+					path: '/addEmployee',
+					name: 'addEmployee',
+					component:resolve => require(['../views/manage/employee/addEmployee.vue'], resolve),
+				},
+				//员工
+				{
+					path: '/ey',
+					name: 'ey',
+					component:resolve => require(['../views/manage/ey/ey.vue'], resolve),
+					
+				},
+				//新建员工
+				{
+					path: '/addEy',
+					name: 'addEy',
+					component:resolve => require(['../views/manage/ey/addEy.vue'], resolve),
+					
+				},
+				{
+					path:'/ShopHomePage',
+					component:resolve => require(['../views/manage/shop/ShopHomePage.vue'], resolve),
+				},
+				{
+					path:'/ShopAddPage',
+					name:"ShopAddPage",
+					component:resolve => require(['../views/manage/shop/ShopAddPage.vue'],resolve),
+				},
+				{
+					path:'/ShopAdd',
+					name:"ShopAdd",
+					component:resolve => require(['../views/manage/shop/ShopAdd.vue'],resolve),
+				},
+				{
+					path:'/materialHome',
+					name:"materialHome",
+					component:resolve => require(['../views/manage/material/materialHome.vue'],resolve),
+				},
+			]
+		},
+		//门店
+
+		{
+			path:"/storehome",
+			name:"storehome",
+			// component:storehome,views/store.vue
+			component:resolve => require(['../views/store.vue'], resolve),
+			meta: { requireAuth: types.CHECKAUTH },
+			children:[
+				//概览
+				{
+					path:"/storeHome",
+					name:"storeHome",
+					component:resolve => require(['../views/store/storeHome.vue'], resolve),
+					meta: { requireAuth: types.CHECKAUTH,title:'门店'+trueName },
+				},
+				//会员
+				{
+					path:"/storeCrm",
+					name:"storeCrm",
+					component:resolve => require(['../views/store/storeCrm/storecrm.vue'], resolve)
+				},
+				{
+					path:"/addStoreCrm",
+					name:"addStoreCrm",
+					component:resolve => require(['../views/store/storeCrm/addStoreCrm.vue'], resolve)
+				},
+				
+				//订单
+				{
+					path:"/storeorder",
+					name:"storeorder",
+					component:resolve => require(['../views/store/storeOrder/storeorder.vue'], resolve)
+				},
+				{
+					path:"/storeOrderDetails",
+					name:"storeOrderDetails",
+					component:resolve => require(['../views/store/storeOrder/storeOrderDetails.vue'], resolve)
+				},
+				{
+					path:"/interdetails",
+					name:"interdetails",
+					component:resolve => require(['../views/store/storeOrder/interdetails.vue'], resolve)
+				},
+				{
+					path:"/gddetails",
+					name:"gddetails",
+					component:resolve => require(['../views/store/storeOrder/gddetails.vue'], resolve)
+				},
+				//收银
+				{
+					path:"/storecashier",
+					name:"storecashier",
+					component:resolve => require(['../views/store/storeCashier/storecashier.vue'], resolve)
+				},
+				//进销存
+				{
+					path:"/storejxc",
+					name:"storejxc",
+					component:resolve => require(['../views/store/storeJxc/storejxc.vue'], resolve)
+				},
+				{
+					path:"/AllinventoryDetails",
+					name:"AllinventoryDetails",
+					component:resolve => require(['../views/store/storeJxc/AllinventoryDetails.vue'], resolve)
+				},
+				{
+					path:"/inventoryDetails",
+					name:"inventoryDetails",
+					component:resolve => require(['../views/store/storeJxc/inventoryDetails.vue'], resolve)
+				},
+				//运营storedata
+				{
+					path:"/storeoperation",
+					name:"storeoperation",
+					component:resolve => require(['../views/store/storeOperation/storeoperation.vue'], resolve)
+				},
+				//统计storedata
+				{
+					path:"/storedata",
+					name:"storedata",
+					component:resolve => require(['../views/store/storeData/storedata.vue'], resolve)
+				},
+				//管理storemanage
+				{
+					path:"/storemanage",
+					name:"storemanage",
+					component:resolve => require(['../views/store/storeManage/storemanage.vue'], resolve),
+					
+				},
+				//店铺二维码
+				{
+					path:"/storeCode",
+					name:"storeCode",
+					component:resolve => require(['../views/store/storeManage/storecode/storeCodeIndex.vue'], resolve),
+				},
+				//小程序二维码
+				{
+					path:"/storeX",
+					name:"storeX",
+					component:resolve => require(['../views/store/storeManage/storeXcx/storeX.vue'], resolve),
+				},
+				//员工二维码
+				{
+					path:"/storeEmployee",
+					name:"storeEmployee",
+					component:resolve => require(['../views/store/storeManage/storeEy/storeEmployee.vue'], resolve),
+				},
+				//打印机
+				{
+					path:"/device",
+					name:"device",
+					component:resolve => require(['../views/store/storeManage/device/deviceIndex.vue'], resolve),
+				},
+				//收银/订单小票
+				{
+					path:"/caseLabel",
+					name:"caseLabel",
+					component:resolve => require(['../views/store/storeManage/templeteSetting/caseLabel.vue'], resolve),
+				},
+				//商品标签
+				{
+					path:"/goodsLabel",
+					name:"goodsLabel",
+					component:resolve => require(['../views/store/storeManage/templeteSetting/goodsLabel.vue'], resolve),
+				},
+				//财务storeCodeIndex
+				{
+					path:"/storefinancial",
+					name:"storefinancial",
+					component:resolve => require(['../views/store/storeFinancial/storefinancial.vue'], resolve)
+				},
+				//美业
+				{
+					path:"/storesever",
+					name:"storesever",
+					component:resolve => require(['../views/store/storeSever/storesever.vue'], resolve)
+				},
+
+			]
+		},
+		//采购
+		{	
+			path:"/purchaseHome",
+			name:"purchaseHome",
+			component:resolve => require(['../views/purchase.vue'], resolve),
+			meta: { requireAuth: types.CHECKAUTH },
+			children:[
+				{
+					path:'/purchase',
+					name:'purchase',
+					component:resolve => require(['../views/yspurchase/purchase.vue'], resolve),
+					meta: { requireAuth: types.CHECKAUTH,title:'采购'+trueName },
+				},
+				{
+					path:'/purchasehome',
+					name:'purchasehome',
+					component:resolve => require(['../views/yspurchase/purchasehome.vue'], resolve),
+				},
+				
+				//新增
+				{
+					path:'/addcg',
+					name:'addcg',
+					component:resolve => require(['../views/yspurchase/addcg.vue'], resolve),
+				},
+				//发货
+				{
+					path:'/cgsend',
+					name:'cgsend',
+					component:resolve => require(['../views/yspurchase/cgsend.vue'], resolve),
+				},
+				//新增收货
+				{
+					path:'/addcgsend',
+					name:'asscgsend',
+					component:resolve => require(['../views/yspurchase/addcgsend.vue'], resolve),
+				},
+				
+				//采购预测
+				{
+					path:'/prepo',
+					name:'prepo',
+					component:resolve => require(['../views/yspurchase/prepo.vue'], resolve),
+				},
+				//新增采购预测
+				{
+					path:'/addprepo',
+					name:'addprepo',
+					component:resolve => require(['../views/yspurchase/addprepo.vue'], resolve),
+				},
+				//列表供应商
+				{
+					path:'/supplier',
+					name:'supplier',
+					component:resolve => require(['../views/yspurchase/supplier/supplier.vue'], resolve),
+				},
+				//新增供应商
+				{
+					path:'/addsupplier',
+					name:'addsupplier',
+					component:resolve => require(['../views/yspurchase/supplier/addsupplier.vue'], resolve),
+				},
+				
+				//设置
+				{
+					path:'/purchaseSetting',
+					name:'purchaseSetting',
+					component:resolve => require(['../views/yspurchase/purchaseSetting.vue'], resolve),
+				},
+			]
+		},
+		//销售
+		{
+			path:"/salesHome",
+			name:"salesHome",
+			component:resolve => require(['../views/sales.vue'], resolve),
+			meta: { requireAuth: types.CHECKAUTH },
+			children:[
+				{
+					path:"/sales",
+					name:"sales",
+					component:resolve => require(['../views/yssales/sales.vue'], resolve),
+					meta: { requireAuth: types.CHECKAUTH,title:'销售'+trueName },
+				},
+				{
+					path:"/salespage",
+					name:"salespage",
+					component:resolve => require(['../views/yssales/salespage.vue'], resolve),
+				},
+				{
+					path:"/addsales",
+					name:"addsales",
+					component:resolve => require(['../views/yssales/addsales.vue'], resolve),
+				},
+				//发货单
+				{
+					path:"/send",
+					name:"send",
+					component:resolve => require(['../views/yssales/send.vue'], resolve),
+				},
+				//新增发货单
+				{
+					path:"/addsend",
+					name:"addsend",
+					component:resolve => require(['../views/yssales/addsend.vue'], resolve),
+				},
+				{
+					path:"/return",
+					name:"return",
+					component:resolve => require(['../views/yssales/return.vue'], resolve),
+				},
+				//客户
+				{
+					path:"/customer",
+					name:"customer",
+					component:resolve => require(['../views/yssales/customerAndQuotation/customer.vue'], resolve),
+				},
+				
+				//新增客户
+				{
+					path:"/customeradd",
+					name:"customeradd",
+					component:resolve => require(['../views/yssales/customerAndQuotation/customeradd.vue'], resolve),
+				},
+				//报价单
+				{
+					path:"/quotation",
+					name:"quotation",
+					component:resolve => require(['../views/yssales/customerAndQuotation/quotation.vue'], resolve),
+				},
+				{
+					path:"/quotationadd",
+					name:"quotationadd",
+					component:resolve => require(['../views/yssales/customerAndQuotation/quotationadd.vue'], resolve),
+				},
+				//设置
+				{
+					path:"/salesSetting",
+					name:"salesSetting",
+					component:resolve => require(['../views/yssales/salesSetting.vue'], resolve),
+				},
+				
+			]
+		},
+
+		//订单
+		{
+			path:"/orderhome",
+			name:"orderhome",
+			component:resolve => require(['../views/orderhome.vue'], resolve),
+			meta: { requireAuth: types.CHECKAUTH },
+			children:[
+				{
+					path:"/orderHome",
+					name:"orderHome",
+					component:resolve => require(['../views/order/orderHome.vue'], resolve),
+					meta: { requireAuth: types.CHECKAUTH,title:'订单'+trueName },
+				},
+				//线下订单
+				{
+					path:"/order",
+					name:"order",
+					component:resolve => require(['../views/order/order.vue'], resolve),
+				},
+				// {
+				// 	path:"/addorder",
+				// 	name:"addorder",
+				// 	component:resolve => require(['../views/order/addorder.vue'], resolve),
+				// },
+				{
+					path:"/orderDetails",
+					name:"orderDetails",
+					component:resolve => require(['../views/order/orderDetails.vue'], resolve),
+				},
+				//线上订单
+				{
+					path:"/networdOrder",
+					name:"networdOrder",
+					component:resolve => require(['../views/order/networdOrder/networdOrder.vue'], resolve),
+				},
+				{
+					path:"/networdDetails",
+					name:"networdDetails",
+					component:resolve => require(['../views/order/networdOrder/networdDetails.vue'], resolve),
+				},
+				//跨店订单
+				{
+					path:"/kdOrder",
+					name:"kdOrder",
+					component:resolve => require(['../views/order/kdOrder/kdOrder.vue'], resolve),
+				},
+				{
+					path:"/kdOrderDetails",
+					name:"kdOrderDetails",
+					component:resolve => require(['../views/order/kdOrder/kdOrderDetails.vue'], resolve),
+				},
+				//退货returnInfo
+				{
+					path:"/returnorder",
+					name:"returnorder",
+					component:resolve => require(['../views/order/returnOrder/returnorder.vue'], resolve),
+				},
+				//退单详情
+				{
+					path:"/returnInfo",
+					name:"returnInfo",
+					component:resolve => require(['../views/order/returnOrder/returnInfo.vue'], resolve),
+				},
+				//物流配置
+				{
+					path:"/logtSetting",
+					name:"logtSetting",
+					component:resolve => require(['../views/order/logtSetting.vue'], resolve),
+				}
+
+			]
+		},
+
+		//财务
+		{
+			path:"/financehome",
+			name:"financehome",
+			component:resolve => require(['../views/financehome.vue'], resolve),
+			meta: { requireAuth: types.CHECKAUTH },
+			children:[
+				{
+					path:"/financeHome",
+					name:"financeHome",
+					component:resolve => require(['../views/finance/financeHome.vue'], resolve),
+					meta: { requireAuth: types.CHECKAUTH,title:'财务'+trueName },
+				},
+				// {
+				// 	path:"/PresentRecord",
+				// 	name:"PresentRecord",
+				// 	component:resolve => require(['../views/finance/PresentRecord.vue'], resolve),
+				// },
+				
+				//付款单
+				{
+					path:"/payment",
+					name:"payment",
+					component:resolve => require(['../views/finance/payment.vue'], resolve),
+				},
+				{
+					path:"/addpayment",
+					name:"addpayment",
+					component:resolve => require(['../views/finance/addpayment.vue'], resolve),
+				},
+				//应收账款
+				{
+					path:"/receivable",
+					name:"receivable",
+					component:resolve => require(['../views/finance/receivable.vue'], resolve),
+				},
+				{
+					path:"/addreceivable",
+					name:"addreceivable",
+					component:resolve => require(['../views/finance/addreceivable.vue'], resolve),
+				},
+				
+				//可提现清单
+				{
+					path:"/withdraw",
+					name:"withdraw",
+					component:resolve => require(['../views/finance/withdraw.vue'], resolve),
+				},
+				{
+					path:"/receivablea",
+					name:"receivablea",
+					component:resolve => require(['../views/finance/receivablea.vue'], resolve),
+				},
+				{
+					path:"/addreceivablea",
+					name:"addreceivablea",
+					component:resolve => require(['../views/finance/addreceivablea.vue'], resolve),
+				},
+				//收款单
+				{
+					path:"/receipts",
+					name:"receipts",
+					component:resolve => require(['../views/finance/receipts.vue'], resolve),
+				},
+				{
+					path:"/addreceipts",
+					name:"addreceipts",
+					component:resolve => require(['../views/finance/addreceipts.vue'], resolve),
+				},
+				//交易流水
+				// {
+				// 	path:"/porder",
+				// 	name:"porder",
+				// 	component:resolve => require(['../views/finance/porder.vue'], resolve),
+				// },
+				//设置
+				{
+					path:"/financeSetting",
+					name:"financeSetting",
+					component:resolve => require(['../views/finance/financeSetting.vue'], resolve),
+				},
+			]
+		},
+		//消息
+		{
+			path:"/message",
+			name:"message",
+			component:resolve => require(['../views/message.vue'], resolve),
+			meta: { requireAuth: types.CHECKAUTH },
+			children:[
+				{
+					path:'/msgHome',
+					name:'msgHome',
+					component:resolve => require(['../views/message/msgHome.vue'], resolve),
+					meta: { requireAuth: types.CHECKAUTH,title:'消息中心'+trueName },
+				},
+			//全部消息
+				{
+					path:'/allmsg',
+					name:'allmsg',
+					component:resolve => require(['../views/message/allmsg.vue'], resolve),
+				},
+				//订单消息
+				{
+					path:'/ordermsg',
+					name:'ordermsg',
+					component:resolve => require(['../views/message/ordermsg.vue'], resolve),
+				},
+				//库存消息
+				{
+					path:'/kcmsg',
+					name:'kcmsg',
+					component:resolve => require(['../views/message/kcmsg.vue'], resolve),
+				},
+				//服务消息
+				{
+					path:'/servermsg',
+					name:'servermsg',
+					component:resolve => require(['../views/message/servermsg.vue'], resolve),
+				},
+				//个人中心
+				//修改资料
+				{
+					path:'/personalHome',
+					name:'personalHome',
+					component:resolve => require(['../views/message/personalHome.vue'], resolve),
+				},
+				//设置
+				{
+					path:'/safesetting',
+					name:'safesetting',
+					component:resolve => require(['../views/message/safesetting.vue'], resolve),
+				},
+				//修改资料
+				{
+					path:'/editInfo',
+					name:'editInfo',
+					component:resolve => require(['../views/message/editInfo.vue'], resolve),
+				},
+			]
+		},
+		//数据
+		{
+			path:"/datahome",
+			name:"datahome",
+			component:resolve => require(['../views/datahome.vue'], resolve),
+			meta: { requireAuth: types.CHECKAUTH },
+			children:[
+				//采购
+				{
+					path:"/dataHome",
+					name:"dataHome",
+					component:resolve => require(['../views/data/cgReport.vue'], resolve),
+					meta: { requireAuth: types.CHECKAUTH,title:'数据'+trueName },
+				},
+				{
+					path:"/salesreport",
+					name:"salesreport",
+					component:resolve => require(['../views/data/salesreport.vue'], resolve),
+				},
+				//财务
+				{
+					path:"/datacw",
+					name:"datacw",
+					component:resolve => require(['../views/data/datacw.vue'], resolve),
+				},
+				//零售
+				{
+					path:"/dataretail",
+					name:"dataretail",
+					component:resolve => require(['../views/data/dataretail.vue'], resolve),
+				},
+				//商品报表
+				{
+					path:"/datasku",
+					name:"datasku",
+					component:resolve => require(['../views/data/sku/datasku.vue'], resolve),
+				},
+				//会员报表
+				{
+					path:"/crmreport",
+					name:"crmreport",
+					component:resolve => require(['../views/data/crm/crmreport.vue'], resolve),
+				},
+				//店铺报表
+				{
+					path:"/storeReport",
+					name:"storeReport",
+					component:resolve => require(['../views/data/storeReport.vue'], resolve),
+				},
+				//员工报表datacw
+				{
+					path:"/ygreport",
+					name:"ygreport",
+					component:resolve => require(['../views/data/ygreport.vue'], resolve),
+				},
+				{
+					path:"/dataInv",
+					name:"dataInv",
+					component:resolve => require(['../views/data/dataInv.vue'], resolve),
+				},
+			]
+		},
+
+	//会员入口
+		{
+			path:'/member_entrance',
+			name:'member_entrance',
+			component:resolve => require(['../views/member_entrance.vue'], resolve),
+			meta: { requireAuth: types.CHECKAUTH },
+			children:[
+				{
+					path:'/memberHome',
+					name:'memberHome',
+					component:resolve => require(['../views/member/memberHome.vue'], resolve),
+					meta: { requireAuth: types.CHECKAUTH,title:'会员'+trueName },
+				},
+				{
+					path:'/recharge',
+					name:'recharge',
+					// component:recharge,
+					component:resolve => require(['../views/member/recharge.vue'], resolve)
+				},{
+					path:'/addRecharge',
+					name:'addRecharge',
+					// component:addRecharge,
+					component:resolve => require(['../views/member/addRecharge.vue'], resolve)
+				},
+				{
+					path:'/management',
+					name:'management',
+					component:resolve => require(['../views/member/management.vue'], resolve)
+				},
+				{
+					path:'/addCrm',
+					name:'addCrm',
+					component:resolve => require(['../views/member/addCrm.vue'], resolve)
+				},
+				//黑名单
+				{
+					path:'/blacklisthome',
+					name:'blacklisthome',
+					component:resolve => require(['../views/member/blacklist/blacklisthome.vue'], resolve)
+				},
+				//生命周期
+				{
+					path:'/lifecyclehome',
+					name:'lifecyclehome',
+					component:resolve => require(['../views/member/lifecycle/lifecyclehome.vue'], resolve)
+				},
+				//近期生日
+				{
+					path:'/birthdayhome',
+					name:'birthdayhome',
+					component:resolve => require(['../views/member/birthday/birthdayhome.vue'], resolve)
+				},
+				//会员分析
+				{
+					path:'/analysishome',
+					name:'analysishome',
+					component:resolve => require(['../views/member/analysis/analysishome.vue'], resolve)
+				},
+			]
+		},
+		//长户宝
+		{
+			path:"/zhbHome",
+			name:"zhbHome",
+			component:resolve => require(['../views/zhb.vue'], resolve),
+			meta: { requireAuth: types.CHECKAUTH },
+			children:[
+				//经营入口概览
+				{
+					path:"/zhb",
+					name:"zhb",
+					component:resolve => require(['../views/zhb/zhbhome.vue'], resolve),
+					meta: { requireAuth: types.CHECKAUTH,title:'长护宝'+trueName },
+				},
+				//工单
+				{
+					path:"/wordOrderIndex",
+					name:"wordOrderIndex",
+					component:resolve => require(['../views/zhb/wordOrder/wordOrderIndex.vue'], resolve)
+				},
+				//新增
+				{
+					path:"/addWordOrder",
+					name:"addWordOrder",
+					component:resolve => require(['../views/zhb/wordOrder/addWordOrder.vue'], resolve)
+				},
+				//客户
+				{
+					path:"/customerIndex",
+					name:"customerIndex",
+					component:resolve => require(['../views/zhb/customer/customerIndex.vue'], resolve)
+				},
+				//新增客户
+				{
+					path:"/addcustomer",
+					name:"addcustomer",
+					component:resolve => require(['../views/zhb/customer/addcustomer.vue'], resolve)
+				},
+				//护理员
+				{
+					path:"/attendantIndex",
+					name:"attendantIndex",
+					component:resolve => require(['../views/zhb/attendant/attendantIndex.vue'], resolve)
+				},
+				//新增护理员
+				{
+					path:"/addattendant",
+					name:"addattendant",
+					component:resolve => require(['../views/zhb/attendant/addattendant.vue'], resolve)
+				},
+				//日程看板
+				{
+					path:"/zhbDate",
+					name:"zhbDate",
+					component:resolve => require(['../views/zhb/zhbDate.vue'], resolve)
+				},
+				//设置
+				{
+					path:"/settingIndex",
+					name:"settingIndex",
+					component:resolve => require(['../views/zhb/setting/settingIndex.vue'], resolve)
+				},
+				//小程序
+				{
+					path:'/wxxcxhomezhb',
+					name:'wxxcxhomezhb',
+					component:resolve => require(['../views/zhb/setting/wxxcx/wxxcxhomezhb.vue'], resolve),
+				},
+				//小程序设置
+				{
+					path:'/wxxcxsettingzhb',
+					name:'wxxcxsettingzhb',
+					component:resolve => require(['../views/zhb/setting/wxxcx/wxxcxsettingzhb.vue'], resolve),
+				},
+				//填写商户消息
+					{
+						path:'/wxxcxshzhb',
+						name:'wxxcxshzhb',
+						component:resolve => require(['../views/zhb/setting/wxxcx/wxxcxshzhb.vue'], resolve),
+					},
+					//审核
+					{
+						path:'/wxxcxSubmitzhb',
+						name:'wxxcxSubmitzhb',
+						component:resolve => require(['../views/zhb/setting/wxxcx/wxxcxSubmitzhb.vue'], resolve),
+					},
+			]
+		},
+		//运营
+		{
+				path:'/operationhome',
+				name:'operationhome',
+				component:resolve => require(['../views/operationhome.vue'], resolve),
+				meta: { requireAuth: types.CHECKAUTH},
+				children:[
+					//经营入口
+					{
+						path:"/wxsetting",
+						name:"wxsetting",
+						component:resolve => require(['../views/operation/wxGzh/wxsetting.vue'], resolve)
+					},
+					{
+						path:'/operationHome',
+						name:'operationHome',
+						component:resolve => require(['../views/operation/operationHome.vue'], resolve),
+						meta: { requireAuth: types.CHECKAUTH, title:"运营"+trueName},
+					},
+					//投诉
+					{
+						path:'/complain',
+						name:'complain',
+						component:resolve => require(['../views/operation/complain.vue'], resolve)
+					},
+					{
+						path:'/conplainInfo',
+						name:'conplainInfo',
+						component:resolve => require(['../views/operation/conplainInfo.vue'], resolve)
+					},
+					{
+						path:'/conplainInfo1',
+						name:'conplainInfo1',
+						component:resolve => require(['../views/operation/conplainInfo1.vue'], resolve)
+					},
+					
+					//微信Home
+					{
+						path:"/wxHome",
+						name:"wxHome",
+						component:resolve => require(['../views/operation/wxGzh/wxHome.vue'], resolve)
+					},
+					//优惠券
+					{
+						path:'/operationCoupon',
+						name:"operationCoupon",
+						component:resolve => require(['../views/operation/operationCoupon.vue'], resolve),
+					},
+					
+					//满减送
+					{
+						path:'/mjs',
+						name:"mjs",
+						component:resolve => require(['../views/operation/mjs.vue'], resolve),
+					},
+					//满送
+					{
+						path:'/ms',
+						name:"ms",
+						component:resolve => require(['../views/operation/ms.vue'], resolve),
+					},
+					//满折
+					{
+						path:'/mz',
+						name:"mz",
+						component:resolve => require(['../views/operation/mz.vue'], resolve),
+					},
+					//拼团
+					{
+						path:'/pt',
+						name:"pt",
+						component:resolve => require(['../views/operation/pt.vue'], resolve),
+					},
+					//代金券
+					{
+						path:'/Voucher',
+						name:"Voucher",
+						component:resolve => require(['../views/operation/Voucher.vue'], resolve),
+					},
+					//新品上市
+					{
+						path:'/newskuhome',
+						name:'newskuhome',
+						component:resolve => require(['../views/operation/newsku/newskuhome.vue'], resolve),
+					},
+					//热门推荐
+					{
+						path:'/hothome',
+						name:'hothome',
+						component:resolve => require(['../views/operation/hot/hothome.vue'], resolve),
+					},
+					//核销
+					{
+						path:'/hx',
+						name:'hx',
+						component:resolve => require(['../views/operation/hx/hx.vue'], resolve),
+					},
+					//秒杀
+					{
+						path:'/mshome',
+						name:'mshome',
+						component:resolve => require(['../views/operation/ms/mshome.vue'], resolve),
+					},
+					//充值活动
+					{
+						path:'/mrechargea',
+						name:'mrechargea',
+						component:resolve => require(['../views/operation/mrechargea/mrechargea.vue'], resolve),
+					},
+					//积分商城
+					{
+						path:'/jfhome',
+						name:'jfhome',
+						component:resolve => require(['../views/operation/jf/jfhome.vue'], resolve),
+					},
+					//轮播广告
+					{
+						path:'/lunbohome',
+						name:'lunbohome',
+						component:resolve => require(['../views/operation/lunbo/lunbohome.vue'], resolve),
+					},
+					//商城公告
+					{
+						path:'/notice',
+						name:'notice',
+						component:resolve => require(['../views/operation/notice/noticehome.vue'], resolve),
+					},
+					//小程序
+					{
+						path:'/wxxcxhome',
+						name:'wxxcxhome',
+						component:resolve => require(['../views/operation/wxxcx/wxxcxhome.vue'], resolve),
+					},
+					//小程序设置
+					{
+						path:'/wxxcxsetting',
+						name:'wxxcxsetting',
+						component:resolve => require(['../views/operation/wxxcx/wxxcxsetting.vue'], resolve),
+					},
+					//填写商户消息
+					{
+						path:'/wxxcxsh',
+						name:'wxxcxsh',
+						component:resolve => require(['../views/operation/wxxcx/wxxcxsh.vue'], resolve),
+					},
+					//审核
+					{
+						path:'/wxxcxSubmit',
+						name:'wxxcxSubmit',
+						component:resolve => require(['../views/operation/wxxcx/wxxcxSubmit.vue'], resolve),
+					},
+					//合伙人
+					{
+						path:'/hhrhome',
+						name:'hhrhome',
+						component:resolve => require(['../views/operation/hhr/hhrhome.vue'], resolve),
+					},
+					//友商宝
+					{
+						path:'/ysbhome',
+						name:'ysbhome',
+						component:resolve => require(['../views/operation/ysb/ysbhome.vue'], resolve),
+					},
+					//会员卡
+					{
+						path:'/updateCrm',
+						name:'updateCrm',
+						component:resolve => require(['../views/operation/updateCrm.vue'], resolve)
+					},
+					
+					{
+						path:'/marketingHome',
+						name:'marketingHome',
+						component:resolve => require(['../views/operation/marketingHome.vue'], resolve)
+					},
+					//新会员
+					{
+						path:'/newCrm',
+						name:'newCrm',
+						component:resolve => require(['../views/operation/newCrm.vue'], resolve)
+					},
+    			]
+  	},
+];
+
+// 页面刷新时，重新赋值token
+if(window.sessionStorage.getItem('token')) {
+	store.commit(types.LOGIN, window.sessionStorage.getItem('token'));
+	store.commit(types.USER, JSON.parse(window.sessionStorage.getItem('user')));
+}
+
+const router = new VueRouter({
+	// mode: 'history',//去掉地址栏#
+	routes
+});
+
+router.beforeEach((to, from, next) => {
+	NProgress.start();
+
+	if(to.matched.some(r => r.meta.breadcrumb1)) {
+		store.commit(types.BREADCRUMB1, to.meta.breadcrumb1)
+	}
+
+	if(to.matched.some(r => r.meta.breadcrumb2)) {
+		store.commit(types.BREADCRUMB2, to.meta.breadcrumb2)
+	}
+	if (to.meta.title) {
+        document.title = to.meta.title
+    }
+	if(to.matched.some(r => r.meta.requireAuth)) {
+
+		if(store.state.common.token) {
+			next();
+		} else {
+			next({
+				path: '/loginIn',
+				query: {
+					redirect: to.fullPath
+				}
+			})
+		}
+	} else {
+		next();
+	}
+})
+
+
+router.afterEach(transition => {
+	NProgress.done();
+});
+
+export default router;

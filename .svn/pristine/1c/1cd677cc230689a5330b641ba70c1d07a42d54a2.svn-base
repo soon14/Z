@@ -1,0 +1,411 @@
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+    border: 0 none;
+    font-family: inherit;
+    font-feature-settings: inherit;
+    font-kerning: inherit;
+    font-language-override: inherit;
+    font-size: 100%;
+    font-size-adjust: inherit;
+    font-stretch: inherit;
+    font-style: inherit;
+    font-synthesis: inherit;
+    font-variant: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    margin: 0;
+    padding: 0;
+    vertical-align: baseline;
+}
+
+.my-script {
+	display: none;
+}
+.clearfix::after, .clearfix::before {
+    content: "";
+    display: table;
+    line-height: 0;
+}
+.clearfix::after, .clearfix::before {
+    content: "";
+    display: table;
+    line-height: 0;
+}
+.clearfix::after, .container-fluid::after, .container::after, .dl-horizontal::after, .row-fluid::after, .row::after {
+    clear: both;
+}
+
+.app-design {
+    margin: 0 auto;
+    min-width: 320px;
+    width: 320px;
+    padding-bottom: 30px;
+}
+
+
+.app-design .app-preview {
+    background: #fff none repeat scroll 0 0;
+    box-sizing: border-box;
+    float: left;
+    margin-bottom: 24px;
+    position: relative;
+    width: 320px;
+}
+
+.app-design .app-preview .app-header {
+    background: rgba(0, 0, 0, 0) url("../images/iphone_head.png") no-repeat scroll center center;
+    display: none;
+    height: 70px;
+}
+
+
+.app-design .app-preview .app-entry {
+    background: #f9f9f9 none repeat scroll 0 0;
+    box-shadow: 0 0 0 1px #c5c5c5;
+    margin: 0 auto;
+    min-height: 200px;
+    padding-bottom: 11px;
+    width: 320px;
+}
+
+.app-design .app-preview .app-config .app-field.editing {
+    background-color: transparent;
+}
+.app-design .app-preview .app-config .app-field {
+    background-color: transparent;
+    cursor: pointer;
+}
+.app-design .app-preview .app-field {
+    -moz-user-select: none;
+    cursor: move;
+    position: relative;
+}
+
+.app-design .app-preview .app-config .app-field .wheader {
+    background: rgba(0, 0, 0, 0) url("../images/titlebar.png") no-repeat scroll 0 0;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    height: 64px;
+    line-height: 64px;
+    text-align: center;
+}
+
+
+.app-design .app-preview .app-config .app-field h1 {
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    height: 46px;
+    line-height: 46px;
+    padding: 18px 0;
+    text-align: center;
+}
+
+
+.app-design .app-preview .app-config .app-field h1 span {
+    display: inline-block;
+    height: 46px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 200px;
+}
+
+
+.app-design .app-preview .app-add-field::before {
+    border-bottom-color: #ddd;
+    top: -19px;
+}
+
+.app-design .app-preview .app-add-field::before, .app-design .app-preview .app-add-field::after {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    border-color: transparent transparent red;
+    border-image: none;
+    border-style: solid;
+    border-width: 8px 8px 10px;
+    content: "";
+    left: 148px;
+    position: absolute;
+    top: -16px;
+}
+
+.app-design .app-preview .app-add-field {
+    border-top: 1px solid #ddd;
+    box-shadow: 0 0 0 1px #ddd;
+    left: 0;
+    position: relative;
+    top: 0;
+}
+.app-design .app-add-field {
+    background: #f8f8f8 none repeat scroll 0 0;
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 0 6px 4px 10px;
+    position: relative;
+    width: 320px;
+}
+
+.app-design .app-add-field h4 {
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 40px;
+    text-align: center;
+}
+
+
+.app-design .app-add-field ul::after {
+    clear: both;
+    content: "";
+    display: table;
+}
+
+.app-design .app-add-field ul {
+    color: #333;
+    font-size: 12px;
+    margin-left: -5px;
+}
+ol, ul {
+    list-style: outside none none;
+}
+
+
+.app-design .app-add-field li {
+    background: #fff none repeat scroll 0 0;
+    display: table;
+    float: left;
+    margin: 0 0 10px 5px;
+}
+.app-design .app-add-field li a {
+    border: 1px solid #d1d1d1;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: table-cell;
+    height: 40px;
+    line-height: 14px;
+    text-align: center;
+    vertical-align: middle;
+    width: 56px;
+}
+a {
+    color: #38f;
+    text-decoration: none;
+}
+
+.app-design .app-actions {
+    min-width: 320px;
+    transition: right 0.5s ease 0s;
+    width: auto;
+}
+
+.app-design .app-actions {
+    bottom: 0;
+    clear: both;
+    padding-top: 20px;
+    position: fixed;
+    text-align: center;
+    width: 320px;
+    z-index: 2;
+}
+
+.app-design .app-actions .form-actions {
+    padding-bottom: 42px;
+}
+.app-design .app-actions .form-actions {
+    background-color: #ffc;
+    border-top: medium none;
+    margin: 0;
+    padding: 10px;
+}
+.center, .text-center {
+    text-align: center;
+}
+
+.zent-btn-primary {
+    background: #38f none repeat scroll 0 0;
+    border-color: #38f;
+    color: #fff;
+}
+.zent-btn {
+    background: #fff none repeat scroll 0 0;
+    border: 1px solid #bbb;
+    border-radius: 2px;
+    box-sizing: border-box;
+    color: #333;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 12px;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 10px;
+    text-align: center;
+    transition: background-color 0.3s ease 0s;
+    vertical-align: middle;
+}
+
+
+.app-design .app-preview .app-field .control-group {
+    box-sizing: border-box;
+    margin: 0;
+    min-height: 30px;
+    width: 100%;
+}
+
+.app-design .app-preview .app-config .app-field.editing {
+    background-color: transparent;
+}
+.app-design .app-preview .app-field {
+    -moz-user-select: none;
+    cursor: move;
+    position: relative;
+}
+
+.app-design .app-preview .app-field.editing .actions {
+    display: inline-block;
+}
+
+.app-design .app-preview .app-fields .app-field:last-child {
+    border-bottom: medium none;
+}
+
+.app-design .app-preview .app-field:hover .actions {
+    display: inline-block;
+}
+.app-design .app-preview .app-field:hover {
+    background-color: #f2f2f2;
+}
+
+
+.app-design .app-preview .app-field.editing .actions {
+    display: inline-block;
+}
+.app-design .app-preview .actions {
+    border: 2px dashed rgba(255, 0, 0, 0.5);
+    bottom: 0;
+    box-sizing: border-box;
+    display: none;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    width: 320px;
+    z-index: 2;
+}
+
+.app-design .app-preview .actions .actions-wrap {
+    bottom: 0;
+    position: absolute;
+    right: 0;
+}
+
+.app-design .app-preview .actions span {
+    background-color: rgba(0, 0, 0, 0.3);
+    color: #fff;
+    display: inline-block;
+    font-size: 12px;
+    margin-left: 1px;
+    padding: 0 5px;
+}
+
+
+.app-preview .custom-richtext {
+    box-sizing: border-box;
+    color: #333;
+    font-size: 16px;
+    line-height: 1.5;
+    overflow: hidden;
+    overflow-wrap: break-word;
+    padding: 10px 10px 0;
+    position: relative;
+    text-align: left;
+}
+.app-preview .custom-richtext img + br {
+    content: " ";
+    display: block;
+    padding: 4px 0;
+}
+.app-preview .custom-richtext p {
+    margin: 0 0 1em;
+}
+.app-preview .custom-richtext .Powered-by-XIUMI p {
+    margin: 0;
+}
+.app-preview .custom-richtext a {
+    color: #07d;
+}
+.app-preview .custom-richtext img {
+    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+    max-width: 100%;
+    min-height: 1px;
+    vertical-align: middle;
+    width: auto;
+}
+.app-preview .custom-richtext ul, .app-preview .custom-richtext ol {
+    list-style-position: inside;
+    padding-left: 0;
+}
+.app-preview .custom-richtext ol {
+    width: auto;
+}
+.app-preview .custom-richtext blockquote {
+    border-left: 5px solid #eee;
+    margin: 0 0 18px;
+    padding: 0 0 0 15px;
+}
+.app-preview .custom-richtext em, .app-preview .custom-richtext i {
+    font-style: italic;
+}
+.app-preview .custom-richtext strong, .app-preview .custom-richtext b {
+    font-weight: bold;
+}
+.app-preview .custom-richtext .selectTdClass {
+    background-color: #edf5fa;
+}
+.app-preview .custom-richtext table.noBorderTable td, .app-preview .custom-richtext table.noBorderTable th, .app-preview .custom-richtext table.noBorderTable caption {
+    border: 1px dashed #ddd;
+}
+.app-preview .custom-richtext table {
+    border-collapse: collapse;
+    display: table;
+    margin-bottom: 10px;
+    width: auto;
+}
+.app-preview .custom-richtext td, .app-preview .custom-richtext th {
+    border: 1px solid #ddd;
+    padding: 5px 10px;
+}
+.app-preview .custom-richtext caption {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    border-color: #ddd #ddd currentcolor;
+    border-image: none;
+    border-style: dashed dashed none;
+    border-width: 1px 1px 0;
+    padding: 3px;
+    text-align: center;
+}
+.app-preview .custom-richtext th {
+    background: #f7f7f7 none repeat scroll 0 0;
+    border-top: 2px solid #bbb;
+}
+.app-preview .custom-richtext .ue-table-interlace-color-single {
+    background-color: #fcfcfc;
+}
+.app-preview .custom-richtext .ue-table-interlace-color-double {
+    background-color: #f7faff;
+}
+.app-preview .custom-richtext td p {
+    margin: 0;
+    padding: 0;
+}
+.app-preview .custom-richtext .bottom-floating-banner {
+    bottom: 0;
+    position: fixed;
+}
+.app-preview .custom-richtext-fullscreen {
+    margin-top: 0;
+    padding: 0;
+}

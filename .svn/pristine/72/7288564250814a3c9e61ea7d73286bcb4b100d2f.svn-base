@@ -1,0 +1,590 @@
+<template>
+    <!--退货-->
+    <div class="units-box">
+        <div style='display:flex;height:100%;'>
+            <div class='main-left'>
+                <div style='height: 50px; border-bottom: 1px solid rgb(228, 228, 228); font-size: 18px; font-weight: 900; line-height: 50px;'>
+                    <div style='margin-left:10px'>{{$t('orders.orderTH')}}</div><!--退货订单
+                -->
+                </div>
+                <li v-for='(item,index) in fhlist' @click='getfhlistbg(index)' :class="{bor:index==fhindex}">
+                    <span>{{item.label}}</span>
+                </li>
+            </div>
+            <!--表格数据-->
+            <!--one-->
+            <div class="table" v-if='fhindex==0'>
+                <div style='display:flex;border-bottom:1px solid #e4e4e4'>
+                    <span  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+                        <div style='margin:0 10px;'>{{$t('orders.orderTHLIST')}}</div><!--退单列表-->   
+                    </span>
+                    <Input style='margin-top:10px;width:400px' v-model='onekeyword' :placeholder="$t('public.orderorname')" @on-enter='entersSearchone' >
+                        <span slot="append"  @click='searchone' style='cursor:pointer'>{{$t('public.search')}}</span>
+                    </Input>
+                </div>
+                <div style='margin:10px'>
+                    <Table border :columns="oneKey" :data="oneData" @on-row-dblclick='dblclick'></Table>
+                    <div class="page-box">
+                         <Page v-if='onetotal!=0' :total="onetotal" show-total  :pageSize='onepageSize'  @on-change="onegetData" @on-page-size-change="onechangePageSize"></Page>
+                    </div>
+                </div>
+            </div>
+            <!---->
+           <!--  <div class="table" v-if='fhindex==1'>
+                <div style='display:flex;border-bottom:1px solid #e4e4e4'>
+                    <span  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+                        <div style='margin:0 10px;'>退货中</div>  
+                    </span>
+                </div>
+                <div style='margin:10px'>
+                    <Table border :columns="twoKey" :data="twoData" ></Table>
+                    <div class="page-box">
+                         <Page v-if='twototal!=0' :total="twototal" show-total  :pageSize='twopageSize'  @on-change="twogetData" @on-page-size-change="twochangePageSize"></Page>
+                    </div>
+                </div>
+            </div> -->
+        </div>
+        <!--退款-->
+        <Modal v-model="tkisshow" width="360px">
+            <p slot="header" style="height:30px;line-height:30px;text-align:center">
+                <span>{{$t('orders.TKmoney')}}</span>
+            </p>
+             <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="100">
+                    <FormItem :label="$t('orders.TKmoney')" prop="amount">
+                       <Input style='' v-model='formValidate.amount' ></Input>
+                    </FormItem>
+                    <FormItem :label="$t('public.remark')" prop="remark">
+                       <Input type='textarea' v-model='formValidate.remark' ></Input>
+                    </FormItem>
+            </Form>
+            <div slot="footer">
+                <div class='footer-mark'>
+                    <span><a style='color:#999;font-size:14px' @click='cancelTk'>{{$t('public.cancel')}}</a></span>
+                    <span style='font-size:20px;width:1px;height:40px;background:#e4e4e4'></span>
+                    <span ><a style='color:#3B77E3;font-size:14px' @click='saveTk("formValidate")'>{{$t('public.sure')}}</a></span>
+                </div>
+            </div>
+        </Modal>
+    </div>
+</template>
+<script>
+// import expandRow from './table-expand.vue';//内容扩展
+    export default {
+         // components: { expandRow },
+        data() {
+            return {
+                title:"退单列表",
+                //退单列表
+                tkId:'',//退款id
+                tkisshow:false,
+                formValidate:{
+                    amount:'',//退款金额
+                    remark:''//备注
+                },
+                ruleValidate:{
+                    amount:[
+                        { required: true, message: '退款金额不能为空', trigger: 'blur' },
+                        { pattern: /^\d{1,14}(\.\d{1,2})?$/, message: '退款金额应为数字或小数且小数点后两位', trigger: 'blur'  }
+                    ],
+                },
+                onekeyword:'',
+                onetotal: 0,
+                onepageSize: 0,
+                oneData:[],//退单列表
+                oneKey:[
+                    // {
+                    //     type: 'expand',
+                    //     width: 50,
+                    //     render: (h, params) => {
+                    //         return h(expandRow, {
+                    //             props: {
+                    //                 row: params.row
+                    //             }
+                    //         })
+                    //     }
+                    // },
+                     {
+                        title:this.$t('orders.TKCode'),//"退款编号",
+                        width:140,
+                        key:"returnNo"
+                    },
+                    {
+                      title:this.$t('orders.TKmoney'),//"退款金额",
+                      width:100,
+                      align:"center",
+                      key:"amount"
+                    },
+                    {
+                        title:this.$t('orders.TKskuname'),//"商品名称",
+                        width:180,
+                        ellipsis:true,
+                        key:"skuName"
+                    },
+                     {
+                        title:this.$t('orders.TKstore'),//"发货店铺",
+                        key:"storeName",
+                        width:140,
+                     },
+                    // {
+                    //     title:"规格名称",
+                    //     width:100,
+                    //     key:"skuTypeDesc"
+                    // },
+                    
+                    {
+                        title:this.$t('orders.TKtype'),//"退货类型",
+                        width:100,
+                        align:"center",
+                        key:"type"
+                    },
+                    {
+                        title:this.$t('orders.TKtime'),//"退货时间",
+                        width:100,
+                        align:"center",
+                        key:"createTime"
+                    },
+                     {
+                        title:this.$t('public.status'),//"状态",
+                        align:"center",
+                        width:120,
+                        key:"statusDesc",////1新提交 3已同意 4已拒绝 5配送中 7已收货 9退款中 99已退款
+                        // render:(h,params)=>{
+                        //     return h('span',{
+                        //         style:{
+                        //             color:params.row.status==1?'#40ca98':params.row.status==1?'#3b77e3':params.row.statusDesc=='已停用'?'#d53c39':''
+                        //         }
+                        //     },params.row.statusDesc)
+                        // }
+                    },
+                    {
+                        title:this.$t('orders.TKbes'),//"退货原因",
+                       width:100,
+                        key:"reason",
+
+                    },
+                     {
+                        title:this.$t('public.action'),//"操作",
+                        width:280,
+                        align:"center",
+                        key:"",
+                        render:(h,params)=>{
+                            return h('div',[
+                                h('Button',{
+                                    props:{
+                                        type:"primary",
+                                    },
+                                    style:{
+                                        marginRight:"10px",
+                                        //3已同意退货 //9退款中 7//已收货待退款
+                                        display:params.row.status==3?"none":params.row.status==7?"none":params.row.status==9?"none":"inline-block"
+                                    },
+                                    "on":{
+                                        "click":()=>{
+                                            this.agree(params)
+                                        }
+                                    }
+
+                                },this.$t('orders.TKTY')),//'同意退货'
+                                h('Button',{
+                                    props:{
+                                        type:"primary",
+                                       
+                                    },
+                                    style:{
+                                        marginRight:"10px",
+                                        //9退款中 //1待确认
+                                        display:params.row.status==9?"none":params.row.status==1?"none":params.row.status==4?"none":"inline-block"
+                                    },
+                                    "on":{
+                                        "click":()=>{
+                                            this.tkId=params
+                                            this.returnMoney(this.tkId)
+                                        }
+                                    }
+
+                                },this.$t('orders.TKsjtk')),//'收件退款'
+                                h('Button',{
+                                    props:{
+                                        type:"error",
+                                       
+                                    },
+                                    style:{
+                                        //4拒绝退货
+                                        display:params.row.status==4?"none":"inline-block"
+                                    },
+                                    "on":{
+                                        "click":()=>{
+                                            this.refuse(params)
+                                        }
+                                    }
+                                },this.$t('orders.TKjj'))//'拒绝退货'
+                                ])
+                        }
+                    },
+                ],
+                fhindex:0,
+                row:{},
+                visible: false,
+                fhlist:[
+                    {
+                        label:this.$t('orders.orderTHLIST'),//"退单列表",
+                        value:0
+                    },
+                    // {
+                    //     label:"退货中",
+                    //     value:1
+                    // },
+                ],
+                type:'',//下拉选中
+                // twokeyword:'',
+                // twototal: 0,
+                // twopageSize: 0,
+                // twoData: [], //退货中
+                // twoKey:[]
+                uid: this.$store.state.common.token,
+                
+            }
+        },
+        methods: {
+            //切换
+            getfhlistbg(index){
+                this.fhindex=index
+                if(this.fhindex==0){
+                    this.title=this.$t('orders.orderTHLIST'),//'退单列表'
+                    this.getone()
+                }
+                // if(this.fhindex==1){
+                //     this.title='退货中'
+                // }
+            },
+            //双击退货单查看详情
+            dblclick(data,index){
+                this.$router.push({
+                    path:"/returnInfo",
+                    query:{
+                        id:data.id
+                    }
+                    // params:data
+                })
+            },
+            //同意退货GET /oreturn/agree/{id} 同意退货
+            agree(data){
+                this.$Modal.confirm({
+                    title: '同意退货',
+                    content: '<p>确定要同意退货吗?</p>',
+                    onOk: () => {
+                        this.axios.get('/oreturn/agree/'+data.row.id+'?remark='+'&uid='+this.uid).then(res=>{
+                            if(res.data.status==200){
+                                this.getone()
+                            }else{
+                                this.$notify({
+                                    title:"",//
+                                    message: res.data.errorMessage,
+                                    type: 'error',
+                                    position: 'bottom-right'
+                                });
+                            }
+                        })
+                    },
+                    onCancel: () => {
+                        this.$Message.info('取消同意退货');
+                    }
+                });
+                
+            },
+            //退款
+            returnMoney(data){
+                this.$Modal.confirm({
+                    title: '同意退款',
+                    content: '<p>确定要同意退款吗?</p>',
+                    onOk: () => {
+                        //GET /oreturn/delivery/{id} 收到退件
+                        this.axios.get('/oreturn/delivery/'+data.row.id+'?remark='+'&uid='+this.uid).then(res=>{
+                            if(res.data.status==200){
+                                this.tkisshow=true
+                                this.getone()
+                            }else{
+                                this.$notify({
+                                    title:"",//
+                                    message: res.data.errorMessage,
+                                    type: 'error',
+                                    position: 'bottom-right'
+                                });
+                            }
+                        })
+                    },
+                    onCancel: () => {
+                        this.$Message.info('取消同意退款');
+                    }
+                });
+            },
+            //退款弹框取消
+            cancelTk(){
+                this.tkisshow=false
+            },
+            //退款确认
+            saveTk(name){
+                 //GET /oreturn/returnMoney/{id} 退款金额
+                 this.$refs[name].validate((valid) => {
+                    if(valid){
+                        this.axios.get('/oreturn/returnMoney/'+this.tkId.row.id+'?amount='+this.formValidate.amount+'&remark='+this.formValidate.remark+'&uid='+this.uid).then(res=>{
+                            if(res.data.status==200){
+                                this.$notify({
+                                    title:"",//
+                                    message: '退款成功',
+                                    type: 'success',
+                                    position: 'bottom-right'
+                                });
+                                this.tkisshow=false//退款弹框消失
+                                this.formValidate.amount=''
+                                this.formValidate.remark=''
+                                this.getone()
+                            }else{
+                                this.$notify({
+                                    title:"",//
+                                    message: res.data.errorMessage,
+                                    type: 'error',
+                                    position: 'bottom-right'
+                                });
+                            }
+                        }) 
+                    }
+                 })
+                
+            },
+            //GET /oreturn/refuse/{id} 拒绝退货
+            refuse(data){
+                this.$Modal.confirm({
+                    title: '拒绝退货',
+                    content: '<p>确定要拒绝退货吗?</p>',
+                    onOk: () => {
+                        this.axios.get('/oreturn/refuse/'+data.row.id+'?remark='+'&uid='+this.uid).then(res=>{
+                            if(res.data.status==200){
+                                this.getone()
+                            }else{
+                                this.$notify({
+                                    title:"",//
+                                    message: res.data.errorMessage,
+                                    type: 'error',
+                                    position: 'bottom-right'
+                                });
+                            }
+                        })
+                    },
+                    onCancel: () => {
+                        this.$Message.info('取消拒绝退货');
+                    }
+                });
+                
+            },
+            //退货列表查询
+            searchone(){
+                this.axios.get('oreturn/query?keyword='+this.onekeyword+'&uid='+this.uid).then(res=>{
+                    if(res.data.status==200){
+                        this.oneData=res.data.rows
+                        this.onetotal=res.data.total
+                        this.onepageSize=res.data.pageSize
+                        this.oneData.forEach(x=>{
+                           
+                             x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+                            if(x.type==1){
+                                x.type='仅退款'
+                            }
+                            if(x.type==2){
+                                x.type='退货退款'
+                            }
+                        })
+                    }
+                })
+            },
+            //回车搜索
+            entersSearchone(){
+                this.searchone()
+            },
+            //GET /oreturn/query 退回订单
+            getone(){
+                this.axios.get('oreturn/query?uid='+this.uid).then(res=>{
+                    if(res.data.status==200){
+                        this.oneData=res.data.rows
+                        this.onetotal=res.data.total
+                        this.onepageSize=res.data.pageSize
+                        this.oneData.forEach(x=>{
+                             x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+                            if(x.type==1){
+                                x.type='仅退款'
+                            }
+                            if(x.type==2){
+                                x.type='退货退款'
+                            }
+                        })
+                    }
+                })
+            },
+            
+            //翻页
+            onegetData(current){
+                this.axios.get('oreturn/query?offset'+current+'&uid='+this.uid).then(res=>{
+                    if(res.data.status==200){
+                        this.oneData=res.data.rows
+                        this.onetotal=res.data.total
+                        this.onepageSize=res.data.pageSize
+                        this.oneData.forEach(x=>{
+                            x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+                            if(x.type==1){
+                                x.type='仅退款'
+                            }
+                            if(x.type==2){
+                                x.type='退货退款'
+                            }
+                        })
+                    }
+                })
+            },
+            onechangePageSize(size){
+                this.onepageSize=size
+            },
+            //
+            // searchtwo(){
+
+            // },
+            // //回车搜索
+            // entersSearchtwo(){
+            //     this.searchkx()
+            // },
+            // //
+            // twogetData(current){
+
+            // },
+            // twochangePageSize(size){
+            //     this.twopageSize=size
+            // },
+        },
+        mounted() {
+            this.getone()//所有退单列表
+        }
+    }
+</script>
+
+<style lang="css" scoped>
+p.edit:hover{
+    color:blue;
+}
+    .units-box {
+        width: 100%;
+        background: rgb(230,233,236);
+    }
+    .btns-box {
+        width: 100%;
+        height: 50px;
+        display:flex;
+        justify-content: space-between;
+        background: #fff;
+        line-height: 50px;
+    }
+     .wldw{
+        margin-left: 15px;
+        font-size:18px;font-weight:bold;
+    }
+    .right{
+        margin-right:10px;
+        margin-bottom:10px;
+    }
+    .ivu-icon-chevron-down {
+        font-size: 10px;
+    }
+    .btns img {
+        width: 14px;
+        height: 14px;
+        vertical-align: middle;
+    }
+    .main-left{
+        width: 120px;
+	margin-right: 3px;
+	flex: 0 0 120px;
+	font-size: 14px;
+	background: #fff;
+    }
+    .main-left li{
+        list-style: none;
+        padding:10px 0;
+        width:100%;
+        
+    }
+    .main-left li span{
+        margin-left:20px;
+    }
+    .table {
+        width: 100%;
+        height: 100%;
+        
+        
+        background: #fff;
+    }
+    .bor{
+        background:rgb(241,245,247);
+        color:rgb(59,119,227);
+    }
+.mtewm{
+width:100%;
+
+display:flex;
+padding: 0px 200px 0 200px;
+
+justify-content: center;
+align-items: center;
+flex-direction: column;
+        
+}
+.mtewm span{
+    width:260px;
+    height:30px;
+    line-height: 30px;
+    font-weight:600;
+    text-align: center
+}
+.mtewm div{
+    width:260px;
+    height:60px;
+    line-height: 35px;
+}
+.ygewm{
+     padding:10px;
+    width:100%;
+    height:100%;
+    /*border:1px solid red;*/
+    display: flex;
+    flex-wrap: wrap;
+     /*justify-content: center;*/
+    text-align: center;
+    /*justify-content: center;*/
+    /*flex-direction: column*/
+    background: #fff
+}
+.ygewm-list{
+    margin:10px;
+    height: 195px;
+    width:17%;
+    padding:10px;
+    justify-content: center;
+    text-align: center;
+    border: 1px solid #ccc;
+}
+.page-box{
+    width:100%;
+    margin-right:56px;
+    margin-top:15px;
+    text-align: center;
+    margin-bottom:120px;
+}
+.bottom-btn{
+    width:100%;
+    height:80px;
+    /*border:1px solid red;*/
+    margin-top:10px;
+    background: #f8f8f8;
+    line-height: 80px;
+    margin-right:56px;
+    text-align:right;
+
+}
+</style>

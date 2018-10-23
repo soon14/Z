@@ -1,0 +1,1257 @@
+<template>
+	<div class='addCrm'>
+	<!--固定导航-->
+		<div class="head">
+
+				<div class="left-top">
+					<p class="wldw">
+						<span style="width:42px;font-weight:900">{{$t('public.screen')}}：</span><!--筛选-->
+						 <Select style="width:100px" v-model='valueT' placeholder="全部"  @on-change="orderselected">
+					        <Option v-for="item in orderListname" :value="item.value" :key="item.value">{{ item.label }}</Option>
+					    </Select>
+					</p>
+					<div>
+						<!--新建-->
+						<span class="top-left-btn"  @click="add">
+							<Icon type="plus" style="position:absolute;top:7px;left:8px"></Icon></span>
+					</div>
+				</div>
+				<div class="right-top">
+
+					<span style="margin-left:40px;font-size:14px;font-weight:900">{{addoredit}} </span>
+
+					<div style="position:absolute;right:125px">
+						<div v-if="addText">
+							<Button shape="circle"  style="background:#3b77e3;margin-right:5px;color:#fff;border:none" @click="saveCgInfo('formValidate')" >
+							<Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.SaveBtn')}}</Button><!--保存-->
+
+							<Button shape="circle"  @click="addCancel"  style="background:#999999;color:#fff;margin-right:10px;" ><Icon type="close" style="margin-right:5px;"></Icon>{{$t('public.cancel')}}</Button><!--取消-->
+
+							<span @click="cancelHome" style="cursor:pointer;margin-right:20px"><Icon type="close" class="cha" ></Icon></span>
+						</div>
+						<div v-if="!addText" class="changebutton">
+
+							<Button type="ghost"  shape="circle"  @click="edit" v-if="editshow" style="background:#40ca98;margin-right:10px;color:#fff;border:none">
+								<Icon type="edit" style="position:relative;right:5px"></Icon>
+							{{$t('public.EditBtn')}}<!--修改-->
+							</Button>
+
+							<Button type="ghost"  shape="circle" @click="saveEdit('formValidate1')" v-if="!editshow" style="background:#3b77e3;margin-right:5px;color:#fff;border:none">
+								<Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.SaveBtn')}}<!--保存-->
+							</Button>
+							<Button shape="circle" v-if="!editshow"  @click="editCancel"  style="background:#999999;color:#fff;margin-right:10px;" ><Icon type="close" style="margin-right:5px;">
+							</Icon>{{$t('public.cancel')}}</Button><!--取消-->
+
+							<!-- 更多-->
+							<Dropdown trigger="click" style="margin-left: -5px" v-if='editshow'>
+								<Button shape="circle" type="ghost" style="background:#ff7d16;color:#fff;border:none">
+									{{$t('public.more')}}<!--更多-->
+								<span><i class="ivu-icon ivu-icon-chevron-down"></i></span>
+							</Button>
+
+							<DropdownMenu slot="list">
+									<span  @click="start"><DropdownItem >{{$t('public.start')}}</DropdownItem></span><!--启用-->
+									<span  @click="stop"><DropdownItem >{{$t('public.stop')}}</DropdownItem></span><!--停用-->
+									<span  @click="del"><DropdownItem >{{$t('public.del')}}</DropdownItem></span><!--删除-->
+
+							</DropdownMenu>
+						</Dropdown>
+							<span @click="cancelHome" style="cursor:pointer;margin:0 10px" ><Icon type="close" class="cha" ></Icon>
+							</span>
+						</div>
+					</div>
+				</div>
+			<!-- </Col> -->
+		</div>
+		<div style='height:60px;width:100%'></div>
+		<!--左侧列表-->
+		<div class="left-content">
+			<div class='locationSearch'>
+				<Input style='padding:10px 20px' v-model='searchKeyword' :placeholder="$t('public.nameandphone')" @on-enter='enterSearch'>
+                <span slot="append"  @click='search' style='cursor:pointer;'>{{$t('public.search')}}</span>
+                </Input>
+			</div>
+			<p v-if="Allcrm.length==0" class='scrollFix'>
+				<Spin>
+	                <!-- <Icon type="load-c" size=18 class="demo-spin-icon-load"></Icon> -->
+	                <div>{{$t('public.NoData')}}</div><!--暂无数据-->
+	            </Spin>
+		    </p>
+			<Scroll :on-reach-bottom="handleReachEdge" :height="height" v-else >
+				<div class="con-list" v-for="(item,index) in Allcrm" :key='index' @click="getcginfo(item.id,index)" :class="{bg:numIndex==index}">
+					  <span class='left-img'>
+					 	 <img :src="item.logo" width='60' height='60'>
+					 </span>
+
+					 <div>
+					<p class="list-title">{{item.name}}</p>
+					<p style='position: absolute;right: 10px;top: 60px;'>{{item.trueName}}</p>
+					<p class="txt" style="margin-top:10px;">
+						{{item.mobile}}
+						<span style='margin-left:4px'
+				:class="{colorGender1:item.gender==1,colorGender0:item.gender==0}">{{item.genderDesc}}</span>
+					</p>
+
+					<span class="date">{{item.creationDate}}</span>
+					<div class="lanrenLeft" :class="{bgd4:item.status==1,bgd5:item.status==0,bgd6:item.status==5,bgd61:item.status==8}">
+                               <span >{{item.statusDesc}}</span>
+                            </div>​
+					</div>
+				</div>
+
+			</Scroll>
+		</div>
+		<!--右侧-->
+		<div class="add-right" >
+			<div class='right-left' v-if='leftphoto'>
+				<div>
+                    <el-upload
+					  class="avatar-uploader"
+					  :action="logoUrl"
+					  name='file'
+					  :show-file-list="false"
+					  :before-upload="beforeAvatarUpload"
+					  :on-success="addsucess"
+					  accept="image/*"
+					  >
+					  <img v-if="photo" :src="photo" class="avatar" width='80' height='80'>
+					  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+					</el-upload>
+                </div>
+
+			</div>
+			<!--新增-->
+			<div class='right-right' v-if='addText'>
+				<Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="120">
+
+					<div style='display:flex'>
+					<div style='width:50%'>
+						<FormItem :label="$t('manage.power.account')" prop="name"><!--登录帐号-->
+		                	<Input v-model="formValidate.name" :placeholder="$t('login.placeholderTel')"></Input>
+		           		</FormItem>
+						<FormItem :label="$t('manage.power.nickName')" prop="trueName">
+		                	<Input v-model="formValidate.trueName" :placeholder="$t('manage.power.nickName')"></Input><!--昵称-->
+		           		</FormItem>
+						<FormItem :label="$t('manage.power.mobile')" prop="mobile">
+		                	<Input v-model="formValidate.mobile" :placeholder="$t('manage.power.mobile')"></Input><!--手机-->
+		           		</FormItem>
+						<!-- <FormItem label="等级">
+		                	 <Select  @on-change="getlevel" v-model='category'>
+                                <Option v-for="(item,index) in storelevel" :value='item.value' :key="index">
+                                	{{ item.label }}
+                            	</Option>
+                            </Select>
+		           		</FormItem> -->
+	           		</div>
+					<div style='width:50%'>
+					<FormItem :label="$t('manage.power.pss')" prop="password">
+	                	<Input v-model="formValidate.password" :placeholder="$t('login.RpasswordPlaceholder')"></Input>
+	           		</FormItem>
+					<FormItem :label="$t('public.gender')" ><!--性别-->
+	                	<RadioGroup v-model="gender" @on-change="selsectedSex">
+						        <Radio label="1">
+						            <span>{{$t('public.man')}}</span><!--男-->
+						        </Radio>
+						        <Radio label="0">
+
+						            <span>{{$t('public.woman')}}</span><!--女-->
+						        </Radio>
+
+						    </RadioGroup>
+	           		</FormItem>
+
+					<FormItem :label="$t('manage.power.email')" prop="email">
+	                	<Input v-model="formValidate.email" :placeholder="$t('manage.power.email')"></Input><!--邮箱-->
+	           		</FormItem>
+	           		</div>
+	           		</div>
+	           		<FormItem :label="$t('manage.power.address')">
+						<div style='display:flex;width:100%'>
+	                	<el-cascader
+	                	filterable
+                        expand-trigger="click"
+                        :options="cityInfo"
+                        v-model="selectedOptions2"
+                        @change="handleChange" style='width:40%'>
+                    	</el-cascader>
+						<Input  v-model='address' :placeholder="$t('manage.power.Daddress')" style='width:60%'></Input>
+						</div>
+	           		</FormItem>
+				</Form>
+
+			</div>
+			<!--修改-->
+			<div class='right-right' v-if='xiugai'>
+				<Form ref="formValidate1" :model="formValidate" :rules="ruleValidate" :label-width="120">
+
+					<div style='display:flex'>
+					<div style='width:50%'>
+						<FormItem :label="$t('manage.power.account')" prop="name"><!--登录帐号-->
+		                	<Input v-model="formValidate.name" :placeholder="$t('login.placeholderTel')"></Input>
+		           		</FormItem>
+						<FormItem :label="$t('manage.power.nickName')" prop="trueName">
+		                	<Input v-model="formValidate.trueName" :placeholder="$t('manage.power.nickName')"></Input><!--昵称-->
+		           		</FormItem>
+						<FormItem :label="$t('manage.power.mobile')" prop="mobile">
+		                	<Input v-model="formValidate.mobile" :placeholder="$t('manage.power.mobile')"></Input><!--手机-->
+		           		</FormItem>
+						<!-- <FormItem label="等级">
+		                	 <Select  @on-change="getlevel" v-model='category'>
+                                <Option v-for="(item,index) in storelevel" :value='item.value' :key="index">
+                                	{{ item.label }}
+                            	</Option>
+                            </Select>
+		           		</FormItem> -->
+	           		</div>
+					<div style='width:50%'>
+					<!-- <FormItem :label="$t('manage.power.pss')" prop="password">
+	                	<Input v-model="formValidate.password" :placeholder="$t('login.RpasswordPlaceholder')"></Input>
+	           		</FormItem> -->
+					<FormItem :label="$t('public.gender')" ><!--性别-->
+	                	<RadioGroup v-model="gender" @on-change="selsectedSex">
+						        <Radio label="1">
+						            <span>{{$t('public.man')}}</span><!--男-->
+						        </Radio>
+						        <Radio label="0">
+
+						            <span>{{$t('public.woman')}}</span><!--女-->
+						        </Radio>
+
+						    </RadioGroup>
+	           		</FormItem>
+
+					<FormItem :label="$t('manage.power.email')" prop="email">
+	                	<Input v-model="formValidate.email" :placeholder="$t('manage.power.email')"></Input><!--邮箱-->
+	           		</FormItem>
+	           		</div>
+	           		</div>
+	           		<FormItem :label="$t('manage.power.address')">
+						<div style='display:flex;width:100%'>
+	                	<el-cascader
+	                	filterable
+                        expand-trigger="click"
+                        :options="cityInfo"
+                        v-model="selectedOptions2"
+                        @change="handleChange" style='width:40%'>
+                    	</el-cascader>
+						<Input  v-model='address' :placeholder="$t('manage.power.Daddress')" style='width:60%'></Input>
+						</div>
+	           		</FormItem>
+				</Form>
+			</div>
+			<!--详情-->
+			<!--详情明细订单页面-->
+				<div class="right-content right-detail" ref="detail" style="display:none">
+					<div >
+
+					<div style='display:flex;'>
+						<div style="flex:0 0 178px;width:178px;height:178px"><img :src="crmDetail.logo"  style='vertical-align:middle;width:100%;height:100%'></div>
+						
+						<Form  :label-width="120" style="width: 100%;margin: 0 10px;">
+
+								<div style='display:flex'>
+								<div style='width:50%'>
+									<FormItem :label="$t('manage.power.account')" prop="name"><!--登录帐号-->
+					                	<Input disabled v-model="formValidate.name" :placeholder="$t('login.placeholderTel')"></Input>
+					           		</FormItem>
+									<FormItem :label="$t('manage.power.nickName')" prop="trueName">
+					                	<Input disabled v-model="formValidate.trueName" :placeholder="$t('manage.power.nickName')"></Input><!--昵称-->
+					           		</FormItem>
+									<FormItem :label="$t('manage.power.mobile')" prop="mobile">
+					                	<Input disabled v-model="formValidate.mobile" :placeholder="$t('manage.power.mobile')"></Input><!--手机-->
+					           		</FormItem>
+									<!-- <FormItem label="等级">
+					                	 <Select  @on-change="getlevel" v-model='category'>
+			                                <Option v-for="(item,index) in storelevel" :value='item.value' :key="index">
+			                                	{{ item.label }}
+			                            	</Option>
+			                            </Select>
+					           		</FormItem> -->
+				           		</div>
+								<div style='width:50%'>
+								<FormItem :label="$t('manage.power.pss')" prop="password">
+				                	<Input disabled v-model="formValidate.password" :placeholder="$t('login.RpasswordPlaceholder')"></Input>
+				           		</FormItem>
+								<FormItem :label="$t('public.gender')" ><!--性别-->
+				                	<RadioGroup v-model="gender" @on-change="selsectedSex">
+									        <Radio label="1" disabled>
+									            <span>{{$t('public.man')}}</span><!--男-->
+									        </Radio>
+									        <Radio label="0" disabled>
+
+									            <span>{{$t('public.woman')}}</span><!--女-->
+									        </Radio>
+
+									    </RadioGroup>
+				           		</FormItem>
+
+								<FormItem :label="$t('manage.power.email')" prop="email">
+				                	<Input disabled v-model="formValidate.email" :placeholder="$t('manage.power.email')"></Input><!--邮箱-->
+				           		</FormItem>
+				           		</div>
+				           		</div>
+				           		<FormItem :label="$t('manage.power.address')">
+									<div style='display:flex;width:100%'>
+				                	<el-cascader
+				                	disabled
+			                        expand-trigger="click"
+			                        :options="cityInfo"
+			                        v-model="selectedOptions2"
+			                        @change="handleChange" style='width:40%'>
+			                    	</el-cascader>
+									<Input disabled v-model='address' :placeholder="$t('manage.power.Daddress')" style='width:60%'></Input>
+									</div>
+				           		</FormItem>
+							</Form>
+					</div>
+					
+				</div>
+				</div>
+		</div>
+		<div class='tot'>
+	        <span>共<span style='color:#ff0000'> {{total}} </span>条</span>
+	        <span>当前第<span style='color:#ff0000'> {{current}} </span>页</span>
+	    </div>
+	</div>
+</template>
+<script type="text/javascript">
+import LoadUrl from '@/components/common/actionLoad'
+ import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
+	export default{
+		data(){
+			return{
+				searchKeyword:"",
+				storelevel:[],//等级
+				category:"",//等级
+				CodeToText:CodeToText,//code转为Text
+				TextToCode:TextToCode,//Text转为code
+				cityInfo:regionData,//地址数据
+				selectedOptions2:[],//绑定的数据
+				addoredit:this.$t('manage.power.addEy'),
+				formValidate:{
+					name:'',//账号名称
+					mobile:'',//手机号
+					trueName:'',//昵称
+					password:'',//密码
+					email:'',
+				},
+				ruleValidate:{
+					accountName:[{ required: true, message: '开户帐号不能为空', trigger: 'blur' },{ pattern:/^[A-Za-z\d_\-\u4e00-\u9fa5]{1,20}$/, message: '存在非法字符或超过指定长度20个字符' }],
+					password:[{ required: true, message:this.$t('public.pssEmpty'), trigger: 'blur' },{ pattern:/^[A-Za-z\d_\-\u4e00-\u9fa5]{6,20}$/, message: '存在非法字符或超过指定长度6到20个字符' }],
+					name:[{ required: true, message: '用户名称不能为空', trigger: 'blur' },{ pattern:/^[A-Za-z\d_\-\u4e00-\u9fa5]{1,20}$/, message: '存在非法字符或超过指定长度20个字符' }],
+					email:[{type:"email", message: '请输入正确的邮箱' }],
+					mobile:[
+					{ pattern: /^1[3|4|5|7|8][0-9]{9}$/, message: '请输入正确的手机号码' }//
+					]//匹配印度尼西亚和中国{最少7位，最大9位}
+				},
+				logoUrl:LoadUrl.httpPrefix.Url+'file/action/upload/image/url?c=用户图片&uid='+this.$store.state.common.token,
+				leftphoto:true,
+				photo:'',
+				xiugai:false,
+				current:1,
+				total:0,
+				pageSize:0,
+				height:'',
+				numIndex:0,
+				indexId:'',
+				addText:true,
+				editshow:false,
+				storeisshow:false,
+				crmCardisshow:false,
+				storekeyword:'',
+				cartype:'',
+				num2:0,
+				orderdataList:[],
+				titles:["基本信息"],//,"订单","积分","充值历史","消费历史"
+				crmDetail:{},
+				Allcrm:[],
+				uid: this.$store.state.common.token,
+				valueT:1,
+				orderListname:[
+					{
+                        label:this.$t('public.all'),//
+                        value:0
+                    },
+                    {
+                        label:this.$t('public.normal'),//正常
+                        value:1
+                    },
+                    {
+                        label:this.$t('public.normalT'),//"已停用",
+                        value:5
+                    },
+                    {
+                        label:"已删除",
+                        value:8
+                    },
+
+				],
+				value:'',
+				email:'',
+				remark:'',
+				gender:'1',//
+				address:'',
+				province: '', //省
+				city: '', //市
+				country: '', //区country
+			}
+		},
+		methods:{
+			//点击新增
+			add(){
+				this.addoredit=this.$t('manage.power.addEy')
+				this.addText = true
+				this.xiugai=false
+				this.leftphoto=true
+				this.$refs.detail.style.display='none'
+
+				this.formValidate.trueName=''
+				this.formValidate.password=''
+				this.photo=''
+				this.formValidate.name=''//会员名
+				this.formValidate.mobile ='' //手机号
+				this.formValidate.email =''
+				this.address=''//地址
+				this.gender='1'
+				this.email=''
+				this.remark=''
+
+			},
+
+			//点击新增取消
+			addCancel(){
+				this.add()
+			},
+
+			//新建点击完成POST /customer/add 增加用户
+			saveCgInfo(name){
+				this.$refs[name].validate((valid) => {
+					if(valid){
+						this.axios.post('/customer/add?uid='+this.uid,{
+						trueName:this.formValidate.trueName,
+						password:this.formValidate.password,
+						province:this.province, //省
+						city:this.city, //市
+						country:this.country, //区
+						logo:this.photo,
+						name:this.formValidate.name,//用户员名
+						mobile:this.formValidate.mobile,//手机号
+						address:this.address,
+						email:this.formValidate.email,
+						gender:this.gender,
+						// level:this.category
+					}).then((res)=>{
+
+						if(res.data.status==200){
+
+							this.$notify({
+		                        title:"",//
+		                        message:this.$t('public.SaveSuccess'),//'新建用户成功',
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+							this.formValidate.trueName=''
+							this.formValidate.password=''
+							this.photo=''
+							this.formValidate.name=''//会员名
+							this.formValidate.mobile ='' //手机号
+							this.formValidate.email =''
+							this.address=''//地址
+							this.gender='1'
+							this.email=''
+							this.remark=''
+							
+							this.category=''
+							this.selectedOptions2=[]
+							this.getMentList(this.valueT)
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+					}
+				})
+			},
+			//取消修改
+			editCancel(){
+				this.formValidate.trueName=''
+				this.formValidate.password=''
+				this.photo=''
+				this.formValidate.name=''//会员名
+				this.formValidate.mobile ='' //手机号
+				this.formValidate.email =''
+				this.address=''//地址
+				
+				this.email=''
+				this.remark=''
+				this.gender='1'
+				this.category=''
+				this.selectedOptions2=[]
+				this.addText = false
+				this.xiugai=false
+				this.editshow=true
+				this.leftphoto=false
+				this.$refs.detail.style='block'
+			},
+			//点击修改
+			edit(){
+				this.$refs.detail.style.display='none'
+				this.editshow=false
+				this.xiugai=true
+				this.leftphoto=true
+
+				this.getCrmDetail(this.indexId)
+			},
+			//保存修改
+			saveEdit(name){
+				this.$refs[name].validate((valid) => {
+					if(valid){
+						this.axios.put('customer/update?uid='+this.uid,{
+							id:this.indexId,
+							trueName:this.formValidate.trueName,
+							// password:this.formValidate.password,
+							province:this.province, //省
+							city:this.city, //市
+							country:this.country, //区
+							logo:this.photo,
+							name:this.formValidate.name,//用户员名
+							mobile:this.formValidate.mobile,//手机号
+							address:this.address,
+							email:this.formValidate.email,
+							gender:this.gender,
+							// level:this.category
+					}).then(res=>{
+						if(res.data.status==200){
+
+							this.$notify({
+		                        title:"",//
+		                        message:this.$t('public.editSuccess'),//
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+							this.formValidate.trueName=''
+							this.formValidate.password=''
+							this.photo=''
+							this.formValidate.name=''//会员名
+							this.formValidate.mobile ='' //手机号
+							this.formValidate.email =''
+							this.address=''//地址
+							
+							this.email=''
+							this.remark=''
+							this.gender='1'
+							this.selectedOptions2=[]
+
+							this.addText = false
+							this.xiugai=false
+							this.editshow=true
+							this.leftphoto=false
+							this.$refs.detail.style.display='block'
+							this.getMentList(this.valueT)
+							this.getCrmDetail(this.indexId)
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+					}
+				})
+			},
+			//点击差号
+			cancelHome(){
+				this.$router.push('/power')
+			},
+			//单击左侧列表
+			getcginfo(id,index){
+				this.numIndex = index
+				this.indexId = id
+				this.addText = false
+				this.xiugai=false
+				this.editshow=true
+				this.leftphoto=false
+
+				this.$refs.detail.style.display='block'
+				this.getCrmDetail(id)
+			},
+			//获取用户详情
+			getCrmDetail(id){
+				this.axios.get('customer/get/'+id+'?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						console.log(res.data.rows)
+						this.crmDetail=res.data.rows
+						this.crmDetail.creationDate=new Date(this.crmDetail.creationDate).toLocaleDateString().replace(/\//g,'-')
+						this.formValidate.trueName=res.data.rows.trueName
+						this.formValidate.name=res.data.rows.name
+
+						this.photo=res.data.rows.logo
+						this.addoredit=res.data.rows.name
+						this.formValidate.mobile=res.data.rows.mobile//手机号
+						this.address=res.data.rows.address
+						this.formValidate.email=res.data.rows.email
+						this.gender=String(res.data.rows.gender)
+						
+						//转为code
+                		if(res.data.rows.province==null || res.data.rows.city==null || res.data.rows.country==null){
+                			this.province=''
+	                		this.city=''
+	                		this.country=''
+	                		this.selectedOptions2=[]
+                		}else if(res.data.rows.province=='' || res.data.rows.city=='' || res.data.rows.country==''){
+                			this.selectedOptions2=[]
+                			this.province=''
+	                		this.city=''
+	                		this.country=''
+                		}else{
+                			//接收地址
+							this.province=res.data.rows.province
+	                		this.city=res.data.rows.city
+	                		this.country=res.data.rows.country
+                			this.selectedOptions2=[this.TextToCode[this.province].code,this.TextToCode[this.province][this.city].code,this.TextToCode[this.province][this.city][this.country].code]
+                		}
+					}
+				})
+			},
+			 //下拉框选择
+
+			orderselected(value){
+				this.valueT = value
+				this.getMentList(this.valueT)
+
+			},
+			//地址
+			//省市区
+			handleChange(arr){
+
+				this.province = this.CodeToText[arr[0]]
+				this.city =this.CodeToText[arr[1]]
+				this.country = this.CodeToText[arr[2]]
+				console.log(this.selectedOptions2)
+
+            },
+
+			//下拉加载更多
+            handleReachEdge(){
+				this.current++//默认10条
+    	 		this.axios.get('customer/query?offset='+this.current+'&uid='+this.uid+'&status='+this.valueT).then((res)=>{
+	 				if(this.current>Math.ceil(this.total/this.pageSize)){
+	 						this.current=Math.ceil(this.total/this.pageSize)
+	 					}
+			 		res.data.rows.forEach((item)=>{
+			 			this.Allcrm.push(item)
+			 			this.Allcrm.forEach((x,index)=>{
+							 if(x.status==1){
+                                x.statusDesc=this.$t('public.normal')
+                            }
+                            if(x.status==5){
+                                x.statusDesc=this.$t('public.normalT')
+                            }
+                            if(x.status==0){
+                                x.statusDesc=this.$t('public.addnew')
+                            }
+                             if(x.status==8){
+                                x.statusDesc=this.$t('public.del')
+                            }
+							if(x.gender==1){
+								x.genderDesc=this.$t('public.man')
+							}
+								if(x.gender==0){
+								x.genderDesc=this.$t('public.woman')
+							}
+							x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+						})
+			 		})
+
+			 	})
+
+            },
+
+            //选择性别
+            selsectedSex(label){
+            	this.gender = label
+            	console.log(this.gender)
+            },
+            //上传前
+            beforeAvatarUpload(file) {
+		        const isJPG = file.type === 'image/jpeg';
+		        const isPng = file.type === 'image/png';
+		        const isLt2M = file.size / 1024 / 1024 < 2;
+		        if (!isJPG && !isPng) {
+			          this.$notify({
+				        title: "",//'失败',
+				        message:this.$t('public.upJpngOrPng'),
+				        type: 'error',
+				        position: 'bottom-right'
+			        });
+		        }
+		        if (!isLt2M) {
+			         this.$notify({
+				        title: "",//'失败',
+				        message:this.$t('public.upJpngTwoM'),
+				        type: 'error',
+				        position: 'bottom-right'
+			        });
+		        }
+		        return isJPG || isPng && isLt2M;
+		      },
+             //上传图片成功
+            addsucess(res,file){
+
+                this.photo=res.rows.url
+
+            },
+            del(){
+            	this.$Modal.confirm({
+                    title: '删除',
+                    content: '<p>确定要删除吗?</p>',
+                    onOk: () => {
+                        this.axios.delete('customer/delete/'+this.indexId+'?uid='+this.uid).then((res)=>{
+		            		if(res.data.status==200){
+
+		            			this.$notify({
+				                        title:"",//
+				                        message:this.$t('public.deleteSuccess'),//
+				                        type: 'success',
+				                        position: 'bottom-right'
+				                    });
+		            			this.getMentList(this.valueT)
+		            		}else{
+		            			this.$notify({
+			                        title:"",//
+			                        message:res.data.errorMessage,
+			                        type: 'error',
+			                        position: 'bottom-right'
+			                    });
+		            		}
+		            	})
+                    },
+                });
+            	
+            },
+             stop(){
+            	if(this.indexId){
+             		this.axios.post('customer/disabled/'+this.indexId+'?uid='+this.uid).then((res)=>{
+            		if(res.data.status==200){
+
+            			this.$notify({
+		                        title:"",//
+		                        message:this.$t('public.normalT'),
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+            			this.getMentList(this.valueT)
+            		}else{
+            			this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+            		}
+            	})
+             	}
+            },
+             start(){
+             	if(this.indexId){
+             		this.axios.post('customer/enabled/'+this.indexId+'?uid='+this.uid).then((res)=>{
+            		if(res.data.status==200){
+
+            			this.$notify({
+		                        title:"",//
+		                        message:this.$t('public.normalS'),
+		                        type: 'success',
+		                        position: 'bottom-right'
+		                    });
+            			this.getMentList(this.valueT)
+            		}else{
+            		this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+            		}
+            	})
+             	}
+
+            },
+            //添加下边框
+			// addborder(index){
+			// 	this.num2 = index
+
+			// 	if(index==1){
+			// 		this.axios.get('crm/order?uid='+this.uid).then(res=>{
+			// 			if(res.data.status==200){
+			// 				this.orderdataList = res.data.rows
+			// 				this.total=res.data.total;
+			// 				this.pageSize = res.data.pageSize
+			// 			}
+			// 		})
+			// 	}
+
+			// },
+
+
+			 //切换一条页
+      //       getData(current){
+      //           this.axios.get('crm/order?offset='+current+'&uid='+this.uid).then((res)=>{
+      //               //console.log(res)
+      //               this.orderdataList = res.data.rows
+      //               this.orderdataList.forEach((x,index)=>{
+
+						// 	x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+						// })
+      //           })
+      //       },
+      //       //翻页
+      //       changePageSize(size){
+      //           this.pageSize = size
+      //       },
+      		search(){
+      			this.axios.get('customer/query?uid='+this.uid+'&keyword='+this.searchKeyword).then((res)=>{
+	            	console.log(this.Allcrm)
+	                if(res.data.status==200){
+	                	this.Allcrm = res.data.rows
+	                	this.total=res.data.total
+						this.pageSize=res.data.pageSize
+						this.Allcrm.forEach((x)=>{
+							if(x.status==1){
+                                x.statusDesc=this.$t('public.normal')
+                            }
+                            if(x.status==5){
+                                x.statusDesc=this.$t('public.normalT')
+                            }
+                            if(x.status==0){
+                                x.statusDesc=this.$t('public.addnew')
+                            }
+                             if(x.status==8){
+                                x.statusDesc=this.$t('public.del')
+                            }
+							if(x.gender==1){
+								x.genderDesc=this.$t('public.man')
+							}
+								if(x.gender==0){
+								x.genderDesc=this.$t('public.woman')
+							}
+							x.creationDate = new Date(x.creationDate).toLocaleDateString().replace(/\//g,'-')
+						})
+	                }
+	            })
+      		},
+      		enterSearch(){
+      			this.search()
+      		},
+			//获取所用户
+	        getMentList(s){
+	            this.axios.get('customer/query?uid='+this.uid+'&status='+s).then((res)=>{
+	            	console.log(this.Allcrm)
+	                if(res.data.status==200){
+	                	this.Allcrm = res.data.rows
+	                	this.total=res.data.total
+						this.pageSize=res.data.pageSize
+						this.Allcrm.forEach((x)=>{
+							if(x.status==1){
+                                x.statusDesc=this.$t('public.normal')
+                            }
+                            if(x.status==5){
+                                x.statusDesc=this.$t('public.normalT')
+                            }
+                            if(x.status==0){
+                                x.statusDesc=this.$t('public.addnew')
+                            }
+                             if(x.status==8){
+                                x.statusDesc=this.$t('public.del')
+                            }
+							if(x.gender==1){
+								x.genderDesc=this.$t('public.man')
+							}
+								if(x.gender==0){
+								x.genderDesc=this.$t('public.woman')
+							}
+							x.creationDate = new Date(x.creationDate).toLocaleDateString().replace(/\//g,'-')
+						})
+	                }
+	            })
+	        },
+	        //获取等级
+	        getLevel(){
+	        	 this.axios.get('role/listRole?uid='+this.uid).then(res=>{
+                    if(res.data.status==200){
+
+                        res.data.rows.forEach((x,index)=>{
+                        	let arr={
+	                        	label:res.data.rows[index].name,
+	                        	value:res.data.rows[index].id,
+	                        }
+	                        this.storelevel.push(arr)
+                        })
+                        console.log(this.storelevel)
+
+                    }
+                })
+
+	        },
+	        //选择等级
+	        getlevel(v){
+	        	console.log(v)
+	        	this.category=v
+	        },
+		},
+		created(){
+			this.$nextTick(()=>{
+				this.getMentList(this.valueT)
+				// this.getLevel()//获取角色等级
+
+			})
+
+		},
+		mounted(){
+			if(this.$route.query.id){
+				this.indexId = this.$route.query.id
+				this.numIndex = this.$route.query.index
+				this.valueT= this.$route.query.s
+
+				this.getcginfo(this.indexId,this.numIndex)
+			}
+			this.height = document.documentElement.clientHeight
+			// this.handleReachEdge()//滚动加载
+			window.onresize=function(){
+				this.height = document.documentElement.clientHeight
+			}
+		}
+	}
+</script>
+<style type="text/css" scoped>
+
+.lanrenLeft{
+    position: absolute;
+    text-align: center;
+    top: 0px;
+    right: 0px;
+    width: 0;
+    height: 0;
+    border-top:40px solid #d53c39;
+    border-left:40px solid transparent;
+}
+.lanrenLeft span{
+width: 40px;
+    height: 23px;
+    color: #fff;
+    display: block;
+    position: relative;
+    z-index: 9999999999999;
+    top: -36px;
+    right: 36px;
+    font-size: 12px;
+     font-weight: 100;
+    transform: rotate(46deg);
+}
+.bgd4{
+    border-top:40px solid #40ca98;
+}
+/*状态的颜色 新增*/
+.bgd5{
+    border-top:40px solid #3b77e3;
+}
+/*状态的颜色 已停用*/
+.bgd6{
+    border-top:40px solid #d53c39;
+}
+.bgd61{
+    border-top:40px solid #d53c39;
+}
+.tot{
+    position:fixed;
+    bottom:10px;
+    left:15%;
+    z-index:12;
+}
+.head{
+	width:100%;
+	height:60px;
+	background: #fff;
+	display: flex;
+	position:fixed;
+	z-index:5;
+	border-bottom: 1px solid #e4e4e4;
+}
+.left-top{
+	height: 60px;
+	width:360px;
+	flex:0 0 360px;
+	line-height: 60px;
+	position:fixed;
+	z-index:9;
+	display:flex;
+	background: #fff;
+	padding-right:10px;
+	border-bottom:1px solid #eee;
+	border-right:1px solid #eee;
+	justify-content: space-between;
+}
+.right-top{
+	height: 60px;
+	border-bottom:1px solid #eee;
+	line-height: 60px;
+	margin-left:360px;
+
+	display:flex;
+	background: #fff;
+	justify-content: space-between;
+
+}
+.colorGender1{
+	color:#72B7EA;
+}
+.colorGender0{
+	color:#FF934D;
+}
+.wldw{
+	margin-left:10px;
+}
+.left-img{
+    margin-right: 10px;
+width: 60px;
+height: 60px;
+border-radius: 50%;
+overflow: hidden;
+/* margin-bottom: -8px; */
+display: block;
+
+line-height: 80px;
+text-align: center;
+}
+.top-left-btn{
+background: #3B77E3;
+margin-right: 10px;
+color: #fff;
+border: none;
+width: 26px;
+height: 26px;
+border-radius: 26px;
+display: inline-block;
+position: relative;
+top: 12px;
+}
+.top-left-btn1{
+background: #FF7D16;
+}
+.top-left-btn:hover{
+cursor:pointer;
+}
+.left-content {
+	height:100%;
+	width:360px;
+	flex:0 0 360px;
+	margin-bottom:300px;
+	border-right:1px solid #E6E6E6;
+	position:fixed;
+	background:#F9F9F9;
+}
+.con-list {
+	display:flex;
+	align-items: center;
+	width: 100%;
+	word-wrap:break-word;
+
+	border-bottom: solid 1px #E6E6E6;
+	padding: 10px 25px;
+
+	cursor: pointer;
+	position:relative;
+}
+.con-list:hover{
+	cursor:pointer;
+}
+.con-list .date{
+	position:absolute;
+	right:10px;
+	top:30px;
+}
+.con-list .status{
+	width:100px;
+
+	text-align: center;
+	position: absolute;
+    right: 0px;
+    top: 47px;
+}
+.con-list .list-title {
+	color: #0d0d0d;
+	font-size: 14px;
+	position:relative;
+	top:15px;
+}
+div.con-list:last-child{
+	margin-bottom:300px
+}
+.con-list .txt {
+	color: #585858;
+	font-size: 12px;
+	position:relative;
+	top:15px;
+}
+.bg{
+	background: #dbe5f1;
+}
+.add-right {
+
+	background: #fff;
+	height:100%;
+	margin-left:370px;
+	padding-top:20px;
+	display:flex;
+}
+.list-box{
+	display: flex;
+	height:35px;
+	line-height: 35px;
+	margin:25px 10px;
+}
+.list-box1{
+		margin:4px 10px;
+}
+.list-box span{
+	height:40px;
+	width:120px;
+	text-align: right;
+
+}
+.list-box input.ivu-input{
+	height:40px!important;
+}
+.list-box1{
+	margin-left:20px;
+}
+.list-box1 span{
+	width:auto;
+	text-align: left
+}
+.right-left{
+	width: 178px;
+    margin-top: 26px;
+	border: 1px dashed #d9d9d9;
+	height:180px;
+}
+.right-right{
+	width:100%;
+	padding: 0 10px;
+}
+.avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
+   .title{
+    	display:flex;justify-content: space-between;margin-top:20px
+    }
+    .title:hover{
+    	cursor:pointer;
+    }
+	.right-content{
+		width: 100%;
+		height:100%;
+		/*	margin-bottom:100px;*/
+	}
+    .cgtable{
+		width:100%;
+		margin-top:20px;
+		text-align: center
+	}
+	.cgtable th{
+		width:200px;
+		text-align: center;
+		color:#2B8F8F;
+	}
+	.cgtable td{
+		text-align: center
+	}
+	.detail-bottom{
+		margin-bottom: 120px
+	}
+	.detail-title-mark{
+		display:flex;
+		justify-content: flex-start;
+		border-bottom:1px solid #eee;
+		margin-top:1px;
+		margin-left: 10px;
+	}
+	.detail-title{
+		padding:10px 40px;
+
+	}
+	.table{
+
+	}
+	.page-box{
+		margin-top:4px;
+	}
+	.detail-public{
+		width:100%;
+		margin:10px;
+	}
+	.bor{
+		border-bottom:2px solid #086CA2;
+	}
+	.addressDetail{
+		display: inline-block;
+
+		height: 34px;
+		margin-left:28px;
+		text-indent: 10px;
+		color: #555;
+		background-color: #fff;
+		background-image: none;
+		border: 1px solid #eee;
+
+		-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+		box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+		-webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+		-o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+		transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+	}
+</style>
+<style type="text/css">
+ .demo-spin-icon-load{
+        animation: ani-demo-spin 1s linear infinite;
+    }
+ @keyframes ani-demo-spin {
+    from { transform: rotate(0deg);}
+    50%  { transform: rotate(180deg);}
+    to   { transform: rotate(360deg);}
+}
+/*.el-upload--text{
+	width:100%!important;
+}*/
+.el-input__inner{
+	border: 1px solid #e4e4e4!important;
+	height: 32px!important;
+}
+
+</style>

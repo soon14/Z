@@ -1,0 +1,294 @@
+<template>
+  <!--菜单管理页面-->
+  <div class="nav-box" id="box" @click='hidePoNav'>
+    <div class="nav-header">
+      <div class="nav-logo">
+        
+        <p class='title'>智胜云店</p>
+        <p class="nav-txt" @click.stop='showPoNav'>
+          管理
+          <span><i class="ivu-icon ivu-icon-chevron-down"></i></span>
+        </p>
+      </div>
+      <!--右侧的user-->
+      <div class="nav-right">
+       
+        <p>苏小胖
+          <span><i class="ivu-icon ivu-icon-chevron-down"></i></span>
+        </p>
+      </div>
+    </div>
+    <!--图标列表-->
+
+    <div class="icon-list">
+      <ul>
+        <li @click="gotoPage(0)">
+          <a style="border-left:2px solid #54dd12;">
+           
+            <div class="txt">
+              <p>会员</p>
+              <h5>会员...</h5>
+            </div>
+          </a>
+        </li>
+
+
+
+      </ul>
+    </div>
+    <!--定位的导航-->
+    <div class="position-nav" v-show="positionNav">
+      <ul>
+        <li>
+          <a href="#" style='border: solid 1px #02c39a;'>
+            <img src="../../../static/img/nav1.png" alt="" />
+            <p style="color:#02c39a;">首页</p>
+          </a>
+        </li>
+        <li>
+          <a href="#" style='border: solid 1px #63b9fd;'>
+            <img src="../../../static/img/nav2.png" alt="" />
+            <p style="color:#63b9fd;">管理</p>
+          </a>
+        </li>
+        <li>
+          <a href="#" style='border: solid 1px #ae0ce8;'>
+            <img src="../../../static/img/nav3.png" alt="" />
+            <p style="color:#ae0ce8;">商品</p>
+          </a>
+        </li>
+        <li>
+          <a href="#" style='border: solid 1px #ffc90d;'>
+            <img src="../../../static/img/nav4.png" alt="" />
+            <p style="color:#ffc90d;">财务</p>
+          </a>
+        </li>
+        <li>
+          <a href="#" style='border: solid 1px #1485cc;'>
+            <img src="../../../static/img/nav5.png" alt="" />
+            <p style="color:#1485cc;">运营</p>
+          </a>
+        </li>
+        <li>
+          <a href="#" style='border: solid 1px #54dd12;'>
+            <img src="../../../static/img/nav6.png" alt="" />
+            <p style="color:#54dd12;">会员</p>
+          </a>
+        </li>
+        <li>
+          <a href="#" style='border: solid 1px #f0033f;'>
+            <img src="../../../static/img/nav7.png" alt="" />
+            <p style="color:#f0033f;">零售</p>
+          </a>
+        </li>
+        <li>
+          <a href="#" style='border: solid 1px #1f3d74;'>
+            <img src="../../../static/img/nav8.png" alt="" />
+            <p style="color:#1f3d74;">数据</p>
+          </a>
+        </li>
+        <li>
+          <a href="#" style='border: solid 1px #ed7019;'>
+            <img src="../../../static/img/ylogo.png" alt="" />
+            <p style="color:#ed7019;">智胜</p>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</template>
+
+<script>
+
+  export default{
+
+    data(){
+      return{
+        positionNav:false,
+        uid:this.$store.state.common.token
+
+      }
+    },
+    methods:{
+      showPoNav:function(){
+        this.positionNav=!this.positionNav;
+      },
+      hidePoNav:function(){
+        this.positionNav=false;
+      },
+      gotoPage:function(i){
+        switch(i){
+          //采购
+          case 0:
+            this.$router.push({
+              name:"recharge"
+            });
+            break;
+        }
+
+      }
+    },
+    mounted(){
+
+    }
+  }
+</script>
+
+<style lang="css" scoped>
+  .nav-box {
+    width: 100%;
+    height: 100%;
+    background: url(../../../static/img/nav-bg.png);
+  }
+
+  .nav-header {
+    width: 100%;
+    height: 90px;
+    background-color: #ffffff;
+    box-shadow: 0px 0px 8px 0px rgba(139, 139, 139, 0.86);
+  }
+
+  .nav-header .nav-logo {
+    width: 400px;
+    height: 90px;
+    line-height: 90px;
+    margin-left: 50px;
+  }
+
+  .nav-header .nav-logo img {
+    width: 50px;
+    height: 50px;
+    float: left;
+    margin-top: 20px;
+  }
+
+  .nav-header .nav-logo .title {
+    font-size: 28px;
+    color: #323232;
+    margin-left: 20px;
+    float: left;
+  }
+
+  .nav-txt {
+    font-size: 16px;
+    color: #0d0d0d;
+    margin-left: 30px;
+    float: left;
+    cursor:pointer;
+  }
+
+  .ivu-icon-chevron-down {
+    color: #666666;
+    font-size: 8px;
+  }
+
+  .nav-right {
+    width: auto;
+    height: 90px;
+    float: right;
+    margin-right: 50px;
+    margin-top: -55px;
+  }
+
+  .nav-right img {
+    width: 27px;
+    height: 27px;
+    float: left;
+  }
+
+  .nav-right p {
+    color: #0d0d0d;
+    font-size: 16px;
+    margin: 0 30px;
+  }
+
+  .icon-list {
+    width:100%;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    text-align:center;
+  }
+
+  .icon-list ul {
+    width: 100%;
+    padding: 0;
+  }
+
+  .icon-list ul li {
+    display:inline-block;
+    margin: 40px 40px 0 0;
+  }
+
+  .icon-list ul li a {
+    display: inline-block;
+    width: 270px;
+    height: 120px;
+    background-color: #ffffff;
+    box-shadow: 0px 3px 7px 0px rgba(0, 0, 0, 0.35);
+    border-radius: 3px;
+    opacity: 0.8;
+    padding: 34px 30px;
+  }
+
+  .icon-list ul li a img {
+    width: 49px;
+    height: 56px;
+    float: left;
+  }
+
+  .icon-list ul li a .txt {
+    float: left;
+    margin-left: 25px;
+  }
+
+  .icon-list ul li a .txt p {
+    color: #0d0d0d;
+    font-size: 20px;
+  }
+
+  .icon-list ul li a .txt h5 {
+    color: #909090;
+    font-size: 16px;
+    font-weight: normal;
+    margin-top: 5px;
+  }
+
+  .position-nav {
+    width: 100%;
+    height: 200px;
+    background-color: #ffffff;
+    box-shadow: 0px 0px 8px 0px rgba(139, 139, 139, 0.86);
+    position: fixed;
+    top: 90px;
+    left: 0;
+    padding: 40px 0;
+  }
+
+  .position-nav ul {
+    padding: 0;
+    width: auto;
+    margin-left:12%;
+  }
+
+  .position-nav ul li {
+    float: left;
+    margin-right:50px;
+  }
+
+  .position-nav ul li a {
+    display: inline-block;
+    width: 90px;
+    height: 90px;
+    border-radius: 4px;
+    text-align:center;
+    padding-top:10px;
+  }
+  .position-nav ul li a img{
+    width:42px;
+    height:42px;
+  }
+  .position-nav ul li a p{
+    font-size:18px;
+  }
+</style>

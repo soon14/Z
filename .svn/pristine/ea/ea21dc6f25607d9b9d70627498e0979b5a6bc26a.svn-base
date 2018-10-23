@@ -1,0 +1,113 @@
+<template>
+	<div class="move-left-transition nav ">
+		<!--移动端时  面包屑导航-->
+		<div class="visible-xs-block" v-show="phoneStyle">
+			<div class="row">
+				<div class="col-md-12 col-lg-12 col-xs-1">
+					<div style="width:30px;height:30px;" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+						<span class="glyphicon glyphicon-menu-hamburger">11</span>
+					</div>
+					<div class="collapse navbar-collapse">
+						<Menu width="200" class="nav navbar-nav" id="nav-list" :open-names="opennames" v-on:on-select="goto" :accordion="true">
+							<Submenu v-for="one in menus" target="_blank" :name="one.id" :key="one.id">
+								<template slot="title">
+									<Icon :type="one.icon"></Icon>
+									{{one.name}}
+								</template>
+								<Menu-item v-for="two in one.children" :name="two.href" :key="two.key">
+									<div style="width: 100%; height: 100%;">
+										<Icon :type="two.icon"></Icon>&nbsp;&nbsp;{{two.name}}
+									</div>
+								</Menu-item>
+							</Submenu>
+						</Menu>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--PC端导航显示 手机隐藏-->
+		<div class="visible-md-block visible-lg-block sidebar-style" v-show="pcStyle">
+			<Menu width="200" @click="gotoPage()" :open-names="opennames" v-on:on-select="goto" :accordion="true">
+				<Submenu v-for="one in menus" :name="one.id" :key="one.id">
+					<template slot="title">
+						<Icon :type="one.icon"></Icon>
+						{{one.name}}
+					</template>
+					<Menu-item v-for="two in one.children" :name="two.href" :key="two.key">
+						<div style="width: 100%; height: 100%;">
+							<Icon :type="two.icon"></Icon>&nbsp;&nbsp;{{two.name}}
+						</div>
+					</Menu-item>
+				</Submenu>
+			</Menu>
+		</div>
+	</div>
+</template>
+
+<script>
+	export default {
+		props: {
+			// 该属性是确认父组件传过来的数据是否已经是树形结构了，如果是，则不需要进行树形格式化
+			menus: {
+				type: Array,
+				default: function() {
+					return []
+				}
+			},
+			opennames: {
+				type: Array,
+				default: function() {
+					return []
+				}
+			},
+		},
+		data() {
+			return {
+				phoneStyle: false,
+				pcStyle: false,
+			}
+		},
+		methods: {
+			goto: function(url) {
+				this.$router.push(url);
+				//alert(url);
+			},
+			gotoPage: function() {
+				//alert(1);
+				this.$router.push('/pages/carousmanage');
+			},
+			//js动态获取当前设备的宽度
+			getDeviceWidth: function() {
+				var dev_width = screen.width;
+				/**PC端样式显示**/
+				if(dev_width >= 992) {
+					this.pcStyle = true;
+					this.phoneStyle = false;
+				}
+				//移动端样式显示
+				if(dev_width <= 756) {
+					this.phoneStyle = true;
+					this.pcStyle = false;
+				}
+			}
+		},
+		mounted() {
+			this.getDeviceWidth();
+		},
+		beforeMount: function() {
+			this.$nextTick(function() {
+
+			})
+		}
+	}
+</script>
+<style lang="css" scoped>
+	/****PC端侧边栏样式****/
+	/*@media (min-width:992px) and (max-width:1920px){
+		.sidebar-style{
+			margin-top:-20px;
+		}
+	}*/
+	/***移动端样式***/
+	
+</style>

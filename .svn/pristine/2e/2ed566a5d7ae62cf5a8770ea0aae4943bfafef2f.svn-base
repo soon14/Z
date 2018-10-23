@@ -1,0 +1,1499 @@
+<template>
+	<!--零售报表-->
+	<div class="units-box">
+		<div style='display:flex;height:100%'>
+			<div class='main-left'>
+				<div style='display:flex;border-bottom:1px solid #e4e4e4'>
+					<span  style='height:50px;font-size:18px;font-weight:900;line-height:50px'>
+						<div style='margin:0 10px;'>{{$t('data.detaretail.lsh')}}</div>	<!--零售-->
+					</span>
+				</div>
+				<li class='flclass' v-for='(item,index) in fhlist' :key='index' @click='getfhlistbg(index)' :class="{bor:index==fhindex}">
+					<span>{{item.label}}</span>
+				</li>
+			</div>
+			<!--零售统计报表-->
+			<div class="table" v-show='fhindex==0'>
+				<div style='display:flex;justify-content: space-between;border-bottom:1px solid #e4e4e4'>
+					<span  style='display: flex;height:50px;font-size:18px;font-weight:900;line-height:50px'>
+						<div style='margin:0 10px;'>{{$t('data.detaretail.lshtj')}}</div>	<!--零售统计-->
+						<Input style='margin-top:10px;width:300px;' v-model='fuzzySearch' >
+	                    	<span slot="append" style='cursor:pointer' @click='search'>{{$t('public.search')}}</span><!--搜索-->
+		                </Input>
+						<!-- <a style='font-size:14px;font-weight:600;margin-left:10px;margin-right:20px;border-bottom:1px solid #3b77e3;height:40px' @click='searchNo1(0)'>{{$t('public.PreciseSearch')}}</a> -->
+					</span>
+					<div style='margin-top:10px;margin-right:10px;'>
+		                <Button type="primary" shape="circle" @click="exportNo1(0)" >
+							<Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.export')}}<!--导出-->
+						</Button>
+					</div>
+				</div>
+				<div class='tableb'>
+					<Table border   ref="selection"  :columns="columns" :data="dataList" ></Table>
+					<div class="page-box">
+						 <Page :total="total" show-total size="small" :pageSize='pageSize'  @on-change="getData" @on-page-size-change="changePageSize"></Page>
+					</div>
+				</div>
+			</div>
+			<!--零售明细统计表-->
+			<div class="table" v-show='fhindex==1'>
+				<div style='display:flex;justify-content: space-between;border-bottom:1px solid #e4e4e4'>
+					<span  style='height:50px;display:flex;font-size:18px;font-weight:900;line-height:50px'>
+						<div style='margin:0 10px;'>{{$t('data.detaretail.lshmx')}}</div>	<!--零售明细-->
+						<Input style='margin-top:10px;width:300px;' v-model='fuzzySearch' :placeholder="$t('public.codeandname')">
+	                    <span slot="append" style='cursor:pointer' @click='search'>{{$t('public.search')}}</span>
+		                </Input>
+		                <!-- <a style='font-size:14px;font-weight:600;margin-left:10px;margin-right:20px;border-bottom:1px solid #3b77e3;height:40px' @click='searchNo1(1)'>{{$t('public.PreciseSearch')}}</a> -->
+					</span>
+	                <div style='margin-right:10px;margin-top:10px;'>
+						<Button type="primary" shape="circle" @click="exportNo1(1)" >
+							 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.export')}}
+						</Button>
+	                </div>
+				</div>
+				<div class='tableb'>
+					<Table border   ref="selection"  :columns="mxcolumns" :data="mxdataList" ></Table>
+					<div class="page-box">
+						 <Page :total="mxtotal" show-total size="small" :pageSize='mxpageSize'  @on-change="mxgetData" @on-page-size-change="mxchangePageSize"></Page>
+					</div>
+				</div>
+			</div>
+			<!--零售毛利统计表-->
+			<div class="table" v-show='fhindex==2'>
+				<div style='display:flex;justify-content: space-between;border-bottom:1px solid #e4e4e4'>
+					<span  style='display:flex;height:50px;font-size:18px;font-weight:900;line-height:50px'>
+						<div style='margin:0 10px;'>{{$t('data.detaretail.lshml')}}</div><!--零售毛利-->
+						<Input style='margin-top:10px;width:300px;' v-model='fuzzySearch' :placeholder="$t('public.codeandname')">
+	                    <span slot="append" style='cursor:pointer' @click='search'>{{$t('public.search')}}</span>
+		                </Input>
+		                <!-- <a style='font-size:14px;font-weight:600;margin-left:10px;margin-right:20px;border-bottom:1px solid #3b77e3;height:40px' @click='searchNo1(2)'>{{$t('public.PreciseSearch')}}</a>	 -->
+					</span>
+
+	                <div style='margin-right:10px;margin-top:10px;'>
+						<Button type="primary" shape="circle" @click="exportNo1(2)" >
+							 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.export')}}
+						</Button>
+	                </div>
+			</div>
+				<div class='tableb'>
+					<Table border   ref="selection"  :columns="mlcolumns" :data="mldataList" ></Table>
+					<div class="page-box">
+						 <Page :total="mltotal" show-total size="small" :pageSize='mlpageSize'  @on-change="mlgetData" @on-page-size-change="mlchangePageSize"></Page>
+					</div>
+				</div>
+			</div>
+			<!--零售收银-->
+			<div class="table" v-show='fhindex==3'>
+				<div style='display:flex;justify-content: space-between;border-bottom:1px solid #e4e4e4'>
+					<span  style='display:flex;height:50px;font-size:18px;font-weight:900;line-height:50px'>
+						<div style='margin:0 10px;'>{{$t('data.detaretail.lshsy')}}</div><!--零售收银-->
+						<Input style='margin-top:10px;width:300px;' v-model='fuzzySearch' :placeholder="$t('public.codeandname')">
+	                    <span slot="append" style='cursor:pointer' @click='search'>{{$t('public.search')}}</span>
+		                </Input>
+		                <!-- <a style='font-size:14px;font-weight:600;margin-left:10px;margin-right:20px;border-bottom:1px solid #3b77e3;height:40px' @click='searchNo1(3)'>{{$t('public.PreciseSearch')}}</a> -->
+						</span>
+
+	                <div style='margin-right:10px;margin-top:10px;'>
+						<Button type="primary" shape="circle" @click="exportNo1(3)">
+							 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.export')}}
+						</Button>
+	                </div>
+				</div>
+				<div class='tableb'>
+					<Table border   ref="selection"  :columns="lscolumns" :data="lsdataList" ></Table>
+					<div class="page-box">
+						 <Page :total="lstotal" show-total size="small" :pageSize='lspageSize'  @on-change="lsgetData" @on-page-size-change="lschangePageSize"></Page>
+					</div>
+				</div>
+			</div>
+			<!--零售日报-->
+			<div class="table" v-show='fhindex==4'>
+				<div style='display:flex;justify-content: space-between;border-bottom:1px solid #e4e4e4'>
+					<div  style='display:flex;height:50px;line-height:50px'>
+						<div style='margin:0 10px;font-size:18px;font-weight:900;'>零售日报</div><!--零售日报-->
+						<!-- <Input style='margin-top:10px;width:300px;' v-model='dayReportSearch' :placeholder="$t('public.codeandname')">
+	                    <span slot="append" style='cursor:pointer' @click='dayReportsearch'>{{$t('public.search')}}</span>
+		                </Input> -->
+
+		                <span style='text-align: right;width: 100px;'>{{$t('orders.orderTime')}}：</span> <!--下单时间：-->
+						<DatePicker type="date"  :value='searchDate' style="width: 160px;margin-top:10px" placeholder="Start time" @on-change='searchDate1'></DatePicker>
+						<span style='margin-left: 6px;'>{{$t('operation.yhqHome.endTime')}}：</span>
+						<DatePicker type="date"  :value='searchDate2' style="width: 160px;margin-top:10px" placeholder="End time" @on-change='searchDate21'></DatePicker>
+						<div style="margin-left:5px;color:#fff">
+							<Button type="primary" shape="circle" @click="dayReportsearch">
+								 <Icon type="ios-search" style="margin-right:5px;color:#fff"></Icon>{{$t('public.search')}}
+							</Button>
+						</div>
+		                <!-- <a style='font-size:14px;font-weight:600;margin-left:10px;margin-right:20px;border-bottom:1px solid #3b77e3;height:40px' @click='searchNo1(3)'>{{$t('public.PreciseSearch')}}</a> -->
+					</div>
+
+	                <div style='margin-right:10px;margin-top:10px;'>
+						<Button type="primary" shape="circle" @click="exportNo1(4)">
+							 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.export')}}
+						</Button>
+	                </div>
+				</div>
+				<div class='tableb'>
+					<Table border   ref="selection"  :columns="dayReportKey" :data="dayReport" ></Table>
+					<div class="page-box">
+						 <Page :total="dayReporttotal" show-total size="small" :pageSize='dayReportpageSize'  @on-change="dayReportgetData" @on-page-size-change="dayReportchangePageSize"></Page>
+					</div>
+				</div>
+			</div>
+
+			<!--采购明细-->
+			<div class="table" v-show='fhindex==5'>
+				<div style='display:flex;justify-content: space-between;border-bottom:1px solid #e4e4e4'>
+					<div  style='display:flex;height:50px;line-height:50px'>
+						<div style='margin:0 10px;font-size:18px;font-weight:900;'>采购明细</div>
+		                <span style='text-align: right;width: 100px;'>{{$t('sales.quotation.startTime')}}：</span> <!--下单时间：-->
+						<DatePicker type="date"  :value='searchDateCG' style="width: 160px;margin-top:10px" placeholder="Start time" @on-change='searchDate1CG'></DatePicker>
+						<span style='margin-left: 6px;'>{{$t('sales.quotation.endTime')}}：</span>
+						<DatePicker type="date"  :value='searchDate2CG' style="width: 160px;margin-top:10px" placeholder="End time" @on-change='searchDate21CG'></DatePicker>
+						<div style="margin-left:5px;color:#fff">
+							<Button type="primary" shape="circle" @click="dayReportsearchCG">
+								 <Icon type="ios-search" style="margin-right:5px;color:#fff"></Icon>{{$t('public.search')}}
+							</Button>
+						</div>
+					</div>
+	                <div style='margin-right:10px;margin-top:10px;'>
+						<Button type="primary" shape="circle" @click="exportNo1CG">
+							<Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>
+							 {{$t('public.export')}}
+						</Button>
+	                </div>
+				</div>
+				<div class='tableb'>
+					<Table border :columns="dayReportKeyCG" :data="dayReportCG" ></Table>
+					<div class="page-box">
+						 <Page :total="dayReporttotalCG" show-total size="small" :pageSize='dayReportpageSizeCG'  @on-change="dayReportgetDataCG" @on-page-size-change="dayReportchangePageSizeCG"></Page>
+					</div>
+				</div>
+			</div>
+		</div>
+	<Modal v-model="searchNo1isshow" width="460px">
+	    <p slot="header" style="height:30px;line-height:30px;text-align:center">
+	      
+	      <span>{{cgtitle}}</span>
+	    </p>
+	    <Form :label-width="80">
+	        <FormItem :label="$t('sideBar.manage.goods')" >
+	           <Input v-model='skuname'></Input>
+	           <span @click="clickSku"><Icon type="ios-search" size="16" style='position:absolute;top:8px;right:8px;cursor:pointer' ></Icon></span>
+	        </FormItem>
+	        <FormItem :label="$t('sideBar.store.title')" v-if='fhindex!=3'>
+	           <Input v-model='ckname'></Input>
+	           <span @click="clickStore"><Icon type="ios-search" size="16" style='position:absolute;top:8px;right:8px;cursor:pointer' ></Icon></span>
+	        </FormItem>
+	        <FormItem :label="$t('data.detaretail.syPerson')" v-if='fhindex==3'>
+	           <Input v-model='creatorname'></Input>
+	           <span @click="clickcreator"><Icon type="ios-search" size="16" style='position:absolute;top:8px;right:8px;cursor:pointer' ></Icon></span>
+	        </FormItem>
+	    </Form>
+	    <div slot="footer">
+	      <div class='footer-mark'>
+	        <span><a style='color:#999;font-size:14px' @click='secancel'>{{$t('public.cancel')}}</a></span>
+	        <span style='font-size:20px;width:1px;height:40px;background:#e4e4e4'></span>
+	        <span ><a style='color:#3B77E3;font-size:14px' @click='sure'>{{$t('public.sure')}}</a></span>
+	      </div>
+	    </div>
+  	</Modal>
+  	 <!--选择商品-->
+	<Modal v-model="goodsinshow" width="700px">
+		<p slot="header" style="height:30px;line-height:30px">
+			
+			<span>{{$t('public.search')}}</span>
+		</p>
+		<div style="position:relative;text-align:center;width:100%;height:35px;line-height:35px;display:flex;">
+			<Input :placeholder="$t('public.codeandname')"  v-model="goodskeyword" ></Input>
+			<span @click="searchInput">
+			<Icon type="search" size="16" style="display:inline-block;position:absolute;top:10px;right:18px;z-index:9" ></Icon>
+			</span>
+		</div>
+		<!--商品数据-->
+		<div slot="footer">
+			<div  style='margin-top:-10px;'>
+				<Table  border  height='200' highlight-row  :columns="goodskey" :data="goods" @on-row-click="clickgoodsrow">
+				</Table>
+				<div style='text-align:left;margin-top:5px'>
+				 <Page :total="skutotal" show-total  :pageSize='skupageSize'  @on-change="skugetData" @on-page-size-change="skuchangePageSize"></Page>
+				</div>
+           	</div>
+			
+			<div class='title' style='margin:0px'>
+				<div style='color:#D15151;font-size:14px'>
+					<!-- <Icon type="plus" style='margin-right:5px'></Icon>
+					<span >添加商品</span> -->
+				</div>
+				<div>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='skucancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#00A7F5;color:#fff" @click="skusure"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+	<!--选择门店弹出框-->
+	<Modal v-model="warehouseshow" width="660px">
+		<p slot="header" style="height:30px;line-height:30px">
+			
+			<span>{{$t('public.search')}}</span>
+		</p>
+		<div style="position:relative;text-align:center;width:100%;height:35px;line-height:35px;display:flex;">
+			<Input v-model="ckkeyword"  :placeholder="$t('public.codeandname')" style="padding:2px 0;"></Input>
+			<span @click="getckKeyword">
+				<Icon type="search" size="16" style="display:inline-block;position:absolute;top:10px;right:18px;z-index:9" ></Icon>
+			</span>
+		</div>
+		<div slot="footer">
+			<!--仓库表格-->
+			<Table  border height='200' highlight-row  :columns="ckkey" :data="allwarehouse" @on-row-click="ckrow">
+			</Table>
+			<!--分页-->
+            <div  style="text-align:left">
+			 <Page :total="cktotal" :pageSize='ckpageSize' show-total @on-change="getckData" @on-page-size-change="changeckPageSize"></Page>
+			</div>
+			<div class='title' style='margin:0px'>
+				<div style='color:#D15151;font-size:14px'>
+					<!-- <Icon type="plus" style='margin-right:5px'></Icon>
+					<span >添加仓库</span> -->
+				</div>
+				<div>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='modelCancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#00A7F5;color:#fff" @click="makeck"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+	<!--收银员-->
+	<Modal v-model="creatorshow" width="660px">
+		<p slot="header" style="height:30px;line-height:30px">
+			
+			<span>{{$t('public.search')}}</span>
+		</p>
+		<div style="position:relative;text-align:center;width:100%;height:35px;line-height:35px;display:flex;">
+			<Input v-model="creatorkeyword"  :placeholder="$t('public.codeandname')" style="padding:2px 0;"></Input>
+			<span @click="getcreatorKeyword">
+				<Icon type="search" size="16" style="display:inline-block;position:absolute;top:10px;right:18px;z-index:9" ></Icon>
+			</span>
+		</div>
+		<div slot="footer">
+			<!--仓库表格-->
+			<Table  border height='200' highlight-row  :columns="creatorkey" :data="allcreator" @on-row-click="creatorrow">
+			</Table>
+			<!--分页-->
+            <div  style="text-align:left">
+			 <Page :total="creatortotal" :pageSize='creatorpageSize' show-total @on-change="getcreatorData" @on-page-size-change="changecreatorPageSize"></Page>
+			</div>
+			<div class='title' style='margin:0px'>
+				<div style='color:#D15151;font-size:14px'>
+					<!-- <Icon type="plus" style='margin-right:5px'></Icon>
+					<span >添加仓库</span> -->
+				</div>
+				<div>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='creatormodelCancel'><Icon type="close" style="margin-right:5px;" ></Icon>{{$t('public.cancel')}}</Button>
+					<Button shape="circle" type="ghost" style="display:inline-block;background:#00A7F5;color:#fff" @click="makecreator"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.sure')}}</Button>
+				</div>
+			</div>
+		</div>
+	</Modal>
+	</div>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				cgtitle:this.$t('data.detaretail.lshtj'),//'零售统计',
+				searchNo1isshow:false,
+				fuzzySearch:'',//搜索关键词
+				//收银流水
+				lstotal:0,//
+				lspageSize:0,
+				lsdataList:[],
+				lscolumns:[
+					
+					{
+						title: this.$t('data.detaretail.orderNo'),//'单号',
+					
+						key: 'orderNo'
+					},
+					{
+						title: this.$t('data.detaretail.syPerson'),//'收银员',
+						
+						key: 'creator',
+					
+						align: 'center'
+					},
+					{
+						title: this.$t('data.detaretail.store'),//'门店',
+						
+						key: 'storeName'
+					},
+					{
+						title: this.$t('member.payType'),//'支付方式',
+						
+						key: 'payTitle',
+						
+						align: 'center'
+					},
+					{
+						title:this.$t('data.detaretail.skje'),// '收款金额',
+				
+						key: 'totalAmount',
+						
+						align: 'center'
+					},
+					
+					{
+						title: this.$t('data.detaretail.skTime'),//'收银时间',
+					
+						key: 'cashTime'
+					},
+					{
+						title: this.$t('public.remark'),//'备注',
+				
+						key: 'remark'
+					},
+				],
+				//明细
+				mxtotal:0,//
+				mxpageSize:0,
+				mxdataList:[],
+				mxcolumns:[
+
+					{
+						title: this.$t('data.detaretail.orderNo'),//'单号',
+						ellipsis:true,
+						key: 'orderNo'
+					},
+					
+					{
+						title: this.$t('data.detaretail.store'),//'门店',
+						ellipsis:true,
+						key: 'storeName'
+					},
+					{
+						title: this.$t('purchase.purchaseOrder.ck'),//'仓库',
+						ellipsis:true,
+						key: 'warehouse'
+					},
+					{
+						title: this.$t('data.detaretail.kh'),//'客户',
+						ellipsis:true,
+						key: 'customerName'
+					},
+					{
+						title:this.$t('data.detaretail.skuname'),// '商品名称',
+						ellipsis:true,
+						key: 'skuName'
+					},
+
+					{
+						title: this.$t('data.detaretail.jsprice'),//'结算价',
+						ellipsis:true,
+						key: 'amount',
+						align:'center'
+					},
+					{
+						title: this.$t('data.detaretail.unit'),//'单位',
+						ellipsis:true,
+						key: 'unit',
+						width:80,
+						align:'center'
+					},
+					{
+						title:this.$t('data.detaretail.attrs'),//"属性",
+						ellipsis:true,
+						key:"skuSpec",
+					},
+					
+					
+					
+					{
+						title: this.$t('data.detaretail.orderTime'),//'单据日期',
+						ellipsis:true,
+						key: 'orderTime',
+						align:'center'
+					},
+				],
+				//毛利
+				mltotal:0,
+				mlpageSize:0,
+				mldataList:[],
+				mlcolumns:[
+					
+					{
+						title: this.$t('data.detaretail.store'),//'门店'
+						ellipsis:true,
+						key: 'storeName'
+					},
+					{
+						title: this.$t('data.detaretail.kh'),//'客户',
+						ellipsis:true,
+						key: 'customerName'
+					},
+					{
+						title:this.$t('data.detaretail.skuname'),// '商品名称',
+						ellipsis:true,
+						key: 'skuName'
+					},
+					{
+						title:this.$t('data.detaretail.price'),//"单价",
+						ellipsis:true,
+						key:"unitPrice",
+					},
+					{
+						title:this.$t('data.detaretail.costprice'),//"成本价",
+						ellipsis:true,
+						key:"costPrice",
+					},
+					// {
+					// 	title:this.$t('data.detaretail.costprice'),// '销售金额',
+					// 	ellipsis:true,
+					// 	key: 'amount',
+					// 	align:'center'
+					// },
+					{
+						title: this.$t('data.detaretail.unit'),//'单位',
+						ellipsis:true,
+						key: 'unit',
+						width:80,
+						align:'center'
+					},
+					
+					{
+						title:this.$t('data.detaretail.saleC'),// '销售成本',
+						ellipsis:true,
+						key: 'sellingCost'
+					},
+					{
+						title: this.$t('data.detaretail.saleM'),//'销售毛利',
+						ellipsis:true,
+						key: 'sellingGrossMargin'
+					},
+					{
+						title: this.$t('data.detaretail.saleMV'),//'毛利率',
+						ellipsis:true,
+						key: 'grossProfitRate'
+					},
+					
+				],
+				//零售日报
+				searchDate:"",
+				searchDate2:"",
+				dayReportSearch:"",
+				dayReport:[],
+				dayReportKey:[
+					{
+						title:"日期",
+						key:"orderCreateTime"
+					},
+					{
+						title:"订单数量",
+						key:"orderCount"
+					},
+					{
+						title:"客单价",
+						key:""
+					},
+					{
+						title:"订单总金额 ",
+						key:"amount"
+					},
+				],
+				dayReporttotal:0,
+				dayReportpageSize:0,
+
+				fhindex:0,
+				row:{},
+				isLoading:true,
+				visible: false,
+				dataList: [], //零售统计报表
+				fhlist:[
+					{
+						label:this.$t('data.detaretail.lshtj'),//"零售统计",
+						value:0
+					},
+					{
+						label:this.$t('data.detaretail.lshmx'),//"零售明细",
+						value:1
+					},
+					{
+						label:this.$t('data.detaretail.lshml'),//"零售毛利",
+						value:2
+					},
+					{
+						label:this.$t('data.detaretail.lshsy'),//"零售收银",
+						value:3
+					},
+					{
+						label:"零售日报",
+						value:4
+					},
+					{
+						label:"采购明细",
+						value:5
+					},
+					
+				],
+				//零售统计
+				total: 0,
+				pageSize: 0,
+				valId:"",
+				type:'',//下拉选中
+				uid: this.$store.state.common.token,
+				columns: [
+					
+					{
+						title: this.$t('data.detaretail.store'),//'门店'
+						ellipsis:true,
+						key: 'storeName'
+					},
+					{
+						title: this.$t('data.detaretail.kh'),//'客户',
+						ellipsis:true,
+						key: 'customerName'
+					},
+					{
+						title:this.$t('data.detaretail.skuname'),// '商品名称',
+						ellipsis:true,
+						key: 'skuName'
+					},
+					
+					{
+						title:this.$t('data.detaretail.price'),//"单价",
+						ellipsis:true,
+						width:120,
+						key:"price",
+					},
+					{
+						title:this.$t('data.detaretail.num'),//"数量",
+						ellipsis:true,
+						key: 'num',
+						width:80,
+						align:'center'
+					},
+					{
+						title: this.$t('data.detaretail.Allprice'),//'总价',
+						ellipsis:true,
+						key: 'totalPrice',
+						align:'center'
+					},
+					
+					{
+						title: this.$t('data.detaretail.unit'),//'单位',
+						ellipsis:true,
+						key: 'unit',
+						width:80,
+						align:'center'
+					},
+					
+					
+					{
+						title: this.$t('data.detaretail.year'),//'年份',
+						ellipsis:true,
+						key: 'year',
+						width:80,
+					},
+					{
+						title:  this.$t('data.detaretail.monuth'),//'月份',
+						ellipsis:true,
+						width:80,
+						key: 'month'
+					},
+
+				],
+				goodsinshow:false,//商品弹框是否显示
+				//弹出框商品data
+				skutotal:0,
+				skupageSize:0,
+				numindex:'',
+				skuObj:{},//一行商品数据
+				skuid:'',//商品id
+				skuname:'',//商品名称
+				goodskeyword:'',//查询关键字
+				goods:[],
+                goodskey:[
+	                {
+	                	title:"",
+	                	width:100,
+	                	key:"mainPhoto",
+	                	 render:(h, params) =>{
+                        	return h('div',[
+                        			h('img',{
+                        				attrs:{
+                        					src:params.row.mainPhoto
+                        				},
+                        				style:{
+                        					width:'40px',
+                        					height:'40px'
+                        				}
+                        			})
+                        		])
+                        }
+	                },
+	                {
+	                	title:this.$t('data.detaretail.skuname'),// '商品名称',
+	             		ellipsis:true,
+	                	ellipsis:'true',
+	                	key:"skuName"
+	                },
+	                {
+	                	title: this.$t('manage.sku.SkuCode'),// '商品货号',
+	                	key:'skuCode',
+	               		ellipsis:true,
+	                	align: 'center'
+	                },
+	                {
+	                	title: this.$t('manage.sku.barnd'),// '商品品牌',
+	                	key:'barnd',
+	               		ellipsis:true,
+	                	align: 'center'
+	                },
+	                {
+	                	title: this.$t('manage.sku.FL'),//'商品分类',
+	                	key:'className',
+	               		ellipsis:true,
+	                	align: 'center'
+	                },
+	              	{
+	                	title:this.$t('data.detaretail.price'),//"单价",
+	                	key:'price',
+						ellipsis:true,
+	                	align: 'center'
+	                },
+	                {
+	                	title: this.$t('manage.sku.inventoryUp'),//'库存',
+	                	key:'inventoryUp',
+						ellipsis:true,
+	                	align: 'center'
+	                },
+	                
+                ],
+                //门店
+                warehouseshow:false,
+                ckkeyword:'',//仓库搜索关键字
+                cktotal:0,
+                ckpageSize:0,
+                ckObj:{},//一行仓库数据
+                ckname:"",//仓库名称
+                ckid:'',//仓库id
+                allwarehouse:[],
+                ckkey:[
+					{
+						title:this.$t('data.detaretail.store'),//"门店名",
+						ellipsis:true,
+						key:"name"
+					},
+					{
+						title:this.$t('manage.store.Code'),//"门店编号",
+						ellipsis:true,
+						key:"code"
+					},
+					{
+						title: this.$t('manage.sku.FL'),//'商品分类',
+						ellipsis:true,
+						key:"category"
+					},
+					{
+						title:this.$t('public.status'),//"状态",
+						ellipsis:true,
+						key:"statusDesc"
+					},
+				],
+				//员工
+
+                creatorshow:false,
+               	creatorkeyword:'',//员工搜索关键字
+                creatortotal:0,
+                creatorpageSize:0,
+                creatorObj:{},//一行员工数据
+                creatorname:"",//员工称
+                creatorid:'',//员工id
+                allcreator:[],
+                creatorkey:[
+					{
+						title:this.$t('member.name'),//"员工",
+						
+						key:"name"
+					},
+					{
+						title:this.$t('manage.store.Code'),//"员工编号",
+						
+						key:"code"
+					},
+					{
+						title: this.$t('manage.sku.FL'),//'商品分类',
+						
+						key:"category"
+					},
+					{
+						title:this.$t('public.status'),//"状态",
+						
+						key:"statusDesc"
+					},
+				],
+				//采购明细
+				dayReportCG:[],
+				dayReportKeyCG:[
+
+					{
+						title:this.$t('data.detaretail.orderTime'),
+						key:"createTime"
+					},
+					{
+						title:"发货时间",
+						key:"shipTime"
+					},
+					{
+						title:this.$t('data.detaretail.orderNo'),
+						key:"orderNo"
+					},
+					{
+						title:this.$t('data.sku.type'),
+						key:"type"
+					},
+					{
+						title:this.$t('data.detaretail.skuname'),
+						key:"skuName"
+					},
+					{
+						title:this.$t('data.detaretail.price'),
+						key:"price"
+					},
+					{
+						title:this.$t('data.detaretail.num'),
+						key:"quantity"
+					},
+					
+					{
+						title:this.$t('data.detaretail.price'),
+						key:"price"
+					},
+					{
+						title:this.$t('manage.sku.costprice'),
+						key:"costPrice"
+					},
+					{
+						title:"运费",
+						key:"shipPrice"
+					},
+					{
+						title:this.$t('data.crm.crmName'),
+						key:"crmName"
+					},
+					{
+						title:this.$t('data.cg.mobile'),
+						key:"crmMobile"
+					},
+					{
+						title:this.$t('public.address'),
+						key:"crmAddress"
+					},
+				],
+				dayReporttotalCG:0,
+				dayReportpageSizeCG:0,
+				searchDateCG:"",
+				searchDate2CG:"",
+			}
+		},
+		methods: {
+			//日期1
+			searchDate1(v){
+				this.searchDate=v
+			},
+			//日期2
+			searchDate21(v){
+				this.searchDate2=v
+			},
+			//搜索零售日报
+			dayReportsearch(){
+				this.getDayReport()
+			},
+			//获取零售日报
+			getDayReport(){
+				this.axios.get('statement/dayStatement?uid='+this.uid,{
+					params:{
+						beginTime:this.searchDate,
+						endTime:this.searchDate2,
+					}
+				}).then(res=>{
+					if(res.data.status==200){
+						this.dayReport=res.data.rows
+						this.dayReporttotal=res.data.total
+						this.dayReportpageSize=res.data.pageSize
+					}
+				})
+			},
+			//零售日报翻页
+			dayReportgetData(current){
+				this.axios.get('statement/dayStatement?offset='+current+'&uid='+this.uid,{
+					params:{
+						beginTime:this.searchDate,
+						endTime:this.searchDate2,
+					}
+				}).then(res=>{
+					if(res.data.status==200){
+						this.dayReport=res.data.rows
+						this.dayReporttotal=res.data.total
+						this.dayReportpageSize=res.data.pageSize
+					}
+				})
+			},
+			dayReportchangePageSize(size){
+				this.dayReportpageSize=size
+			},
+			//切换
+			getfhlistbg(index){
+				this.fhindex=index
+				if(this.fhindex==0){
+					this.getcgList()//零售统计报表
+				}
+				//零售明细
+				if(this.fhindex==1){
+					//明细GET /retail/retailDetail
+					this.axios.get('/retail/retailDetail?uid='+this.uid).then(res=>{
+						if(res.data.status==200){
+							this.mxdataList=res.data.rows
+							this.mxtotal=res.data.totalCount
+							this.mxpageSize=res.data.pageSize
+						}
+					})
+				}
+				//零售毛利GET /retail/retailGrossMarginDetail
+				if(this.fhindex==2){
+					this.axios.get('retail/retailGrossMarginDetail?uid='+this.uid).then(res=>{
+						if(res.data.status==200){
+							this.mldataList=res.data.rows
+							this.mltotal=res.data.totalCount
+							this.mlpageSize=res.data.pageSize
+						}
+					})
+				}
+				//收银retail/retailCashDetail
+				if(this.fhindex==3){
+					this.axios.get('retail/retailCashDetail?uid='+this.uid).then(res=>{
+						if(res.data.status==200){
+							this.lsdataList=res.data.rows
+							this.lstotal=res.data.totalCount
+							this.lspageSize=res.data.pageSize
+						}
+					})
+				}
+				//零售日吧
+				if(this.fhindex==4){
+					this.getDayReport()
+				}
+				//采购明细
+				if(this.fhindex==5){
+					this.getDayReportCG()
+				}
+			},
+			//零售统计报表
+			getcgList(){
+				this.axios.get('retail/retailStatisticsDetail?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.dataList=res.data.rows
+						this.total=res.data.totalCount
+						this.pageSize=res.data.pageSize
+					}
+				})
+			},
+			//表格选中时的数据，数组
+			selected(selection,row){
+				this.valId = row.id
+				this.row = row
+			},
+			 //切换一条页
+            getData(current){
+                this.axios.get('retail/retailStatisticsDetail?offset='+current+'&uid='+this.uid).then((res)=>{
+                    this.dataList = res.data.rows
+                    this.total=res.data.totalCount
+					this.pageSize=res.data.pageSize
+                })
+            },
+            //翻页
+            changePageSize(size){
+                this.pageSize = size
+            },
+            //明细
+             //切换一条页
+            mxgetData(current){
+                this.axios.get('/retail/retailDetail?offset='+current+'&uid='+this.uid).then((res)=>{
+                    this.mxdataList = res.data.rows
+                    this.mxtotal=res.data.totalCount
+					this.mxpageSize=res.data.pageSize
+                })
+            },
+            //翻页
+            mxchangePageSize(size){
+                this.mxpageSize = size
+            },
+            //毛利
+             //切换一条页
+            mlgetData(current){
+                this.axios.get('retail/retailGrossMarginDetail?offset='+current+'&uid='+this.uid).then((res)=>{
+                    this.mldataList = res.data.rows
+                    this.mltotal=res.data.totalCount
+					this.mlpageSize=res.data.pageSize
+                })
+            },
+            //翻页
+            mlchangePageSize(size){
+                this.mlpageSize = size
+            },
+             //收银流水
+             //切换一条页
+            lsgetData(current){
+                this.axios.get('retail/retailCashDetail?offset='+current+'&uid='+this.uid).then((res)=>{
+                    this.lsdataList = res.data.rows
+                    this.lstotal=res.data.totalCount
+					this.lspageSize=res.data.pageSize
+                })
+            },
+            //翻页
+            lschangePageSize(size){
+                this.lspageSize = size
+            },
+            //商品
+            //查询商品
+            clickSku(){
+            	this.goodsinshow=true
+            	this.axios.get('sku/query?uid='+this.uid).then(res=>{
+            		if(res.data.status==200){
+            			this.goods=res.data.rows
+            			this.skutotal=res.data.total
+            			this.skupageSize=res.data.pageSize
+            		}
+            	})
+            },
+            //商品弹框点击一行获取数据
+			clickgoodsrow(data){
+				this.skuObj=data
+				console.log(data)
+			},
+			//商品确认
+			skusure(){
+				this.skuid=this.skuObj.id
+				this.skuname=this.skuObj.skuName
+				this.goodsinshow=false
+			},
+			//商品取消
+			skucancel(){
+				this.goodsinshow=false
+			},
+			  //商品模糊搜索
+            searchInput(){
+				this.axios.get('sku/query?keyword='+this.goodskeyword+'&uid='+this.uid).then((res)=>{
+					if(res.data.status==200){
+						this.goods = res.data.rows
+						this.skutotal=res.data.total
+						this.skupageSize=res.data.pageSize
+					}
+				})
+			
+            },
+            //回车搜索商品
+           enterSearch(){
+           	this.searchInput()
+           },
+           //商品切换
+            skugetData(current){
+                this.axios.get('sku/query?offset='+current+'&uid='+this.uid).then((res)=>{
+                    this.goods = res.data.rows
+					this.skutotal=res.data.total
+					this.skupageSize=res.data.pageSize
+                })
+            },
+            //翻页
+            skuchangePageSize(size){
+                this.skupageSize = size
+            },
+           
+             //门店
+            clickStore(){
+            	this.axios.get('/store/query?uid='+this.uid).then((res)=>{
+					this.allwarehouse=res.data.rows
+					this.cktotal=res.data.total
+					this.ckpageSize=res.data.pageSize
+				})
+            	this.warehouseshow=true
+            },
+             //门店翻页
+            getckData(current){
+                this.axios.get('store/query?offset='+current+'&uid='+this.uid).then((res)=>{
+                    this.allwarehouse = res.data.rows
+                    this.cktotal=res.data.total
+					this.ckpageSize=res.data.pageSize
+                })
+            },
+            //翻页
+           changeckPageSize(size){
+                this.ckpageSize = size
+            },
+            //单击门店列表一行
+			ckrow(data,index){
+				this.ckObj=data
+				
+			},
+			//门店确认
+			makeck(){
+				this.ckname=this.ckObj.name
+				this.ckid=this.ckObj.id
+				this.warehouseshow=false
+			},
+			//门店取消
+			modelCancel(){
+				this.warehouseshow=false
+			},
+            //门店模糊搜索
+			getckKeyword(){
+				this.axios.get('store/query?keyword='+this.ckkeyword+'&uid='+this.uid).then((res)=>{
+					if(res.data.status==200){
+						this.allwarehouse = res.data.rows
+						this.creatortotal=res.data.total
+						this.creatorpageSize=res.data.pageSize
+					}
+				})
+			},
+			//员工
+
+            clickcreator(){
+            	this.axios.get('/employee/query?uid='+this.uid).then((res)=>{
+					this.allcreator=res.data.rows
+					this.creatortotal=res.data.total
+					this.creatorpageSize=res.data.pageSize
+				})
+            	this.creatorshow=true
+            },
+             //员工翻页
+            getcreatorData(current){
+                this.axios.get('employee/query?offset='+current+'&uid='+this.uid).then((res)=>{
+                    this.allcreator = res.data.rows
+                    this.creatortotal=res.data.total
+					this.creatorpageSize=res.data.pageSize
+                })
+            },
+            //翻页
+           changecreatorPageSize(size){
+                this.creatorpageSize = size
+            },
+            //单击员工列表一行
+			creatorrow(data,index){
+				this.creatorObj=data
+				
+			},
+			//员工确认
+			makecreator(){
+				this.creatorname=this.creatorObj.name
+				this.creatorid=this.creatorObj.id
+				this.creatorshow=false
+			},
+			//员工取消
+			creatormodelCancel(){
+				this.creatorshow=false
+			},
+            //员工模糊搜索
+			getcreatorKeyword(){
+				this.axios.get('store/list?keyword='+this.ckkeyword+'&uid='+this.uid).then((res)=>{
+					if(res.data.status==200){
+						this.allcreator = res.data.rows
+						this.creatortotal=res.data.total
+						this.creatorpageSize=res.data.pageSize
+					}
+				})
+			},
+            //取消
+            secancel(){
+            	this.skuname=''
+				this.ckname=''
+				this.creatorname=''
+				this.searchNo1isshow=false
+            },
+            //确认
+            sure(){
+            	//统计            	
+            	if(this.fhindex==0){
+            		this.axios.get('retail/retailStatisticsDetail?storeName='+this.ckname+'&skuName='+this.skuname+'&uid='+this.uid).then(res=>{
+						if(res.data.status==200){
+							this.dataList=res.data.rows
+							this.total=res.data.totalCount
+							this.pageSize=res.data.pageSize
+							
+							this.searchNo1isshow=false
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+            	}
+            	//明细
+            	if(this.fhindex==1){
+            		this.axios.get('retail/retailDetail?storeName='+this.ckname+'&skuName='+this.skuname+'&uid='+this.uid).then(res=>{
+						if(res.data.status==200){
+							this.mxdataList=res.data.rows
+							this.mxtotal=res.data.totalCount
+							this.mxpageSize=res.data.pageSize
+							
+							this.searchNo1isshow=false
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+            	}
+            	//毛利
+            	if(this.fhindex==2){
+            		this.axios.get('retail/retailGrossMarginDetail?storeName='+this.ckname+'&skuName='+this.skuname+'&uid='+this.uid).then(res=>{
+						if(res.data.status==200){
+							this.mldataList=res.data.rows
+							this.mltotal=res.data.totalCount
+							this.mlpageSize=res.data.pageSize
+							
+							this.searchNo1isshow=false
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+            	}
+            	//收银
+            	if(this.fhindex==3){
+            		this.axios.get('retail/retailCashDetail?storeName='+this.ckname+'&skuName='+this.creatorname+'&uid='+this.uid).then(res=>{
+						if(res.data.status==200){
+							this.lsdataList=res.data.rows
+							this.lstotal=res.data.totalCount
+							this.lspageSize=res.data.pageSize
+							
+							
+							this.searchNo1isshow=false
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+            	}
+            },
+            //模糊搜索
+            search(){
+            	//统计            	
+            	if(this.fhindex==0){
+            		this.axios.get('retail/retailStatisticsDetail?storeName='+this.ckname+'&skuName='+this.skuname+'&uid='+this.uid).then(res=>{
+						if(res.data.status==200){
+							this.dataList=res.data.rows
+							this.total=res.data.totalCount
+							this.pageSize=res.data.pageSize
+							
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+            	}
+            	//明细
+            	if(this.fhindex==1){
+            		this.axios.get('retail/retailDetail?storeName='+this.ckname+'&skuName='+this.skuname+'&uid='+this.uid).then(res=>{
+						if(res.data.status==200){
+							this.mxdataList=res.data.rows
+							this.mxtotal=res.data.totalCount
+							this.mxpageSize=res.data.pageSize
+							
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+            	}
+            	//毛利
+            	if(this.fhindex==2){
+            		this.axios.get('retail/retailGrossMarginDetail?storeName='+this.ckname+'&skuName='+this.skuname+'&uid='+this.uid).then(res=>{
+						if(res.data.status==200){
+							this.mldataList=res.data.rows
+							this.mltotal=res.data.totalCount
+							this.mlpageSize=res.data.pageSize
+							
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+            	}
+            	//收银
+            	if(this.fhindex==3){
+            		this.axios.get('retail/retailCashDetail?storeName='+this.ckname+'&skuName='+this.creatorname+'&uid='+this.uid).then(res=>{
+						if(res.data.status==200){
+							this.lsdataList=res.data.rows
+							this.lstotal=res.data.totalCount
+							this.lspageSize=res.data.pageSize
+							
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:  res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+            	}
+            },
+            //精准搜索
+            searchNo1(n){
+            	if(n==0){
+            		this.ckname=''
+            		this.skuName=''
+            		this.cgtitle='零售统计查询'
+            		this.searchNo1isshow=true
+            	}
+            	if(n==1){
+            		this.ckname=''
+            		this.skuName=''
+            		this.cgtitle='零售明细查询'
+            		this.searchNo1isshow=true
+            	}
+            	if(n==2){
+            		this.ckname=''
+            		this.skuName=''
+            		this.cgtitle='零售毛利查询'
+            		this.searchNo1isshow=true
+            	}
+            	if(n==3){
+            		this.ckname=''
+            		this.skuName=''
+            		this.creatorname=''
+            		this.cgtitle='零售收银流水查询'
+            		this.searchNo1isshow=true
+            	}
+            	
+            },
+            //导出
+            exportNo1(n){
+            	//零售日报
+            	if(n==4){
+            		this.axios.get('orderExport/orderExcel?uid='+this.uid,{
+	            		params:{
+							beginTime:this.searchDate,
+							endTime:this.searchDate2,
+						}
+	            	}).then(res=>{
+	            		if(res.data!=null){
+							this.$notify({
+								title:"",//
+								message: res.data.errorMessage,
+								type: 'error',
+								position: 'bottom-right'
+							});
+						}else{
+							window.location.href=res.request.responseURL
+						}
+	            	})
+            	}
+            },
+
+
+
+
+
+            /////采购明细
+            //日期
+			searchDate1CG(v){
+				this.searchDateCG=v
+			},
+			searchDate21CG(v){
+				this.searchDate2CG=v
+			},
+			///搜索
+			dayReportsearchCG(){
+				this.getDayReportCG()
+			},
+			//日报GET /statement/ynOrderStatement 订单日报表
+			getDayReportCG(){
+				this.axios.get('/statement/ynOrderStatement?uid='+this.uid,{
+					params:{
+						beginTime:this.searchDateCG,
+						endTime:this.searchDate2CG,
+					}
+				}).then(res=>{
+					if(res.data.status==200){
+						let data=res.data
+						this.dayReportCG=data.rows
+						this.dayReporttotalCG=data.total
+						this.dayReportpageSizeCG=data.pageSize
+					}
+				})
+			},
+			//翻页
+			dayReportgetDataCG(current){
+				this.axios.get('statement/dayStatement?offset='+current+'&uid='+this.uid,{
+					params:{
+						beginTime:this.searchDateCG,
+						endTime:this.searchDate2CG,
+					}
+				}).then(res=>{
+					if(res.data.status==200){
+						let data=res.data
+						this.dayReportCG=data.rows
+						this.dayReporttotalCG=data.total
+						this.dayReportpageSizeCG=data.pageSize
+					}
+				})
+			},
+			dayReportchangePageSizeCG(size){
+				this.dayReportpageSizeCG=size
+			},
+            //导出GET /orderExport/order 导出印尼订单报表
+            exportDayReportCG(){
+            	this.axios.get('/orderExport/order?uid='+this.uid,{
+            		params:{
+						beginTime:this.searchDateCG,
+						endTime:this.searchDate2CG,
+					}
+            	}).then(res=>{
+            		if(res.data!=null){
+						this.$notify({
+							title:"",//
+							message: res.data.errorMessage,
+							type: 'error',
+							position: 'bottom-right'
+						});
+					}else{
+						window.location.href=res.request.responseURL
+					}
+            	})
+            },
+            //导出
+            exportNo1CG(n){
+            	
+            	this.exportDayReportCG()
+            },
+            //获取当前前几天或后几天
+            getBdate(num){
+		        var now = new Date();
+    			var Days = now - num*24*60*60*1000;
+    			return new Date(Days)
+		    },
+            getDATE(){
+            	let date=new Date()
+				this.searchDate2=date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate()
+				this.searchDate2CG=date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate()
+            },
+		},
+		mounted() {
+			this.getcgList();//零售统计报表
+			this.getDATE()//当前日期
+			this.searchDate=this.getBdate(30)
+			this.searchDateCG=this.getBdate(30)
+
+		}
+	}
+</script>
+
+<style lang="css" scoped>
+p.edit:hover{
+	color:blue;
+}
+	.units-box {
+		width: 100%;
+		height:100%;
+		background: rgb(230,233,236)
+	}
+	.btns-box {
+		width: 100%;
+		height: 50px;
+		display:flex;
+		justify-content: space-between;
+		background: #fff;
+		line-height: 50px;
+	}
+	 .wldw{
+    	margin-left:15px;
+    }
+	.right{
+		margin-right:10px;
+		margin-bottom:10px;
+		display: flex;
+	}
+	.ivu-icon-chevron-down {
+		font-size: 10px;
+	}
+	.btns img {
+		width: 14px;
+		height: 14px;
+		vertical-align: middle;
+	}
+	.main-left{
+		width: 120px;
+		margin-right: 3px;
+		flex: 0 0 120px;
+		font-size: 14px;
+		background: #fff;
+	}
+	.main-left li{
+		list-style: none;
+		padding:10px 0;
+		width:100%;
+		
+	}
+	.main-left li span{
+		margin-left:20px;
+	}
+	.table {
+		width: 100%;
+		height: 100%;
+		overflow: auto;
+		background: #fff;
+	}
+	.tableb{
+		padding:10px;
+	}
+	.bor{
+		background: #EBF1FC
+	}
+	.page-box {
+		text-align: center;
+		margin-top:2px;
+		 margin-bottom:120px;
+	}
+	
+	.footer-mark{
+	  width:100%;
+	  height:40px;
+	  border-top:1px solid #E4E4E4;
+	  display: flex;
+	  justify-content: space-around;
+	  margin-bottom:-10px;
+	}
+.footer-mark span{
+  height:40px;
+  line-height: 40px
+}
+</style>
+

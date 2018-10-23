@@ -1,0 +1,276 @@
+*{margin:0;padding:0;}
+html,body,#app,.wrapper{
+    width:100%;
+    height:100%;
+    overflow: hidden;
+}
+body{
+    font-family:Helvetica,STHeiti,Microsoft YaHei,Verdana,Arial,Tahoma,sans-serif
+    
+}
+.flclass:hover{
+	cursor:pointer;
+}
+.detail-title:hover{
+    cursor:pointer;
+}
+a{
+    text-decoration: none;
+    
+}
+.totBottom{
+    position: fixed;
+    bottom: 10px;
+    left: 358px;
+    z-index: 12;
+}
+.footer-mark{
+  width:100%;
+  height:40px;
+  border-top:1px solid #E4E4E4;
+  display: flex;
+  justify-content: space-around;
+  margin-bottom:-10px;
+}
+.anchorBL{display:none}
+.el-cascader-menu{
+    height:300px!important;
+}
+.price-colorInv{
+    color:#006600;
+}
+.price-color{
+    color:#ff0000;
+}
+.fatherStep .el-step__main{
+        margin-left: 0px!important;
+}
+.fatherStep .el-step__title.is-process,.fatherStep .el-step__title.is-finish{
+        margin-left: 0px!important;
+}
+/*.ag-body-container{
+    width:100%!important;
+}*/
+/*.ag-theme-balham .ag-cell{
+    width:auto!important;
+}*/
+.ag-column-hover {
+    background-color: #dfffdf;
+}
+.ag-row-hover {
+    /* putting in !important so it overrides the theme's styling as it hovers the row also */
+    background-color: #dfdfff !important;
+}
+.is-full-width{
+    width: 100%;
+    padding:0px 20px 20px 20px
+}
+.is-full-widthag{
+    width: 100%;
+    padding:10px
+}
+.is-full-width-defaults{
+    padding:10px 0px 20px 0px
+}
+.footer-mark span{
+  height:40px;
+  line-height: 40px
+}
+.locationSearch{
+    width: 100%;
+    display: -ms-flexbox;
+    display: flex;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e4e4e4;
+  
+    background: #fff;
+    height: 55px;
+}
+.locationSearch1{
+    width: 100%;
+    display: -ms-flexbox;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    border-bottom: 1px solid #e4e4e4;
+    background: #fff;
+    height: 55px;
+}
+.noDataTxt{
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    margin: 10px auto;
+    text-align: center;
+}
+.scrollFix{
+    height: 100%;display: flex;align-items: center;justify-content: center;
+}
+div.con-list:last-child{
+    margin-bottom:300px;
+}
+.content{
+    background: none repeat scroll 0 0 #fff;
+    position: absolute;
+    left: 200px;
+    right: 0;
+    top: 72px;
+    bottom:0;
+    width: auto;
+    padding:0px;
+    box-sizing: border-box;
+}
+.mu-table table,.mu-paper,.mu-paper-round{
+    width:100%!important
+}
+.mu-table th{
+    color:#333!important;
+    font-size:14px!important
+}
+
+.ag-theme-balham .ag-cell{
+    line-height: 40px!important
+}
+ 
+.crumbs{
+    margin-bottom: 20px;
+}
+.pagination{
+    margin: 20px 0;
+    text-align: right;
+}
+.plugins-tips{
+    padding:20px 10px;
+    margin-bottom: 20px;
+}
+.el-button+.el-tooltip {
+    margin-left: 10px;
+}
+.el-table td,.el-table th{
+    padding:5px 18px;
+}
+.el-table tr:hover{
+    background: #f6faff;
+}
+.mgb20{
+    margin-bottom: 20px;
+}
+.demo-spin-icon-load{
+    height:15px;
+    height:15px;
+    line-height: 15px;
+    position: relative;
+    z-index:999999;
+    animation: ani-demo-spin 1s linear infinite;
+}
+.demo-spin-icon-load1{
+    height:125px;
+    height:125px;
+    line-height: 125px;
+    position: relative;
+    z-index:999999;
+    animation: ani-demo-spin 1s linear infinite;
+}
+@keyframes ani-demo-spin {
+    from { transform: rotate(0deg);}
+    50%  { transform: rotate(180deg);}
+    to   { transform: rotate(360deg);}
+}
+.importErrTxt{
+    color:#ff0000;
+    margin-top:10px;
+}
+.ivu-tabs{
+    overflow: auto!important
+}
+.ivu-tabs-bar{
+    margin-bottom: 8px!important
+}
+.ivu-input,.ivu-input-number,.ivu-select-selection{
+    border:1px solid #b0c0d6!important;
+}
+
+.el-input__inner{
+    border: 1px solid #b0c0d6!important;
+    height: 32px!important;
+}  
+
+/*加载动画类名*/
+.bgimg{
+    background-color:#fff!important;
+}
+.lanrenLeft{
+    z-index:9
+}
+.move-enter-active,.move-leave-active{
+    transition: opacity 2s;
+}
+.move-enter,.move-leave{
+    opacity: 0;
+}
+/*BaseForm*/
+.form-box{
+    width:600px;
+}
+.form-box .line{
+    text-align: center;
+}
+.el-time-panel__content::after, .el-time-panel__content::before {
+    margin-top: -7px;
+}
+/*Readme*/
+.ms-doc .el-checkbox__input.is-disabled+.el-checkbox__label{
+    color: #333;
+    cursor: pointer;
+}
+/*Upload*/
+.pure-button{
+    width:150px;
+    height:40px;
+    line-height: 40px;
+    text-align: center;
+    color: #fff;
+    border-radius: 3px;
+}
+.g-core-image-corp-container .info-aside{
+    height:45px;
+}
+.ivu-table-border th{
+    background:transparent!important;
+  }
+.el-upload--text .el-icon-upload {
+    font-size: 67px;
+    color: #97a8be;
+    margin: 40px 0 16px;
+    line-height: 50px;
+}
+.el-upload--text {
+    color: #97a8be;
+    font-size: 14px;
+    text-align: center;
+}
+.el-upload--text em {
+    font-style: normal;
+}
+/*VueEditor*/
+.ql-container{
+    min-height: 400px;
+}
+.ql-snow .ql-tooltip{
+    transform: translateX(117.5px) translateY(10px) !important;
+}
+.editor-btn{
+    margin-top: 20px;
+}
+.ivu-modal-content{
+    margin-bottom: 50px!important;
+}
+.ivu-row-flex{
+    height:100%!important;
+}
+.el-notification{
+    top:80%!important;
+    bottom:50px!important;
+    right:20px!important;
+    height:80px!important;
+}

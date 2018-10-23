@@ -1,0 +1,2502 @@
+<template>
+  <!--新建采购-->
+  <div class="add-box">
+    <!--固定导航-->
+    <div class="add-header">
+      <Col span=6>
+      <!-- <div class="left-top">
+        <span>全部调拨 <Icon type="chevron-down"></Icon></span>
+        <div style="margin-left:70px">
+          <Button  type="ghost" style="background:#00A8FF;margin-right:10px;color:#fff;border:none" @click="addUnit">新建</Button>
+          <Button  type="ghost" style="background:#FF8B00;color:#fff;border:none">
+            <Icon type="navicon-round"></Icon></Button>
+        </div>
+      </div> -->
+      <div class="left-top">
+        <p class="wldw">
+          <span style="width:42px;font-weight:900">调拨：</span>
+           <Select style="width:100px" placeholder="全部" @on-change="orderselected">
+                <Option v-for="item in orderListname" :value="item.value" :key="item.value">{{ item.label }}</Option>
+            </Select>
+        </p>
+        <div>
+          
+          <span class="top-left-btn"  @click="addUnit">
+            <Icon type="plus" style="position:absolute;top:7px;left:8px"></Icon></span>
+          <span class="top-left-btn top-left-btn1">
+            <Icon type="navicon-round" style="position:absolute;top:7px;left:8px"></Icon></span>
+        </div>
+          
+      </div>
+      </Col>
+      <Col span=18>
+      <div class="right-top" style="position:relative;">
+        <div style="display:block">
+          <p class="order_number">
+            <span style="">调拨订单:</span>
+           
+            <span >{{ponumber}}</span>
+          </p>
+          <p class="order_type">
+            <!-- <span>调拨类型:</span>
+            <span></span> -->
+          </p>
+
+        </div>
+        <div style="margin-right:13%">
+          <div v-if="addText">
+         
+
+            <Button shape="circle"  style="background:#3b77e3;margin-right:5px;color:#fff;border:none" @click="saveCgInfo" v-if="saveDateIf">
+            <Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>保存</Button>
+            <Button shape="circle"  style="background:#3b77e3;margin-right:5px;color:#fff;border:none" @click="dateCgInfo" v-else>
+            <Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>保存</Button>
+
+          
+
+            <Button shape="circle"  @click="gotoDetail"  style="background:#999999;color:#fff;margin-right:10px;" ><Icon type="close" style="margin-right:5px;"></Icon>取消</Button>
+            
+            <span @click="cancelHome" style="cursor:pointer"><Icon type="close" class="cha" ></Icon></span>
+          </div>
+          <div v-if="addorder" style="display:flex">
+            <Button v-if='xiugai' shape="circle" type="ghost" style="background:#40ca98;margin-right:5px;color:#fff;border:none" @click="modify"><i class="el-icon-edit" style=";margin-right:5px;"></i>修改</Button>
+            
+            
+            <Button v-if='submit' shape="circle" type="ghost" style="background:#3b77e3;margin-right:5px;color:#fff;border:none" @click="SubmitMiss"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>提交</Button>
+            <Button v-if='onesure' shape="circle" type="ghost" style="background:#3b77e3;margin-right:5px;color:#fff;border:none" @click="allsing"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>一键签收</Button>
+
+            <Button v-if='issure' shape="circle" type="ghost" style="background:#3b77e3;margin-right:5px;color:#fff;border:none" @click="sure"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>签收完成</Button>
+           <!--  <Button v-if='dy' shape="circle" type="ghost" style="background:#3b77e3;margin-right:5px;color:#fff;border:none" @click=""><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>打印</Button> -->
+           
+            
+            <!-- 更多-->
+            <Dropdown trigger="click" style="margin-left: 4px">
+                  <Button shape="circle" type="ghost" style="background:#ff7d16;color:#fff;border:none">更多
+                  <span><i class="ivu-icon ivu-icon-chevron-down"></i></span>
+              </Button>
+
+              <DropdownMenu slot="list">
+                  <span  @click="dele"><DropdownItem >删除</DropdownItem></span>
+                  <span  @click="cancelMiss"><DropdownItem >作废</DropdownItem></span>
+              </DropdownMenu>
+           </Dropdown>
+            <!-- <Button shape="circle" type="ghost" style="margin-right:4px">物流登记</Button>
+            <Button shape="circle" type="ghost" style="margin-right:4px" @click="sign">签收</Button>
+            <Button shape="circle" type="ghost" style="margin-right:4px">打印</Button> -->
+          </div>
+          <div v-if="undersign">
+          <!--   <Button shape="circle" type="ghost" style="margin-right:4px" @click='allsing'>一键签收</Button> -->
+            <Button shape="circle" type="ghost" style="margin-right:4px" @click="cancel">取消</Button>
+          </div>
+
+
+        </div>
+      </div>
+      </Col>
+    </div>
+    <div class="cheng"></div>
+    <!--下-->
+    <!-- <Row> -->
+      <!--左边采购列表-->
+     <!--  <Col span="6"> -->
+      <!--左边内容-->
+     <div class="left-content">
+          <p v-if="Allpo.length==0">
+              <Spin fix>
+                        <Icon type="load-c" size=18 class="demo-spin-icon-load"></Icon>
+                        <div>{{loading}}</div>
+                    </Spin>
+                </p>
+          <Scroll :on-reach-bottom="handleReachEdge" :height="height" v-else>
+            <div class="con-list" v-for="(item,index) in Allpo" @click="getcginfo(item.id,index)" :class="{bg:numIndex==index}">
+               <span style="margin-right: 10px;margin-top: 16px;">
+               <Checkbox :value="numIndex==index"></Checkbox>
+              </span>
+               <div>
+                <p class="list-title">{{item.recordNo}}</p>
+              
+                <p class="txt">{{item.fromWarehouseName}}</p>
+                <span class="status" 
+        :class="{textbg1:item.statusDesc=='未签收',textbg2:item.statusDesc=='签收完成',textbg3:item.statusDesc=='签收中',textbg4:item.statusDesc=='已作废',textbg5:item.statusDesc=='已签收'}">{{item.statusDesc}}</span>
+                <span class="date">{{item.createTime}}</span>
+               
+              </div>
+            </div>
+            
+          </Scroll>
+        </div>
+    
+      <!-- </Col> -->
+      <!--右边保存与修改-->
+     <!--  <Col span="18"> -->
+      <!--保存-->
+     
+        <div class="right-content" ref="divsave">
+          <!--采购明细-->
+          <div v-if="addText">
+            <div class="list-box">
+              <span style='width:95px'>单据日期:</span>
+              <DatePicker type="date" :value="valueDate" style="width:28%" @on-change="changeDate"></DatePicker>
+            </div>
+            <Row>
+              <Col span="10">
+                <div class="list-box">
+                  <span>来源仓/店 : </span>
+                  <Select  @on-change="source" placeholder="请选择来源仓/店" :label-in-value="true" v-model="sourceDate">
+                    <Option v-for="(item,index) in originName" :value="item.value" :key="item.value">{{ item.value }}</Option>
+                  </Select>
+                </div>
+
+                <div class="source">
+                  <p>来源信息</p>
+                </div>
+                <div class="list-box">
+                  <span>联系人 : </span>
+                  <Input placeholder="请填写联系人" v-model="relation"></Input>
+                </div>
+                <div class="list-box">
+                  <span>联系人电话 : </span>
+                  <Input placeholder="请填写联系人电话" v-model="telephone"></Input>
+                </div>
+                <div class="list-box">
+                  <span style="width: 103px;">省市区 : </span>
+                  <Input v-model="storefromaddress"></Input>
+                </div>
+                <div class="list-box">
+                  <span>详细地址 : </span>
+                  <Input placeholder="请填写详细地址" v-model="thorough"></Input>
+                </div>
+              </Col>
+              <Col span="4">
+              <p class="allocation_img"><img src="http://img.zsydian.com/allocation_img.jpg" alt=""></p>
+              </Col>
+              <Col span="10">
+              <div class="list-box">
+                <span>目的仓/店 : </span>
+                <Select @on-change="targetStorehouse" placeholder="请选择目的仓/店" :label-in-value="true" v-model="storehouseDate">
+                  <Option v-for="item in storehouseName" :value="item.value" :key="item.value" >{{ item.value }}</Option>
+                </Select>
+              </div>
+              <div class="source">
+                <p>收货信息</p>
+              
+              </div>
+              <div class="list-box">
+                <span>联系人 : </span>
+                <Input placeholder="请填写联系人" v-model="contact"></Input>
+              </div>
+              <div class="list-box">
+                <span>联系人电话 : </span>
+                <Input placeholder="请填写联系人电话" v-model="phone"></Input>
+              </div>
+              <div class="list-box">
+                <span style="width: 103px;">省市区 : </span>
+                 <Input v-model="storetoaddress"></Input>
+              </div>
+              <div class="list-box">
+                <span>详细地址 : </span>
+                <Input placeholder="请填写详细地址" v-model="detailed"></Input>
+              </div>
+              </Col>
+            </Row>
+            <div class="list-box" style="margin-top:0">
+              <span style="width:110px">备注 : </span>
+              <Input placeholder="请输入你的备注内容" v-model="remark"></Input>
+            </div>
+            <!--存货表格-->
+            <Table  :highlight-row="true" border :columns="columnData" :data="columnFull" @on-row-dblclick="columnIf"></Table>
+            <Row>
+              <Col span="12">
+                <div class="list-box">
+                  <span>物流公司 : </span>
+                  <Select  @on-change="Logistics_company" placeholder="请选择物流公司" v-model="companyGosi">
+                    <Option v-for="item in fpstatus" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                  </Select>
+                </div>
+                <div class="list-box">
+                  <span>预计到达时间 :  </span>
+
+                  <DatePicker placement='top-start' type="date" placeholder="请选择预计到达时间" style="width: 200px" @on-change="Arrival_time" v-model="timeDate"></DatePicker>
+                </div>
+              </Col>
+
+              <!-- <Col span="12">
+                <div class="list-box">
+                  <span>总数量 : </span>
+                  <Input placeholder="请输入总数量" v-model="totalQuantity"></Input>
+                </div>
+              </Col> -->
+            </Row>
+            <!-- <div class="list-box" style="margin-top:0">
+              <span style="width:115px">备注 : </span>
+              <Input placeholder="请输入你的备注内容" v-model="twoRemark"></Input>
+            </div> -->
+          </div>
+        </div>
+        <!--修改订单页面-->
+        <div class="right-content right-detail" v-if="!addText">
+          <div class="lanren" :class="{bgd1:dbdetail.statusDesc=='未签收',bgd2:dbdetail.statusDesc=='签收完成',bgd3:dbdetail.statusDesc=='签收中',bgd4:dbdetail.statusDesc=='已作废',bgd5:dbdetail.statusDesc=='已签收'}">
+                          
+             <span  >{{dbdetail.statusDesc}}</span> 
+              
+          </div>​
+          <!--大数据-->
+          <div v-if="digital">
+            <div class="detail-top" v-if="detail">
+              <ul ><!--v-for="item in single"-->
+                <li>
+                    <p>来源仓/店：</p>
+                    <p>{{dbdetail.fromWarehouseName}}</p>
+                </li>
+                <li>
+                  <p>来源仓/店联系人：</p>
+                  <p>{{dbdetail.initiator}}</p>
+                </li>
+                <li>
+                  <p>来源仓/店联系人电话：</p>
+                  <p>{{dbdetail.fromTel}}</p>
+                </li>
+                <li>
+                  <p>来源仓/店地址：</p>
+                  <p>{{dbdetail.fromAddress}}</p>
+                </li>
+                <li>
+                  <p>目的仓/店：</p>
+                  <p>{{dbdetail.toWarehouseName}}</p>
+                </li>
+                <li>
+                  <p>目的仓/店联系人：</p>
+                  <p>{{dbdetail.signer}}</p>
+                </li>
+                <li>
+                  <p>目的仓/店联系人电话：</p>
+                  <p>{{dbdetail.toTel}}</p>
+                </li>
+                <li>
+                  <p>目的仓/店地址：</p>
+                  <p>{{dbdetail.toAddress}}</p>
+                </li>
+                <li>
+                  <p>物流公司：</p>
+                  <p>{{dbdetail.logistics}}</p>
+                </li>
+                <li>
+                  <p>物流状态：</p>
+                  <p>总仓</p>
+                </li>
+                <li>
+                  <p>预计到货时间：</p>
+                  <p>{{new Date(dbdetail.expectDeliveryDate).toLocaleDateString()}}</p>
+                </li>
+                <li>
+                  <p>总数量：</p>
+                  <p>{{dbdetail.totalQty}}</p>
+                </li>
+              </ul>
+            </div>
+            <div class="someData" v-if="!detail">
+              <Row>
+                <Col span="10">
+                  <p class="somePP">来源信息：</p>
+                  <h1>总仓</h1>
+                  <p>联系人：<span>苏小胖</span> | <span>138888888888</span></p>
+                  <p>地址：苏州市工业园区创意产业园</p>
+                </Col>
+                <Col span="4">
+                  <p><img src="../../../../static/img/allocation_img.jpg" alt="" style="margin-top:50px"></p>
+                </Col>
+                <Col span="10">
+                  <p class="somePP">来源信息：</p>
+                  <h1>总仓</h1>
+                  <p>联系人：<span>苏小胖</span> | <span>138888888888</span></p>
+                  <p>地址：苏州市工业园区创意产业园</p>
+                </Col>
+              </Row>
+              <div class="delivery">
+                <ul>
+                  <li>
+                    <p>物流公司：</p>
+                    <p>顺丰物流</p>
+                  </li>
+                  <li>
+                    <p>物流状态：</p>
+                    <p>配送中</p>
+                  </li>
+                  <li>
+                    <p>预计到货时间：</p>
+                    <p>2017/02/12</p>
+                  </li>
+                  <li>
+                    <p>总数量：</p>
+                    <p>895222</p>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="detail-bottom">
+              <div class="detail-title-mark">
+                <!-- <div v-for="(item,index) in titles" class="detail-title" @click="addborder(index)" :class="{bor:index==num2}">
+                  {{item}}
+                </div> -->
+                 <!--状态-->
+                        
+              </div>
+              <!--明细v-show="num2==0"-->
+              <div  class="detail-public table">
+                <Table border :columns="cgListInfoKey" :data="cgListData" ></Table>
+              </div>
+              <!--收货记录-->
+              <!-- <div v-if="num2==1" class="detail-public">
+                <Table border :columns="cgListjl" :data="cgListInfo"></Table>
+              </div> -->
+              <!--附件-->
+             <!--  <div v-if="num2==2" class="detail-public">2</div> -->
+              <!--记录-->
+             <!--  <div v-if="num2==3" class="detail-public">3</div> -->
+              <!--备注-->
+              <!-- <div v-if="num2==4" class="detail-public">
+                <Input v-model="remark" type="textarea" :rows="4"></Input>
+
+              </div> -->
+
+            </div>
+          </div>
+          <div v-if="!digital">
+            <div class="digital_diversity">
+              <Tabs :animated='false'>
+              <TabPane label="商品" name="name1">
+                <Table border :columns="headDate" :data="substance" style="margin-top: 10px"></Table>
+              </TabPane>
+              <TabPane label="差异" name="name2"> 差异</TabPane>
+              
+          </Tabs>
+              
+              <!--<span class="border-bot"></span>-->
+            </div>
+           
+
+          </div>
+          <Modal
+            v-model="modal6"
+            title="Title"
+            :loading="loading"
+            >
+            <div class="list-box" style="margin-top:0">
+              <span style="width:90px">商品 : </span>
+              <Input placeholder="请输入商品" ></Input>
+            </div>
+            <div class="list-box" style="margin-top:0">
+              <span style="width:78px">实际数量 : </span>
+              <Input placeholder="请输入实际数量" style="width: 250px;"></Input>
+              <p style="margin-left: 30px">应收 <span style="font-size: 18px">85</span> 件</p>
+            </div>
+            <div class="list-box" style="margin-top:0">
+              <span style="width:90px">备注信息 : </span>
+              <Input placeholder="请输入你的备注内容" type="textarea"></Input>
+            </div>
+          </Modal>
+        </div>
+
+     
+    <!--   </Col>
+    </Row> -->
+    <!--库存出框-->
+
+    <Modal v-model="goodsinshow" width="700px">
+      <p slot="header" style="height:30px;line-height:30px">
+      
+      <span>库存搜索</span>
+    </p>
+      <div style="position:relative;text-align:center;width:100%;height:35px;line-height:35px;display:flex;">
+      <input v-model="keyword" class="modelInput" placeholder="单位编码、名称、助记码、单位电话、联系人、分管部门" style="padding:2px 0" />
+      <span @click="searchInput">
+      <Icon type="search" size="16" style="display:inline-block;position:absolute;top:10px;right:18px;z-index:9" ></Icon>
+      </span>
+    </div>
+      <div slot="footer" style='margin-top:-10px'>
+        <div class="table">
+        <Table size="small" highlight-row border highlight-row disabled-hover width="100%" height="300"  :columns="goodskey" :data="goods" @on-row-click="goodsDate">
+        </Table>
+        <div class="page-box" style="text-align:left">
+             <div class="page-box">
+               <Page :total="unittotal" show-total  :pageSize='unitpageSize'  @on-change="unitgetData" @on-page-size-change="unitchangePageSize"></Page>
+            </div>
+         </div>
+        </div>
+        <div class='title' style='margin:0px'>
+        <div style='color:#D15151;font-size:14px'>
+         <!--  <Icon type="plus" style='margin-right:5px'></Icon>
+          <span >添加库存</span> -->
+        </div>
+        <div>
+          <Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='modelCancel'><Icon type="close" style="margin-right:5px;" ></Icon>取消</Button>
+          <Button shape="circle" type="ghost" style="display:inline-block;background:#00A7F5;color:#fff" @click="makegoods"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>确认</Button>
+        </div>
+      </div>
+      </div>
+    </Modal>
+
+    <!--修改详情弹窗-->
+ <!--    <Modal v-model="updatedetailmodel" width="660px">
+      <p slot="header" style="height:30px;line-height:30px">
+      
+      <span>修改详情</span>
+    </p>
+      <div>
+      <div style='margin:10px;display:flex;height:40px;line-height:40px'><span style='width:80px;text-align:center'>数量：</span><input v-model="qty" class="modelInput " placeholder="数量" style="padding:2px 0"/></div>
+      <div style='margin:10px;display:flex;height:40px;line-height:40px'><span style='width:80px;text-align:center'>描述：</span><textarea cols='5' v-model="updatedetailRemark" class="modelInput" placeholder="修改详情描述" style="padding:2px 0"></textarea></div>
+      
+    </div>
+      <div slot="footer">
+       
+        <div class='title'>
+        
+        <div>
+          <Button shape="circle" type="ghost" style="display:inline-block;background:#ACACAC;border:none;color:#fff" @click='modelCancel'><Icon type="close" style="margin-right:5px;" ></Icon>取消</Button>
+          <Button shape="circle" type="ghost" style="display:inline-block;background:#00A7F5;color:#fff" @click="updatedetailmake"><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>确认</Button>
+        </div>
+      </div>
+      </div>
+    </Modal> -->
+    <div class='totBottom'>
+        <span>共<span style='color:#ff0000'> {{totaldb}} </span>条</span>
+        <span>当前第<span style='color:#ff0000'> {{current}} </span>页</span>
+    </div>
+  </div>
+
+</template>
+
+<script>
+  export default {
+    data() {
+      return {
+
+        status:'',
+        loading:"暂无数据",
+        onesure:true,
+        dy:true,
+        xiugai:true,
+        edit:true,
+        submit:true,
+        issure:true,
+        ponumber:'',
+        keyword:'',
+        isindex:false,//1：未签收 2：签收中  3：已签收
+        orderListname:[
+          {
+            label:"全部",
+            value:0
+          },
+          {
+            label:"未签收",
+            value:1
+          },
+          {
+            label:"签收中",
+            value:2
+          } ,
+          {
+            label:"已签收",
+            value:3
+          },
+         {
+            label:"调拨入库",
+            value:4
+          },
+         {
+            label:"调拨出库",
+            value:5
+          }
+        ],
+        height:'',
+        current:1,
+        total:0,
+        pagechart:0,//每页条数
+        nums:0,//请求数据数量
+        pageSize:0,
+        unittotal:0,
+        unitpageSize:0,
+        num: 1, //判断基本信息 切换的样式
+        num2:0,
+       goodsrow:{},
+        numIndex:0,
+        addNewUnits:"",
+        addText:true,
+        addorder:false,
+        undersign: false, //签收
+        cgbordercode: false, //供应商详细信息
+        totalAmount:0,
+        totalCount:0,
+      
+        fpstatus: [
+          {
+          value: 1,
+          label: '顺丰'
+        },
+        {
+          value: 2,
+          label: '韵达'
+        },
+        {
+          value: 3,
+          label: '圆通'
+        }
+        ],
+        model1: '',
+        columns: [
+          {
+            title: '订单编号',
+            ellipsis:true,
+            key: 'code'
+          },
+          {
+            title: '参考号',
+            ellipsis:true,
+            key: 'ckhao'
+          },
+          {
+            title: '日期',
+            ellipsis:true,
+            key: 'date'
+          },
+          {
+            title: '金额',
+            ellipsis:true,
+            key: 'price'
+          },
+          {
+            title: '状态',
+            ellipsis:true,
+            key: 'status'
+          }
+        ],
+        //订单明细
+        cgListInfoKey:[
+          
+          {
+            title:"单据编号",
+            key:"recordNo"
+          },
+          {
+            title:"商品名称",
+            ellipsis:true,
+            key:"skuName"
+          },
+          {
+            title:"签收数量",
+            key:"signQty"
+          },
+          {
+            title:"来源仓库",
+            key:"fromWarehouseName"
+          },
+          {
+            title:"目的仓库",
+            key:"toWarehouseName"
+          },
+          {
+            title:"小计",
+            key:"totalAmount"
+          },
+          {
+            title:"状态",
+            key:"statusDesc"
+          }
+        ],
+        cgListData:[],
+        //收货记录
+        cgListjl:[
+          {
+            title:"编号",
+            key:"skucode"
+          },
+          {
+            title:"产品/描述",
+            key:"skuTypeDesc"
+          },
+          {
+            title:"数量",
+            key:"qty"
+          },
+          {
+            title:"已收数量",
+            key:""
+          },
+          {
+            title:"收货仓库",
+            key:""
+          },
+          {
+            title:"收货人",
+            key:"deliverName"
+          },
+          {
+            title:"收货时间",
+            key:"signDate"
+          },
+          {
+            title:"状态",
+            key:"statusDesc"
+          },
+        ],
+        //操作存货 新增时
+        detail:true,//总数据或者某一个数据
+        digital:true, //大数据
+        modal6:false, //差异签收
+        headDate:[
+          {
+            title:'商品名称',
+            key:'skuName'
+          },
+          {
+            title:'数量',
+            key:'qty'
+          },
+          {
+            title:'价格',
+            key:'price'
+          },
+          {
+            title:'供应商名称',
+            key:'partnerName'
+          },
+          {
+            title:'仓库名称',
+            key:'warehouseName'
+          },
+         
+          {
+            title:'操作',
+            key:'operation',
+            render: (h, params) => {
+              return h('div', [
+                h('a', {
+                  style: {
+                    display:"inline-block"
+                  },
+                  on: {
+                    click: () => {
+
+                    }
+                  }
+                }, '签收'),
+                h('div', {
+                  style: {
+                    display:"inline-block",
+                    margin:"0 2px",
+                    color:"#00A8FF"
+
+                  }
+
+                }, '|'),
+                h('a', {
+                  style: {
+                    display:"inline-block"
+                  },
+                  on: {
+                    click: () => {
+                      this.modal6=true
+
+                    }
+                  },
+                }, '差异签收')
+              ]);
+            }
+          },
+
+
+        ],
+        substance:[
+         
+        ],
+        //弹出框供应商table
+        gyskey:[
+          {
+            title:"单位名称",
+            width:100,
+            key:"name"
+          },
+          {
+            title:"单位编码",
+            width:100,
+            key:"code"
+          },
+          {
+            title:"单位分类",
+            width:100,
+            key:""
+          },
+          {
+            title:"助记码",
+            width:100,
+            key:""
+          },
+          {
+            title:"分管单位",
+            width:100,
+            key:""
+          },
+          {
+            title:"分管员",
+            width:100,
+            key:""
+          },
+          {
+            title:"单位电话",
+            width:100,
+            key:""
+          },
+          {
+            title:"首要联系人",
+            width:100,
+            key:""
+          },
+        ],
+        //弹出框商品data
+          goodskey:[
+          // {
+          //     title:"商品图片",
+          //     width:120,
+          //     key:"skuPic",
+          //      render:(h, params) =>{
+          //           return h('div',[
+          //               h('img',{
+          //                 attrs:{
+          //                   src:params.row.skuPic
+          //                 },
+          //                 style:{
+          //                   width:'40px',
+          //                   height:'40px'
+          //                 }
+          //               })
+          //             ])
+          //         }
+          //   },
+          {
+            title:"商品名称",
+       
+            ellipsis:'true',
+            key:"skuName"
+          },
+          {
+            title: '商品编码',
+            key:'skuCode',
+         
+            align: 'center'
+          },
+          {
+            title: '单价',
+            key:'price',
+            width:80,
+            align: 'center'
+          },
+          {
+            title: '参考售价',
+            key:'costPrice',
+            width:100,
+            align: 'center'
+          },
+          {
+            title: '零售价',
+            key:'wholePrice',
+            width:100,
+            
+            align: 'center'
+          },{
+            title: '库存',
+            key:'qty',
+            width:80,
+            align: 'center',
+            render:(h,parmas)=>{
+              return h('span',{
+                style:{
+                  color:"red"
+                }
+              },parmas.row.qty)
+            }
+          },
+          ],
+        titles:["明细","收货记录","记录","备注"],
+        data:[],
+        userList:[],//联系人列表
+        Allpo: [], //采购列表
+        cgListInfo:[],//采购订单详情列表
+        gysdata:[],//往来单位列表
+        goods:[],
+        tableData:[
+          {
+              value:'操作',
+          },
+          {
+            value:'存货名称',
+          },
+          {
+            value:'操作',
+          },
+          {
+            value:'存货名称',
+          },
+          {
+            value:'操作',
+          },
+          {
+            value:'存货名称',
+          },
+        ],//表格头
+        supplierName:"",//供应商名称
+        supplierCode:"",//供应商编号
+        tel:"",
+        qty:'',//数量 ,
+        remark:"",//备注 ,
+        signDate:"",//签收时间 ,
+        skuId:"",//商品编号 ,
+        skucode:"",//货号 ,
+        uid: this.$store.state.common.token,
+        allgyslength:0,
+        goodsinshow:false,
+        saveDateIf:true,  //保存或修改
+        valueDate:'',//单据时间
+
+        commodityDate:'',//商品时间
+        columnData:[    //表格 可修改数据
+         {
+          title: '操作',
+          key: 'action',
+          width: 100,
+          align: 'center',
+          render: (h, params) => {
+            return h('div', [
+              h('div', {
+                style: {
+                  float: 'left',
+                  marginRight: '5px'
+                },
+                on: {
+                  click: (e) => {
+                      //点击加号
+                      e.stopPropagation()
+                      // this.cunhuodata.push({})
+                    }
+                  }
+                }, [
+                h('img', {
+                  domProps: {
+                    src: 'http://img.zsydian.com/icon/add.png',
+                    style: "width:20px;height:20px;cursor:pointer"
+                  },
+                  on:{
+                    'click':()=>{
+                      //单击添加，调用双击表格时间
+                      this.columnIf()
+                    }
+                  }
+                })
+                ]),
+              h('div', {
+                style: {
+                  float: 'left',
+                  marginRight: '5px'
+
+                },
+                on: {
+                  click: () => {
+                      // this.delGoods(params.row.id);
+                    }
+                  }
+                }, [
+                h('img', {
+                  domProps: {
+                    src: 'http://img.zsydian.com/icon/tabledel.png',
+                    style: "width:20px;height:20px;cursor:pointer"
+                  },
+                  on:{
+                    click:(e)=>{
+                      e.stopPropagation()
+                        //删除行
+                        
+                        if(params.index==0){
+                          return
+                        }
+                        this.remove(params.index)
+                        
+                      }
+                    }
+
+                  })
+                ])
+              ]);
+          }
+        },
+          {
+            title:'商品名称',
+            ellipsis:true,
+            key:'skuName',
+         
+          },
+          
+          {
+          title:"数量",
+          width: 100,
+          key:"qty",
+          render:(h,parmas)=>{
+            return h('Input',{
+                style:{
+                  
+                  width:"98px",
+                  height:"40px",
+                  marginLeft:"-17px",
+                  lineHeight:'40px',
+
+                  border:'none'
+                  
+                },
+                props:{
+
+                  value:parmas.row.qty
+                  
+                },
+                
+                on:{
+                  'on-click':(e)=>{
+                    // this.nindex=parmas.index
+                    e.stopPropagation()
+                  },
+                  "on-change":(e)=>{
+
+                    this.allCouunt1 = Number(e.target.value)
+                    parmas.row.qty= Number(e.target.value)
+
+                    
+                    console.log(this.allCouunt)
+                    parmas.row.allprice=parmas.row.costPrice*this.allCouunt1
+                    parmas.row.allprice.toFixed(2)
+                    //就算总价与总数量
+                    // this.totalAmount+=Number(parmas.row.allprice)
+                    // this.totalCount +=Number(parmas.row.qty)
+                    
+                  },
+                  'on-blur':()=>{
+                    
+                     let resultqty=0
+                      let resultPrice=0
+                        this.columnFull[parmas.index].qty=this.allCouunt1
+                        this.columnFull[parmas.index].allprice=this.columnFull[parmas.index].costPrice*this.allCouunt1 
+                        this.columnFull[parmas.index].allprice.toFixed(2)
+                        
+                        
+                      for(let i=0;i<this.commodity.length;i++){
+                        resultqty+=parseInt(this.commodity[i].qty)
+                        resultPrice+=parseInt(this.commodity[i].allprice)
+                        // console.log(this.cunhuodata[i].qty)
+                      }
+                  
+                    console.log(resultPrice)  
+                    this.totalCount=resultqty//总数量
+                    this.totalAmount=resultPrice//总价值
+                      
+
+                    }
+                  }
+                })
+          }
+        },
+          {
+            title:'零售价',
+            key:'costPrice',
+          
+          },
+          {
+            title:'总价',
+            key:'allprice',
+          
+          },
+          {
+            title:'库存',
+            key:'kcqty',
+          
+          },
+         {
+            title:'预计交货日期',
+            key:'ExpectedDeliveryDate',
+            width:220,
+            render:(h,i)=>{
+                return h('DatePicker',{
+                    props:{
+                      transfer:true,
+                      placement:'left-start',
+                      placeholder:'请选择预计时间',
+                      value:this.commodityDate
+                    },
+                    on:{
+                      'input':(val)=>{
+                          //console.log(val)
+                          if(val){
+                            let getYear=new Date(val).getFullYear()
+                            let getMnth=new Date(val).getMonth()+1
+                            let getData=new Date(val).getDate()
+                            this.commodityDate=getYear+'-'+getMnth+'-'+getData
+                          }else{
+                            let year=new Date().getFullYear()
+                            let month=new Date().getMonth()+1
+                            let date=new Date().getDate()
+                            this.commodityDate=year+'-'+month+'-'+date
+                          }
+
+
+
+                      }
+                    }
+                })
+            }
+
+          }
+        ],
+        columnFull:[
+          {
+          
+            skuName:'商品名称',
+           
+          }
+        ],
+        region:[{   //地区
+          value: 'beijing',
+          label: '北京',
+          children: [
+            {
+              value: 'gugong',
+              label: '故宫'
+            },
+            {
+              value: 'tiantan',
+              label: '天坛'
+            },
+            {
+              value: 'wangfujing',
+              label: '王府井'
+            }
+          ]
+        }, {
+          value: 'jiangsu',
+          label: '江苏',
+          children: [
+            {
+              value: 'nanjing',
+              label: '南京',
+              children: [
+                {
+                  value: 'fuzimiao',
+                  label: '夫子庙',
+                }
+              ]
+            },
+            {
+              value: 'suzhou',
+              label: '苏州',
+              children: [
+                {
+                  value: 'zhuozhengyuan',
+                  label: '拙政园',
+                },
+                {
+                  value: 'shizilin',
+                  label: '狮子林',
+                }
+              ]
+            }
+          ],
+        }],
+        sourceDate:'', //修改来源仓/店
+        storehouseDate:'',//修改目的仓
+        townCity:[],//来源省市区
+        areaCity:[],//目的省市区
+        companyGosi:'',//物流公司
+        timeDate:'',//预计到达时间
+        originName:[],//来源仓名
+        storehouseName:[],//目的仓名
+        origin:'',//来源仓
+        Storehouse:'',//目的仓
+        relation:'',//来源联系人
+        contact:'',//目的联系人
+        telephone:'',//来源人电话
+        phone:'',//目的人电话
+        thorough:'',//来源详细地址
+        detailed:'',//目的详细地址
+        remark:'',//第一个备注
+        company:'',//物流公司
+        arrival:'',//物流状态
+        stating:'',//物流状态
+        totalQuantity:'',//总数量
+        twoRemark:'',//第二个备注
+        source_province:'',//来源省
+        source_city:'',//来源市
+        source_area:'',//来源区
+        objective_province:'',//目的省
+        objective_city:'',//目的市
+        objective_area:'',//目的区
+        source_codeId:[],//来源仓库id
+        index:0,//来源选中仓库的下标
+        source_id:0,//来源仓id
+        objective_codeId:[],//目的仓库id
+        subscript:0,//目的选中仓库的下标
+        objective_id:0,//目的仓id
+        single:[],//单条数据
+        allpoId:0,//左边数据的id
+//        DetailedId:0,//明细id
+        commodity:[],//选择的商品
+        originCang:'123122',//修改来源仓
+        storefromaddress:'',
+        storetoaddress:'',
+        allCouunt:'',
+        updatedetailRemark:'',
+        updatedetailQty:'',
+        updatedetailmodel:false,
+        issubmit:'',
+        dbdetail:{},
+        totaldb:0,
+        pageSizedb:0,
+      }
+    },
+    methods: {
+      //仓库
+      getWarehouse(){
+        this.axios({
+          methods:'get',
+          url:'warehouse/list?uid='+this.uid
+        }).then((res)=>{
+          res.data.rows.forEach((item,index)=>{
+            let name={
+                value:res.data.rows[index].name,
+                label:res.data.rows[index].name,
+                province:res.data.rows[index].province,
+                city:res.data.rows[index].city,
+                district:res.data.rows[index].district,
+            }
+            let code={
+              id:res.data.rows[index].id,
+              code:res.data.rows[index].code,
+            }
+            this.originName.push(name) //来源仓名
+            this.storehouseName.push(name) //目的仓名
+            this.source_codeId.push(code) //来源仓id和仓编号
+            this.objective_codeId.push(code)//目的仓id和仓编号
+          })
+
+        })
+      },
+      //来源仓
+      source(val){
+          //console.log(this.sourceDate)
+        let arr=[]
+        let str=val.value
+        this.origin=str
+        for(let i=0;i<this.originName.length;i++){
+            arr[i]=this.originName[i].value
+        }
+        for(let a=0;a<arr.length;a++){
+            if(arr[a]==str){
+                this.index=a
+                 this.storefromaddress = this.originName[this.index].province+'/'+this.originName[this.index].city+'/'+this.originName[this.index].district
+            }
+        }
+        this.source_id=this.source_codeId[this.index].id//来源仓id
+        //console.log(this.source_id)
+      },
+      //目的仓
+      targetStorehouse(val){
+          //console.log(this.storehouseDate)
+        let arr=[]
+        let str=val.value
+        this.Storehouse=str
+        for(let i=0;i<this.storehouseName.length;i++){
+          arr[i]=this.storehouseName[i].value
+        }
+        for(let a=0;a<arr.length;a++){
+          if(arr[a]==str){
+            this.subscript=a
+             this.storetoaddress = this.originName[this.subscript].province+'/'+this.originName[this.subscript].city+'/'+this.originName[this.subscript].district
+          }
+        }
+        this.objective_id=this.objective_codeId[this.subscript].id//目的仓id
+      },
+      //物流公司
+      Logistics_company(val){
+          this.company=val
+        //console.log(val)
+      },
+      //预计到达时间
+      Arrival_time(val){
+        this.arrival=val
+        //console.log(val)
+      },
+      //物流状态
+      // Logistics_state(val){
+      //   this.stating=val
+      // },
+      // //明细签收
+      // sign(){
+      //   this.addorder = false
+      //   this.undersign = true
+      //   this.digital = false
+      //   this.axios.get('transfer/queryDetail?uid='+this.uid).then((res)=>{
+      //       if(res.data.status==200){
+      //           this.substance=res.data.rows
+      //       }
+      //   })
+      // },
+      remove (index) {
+        this.columnFull.splice(index, 1);
+        this.commodity.splice(index, 1);
+      },
+      //修改
+      modify(){
+        //console.log(this.single)
+        this.addText = true
+        this.addorder = false
+        this.undersign = false
+        this.saveDateIf = false
+        this.$refs.divsave.style.display="block"
+        this.sourceDate=this.single[0].fromWarehouseName //来源仓
+        this.storehouseDate=this.single[0].toWarehouseName//目的仓
+        this.townCity[0]=this.single[0].fromProvince    //来源省市区
+        this.townCity[1]=this.single[0].fromCity
+        this.townCity[2]=this.single[0].fromDistrict
+        this.areaCity[0]=this.single[0].toProvince    //目的省市区
+        this.areaCity[1]=this.single[0].toCity
+        this.areaCity[2]=this.single[0].toDistrict
+        this.companyGosi=this.single[0].logistics //物流公司
+        this.timeDate=this.single[0].expectDeliveryDate //预计到达时间
+        this.relation=this.single[0].initiator //来源联系人
+        this.contact=this.single[0].signer //目的联系人
+        this.telephone=this.single[0].fromTel //来源人电话
+        this.phone=this.single[0].toTel //目的人电话
+        this.thorough=this.single[0].fromAddress//来源详细地址
+        this.detailed=this.single[0].toAddress//目的详细地址
+        this.totalQuantity=this.single[0].totalQty//总数量
+          //console.log(this.relation)
+      },
+      //作废
+      cancelMiss(){
+      
+          this.axios.get('transfer/cancel/'+this.allpoId+'?uid='+this.uid).then((res)=>{
+            if(res.data.status==200){
+              this.$Notice.success({
+                  title: '作废',
+                  desc: '已作废'
+                });
+               this.getList()
+            }
+          })
+      },
+
+      //删除
+      dele(){
+        this.axios.delete('transfer/delete/'+this.allpoId+'?uid='+this.uid).then((res)=>{
+          if(res.data.status==200){
+            this.$notify({
+                  title:"",//
+                  message:'已删除',
+                  type: 'success',
+                  position: 'bottom-right'
+              });
+            this.getList()
+          }else {
+            this.$notify({
+                    title:"",//
+                    message:res.data.errorMessage,
+                    type: 'error',
+                    position: 'bottom-right'
+                });
+            
+          }
+        })
+      },
+      //取消
+      cancel(){
+        this.addorder = true
+        this.undersign = false
+        this.digital = true
+      },
+     
+      //选择来源的地区
+      town(val){
+        this.source_province=val[0]//来源省
+          this.source_city=val[1]//来源市
+          this.source_area=val[2]//来源区
+
+        //console.log(this.source_province)
+      },
+      //现在目的地
+      area(val){
+        this.objective_province=val[0],//目的省
+          this.objective_city=val[1],//目的市
+          this.objective_area=val[2]//目的区
+      },
+
+      //设置收货日期
+      shdate(date){
+        this.signDate = date
+
+      },
+      //提交
+      SubmitMiss(){
+          //console.log(this.allpoId)
+          this.axios.get('transfer/submit/'+this.allpoId+'?uid='+this.uid).then((res)=>{
+            if(res.data.status==200){
+            
+                this.$notify({
+                      title:"",//
+                      message:'提交成功',
+                      type: 'success',
+                      position: 'bottom-right'
+                  });
+              // this.issubmit=2
+              // this.getcginfo()
+                this.getList(this.allpoId,this.numIndex)
+               console.log(this.status)
+                // this.submit=false
+              }else{
+                 this.$notify({
+                    title:"",//
+                    message:res.data.errorMessage,
+                    type: 'error',
+                    position: 'bottom-right'
+                });
+              }
+              
+          })
+      },
+      //一键签收
+      allsing(){
+             this.axios.get('transfer/sign/'+this.allpoId+'?uid='+this.uid).then(res=>{
+            console.log(res)
+              if(res.data.status==200){
+               
+                this.$notify({
+                      title:"",//
+                      message:'已签收',
+                      type: 'success',
+                      position: 'bottom-right'
+                  });
+                this.getcginfo(this.allpoId,this.numIndex)
+                 this.getList()
+                 // this.onesure=false
+              }else{
+                this.$notify({
+                    title:"",//
+                    message:res.data.errorMessage,
+                    type: 'error',
+                    position: 'bottom-right'
+                });
+
+              }
+            })
+            
+                 
+               // }
+         // })
+        
+      },
+      //签收完成的确认按钮
+      sure(){
+            this.axios.get('transfer/confirm/'+this.allpoId+'?uid='+this.uid).then((res)=>{
+               
+                if(res.data.status==200){
+                    this.$notify({
+                      title:"",//
+                      message:'签收完成',
+                      type: 'success',
+                      position: 'bottom-right'
+                  });
+                     this.getList()
+                    // this.issure=false
+                    // this.dy=true
+                    
+                }else{
+                  this.$notify({
+                    title:"",//
+                    message:res.data.errorMessage,
+                    type: 'error',
+                    position: 'bottom-right'
+                });
+                }
+              })
+         
+        // })
+        
+      },
+      //作废
+      zf(){
+        this.axios.get('transfer/cancel/'+this.allpoId+'?uid='+this.uid).then((res)=>{
+          if(res.data.status==200){
+              
+              this.$notify({
+                  title:"",//
+                  message:'已作废',
+                  type: 'success',
+                  position: 'bottom-right'
+              });
+               this.getList()
+          }else{
+           
+             this.$notify({
+                  title:"",//
+                  message:res.data.errorMessage,
+                  type: 'error',
+                  position: 'bottom-right'
+              });
+          }
+        })
+      },
+       goodsDate(val){
+        console.log(val)
+        this.goodsrow = val
+        
+      },
+      //选择库存弹框的确认按钮
+      makegoods(){
+        this.goodsinshow = false
+       
+        let goodsarr={
+          skuName:this.goodsrow.skuName,
+          skuId:this.goodsrow.skuId,
+          inventoryId:this.goodsrow.id,
+          qty:1,
+          price:this.goodsrow.price,
+          costPrice:this.goodsrow.costPrice,
+          skucode:this.goodsrow.skuCode,
+          kcqty:this.goodsrow.qty,
+          skuPic:this.goodsrow.skuPic,
+         
+        }
+        goodsarr['allprice']=goodsarr.qty*goodsarr.costPrice
+        this.columnFull.push(goodsarr)
+        this.commodity.push(goodsarr)
+        //console.log(this.columnFull)
+      },
+      //切换一条页
+      unitgetData(current){
+        this.axios.get('inventory/query?offset='+current+'&uid='+this.uid).then((res)=>{
+          //console.log(res)
+          this.goods = res.data.rows
+        })
+      },
+      //翻页
+     
+      unitchangePageSize(size){
+          this.unitpageSize = size
+      },
+      //产品/描述明细
+      cgListTime(){
+        this.detail=false
+      },
+      change(data){
+        //console.log(data)
+        this.pagechart=data
+        this.total=this.nums/data*10
+      },
+      // //弹框出现后点击表格行
+      // gysrow(data,index){
+      //   //console.log(index)
+      //   this.supplierName = data.name
+      //   this.supplierCode = data.code
+      //   this.tel = data.tel
+
+
+      // },
+      //修改详情
+      // updateDetail(){
+      //   this.updatedetailmodel=true
+        
+      // },
+      // //修改详情确认按钮
+      // updatedetailmake(){
+      //   this.axios.put('transfer/updateDetail?id='+this.allpoId+'&qty='+this.updatedetailQty+'%remark='+this.updatedetailRemark+'&uid='+this.uid).then(res=>{
+      //     if(res.data.status==200){
+      //       this.$Notice.success({
+      //           title:"",//
+      //           desc: '修改成功'
+      //         });
+      //     }else{
+      //       this.$Notice.success({
+      //           title:"",//
+      //           desc: res.data.errorMessage
+      //         });
+      //     }
+      //   })
+      // },
+      //点击保存新建基本信息
+      saveCgInfo() {
+        if(this.originName.length==0){
+            
+            this.$notify({
+                  title:"",//
+                  message:'来源仓不能为空',
+                  type: 'error',
+                  position: 'bottom-right'
+              });
+        }else if(this.storehouseName==0){
+          
+            this.$notify({
+                  title:"",//
+                  message:'目的仓不能为空',
+                  type: 'error',
+                  position: 'bottom-right'
+              });
+        }else{
+       
+          this.axios.post('transfer/add?uid=' + this.uid, {
+          recordDate:this.valueDate,//单据时间
+          fromWarehouseName:this.origin,//来源仓
+          fromWarehouseId:this.source_id,//来源仓id
+          initiator:this.relation,//来源联系人
+          fromTel:this.telephone,//来源人电话
+          // fromProvince:this.source_province,//来源省
+          // fromCity:this.source_city,//来源市
+          // fromDistrict:this.source_area,//来源区
+          storefromaddress:this.storefromaddress,
+          fromAddress:this.thorough,//来源详细地址
+          toWarehouseName:this.Storehouse,//目的仓
+          toWarehouseId:this.objective_id,//目的仓id
+          signer:this.contact,//目的联系人
+          toTel:this.phone,//目的人电话
+          // toProvince:this.objective_province,//目的省
+          // toCity:this.objective_city,//目的市
+          // toDistrict:this.objective_area,//目的区
+          storetoaddress:this.storetoaddress,
+          toAddress:this.detailed,//目的详细地址
+          logistics:this.company,//物流公司
+          expectDeliveryDate:this.arrival,//预计到达时间
+          detailList:this.commodity,//商品明细
+          totalQty:this.totalCount,//总数量
+          totalAmount:this.totalAmount
+        }).then((res) => {
+         console.log(res)
+          if(res.data.status=='200'){
+          
+            this.$notify({
+                  title:"",//
+                  message:this.$t('public.SaveSuccess'),//
+                  type: 'success',
+                  position: 'bottom-right'
+              });
+          this.getList()
+          this.valueDate=''//单据时间
+          this.origin=''//来源仓
+          this.source_id=''//来源仓id
+          this.relation=''//来源联系人
+          this.telephone=''//来源人电话
+          // fromProvince:this.source_province,//来源省
+          // fromCity:this.source_city,//来源市
+          // fromDistrict:this.source_area,//来源区
+          this.storefromaddress=''
+          this.thorough=''//来源详细地址
+          this.Storehouse=''//目的仓
+          this.objective_id=''//目的仓id
+          this.contact=''//目的联系人
+          this.phone=''//目的人电话
+          // toProvince:this.objective_province,//目的省
+          // toCity:this.objective_city,//目的市
+          // toDistrict:this.objective_area,//目的区
+          this.storetoaddress=''
+          this.detailed=''//目的详细地址
+          this.company=''//物流公司
+          this.arrival=''//预计到达时间
+          this.commodity=[]//商品明细
+          this.columnFull=[{
+            
+            skuName:'商品名称'
+           
+          }]//商品明细
+          this.totalCount=0//总数量
+          this.totalAmount=0         
+        }else{
+            this.$notify({
+                  title:"",//
+                  message:res.data.errorMessage,
+                  type: 'error',
+                  position: 'bottom-right'
+              });
+          }
+        })
+        }
+      },
+      //保存修改的数据
+      dateCgInfo() {
+          //console.log(this.objective_id)
+        this.axios.put('transfer/update?uid='+this.uid,{
+          id:this.allpoId,
+          expectDeliveryDate:this.timeDate, //预计到达时间
+          toWarehouseName:this.storehouseDate,//目的仓
+          fromWarehouseName:this.sourceDate,//来源仓
+          fromProvince:this.townCity[0],//来源省
+          fromCity:this.townCity[1],//来源市
+          fromDistrict:this.townCity[2],//来源区
+          toProvince:this.areaCity[0],//目的省
+          toCity:this.areaCity[1],//目的市
+          toDistrict:this.areaCity[2],//目的区
+          logistics:this.companyGosi, //物流公司
+          initiator:this.relation,//来源联系人
+          signer:this.contact,//目的联系人
+          fromTel:this.telephone,//来源人电话
+          toTel:this.phone,//目的人电话
+          fromAddress:this.thorough,//来源详细地址
+          toAddress:this.detailed,//目的详细地址
+          detailList:this.commodity,//商品明细
+          totalQty:this.totalQuantity,//总数量
+          fromWarehouseId:this.source_id,//来源仓库编号 ,
+          toWarehouseId:this.objective_id//目的仓库编号 ,
+        }).then((res)=>{
+           if(res.data.status==200){
+             
+              this.$notify({
+                  title:"",//
+                  message: this.$t('public.editSuccess'),//
+                  type: 'success',
+                  position: 'bottom-right'
+              });
+                this.getList()
+           }else{
+          
+            this.$notify({
+                  title:"",//
+                  message:res.data.errorMessage,
+                  type: 'error',
+                  position: 'bottom-right'
+              });
+           }
+        })
+      },
+      //双击获取订单详情
+      getcginfo(id,index){
+        
+        this.single=[]
+       
+        this.allpoId=id
+        this.detail=true
+        this.addText = false
+        this.addorder = true
+        this.undersign = false
+        this.digital = true
+        this.numIndex = index
+
+        this.$refs.divsave.style.display="none"
+
+        this.axios.get('transfer/get/'+this.allpoId+'?uid='+this.uid).then((res)=>{
+          console.log(res.data.rows)
+          this.ponumber=res.data.rows.recordNo
+          this.dbdetail=res.data.rows
+          this.single.push(res.data.rows)
+          if(res.data.rows.status==1){
+            this.submit=true
+            this.issure=false
+            this.xiugai = true
+            this.dy = false
+            this.onesure=false
+          }
+          //15未签收
+           if(res.data.rows.status==15){
+            this.submit=true
+            this.issure=false
+            this.xiugai = true
+            this.dy = false
+            this.onesure=false
+          }
+           //77签收中
+          if(res.data.rows.status==77){
+            this.submit=false
+            this.issure=false
+            this.xiugai = false
+            this.dy = false
+            this.onesure=true
+          }
+          if(res.data.rows.status==99){
+            this.submit=false
+            this.issure=true
+            this.xiugai = false
+            this.dy = false
+            this.onesure=false
+          }
+          if(res.data.rows.status==88){
+            this.submit=false
+            this.issure=false
+            this.xiugai = false
+            this.dy = true
+            this.onesure=false
+          }
+           // case 1:
+           //        x.statusDesc='未提交'
+           //      break;
+           //      case 15:
+           //        x.statusDesc='已提交'
+           //      break;
+           //      case 77:
+           //        x.statusDesc='签收中'
+           //      break;
+           //      case 99:
+           //        x.statusDesc='完成'
+           //      break;
+          //console.log(res.data.rows)
+        })
+        this.axios.get('transfer/getDetail/'+this.allpoId+'?uid='+this.uid).then((res)=>{
+         
+          if(res.data.status==200){
+           console.log(res.data.rows)
+             this.cgListData=res.data.rows
+             // this.status==res.data.rows.status
+            this.cgListData.forEach((item)=>{
+              item['gf']=item.price*item.qty
+            })
+          }
+        
+        
+        })
+      },
+       //库存模糊搜索
+            searchInput(){
+            
+             console.log( this.keyword )
+          this.axios.get('inventory/query?keyword='+this.keyword+'&uid='+this.uid).then((res)=>{
+            console.log(res)
+            if(res.data.status==200){
+              this.goods = res.data.rows
+             
+            }
+          })
+      
+       },
+      //点击新建
+      addUnit(){
+        this.addText = true
+        this.addorder = false
+        this.undersign = false
+        this.saveDateIf = true
+        //新增日期时间
+        this.relation='' //来源联系人
+        this.contact=''//目的联系人
+        this.telephone='' //来源人电话
+        this.phone='' //目的人电话
+        this.thorough=''//来源详细地址
+        this.detailed=''//目的详细地址
+        this.totalQuantity=''//总数量
+        this.$refs.divsave.style.display="block"
+      },
+      //添加下边框 请求收货记录
+      addborder(index){
+        this.num2 = index
+        //index为1点击了收货记录
+        if(index==1){
+          this.axios.get('/po/receipt/'+this.id+'?uid='+this.uid,{
+            id:this.skucode,
+            qty:this.qty,
+            skuId:this.skuId
+          }).then((res)=>{
+            //console.log(res.data)
+          })
+        }
+      },
+      //所有调拨数据左边数据
+      getList(){
+        this.axios({
+          methods:'get',
+          url:'transfer/query?uid='+this.uid
+        }).then((res)=>{
+            if(res.data.status == 200){
+              console.log(res.data.rows)
+                this.Allpo=res.data.rows
+                this.totaldb=res.data.total
+                this.pageSizedb=res.data.pageSize
+              this.Allpo.forEach((x)=>{
+               
+                  switch(x.status){
+                // case 1:
+                //   x.statusDesc='未提交'
+                // break;
+                // case 15:
+                //   x.statusDesc='已提交'
+                // break;
+                // case 77:
+                //   x.statusDesc='签收中'
+                // break;
+                // case 99:
+                //   x.statusDesc='已签收'
+                // break;
+                case 88:
+                  x.statusDesc='签收完成'
+                break;
+              }
+                x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+               
+              })
+                this.nums=res.data.rows.length
+            }else{
+              this.$notify({
+                  title:"",//
+                  message:res.data.errorMessage,
+                  type: 'error',
+                  position: 'bottom-right'
+              });
+            }
+        })
+      },
+      //下拉框选择
+      orderselected(value){
+        console.log(value)
+        this.axios.get('transfer/query/'+value+'?uid=' + this.uid).then((res) => {
+          if(res.data.status == '200') {
+            //console.log(this.value)
+            let data = res.data
+            this.Allpo = data.rows;
+            if(this.Allpo.length==0){
+              this.loading='所查询暂无数据......'
+            }
+            this.isLoading = false
+            this.Allpo.forEach((x)=>{
+              switch(x.status){
+                // case 1:
+                //   x.statusDesc='未提交'
+                // break;
+                // case 15:
+                //   x.statusDesc='已提交'
+                // break;
+                // case 77:
+                //   x.statusDesc='签收中'
+                // break;
+                // case 99:
+                //   x.statusDesc='已签收'
+                // break;
+                case 88:
+                  x.statusDesc='签收完成'
+                break;
+              }
+              x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+            })
+            
+            this.pageSize = data.pageSize;
+            this.total = data.total;
+          } else {
+             //this.$Message.error(res.data.errorMessage);
+          }
+        })
+      },
+      //弹出商品库存
+      columnIf(val){
+        if(this.sourceDate==''){
+          
+           this.$notify({
+                  title: '提示',
+                  message: '请选择来源仓库',
+                  type: 'error',
+                  position: 'bottom-right'
+              });
+        }else if(this.storehouseDate==''){
+        
+           this.$notify({
+                  title: '提示',
+                  message: '请选择目的仓库',
+                  type: 'error',
+                  position: 'bottom-right'
+              });
+        }else{
+          this.goodsinshow=true
+          this.axios.get('inventory/query?uid='+this.uid).then((res)=>{
+              console.log(res.data)
+              this.goods=res.data.rows
+               this.unittotal = res.data.total
+                this.unitpageSize = res.data.pageSize
+          })
+        }
+        
+      },
+      //单据时间
+      changeDate(val){
+        this.valueDate=val
+      },
+      //当前时间
+      getDate(){
+        let date=new Date()
+        this.valueDate=date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate()
+      },
+       //下拉加载更多
+        handleReachEdge(){
+          this.current++//默认10条
+          this.axios.get('transfer/query?offset='+this.current+'&uid='+this.uid).then((res)=>{
+              if(this.current>Math.ceil(this.totaldb/this.pageSizedb)){
+                    this.current=Math.ceil(this.totaldb/this.pageSizedb)
+                }
+              res.data.rows.forEach((item)=>{
+                item.createTime=new Date(item.createTime).toLocaleDateString().replace(/\//g,'-')
+                  this.Allpo.push(item)
+                  this.Allpo.forEach((x)=> {
+                     switch(x.status){
+                      // case 1:
+                      //   x.statusDesc='未提交'
+                      // break;
+                      // case 15:
+                      //   x.statusDesc='已提交'
+                      // break;
+                      // case 77:
+                      //   x.statusDesc='签收中'
+                      // break;
+                      // case 99:
+                      //   x.statusDesc='已签收'
+                      // break;
+                      case 88:
+                        x.statusDesc='签收完成'
+                      break;
+                    }
+                })
+                 
+              })
+
+            })
+                    
+        },
+        modelCancel(){
+          this.goodsinshow = false
+          this.updatedetailmodel = false
+        },
+        //点击差号
+        cancelHome(){
+          this.$router.push('investigate')
+        },
+        //点击取消
+        gotoDetail(){
+           this.detail=true
+          this.addText = false
+          this.addorder = true
+          this.undersign = false
+          this.digital = true
+          
+          this.$refs.divsave.style.display="none"
+           
+        }
+    },
+
+    mounted:function() {
+
+        if(this.$route.query.id){
+          this.allpoId = this.$route.query.id
+          this.numIndex = this.$route.query.index
+          this.getcginfo(this.allpoId,this.numIndex)
+        }
+        this.getList()
+        this.getWarehouse()
+        this.getDate()
+        // //进入影藏滚动条
+        $('.ivu-scroll-container').css({
+            overflowY:"hidden"
+          })
+       
+        this.height = document.documentElement.clientHeight
+       
+     
+
+    }
+  }
+</script>
+<style type="text/css">
+.tot{
+    position:fixed;
+    bottom:10px;
+    left:15%;
+    z-index:12;
+}
+ .bg{
+    background:#eee;
+    color:#000;
+  }
+  .textbg1{
+    color:#999;
+  }
+  .textbg2{
+    color:#40ca98;
+  }
+  .textbg3{
+    color:#3b77e3;
+  }
+  .textbg4{
+    color:#d53c39;
+  }
+  .textbg5{
+    color:#278fa3;
+  }
+.ivu-scroll-content{
+  margin-bottom:100px;
+}
+.ivu-scroll-container::-webkit-scrollbar{
+  width: 0px;
+  height: 4px;
+  background-color: #f5f5f5;
+}
+.ivu-scroll-container::-webkit-scrollbar-track{
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+  border-radius: 10px;
+  background-color: #f5f5f5;
+}
+.ivu-scroll-container::-webkit-scrollbar-thumb{
+  
+  height: 2px;
+  border-radius: 18px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+  background-color: #ccc;
+}
+.layout-content-main{
+  margin-top:0px!important;
+}
+.ivu-btn{
+  padding:4px 15px!important;
+}
+.ivu-scroll-loader-wrapper{
+  padding:0!important;
+}
+  .lanren {
+    position: absolute;
+    text-align: center;
+    top: 60px;
+    right: 0px;
+    width: 0;
+    height: 0;
+    border-top: 80px solid #d53c39;
+    border-left: 80px solid transparent;
+}
+.lanren span{
+    width: 60px;
+    height: 60px;
+    color: #fff;
+    display: block;
+    position: relative;
+    z-index: 9999999999999;
+    top: -70px;
+    right: 70px;
+    font-size: 16px;
+    font-weight: 900;
+    transform: rotate(46deg);
+}
+.bgd1{
+   border-top: 80px solid #999;
+}
+.bgd2{
+   border-top: 80px solid #40ca98;
+}
+.bgd3{
+   border-top: 80px solid #3b77e3;
+}
+.bgd4{
+   border-top: 80px solid #d53c39;
+}
+.bgd5{
+   border-top: 80px solid #278fa3;
+}
+
+ .modelInput{
+    display: inline-block;
+    width: 100%;
+    height: 34px;
+    
+    text-indent: 10px;
+    color: #555;
+    background-color: transparent;
+    background-image: none;
+    border: 1px solid #eee;
+    
+    
+    -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    }
+    .modelInput:focus{
+    border-color: #66afe9;
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 4px rgba(102, 175, 233, .6);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 4px rgba(102, 175, 233, .6);
+  }
+   .demo-spin-icon-load{
+        animation: ani-demo-spin 1s linear infinite;
+    }
+    @keyframes ani-demo-spin {
+        from { transform: rotate(0deg);}
+        50%  { transform: rotate(180deg);}
+        to   { transform: rotate(360deg);}
+    }
+</style>
+<style type="text/css">
+.ivu-modal-header{
+  padding:6px!important;
+}
+
+</style>
+<style lang="scss" scoped>
+  .add-box {
+    width: 100%;
+    height: auto;
+    .right-top{
+     height:60px;
+     line-height:60px;
+      display:flex;
+      justify-content:space-between
+    
+    }
+    .order_number{
+      float: left;
+      margin-right: 50px;
+      margin-left: 30px;
+      span{
+        &:nth-child(1){
+          margin-top:5px;
+          color:#058585;
+        }
+        &:nth-child(2){
+          margin-top:5px;
+          display: block;
+
+        }
+      }
+    }
+    .order_type{
+      
+      span{
+        &:nth-child(1){
+          margin-top:5px;
+          color:#058585;
+        }
+        &:nth-child(2){
+          margin-top:5px;
+          display: block;
+
+        }
+      }
+    }
+    .source{
+      height: 20px;
+      margin-top: 10px;
+      position: relative;
+      p{
+        color: #058585;
+        width: 70px;
+        line-height: 25px;
+        font-size: 14px;
+        border-bottom: 2px solid #00a8ff;
+        margin-left: 20px;
+
+      }
+      span{
+        position: absolute;
+        right: 20px;
+        top:5px;
+        color: #000
+      }
+    }
+    .allocation_img{
+      img{
+        margin-top: 120px;
+        margin-left: 65px;
+      }
+    }
+    .detail-top{
+      width:100%;
+      margin-top:20px;
+      ul{
+        width: 100%;
+        height: 150px;
+        /*display: flex;*/
+        margin-top: 20px;
+        &:nth-child(1){
+          margin-top: 10px;
+        }
+        li{
+          width: 20%;
+          display:inline-block;
+          text-align:center;
+          &:nth-child(n+5){
+            margin-top:15px;
+          }
+          p{
+            &:nth-child(1){
+              color: #058585;
+            }
+            &:nth-child(2){
+              margin-top: 5px;
+            }
+          }
+        }
+      }
+
+    }
+    .someData{
+      h1{
+        font-size: 16px;
+        margin-left: 50px;
+        margin-top:5px;
+      }
+      .somePP{
+        color: #058585;
+        margin-left: 30px;
+      }
+      p{
+        &:nth-child(3){
+          margin-left: 50px;
+          margin-top:5px;
+        }&:nth-child(4){
+           margin-left: 50px;
+           margin-top:5px;
+         }
+
+      }
+      .delivery{
+        margin-top: 25px;
+        ul{
+          width:100%;
+          height: 40px;
+          display: flex;
+          li{
+            width: 20%;
+            text-align: right;
+            p{
+              margin-top:5px;
+              &:nth-child(1){
+                color: #058585;
+                font-weight:bold;
+              }
+            }
+          }
+        }
+      }
+    }
+    .digital_diversity{
+      width: 100%;
+      
+      line-height:30px;
+      position: relative;
+      p{
+        display: inline-block;
+        width: 100px;
+        text-align: center;
+      }
+      .border-bot{
+
+        border-bottom: 2px solid #308DBF;
+      }
+    }
+  }
+ 
+  .cheng{
+    width: 100%;
+    height: 60px;
+    /*margin-top: 10px;*/
+  }
+  .add-header{
+    width: 100%;
+    height: 60px;
+    z-index: 10;
+    background: #ffffff;
+    margin-bottom: 25px;
+    /*display: flex;
+    justify-content: space-between;*/
+    position: fixed;
+    border-bottom:1px solid #E6E6E6
+  }
+  .top{
+    display:flex;
+   
+    position:fixed;
+    width:100%;
+    z-index:9999;
+    background: #fff;
+    border-bottom:1px solid #ccc;
+  }
+
+ .left-content {
+    height:100%;
+    width:25%;
+    z-index:9;
+    margin-bottom:300px;
+    border-right:1px solid #eee;
+    position:fixed;
+    background:#F9F9F9;
+  }
+  .right-content{
+  
+    background: #fff;
+ 
+ 
+    margin-left:30%;
+    margin-bottom:80px
+  }
+
+  .list-box{
+    display: flex;
+    height:35px;
+    line-height: 35px;
+    margin:10px 10px;
+  }
+  .list-box span{
+    height:40px;
+    width:130px;
+    text-align: left;
+    padding:0 10px;
+  }
+
+  .left-top{
+   display:flex;
+   height:60px;
+   z-index:10;
+   line-height:60px;
+   justify-content: space-between;
+   border-right:1px solid #eee;
+
+  }
+
+
+  .detail-bottom{
+    margin-top:30px;
+  }
+  .detail-title-mark{
+    display:flex;
+    justify-content: flex-start;
+   
+    margin-top:1px;
+  }
+  .detail-title{
+    padding:10px 40px;
+    margin-left:10px
+  }
+  .detail-public{
+    width:98%;
+    margin-top:10px;
+  }
+  .bor{
+    border-bottom:2px solid #086CA2;
+  }
+  .right-detail{
+    margin-bottom:0;
+   
+  }
+  .add-box:after {
+    content: '';
+    display: block;
+    clear: both;
+  }
+
+
+  .left-btn {
+    height: 40px;
+    float: right;
+    margin-top: -40px;
+  }
+
+  .left-btn button {
+    
+  }
+
+  .ivu-icon-navicon {
+    font-size: 20px;
+  }
+
+
+
+  .con-list {
+    width: 100%;
+    word-wrap:break-word;
+    display:flex;
+    border-bottom: solid 1px #E6E6E6;
+    padding: 15px 20px;
+ 
+    cursor: pointer;
+    position:relative;
+  }
+
+  .con-list .date{
+    position:absolute;
+    right:10px;
+    top:10px;
+  }
+  .con-list .list-title {
+    color: #0d0d0d;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .con-list button {
+    width: auto;
+    height: 25px;
+    padding-left: 14px;
+    padding-right: 14px;
+    margin-right: 10px;
+    color: #607d8b;
+    font-size: 12px;
+    border: 0;
+    background: #ececec;
+  }
+
+  .con-list .txt {
+    color: #585858;
+    font-size: 12px;
+  }
+
+  .page-box {
+    margin-top:10px;
+  }
+
+  .add-right {
+    width: 100%;
+    background: #fff;
+    height:100%;
+    width:70%;
+    margin-left:30%;
+  }
+
+  /**激活的button样式**/
+
+  .btnact {
+    background: #086ca2 !important;
+    color: #fff !important;
+  }
+  /***正常的样式***/
+
+  .normal {
+    background: #d9dbdc !important;
+    color: #585858 !important;
+  }
+  .classBlue{
+    background:blue
+  }
+.top-left-btn{
+    background: #3B77E3;
+      margin-right: 10px;
+      color: #fff;
+      border: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 26px;
+      display: inline-block;
+      position: relative;
+      top: 12px;
+  }
+  .top-left-btn1{
+    background: #FF7D16;
+  }
+  .top-left-btn:hover{
+    cursor:pointer;
+  }
+  .wldw{
+    margin-left:10px
+  }
+.title{
+    display:flex;justify-content: space-between;margin-top:20px
+  }
+  .title:hover{
+    cursor:pointer;
+  }
+  .con-list .status{
+    width:100px;
+    
+    text-align: center;
+    position: absolute;
+      right: 0px;
+      top: 47px;
+  }
+.selectModel p:hover{ 
+  cursor:default;
+ color:red
+}
+</style>

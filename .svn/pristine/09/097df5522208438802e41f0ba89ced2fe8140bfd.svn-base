@@ -1,0 +1,876 @@
+<template>
+	<div class="units-box">
+		<!--广告轮播-->
+		<div class='goods-left'>
+			<div class='left-top'>
+				<span style='font-size:18px;font-weight:600'>{{$t('operation.lunbos.title')}}</span><!--广告宣传-->
+				<span style='margin-left:10px;color: rgb(59,119,227);cursor:pointer' @click="cancelHome">返回</span>
+			</div>
+			<div style="height:100%;"  class='flclass'>
+					<div style='margin-bottom:160px'>
+					<li class='flclass' v-for='(item,index) in Allfl' @click='addBg(index)' :class="{bg:numIndex==index}" style='display:flex;justify-content: space-between'>
+						<div style='margin-left:10px'>{{item.label}}</div>
+
+					</li>
+				</div>
+			</div>
+
+		</div>
+		<!--预览-->
+		<div class='goods-right' v-if='numIndex==0'>
+			<div class="btns-box">
+				<div style='display:flex;margin-bottom:120px'>
+					<p class="wldw">
+                        <span style="width:42px;font-weight:900">{{title}}</span>
+                    </p>
+				</div>
+				<div class="right">
+					<!-- <Button type="primary" style='background:#3b77e3' shape="circle" @click="">
+						 <Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>保存
+					</Button> -->
+					<span @click="cancelHome" style="cursor:pointer; margin-left: 10px;"><Icon type="close" class="cha" ></Icon></span>
+				</div>
+			</div>
+			<!-- <div style='height:50px'></div> -->
+			<!--表格数据-->
+			<div class="table">
+				<div style='display:flex;;margin-bottom:120px'>
+					<div class='table-left'>
+						<img src="http://img.zsydian.com/bg_mobile_head.png">
+						<div class='lunboImg'>
+							<Carousel v-model="value1" loop :height='200'>
+						        <CarouselItem v-for='(item,index) in goodspre' :key='index'>
+						        	<img :src="item.pic">
+						            <!-- <div class="demo-carousel">{{item.pic}}</div> -->
+						        </CarouselItem>
+						    </Carousel>
+						</div>
+					</div>
+					<div class='table-right'>
+						<div class='table-right-table'>
+							<div style='width:100%;text-align:center;padding:10px;font-size:16px;font-weight:600'>{{$t('operation.lunbos.manage')}}</div><!--轮播次序管理-->
+							<Table border  ref="selection"  :columns="columns1" :data="goodspre1" @></Table>
+							<!--底部的分页-->
+							<div class="page-box">
+								<Page :total="total1" show-total size='small' :pageSize='pageSize1'  @on-change="getData1" @on-page-size-change="changePageSize1"></Page>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<!--广告管理-->
+		<div class='goods-right' v-if='numIndex==1'>
+			<div class="btns-box">
+				<div style='display:flex'>
+					<p class="wldw">
+                        <span style="width:42px;font-weight:900">{{title}}</span>
+                    </p>
+				</div>
+				<div class="right">
+					<Button type="primary" style='background:#3b77e3;border:none' shape="circle" @click="addImg">
+						 <Icon type="plus-round" style="margin-right:5px;color:#fff"></Icon>{{$t('public.addnew')}}<!--新建-->
+					</Button>
+				<Dropdown trigger="click" style="margin-left: 4px;border:none">
+                    <Button shape="circle" type="ghost" style="background:#ff7d16;color:#fff;border:none">{{$t('public.more')}}<!--更多-->
+                    <span><i class="ivu-icon ivu-icon-chevron-down"></i></span>
+                </Button>
+
+                <DropdownMenu slot="list">
+                    <span @click="start"><DropdownItem >{{$t('public.start')}}</DropdownItem></span>
+                    <span @click="stop"><DropdownItem >{{$t('public.stop')}}</DropdownItem></span>
+                    <span  @click="del"><DropdownItem >{{$t('public.del')}}</DropdownItem></span>
+                    <span  @click="edit"><DropdownItem >{{$t('public.EditBtn')}}</DropdownItem></span>
+                </DropdownMenu>
+             </Dropdown>
+             <span @click="cancelHome" style="cursor:pointer; margin-left: 10px;"><Icon type="close" class="cha" ></Icon></span>
+			</div>
+		</div>
+		<!-- <div style='height:50px'></div> -->
+			<!--管理数据-->
+			<div class="table">
+				<Table border  ref="selection" highlight-row :columns="columns" :data="goodspre" @on-select="selected"  @on-row-click='selectRow'></Table>
+				<!--底部的分页-->
+				<div class="page-box">
+					<Page :total="total" show-total size='small' :pageSize='pageSize'  @on-change="getData" @on-page-size-change="changePageSize"></Page>
+				</div>
+			</div>
+		</div>
+
+    	    <!--选择商品-->
+	<Modal v-model="goodsinshow" width="460px">
+		<p slot="header" style="height:30px;line-height:30px;text-align:center">
+
+			<span>{{$t('operation.lunbos.addTitle')}}</span><!--新建广告-->
+		</p>
+		<div >
+
+			<div style="text-align:center;width:100%;height:35px;line-height:35px;display:flex;margin-top:10px">
+				<span style='width:100px'>{{$t('operation.lunbos.describe')}}：</span><Input  style="width:230px" v-model="name" ></Input>
+			</div><!--描述-->
+			<div style="text-align:center;width:100%;height:35px;line-height:35px;display:flex;margin-top:10px">
+				<span style='width:100px'>{{$t('public.remark')}}：</span><Input  style="width:230px" v-model="remark" ></Input><!--备注-->
+			</div>
+			<div style="text-align:center;width:100%;height:35px;line-height:35px;display:flex;margin-top:10px">
+			<span style='width:100px'>{{$t('operation.lunbos.upImg')}}</span><!--选择上传图片-->
+			<Input  style="width:230px" v-model="pic" disabled></Input>
+			<span>
+				<div style='position:relative;top:-3px;right:0px;width:80px;height:37px;over-flow:hidden'>
+                     <el-upload
+                     ref="upload"
+                     :show-file-list='false'
+                      class="upload-demo"
+                      name='file'
+                      :action="actionUrl"
+                      :before-upload="beforeAvatarUpload"
+                      :on-success='success'
+                      accept="image/png, image/jpeg">
+                      <Button size="small" type="primary" style='background:#169BD5'>{{$t('public.upload')}}</Button><!--点击上传-->
+                     </el-upload>
+                 </div>
+			</span>
+			</div>
+		</div>
+
+		<div slot="footer" style='margin-top:-20px'>
+			<div class="table">
+
+           	</div>
+			<div class='title' style='margin:0px'>
+				<div style='color:#D15151;font-size:14px'>
+
+					</div>
+				<div class='footer-btn'>
+					<span @click='modelCancel' style='border-right:1px solid #e4e4e4'>{{$t('public.cancel')}}</span>
+					<span @click='makegoods' style='color:#3b77e3' v-if='isshow'>{{$t('public.sure')}}</span>
+					<span @click='makegoodsedit' style='color:#3b77e3' v-if='!isshow'>{{$t('public.sure')}}</span>
+
+				</div>
+			</div>
+		</div>
+	</Modal>
+	<div class="mark"></div>
+	</div>
+</template>
+<script type="text/javascript">
+import LoadUrl from '@/components/common/actionLoad'
+	export default{
+		data(){
+			return{
+				value1:0,
+				vid:'',
+				isshow:true,
+				ggrow:{},//一条广告数据
+                actionUrl:LoadUrl.httpPrefix.Url+'file/action/upload/image/url?uid='+this.$store.state.common.token,//导入地址
+				goodsinshow:false,
+				ImgName:'',//图片名称
+				title:this.$t('operation.lunbos.Sidebar1'),//'广告预览',
+				numIndex:0,
+				uid:this.$store.state.common.token,
+				valId:'',//管理选中的id
+				total:0,
+				pageSize:0,
+				total1:0,
+				pageSize1:0,
+				goodspre:[],//管理
+				goodspre1:[],//管理
+				columns:[
+					{
+                        title:this.$t('operation.lunbos.imgP'),//"广告图片预览",
+                        align:'center',
+                        width:300,
+                        key:"pic",
+                        render:(h, params) =>{
+                            return h('div',[
+                                    h('img',{
+                                        attrs:{
+                                            src:params.row.pic
+                                        },
+                                        style:{
+                                            width:'260px',
+                                            height:'60px',
+                                            marginTop:'3px'
+                                        }
+                                    })
+                                ])
+                        }
+                    },
+					{
+						title:this.$t('operation.lunbos.date'),//'上传日期',
+						key:'createTime',
+
+						align:'center'
+					},
+					{
+						title:this.$t('operation.lunbos.describe'),//'描述',
+						key:'name',
+						align:'center'
+					},
+					{
+						title:this.$t('public.status'),//"状态",
+						key:'statusDesc',
+						width:80,
+						render:(h,params)=>{
+							return h('div',{
+								style:{
+									color:params.row.status===1?'#3b77e3':params.row.status===99?'#d53c39':''
+								}
+							},params.row.statusDesc)
+						}
+					}
+				],//管理
+				columns1:[
+					{
+						type: 'index',
+						title:this.$t('operation.lunbos.sort'),//'排序',
+						width:70,
+					},
+					{
+                        title:this.$t('operation.lunbos.imgP'),//"广告图片预览",
+                        align:'center',
+
+                        key:"pic",
+                        render:(h, params) =>{
+                            return h('div',[
+                                    h('img',{
+                                        attrs:{
+                                            src:params.row.pic
+                                        },
+                                        style:{
+                                            width:'260px',
+                                            height:'60px',
+                                            marginTop:'3px'
+                                        }
+                                    })
+                                ])
+                        }
+                    },
+
+					{
+						title:this.$t('operation.lunbos.order'),//'调序',
+						align:'center',
+						width:80,
+						render:(h,params)=>{
+							return h('div',[
+								h('p',{
+									style:{
+										color:'#3b77e3',
+										marginBottom:'10px',
+										cursor:'pointer'
+									},
+									'on':{
+										'click':()=>{
+
+											this.up(this.goodspre,params.index)
+											console.log(this.goodspre)
+										}
+									}
+								},this.$t('operation.lunbos.up')),//'上移'
+								h('p',{
+									style:{
+										color:'#d53c39',
+										cursor:'pointer'
+									},
+									'on':{
+										'click':()=>{
+											this.down(this.goodspre,params.index)
+										}
+									}
+								},this.$t('operation.lunbos.down'))//'下移'
+								])
+						}
+					}
+				],//管理
+				Allfl:[
+					{
+						label:this.$t('operation.lunbos.Sidebar1'),//'广告预览',
+						value:0
+					},
+					{
+						label:this.$t('operation.lunbos.Sidebar2'),//''广告管理',
+						value:1
+					}
+				],
+				//新建数据
+				pic:'',//图片地址
+				name:'',//图片描述
+				url:'',//图片跳转地址
+				remark:'',//备注
+
+			}
+		},
+
+		methods:{
+			//单击左侧列表
+				addBg(index){
+					this.numIndex=index
+					if(this.numIndex==0){
+						this.title=this.$t('operation.lunbos.Sidebar1')//'广告预览'
+					}
+					if(this.numIndex==1){
+						this.title=this.$t('operation.lunbos.Sidebar2')//'广告管理'
+						this.getAll()//获取广告管理列表
+					}
+				},
+				//表格选中时的数据，数组
+				selected(selection,row){
+					this.valId = row.id
+				},
+				//获取管理列表与预览
+				getAll(){
+					this.axios.get('/poster/query?uid='+this.uid).then(res=>{
+						if(res.data.status==200){
+							this.goodspre=res.data.rows
+							console.log(this.goodspre)
+							this.goodspre1=res.data.rows
+							this.total=res.data.total
+							this.pageSize=res.data.pageSize
+
+							this.total1=res.data.total
+							this.pageSize1=res.data.pageSize
+							this.goodspre.forEach((x)=>{
+								if(x.status===1){
+
+									x.statusDesc='正常'
+								}
+								// if(x.status===0){
+
+								// 	x.s='正常'
+								// }
+								if(x.status===99){
+
+									x.statusDesc='已停用'
+								}
+								x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+							})
+						}else{
+							this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+						}
+					})
+				},
+				//切换一条页
+	            getData(current){
+	                this.axios.get('/poster/query?offset='+current+'&uid='+this.uid).then((res)=>{
+
+	                    this.goodspre = res.data.rows
+	                    this.total=res.data.total
+						this.pageSize=res.data.pageSize
+	                })
+
+	            },
+	            //翻页
+	            changePageSize(size){
+	                this.pageSize = size
+	            },
+	            //切换一条页
+	            getData1(current){
+	                this.axios.get('/poster/query?offset='+current+'&uid='+this.uid).then((res)=>{
+
+	                    this.goodspre1 = res.data.rows
+	                    this.total1=res.data.total
+						this.pageSize1=res.data.pageSize
+	                })
+
+	            },
+	            //翻页
+	            changePageSize1(size){
+	                this.pageSize1 = size
+	            },
+	            //上传前
+	            beforeAvatarUpload(file) {
+	                const isJPG = file.type === 'image/jpeg';
+	                const isPng = file.type === 'image/png';
+	                const isLt2M = file.size / 1024 / 1024 < 2;
+	                if (!isJPG && !isPng) {
+	                      this.$notify({
+	                        title: "",//'失败',
+	                        message:this.$t('public.upJpngOrPng'),
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+	                }
+	                if (!isLt2M) {
+	                     this.$notify({
+	                        title: "",//'失败',
+	                        message:this.$t('public.upJpngTwoM'),
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+	                }
+	                return isJPG || isPng && isLt2M;
+	              },
+	            //成功后的会掉
+	            success(response, file, fileList){
+	                if(response.status==200){
+	                   
+	                    this.ImgName=file.name
+	                    this.pic=response.rows.url
+	                    console.log(response)
+	                }else{
+	                	this.$notify({
+	                        title: "",//'失败',
+	                        message:"上传失败",
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+	                }
+	            },
+	            //新建
+	            addImg(){
+	            	this.goodsinshow=true
+	            	this.isshow=true
+	            	this.ImgName=''
+	            	this.name=''
+	            	this.pic=''
+	            	this.remark=''
+	            },
+	            //取消新建
+	            modelCancel(){
+	            	this.goodsinshow=false;
+	            	this.ImgName=''
+	            	this.name=''
+	            	this.remark=''
+	            },
+	            //确认上传
+	            makegoods(){
+	            	if(this.ImgName==''){
+
+						this.$notify({
+	                        title:"",//
+	                        message: '请选择图片！',
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+	            	}else{
+	            		this.axios.post('poster/add?uid='+this.uid,{
+	            			pic:this.pic,
+	            			name:this.name,
+	            			remark:this.remark
+	            		}).then(res=>{
+	            			if(res.data.status==200){
+	            				this.goodsinshow=false
+	            				this.pic='',
+	            				this.name='',
+	            				this.remark=''
+	            				this.getAll()
+	            			}
+	            		})
+
+	            	}
+	            },
+	            //管理选中某一行
+	            selectRow(data,index){
+	            	this.vid=data.id
+	            	this.ggrow=data
+	            },
+	            //点击修改
+	            edit(){
+	            	if(this.vid==''){
+
+						this.$notify({
+	                        title:"",//
+	                        message: '请选一条需要修改的广告！',
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+	            	}else{
+	            		this.goodsinshow=true;
+		            	this.isshow=false
+		            	this.name=this.ggrow.name
+		            	this.remark=this.ggrow.remark
+		            	this.pic=this.ggrow.pic
+	            	}
+
+	            },
+	            //确认修改
+	            makegoodsedit(){
+	            	this.axios.put('poster/update?uid='+this.uid,{
+	            		id:this.vid,
+	            		name:this.name,
+	            		pic:this.pic,
+	            		remark:this.remark
+	            	}).then(res=>{
+	            		if(res.data.status==200){
+	            			this.pic='',
+            				this.name='',
+            				this.remark=''
+            				this.goodsinshow=false;
+            				this.$notify({
+			                        title:"",//
+			                        message: this.$t('public.editSuccess'),//
+			                        type: 'success',
+			                        position: 'bottom-right'
+			                    });
+	            			this.getAll()
+	            		}else{
+	            			this.$notify({
+		                        title:"",//
+		                        message:res.data.errorMessage,
+		                        type: 'error',
+		                        position: 'bottom-right'
+		                    });
+	            		}
+	            	})
+	            },
+	            start(){
+	            	if(this.vid==''){
+	            		this.$notify({
+	                        title:"",//
+	                        message: '请选一条广告！',
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+	            	}else{
+	            		this.axios.post('poster/enabled/'+this.vid+'?uid='+this.uid).then(res=>{
+		            		if(res.data.status==200){
+		            			this.$notify({
+			                        title:"",//
+			                        message:this.$t('public.normalS'),//
+			                        type: 'success',
+			                        position: 'bottom-right'
+			                    });
+		            			this.getAll()
+		            		}else{
+		            			this.$notify({
+			                        title:"",//
+			                        message:res.data.errorMessage,
+			                        type: 'error',
+			                        position: 'bottom-right'
+			                    });
+		            		}
+		            	})
+	            	}
+	            },
+	            stop(){
+	            	if(this.vid==''){
+	            		this.$notify({
+	                        title:"",//
+	                        message: '请选一条广告！',
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+	            	}else{
+	            		this.axios.post('poster/disabled/'+this.vid+'?uid='+this.uid).then(res=>{
+		            		if(res.data.status==200){
+		            			this.$notify({
+			                        title:"",//
+			                        message:this.$t('public.normalT'),//
+			                        type: 'success',
+			                        position: 'bottom-right'
+			                    });
+		            			this.getAll()
+		            		}else{
+		            			this.$notify({
+			                        title:"",//
+			                        message:res.data.errorMessage,
+			                        type: 'error',
+			                        position: 'bottom-right'
+			                    });
+		            		}
+		            	})
+	            	}
+	            },
+	            del(){
+	            	if(this.vid==''){
+
+						this.$notify({
+	                        title:"",//
+	                        message: '请选一条广告！',
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+	            	}else{
+	            		this.axios.delete('poster/delete/'+this.vid+'?uid='+this.uid).then(res=>{
+		            		if(res.data.status==200){
+		            			this.$notify({
+			                        title:"",//
+			                        message: this.$t('public.deleteSuccess'),//
+			                        type: 'success',
+			                        position: 'bottom-right'
+			                    });
+		            			this.getAll()
+		            		}else{
+		            			this.$notify({
+			                        title:"",//
+			                        message: res.data.errorMessage,
+			                        type: 'error',
+			                        position: 'bottom-right'
+			                    });
+		            		}
+		            	})
+	            	}
+	            },
+	            //公用的上移下移
+	            gysx(arr,index1,index2){
+	            	arr[index1]=arr.splice(index2,1,arr[index1])[0];
+	            	return arr
+	            },
+	            //上移
+	            up(arr,index){
+	            	if(index==0){
+
+						this.$notify({
+	                        title:"",//
+	                        message: '已是第一条！',
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+	            		return
+	            	}
+	            	this.gysx(arr,index,index-1)
+
+	            },
+	            //下移
+	            down(arr,index){
+	            	if(index==arr.length-1){
+
+						this.$notify({
+	                        title:"",//
+	                        message: '已是最后一条！',
+	                        type: 'error',
+	                        position: 'bottom-right'
+	                    });
+	            		return
+	            	}
+	            	this.gysx(arr,index,index+1)
+	            },
+				//差号返回
+				cancelHome(){
+					this.$router.push('/operationhome')
+				},
+	       },
+
+		 created(){
+            	this.$nextTick(()=>{
+				this.getAll()//获取广告管理列表
+			})
+        },
+		mounted(){
+
+	},
+}
+</script>
+<style scoped>
+	.units-box {
+		width: 100%;
+		height: 100%;
+		background: rgb(230,233,236);
+		display:flex;
+		overflow: hidden;
+	}
+
+	.search-box {
+		width: 300px;
+		height: auto;
+		position: fixed;
+		top: 15px;
+		left: 250px;
+		z-index: 9999;
+
+	}
+	.footer-btn{
+		width:100%;
+		border-top:1px solid #e4e4e4;
+		height:50px;
+		line-height: 50px;
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: -12px;
+		margin-top:40px;
+	}
+	.footer-btn span{
+		width:50%;
+		text-align: center;
+		cursor:pointer;
+	}
+	.search-box .add {
+		width: 32px;
+		height: 32px;
+		border-radius: 50%;
+		background: #00a8ff;
+		line-height: 28px;
+		text-align: center;
+		color: #fff;
+		font-size: 22px;
+		float: left;
+		margin-right: 10px;
+	}
+	.btns-box {
+
+		height: 50px;
+
+		display:flex;
+		justify-content: space-between;
+
+		line-height: 50px;
+
+		background: #fff;
+		border-bottom:1px solid #e4e4e4;
+	}
+	 .wldw{
+    	margin-left:10px;
+    	width:300px;
+    }
+	.right{
+		margin-right:20px;
+		margin-bottom:10px;
+	}
+
+	.ivu-icon-chevron-down {
+		font-size: 10px;
+	}
+	.flclass:last-child{
+		margin-bottom:40px;
+	}
+
+	.btns img {
+		width: 16px;
+		height: 16px;
+		vertical-align: middle;
+	}
+
+	.table {
+		margin:10px;
+	}
+
+	.page-box {
+		text-align: center;
+		margin-top:5px;
+		margin-bottom:120px;
+	}
+	/***气泡提示样式设置***/
+
+	.qp-con {
+		width: 100%;
+		height: 30px;
+		color: #0d0d0d;
+		font-size: 14px;
+		line-height: 30px;
+		padding:0 10px;
+		cursor: pointer;
+	}
+
+	.qp-con img {
+		width: 16px;
+		height: 16px;
+		vertical-align: middle;
+	}
+	.goods-left{
+		width: 120px;
+		margin-right: 3px;
+		flex: 0 0 120px;
+		font-size: 14px;
+		background: #fff;
+	}
+	.goods-right{
+
+   	 	width: 100%;
+   	 	background: #fff;
+   	 	overflow: auto;
+	}
+	.left-top{
+		height:50px;
+		line-height: 50px;
+		border-bottom:1px solid #F5F5F5;
+		display: flex;
+		justify-content: space-around;
+	}
+	.goods-left li{
+		list-style: none;
+		height:40px;
+		line-height: 40px;
+		width:100%;
+
+
+	}
+	.goods-left li span{
+
+		margin-right:10px;
+	}
+	.bg{
+		background: #EBF1FC
+	}
+	.addHot{
+	position:fixed;
+	z-index:99;
+	height:89%;
+	width:500px;
+	right:-500px;
+	top:48px;
+	background: #fff;
+	z-index:10;
+	overflow-y: scroll;
+	box-shadow: 0 0 20px #ccc
+	/*border:1px solid red;*/
+}
+.addHot-head{
+	width:100%;
+	height:50px;
+	line-height: 50px;
+	display: flex;
+	justify-content: space-between;
+	border-bottom: 1px solid #e4e4e4;
+
+
+}
+.searchInput{
+	width:100%;
+	line-height: 35px;
+	margin:20px;
+	text-align: center;
+	display: flex
+}
+.addHot-head span{
+	font-size:14px;
+	font-weight:600;
+	margin-left:20px;
+}
+.table1{
+	margin:10px;
+}
+.mark{
+	position:fixed;
+	display:none;
+	width:100%;
+	height:100%;
+	background: #B2B2B2;
+	opacity:0.4;
+	z-index:9;
+}
+.table-left{
+	width:321px;
+	flex:0 0 321px;
+	height:530px;
+	border:1px solid #e4e4e4;
+}
+.lunboImg{
+	max-width:100%;
+	max-height:300px;
+}
+.lunboImg img{
+	width:100%;
+	height:180px;
+}
+.table-right{
+	width:100%;
+	height:530px;
+	margin-left:20px;
+	border:1px solid #e4e4e4;
+}
+.table-right-table{
+	margin:10px;
+}
+</style>
+<style type="text/css">
+	.ivu-table .demo-table-info-row td{
+        background-color: #2db7f5;
+        color: #fff;
+    }
+
+</style>

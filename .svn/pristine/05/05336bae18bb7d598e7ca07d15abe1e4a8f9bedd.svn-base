@@ -1,0 +1,49 @@
+<template>
+    <div >
+        <div class='order-top'>
+			<div class='top-list'>
+				<span>今日工单数量</span>
+				<div style='color:blue;margin-top:5px'>{{order1}}</div>
+			</div>
+			<div class='top-list'>
+				<span>本周工单数量</span>
+				<div style='color:blue;margin-top:5px'>{{order2}}</div>
+			</div>
+			<div class='top-list'>
+				<span>客户数</span>
+				<div style='color:blue;margin-top:5px'>{{order3}}</div>
+			</div>
+			<div class='top-list'>
+				<span>护理员人员</span>
+				<div style='color:blue;margin-top:5px'>{{order4}}</div>
+			</div>
+		</div>
+    </div>
+</template>
+<script>
+export default {
+    data(){
+        return {
+            order1:0,
+			order2:0,
+			order3:0,
+			order4:0,
+        }
+    }
+}
+</script>
+<style scoped>
+.order-top{
+	display:flex;
+	justify-content: space-around;
+	background: #F8F8F8;
+	height:80px;
+	
+}
+.top-list{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column
+}
+</style>

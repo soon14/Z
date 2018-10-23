@@ -1,0 +1,44 @@
+<template>
+	<div>
+		<div class="error404">
+			<p><span class="e404"></span></p>
+			<p class='noPage'>页面未找到</p>
+		</div>
+	</div>
+</template>
+<script>
+import bounty from "bounty";
+export default{
+
+	data(){
+		return{
+			e404:404
+		}
+	},
+	mounted(){
+		 bounty({ el: '.e404', value: this.e404});
+	}
+}
+</script>
+<style scoped>
+.error404{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	height:80%;
+	font-family:Impact, Charcoal, sans-serif;
+}
+.noPage{
+	font-size:20px;
+}
+.e404{
+	font-weight:900;
+	font-size:50px;
+	color:#ff0000;
+	fill:red;
+	text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+	text-align: center;
+	
+}
+</style>

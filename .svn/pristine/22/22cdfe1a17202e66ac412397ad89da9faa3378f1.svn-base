@@ -1,0 +1,122 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "element-china-area-data",
+        "scope": null,
+        "escapedName": "element-china-area-data",
+        "name": "element-china-area-data",
+        "rawSpec": "",
+        "spec": "latest",
+        "type": "tag"
+      },
+      "C:\\Users\\cxy\\Desktop\\zsyd"
+    ]
+  ],
+  "_from": "element-china-area-data@latest",
+  "_id": "element-china-area-data@4.1.0",
+  "_inCache": true,
+  "_location": "/element-china-area-data",
+  "_nodeVersion": "9.11.1",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/element-china-area-data_4.1.0_1524559350656_0.7616826432503236"
+  },
+  "_npmUser": {
+    "name": "plortinus",
+    "email": "plortinus@gmail.com"
+  },
+  "_npmVersion": "5.8.0",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "element-china-area-data",
+    "scope": null,
+    "escapedName": "element-china-area-data",
+    "name": "element-china-area-data",
+    "rawSpec": "",
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/element-china-area-data/-/element-china-area-data-4.1.0.tgz",
+  "_shasum": "df385d4c17d66a1d05f913d3d89888d6b31f58cf",
+  "_shrinkwrap": null,
+  "_spec": "element-china-area-data",
+  "_where": "C:\\Users\\cxy\\Desktop\\zsyd",
+  "author": {
+    "name": "plortinus@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/Plortinus/element-china-area-data/issues"
+  },
+  "dependencies": {
+    "china-area-data": "^4.0.0",
+    "uglify-js": "^3.1.4"
+  },
+  "description": "Element UI 级联 中国省市区数据",
+  "devDependencies": {
+    "babel-core": "^6.23.1",
+    "babel-loader": "^7.0.0",
+    "babel-preset-env": "^1.6.0",
+    "css-loader": "^0.28.4",
+    "element-ui": "^2.3.6",
+    "eslint": "^4.9.0",
+    "eslint-plugin-vue": "^4.5.0",
+    "file-loader": "^1.1.5",
+    "html-loader": "^0.5.1",
+    "html-webpack-plugin": "^3.2.0",
+    "style-loader": "^0.21.0",
+    "uglifyjs-webpack-plugin": "^1.0.0-beta.3",
+    "url-loader": "^1.0.1",
+    "vue": "^2.4.4",
+    "vue-loader": "^14.2.2",
+    "vue-template-compiler": "^2.4.4",
+    "webpack": "^4.6.0",
+    "webpack-cli": "^2.0.15",
+    "webpack-dev-server": "^3.1.3"
+  },
+  "directories": {},
+  "dist": {
+    "integrity": "sha512-bv0g/BSTRLWBzWwT/wlZb0W9m2I9C61L0pR442eq1t3LAnfZLtL15X47VDJMMxfDJH0jWt3v0aPtnpmeQOlphw==",
+    "shasum": "df385d4c17d66a1d05f913d3d89888d6b31f58cf",
+    "tarball": "https://registry.npmjs.org/element-china-area-data/-/element-china-area-data-4.1.0.tgz",
+    "fileCount": 19,
+    "unpackedSize": 9660761,
+    "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJa3u33CRA9TVsSAnZWagAA1Q8QAJGnyi/ql21+EAex6zNU\nDCqD0o7bn0VLBZGcnByQUuIFPXoepf+HhSFc8QagSSVbR6eM+cX00PMW/IvU\nY93izK4MSCHKxUpTGw9/CDoYyiokw/lx748N1Fe9bJHDRhNytIE+SGqKr7Yz\nRA63oUlpNgXr4GDIWMvfRsLUOX5+CiV9HBGxRUnsN7GS1FGWdRQLTqp/DR2f\nspqB1Et4a5eK4Fs1w8TsrykoWkJA/cQ2Q17oCgKEiSVuNU5aVyJGXSecFy+8\ny67/sCm6NqDT3gtil4aP0ewnjlB3nVcIB2ICteXdQkp0P8++96cTV4GS2F2A\n3Ce8p907P1nK5Tj1ZHt+Ak7VtWKhlG/8sOSrLVNh/btFNb/2ouvSw5LTv2W9\nVybSswM/4AiJoI64DTYcLjymDQetgoj234iCmiFurkNSkkz3rZ12FV9Cy2bZ\nrEw1q99hFHkKJcXcEU7Ghk1UsnJV9KI7JYMeK5eo/He2XPShlnwEDyGdhgAZ\nAsl1iXP55iGSlwCPY38SRRwPHrq6btkSJSA/wXwJdVlXgDxujxBUNMwIrjJf\n1YjA2d0gBq+7mBf5sCbG4lC9o7XbjL4Kw5IqNfiGCFkhWceaOryMPQmR5L8G\ntjVYXXT9dz7AKMBPnVKI/CTg56AgAxq/dNFLnUZAgj8MOqZAfkPbOHtcgC39\nXOir\r\n=IOjE\r\n-----END PGP SIGNATURE-----\r\n"
+  },
+  "gitHead": "53637fe6590db911022e65b6bf859efecd20d0f4",
+  "homepage": "https://github.com/Plortinus/element-china-area-data#readme",
+  "keywords": [
+    "element",
+    "elementui",
+    "element-ui",
+    "vue",
+    "省市区",
+    "级联"
+  ],
+  "license": "MIT",
+  "main": "./dist/app.js",
+  "maintainers": [
+    {
+      "name": "plortinus",
+      "email": "plortinus@gmail.com"
+    }
+  ],
+  "name": "element-china-area-data",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Plortinus/element-china-area-data.git"
+  },
+  "scripts": {
+    "build": "webpack --config webpack.build.config.js --progress --hide-modules",
+    "dev": "webpack-dev-server --config webpack.dev.config.js --inline --hot",
+    "docs": "webpack --config webpack.doc.config.js --progress --hide-modules",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "4.1.0"
+}

@@ -1,0 +1,672 @@
+<template>
+	<!--财务报表-->
+	<div class="units-box">
+		<div style='display:flex;height:100%'>
+			<Tabs :animated="false"  style="background:#fff;width:100%;height:100%" @on-click="getfhlistbg">
+		        <TabPane label="供应商对账单">
+					<div class="table">
+						
+						<div class='tableb'>
+							<Table border  :columns="columns" :data="dataList" ></Table>
+							<!--@on-row-dblclick="dbl" @on-select="selected"-->
+							<!--底部的分页-->
+							<div class="page-box">
+								 <Page v-show='total!=0' :total="total" show-total size="small" :pageSize='pageSize'  @on-change="getData" @on-page-size-change="changePageSize"></Page>
+							</div>
+						</div>
+					</div>
+	        	</TabPane>
+		        <TabPane label="供应商欠款">
+					<div class="table">
+						
+						<div class='tableb'>
+							<Table border   ref="selection"  :columns="qkcolumns" :data="qkdataList" ></Table>
+							<!--@on-row-dblclick="dbl" @on-select="selected"-->
+							<!--底部的分页-->
+							<div class="page-box">
+								 <Page v-show='qktotal!=0' :total="qktotal" show-total size="small" :pageSize='qkpageSize'  @on-change="getData" @on-page-size-change="changePageSize"></Page>
+							</div>
+						</div>
+					</div>
+		        </TabPane>
+		        <TabPane label="应收应付">
+					<div class="table" >
+						
+						<div class='tableb'>
+							<Table border  :columns="yscolumns" :data="ysdataList" ></Table>
+							
+							<div class="page-box">
+								 <Page :total="ystotal" show-total size="small" :pageSize='yspageSize'  @on-change="ysgetData" @on-page-size-change="yschangePageSize"></Page>
+							</div>
+						</div>
+					</div>
+		        </TabPane>
+		        <TabPane label="利润表">
+					<div class="table">
+						<div class='tableb'>
+							<Table border   ref="selection"  :columns="lrcolumns" :data="lrdataList" ></Table>
+							
+							<div class="page-box">
+								 <Page :total="lrtotal" show-total size="small" :pageSize='lrpageSize'  @on-change="lrgetData" @on-page-size-change="lrchangePageSize"></Page>
+							</div>
+						</div>
+					</div>
+		        </TabPane>
+		        <TabPane label="智胜结算">
+					<div class="table">
+						<div class='tableb'>
+							<Table border :columns="zscolumns" :data="zsdataList" ></Table>
+							
+							<div class="page-box">
+								 <Page :total="zstotal" show-total size="small" :pageSize='zspageSize'  @on-change="zsgetData" @on-page-size-change="zschangePageSize"></Page>
+							</div>
+						</div>
+					</div>
+		        </TabPane>
+		        <TabPane label="门店营收">
+					<div class="table" >
+						<div style='display:flex;' >
+							
+							<Select style="width:100px;margin-top:8px;margin-left:10px" v-model='valueT'  placeholder="全部" @on-change="topListselected" >
+		                    	<Option v-for="item in topList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+		               		 </Select>
+		               		 <div style="margin-top:8px;margin-left:5px" v-if="valueT==1">
+		               		 	<span style='text-align: right;width: 100px;'>{{$t('sales.quotation.startTime')}}：</span> <!--下单时间：-->
+			               		 <DatePicker type="date" placeholder="开始时间" :value="startDate1" style="width: 200px;" @on-change="changeDay1"></DatePicker>
+			               		 <span style='margin-left: 6px;'>{{$t('sales.quotation.endTime')}}：</span>
+			               		 <DatePicker type="date" placeholder="结束时间" :value="endDate1" style="width: 200px;" @on-change="changeDay11"></DatePicker>
+		               		 </div>
+		               		 <div style="margin-top:8px;margin-left:5px" v-if="valueT==2">
+		               		 	<span style='text-align: right;width: 100px;'>{{$t('sales.quotation.startTime')}}：</span> <!--下单时间：-->
+			               		 <DatePicker type="month" placeholder="开始时间" :value="startDate2" style="width: 200px;" @on-change="changeDay2"></DatePicker>
+			               		 <span style='margin-left: 6px;'>{{$t('sales.quotation.endTime')}}：</span>
+			               		 <DatePicker type="month" placeholder="结束时间" :value="endDate2" style="width: 200px;" @on-change="changeDay22"></DatePicker>
+		               		 </div>
+		               		 <div style="margin-top:8px;margin-left:5px" v-if="valueT==3">
+		               		 	<span style='text-align: right;width: 100px;'>{{$t('sales.quotation.startTime')}}：</span> <!--下单时间：-->
+			               		 <DatePicker type="year" placeholder="开始时间" :value="startDate3" style="width: 200px;" @on-change="changeDay3"></DatePicker>
+			               		 <span style='margin-left: 6px;'>{{$t('sales.quotation.endTime')}}：</span>
+			               		 <DatePicker type="year" placeholder="结束时间" :value="endDate3" style="width: 200px;" @on-change="changeDay33"></DatePicker>
+		               		 </div>
+		               		 <div><Button type="primary" @click="searchDate" style=";margin-top:10px;margin-left:5px">搜索</Button></div>
+						</div>
+						<div style="margin:10px">
+							<div >
+								<Table border  :columns="daycolumns" :data="daydataList" ></Table>
+								<div class="page-box">
+									 <Page :total="daytotal" size='small' show-total show-total placement='top' show-sizer :page-size-opts="[10,20,30,40,50]" :pageSize='daypageSize'  @on-change="daygetData" @on-page-size-change="daychangePageSize"></Page>
+								</div>
+							</div>
+						</div>
+					</div>
+		        </TabPane>
+		    </Tabs>
+		</div>
+	</div>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				startDate1:"",
+				endDate1:"",
+				startDate2:"",
+				endDate2:"",
+				startDate3:"",
+				endDate3:"",
+				valueT:1,
+				topList:[
+					{
+						label:"日报表",
+						value:1
+					},
+					{
+						label:"月报表",
+						value:2
+					},
+					{
+						label:"年报表",
+						value:3
+					},
+				],//门店营收
+				qktotal:0,//客户欠款
+				qkpageSize:0,
+				qkdataList:[],
+				qkcolumns:[
+					{
+						title:this.$t('data.cw.gysname'),//"供应商名称",
+						key:'partnerName'
+					},
+					{
+						title:this.$t('data.cw.qkje'),//'欠款总额',
+						key:'debtAmount' 
+					},
+					{
+						title:this.$t('data.cw.yfje1'),//'应付金额',
+						key:'payAmount'
+					},
+					{
+						title:this.$t('data.cw.ssje'),//'实收金额',
+						key:'receivedAmount'
+					},
+					{
+						title:this.$t('public.time'),//"时间",
+						key:'year'
+					}
+				],
+				//客户欠款
+				fhindex:0,
+				row:{},
+				isLoading:true,
+				visible: false,
+				dataList: [], //客户对账单列表
+				fhlist:[
+					
+					{
+						label:this.$t('data.cw.gysdzd'),//"供应商对账单",
+						value:0
+					},
+					{
+						label:this.$t('data.cw.gysqk'),//"供应商欠款",
+						value:1
+					},
+					{
+						label:this.$t('data.cw.ysyf'),//"应收应付",
+						value:2
+					},
+					
+					{
+						label:this.$t('data.cw.lr'),//"利润",
+						value:3
+					},
+					{
+						label:this.$t('data.cw.zsjs'),//"智胜结算",
+						value:4
+					},
+					{
+						label:"门店营收",
+						value:5
+					},
+					
+				],
+				//应收应付
+				ystotal:0,
+				yspageSize:0,
+				ysdataList:[],
+				yscolumns:[],
+				//利润
+				lrtotal:0,
+				lrpageSize:0,
+				lrdataList:[],
+				lrcolumns:[],
+				//智胜结算
+				zstotal:0,
+				zspageSize:0,
+				zsdataList:[],
+				zscolumns:[],
+				//日报
+				daytotal:0,
+				daypageSize:0,
+				daydataList:[],
+				daycolumns:[
+					{
+						title:"金额",
+						key:"amount"
+					},
+					{
+						title:"店铺",
+						key:"storeName"
+					},
+					
+					{
+						title:"创建时间",
+						key:"createDate"
+					},
+					{
+						title:"类型",
+						key:"typeDesc"
+					},
+				],
+				total: 0,
+				pageSize: 0,
+				valId:"",
+				type:'',//下拉选中
+				uid: this.$store.state.common.token,
+				//供应商对账单
+				columns: [
+					
+					{
+						title: this.$t('data.cw.orderNo'),//'单号',
+						ellipsis:true,
+						key: 'recordNo'
+					},
+					
+					{
+						title: this.$t('data.cw.khname'),//'客户名称',
+						ellipsis:true,
+						key: 'partnerName'
+					},
+					
+					{
+						title:this.$t('data.cw.qkje'),//'欠款总额',
+						key:'debtAmount' 
+					},
+					{
+						title:this.$t('data.cw.yfje'),//'已付金额',
+						key:'payAmount' 
+					},
+					{
+						title:this.$t('data.cw.yfje1'),//'应付金额',
+						key:'payAmount'
+					},
+					{
+						title:this.$t('data.cw.ssje'),//'实收金额',
+						key:'receivedAmount'
+					},
+					{
+						title:this.$t('public.time'),//"时间",
+						key:'year'
+					}
+					
+				]
+
+			}
+		},
+		methods: {
+			changeDay1(start){
+				this.startDate1=start
+			},
+			changeDay11(end){
+				this.endDate1=end
+			},
+
+
+			changeDay2(start){
+				this.startDate2=start
+			},
+			changeDay22(end){
+				this.endDate2=end
+			},
+
+
+			changeDay3(start){
+				this.startDate3=start
+			},
+			changeDay33(end){
+				this.endDate3=end
+			},
+			//门店营收下拉
+			topListselected(value){
+				this.daydataList=[]
+				this.total=0
+				this.pageSize=0
+				this.valueT=value
+				switch(this.valueT){
+					//日
+					case 1:
+						
+						this.getFirstDay()
+					break;
+					//月
+					case 2:
+						
+						this.getFirstmonth()
+					break;
+					//年
+					case 3:
+						
+						this.getFirstYear()
+					break;
+				}
+			},
+			//日报GET /storeRPT/day 门店日报表
+			getFirstDay(){
+				this.axios.get('/storeRPT/day?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						let data=res.data
+						this.daydataList=data.rows
+						this.daytotal=data.total
+						this.daypageSize=data.pageSize
+					}
+				})
+			},
+			//GET /storeRPT/month 门店月报表
+			getFirstmonth(){
+				this.axios.get('/storeRPT/month?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						let data=res.data
+						this.daydataList=data.rows
+						this.daytotal=data.total
+						this.daypageSize=data.pageSize
+					}
+				})
+			},
+			//GET /storeRPT/year 门店年报表
+			getFirstYear(){
+				this.axios.get('/storeRPT/year?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						let data=res.data
+						this.daydataList=data.rows
+						console.log(this.daydataList)
+						this.daytotal=data.total
+						this.daypageSize=data.pageSize
+					}
+				})
+			},
+			//门店营收翻页
+			daygetData(current){
+				switch(this.valueT){
+					case 1:
+						this.axios.get('/storeRPT/day?offset='+current+'&uid='+this.uid).then(res=>{
+							if(res.data.status==200){
+								let data=res.data
+								this.daydataList=data.rows
+								this.daytotal=data.total
+								this.daypageSize=data.pageSize
+							}
+						})
+					break;
+					//月
+					case 2:
+						this.axios.get('/storeRPT/month?offset='+current+'&uid='+this.uid).then(res=>{
+							if(res.data.status==200){
+								let data=res.data
+								this.daydataList=data.rows
+								this.daytotal=data.total
+								this.daypageSize=data.pageSize
+							}
+						})
+					break;
+					//年
+					case 3:
+						this.axios.get('/storeRPT/year?offset='+current+'&uid='+this.uid).then(res=>{
+							if(res.data.status==200){
+								let data=res.data
+								this.daydataList=data.rows
+								this.daytotal=data.total
+								this.daypageSize=data.pageSize
+							}
+						})
+					break;
+				}
+			},
+			daychangePageSize(size){
+				switch(this.valueT){
+					case 1:
+						this.axios.get('/storeRPT/day?length='+size+'&uid='+this.uid).then(res=>{
+							if(res.data.status==200){
+								let data=res.data
+								this.daydataList=data.rows
+								this.daytotal=data.total
+								this.daypageSize=data.pageSize
+							}
+						})
+					break;
+					//月
+					case 2:
+						this.axios.get('/storeRPT/month?length='+size+'&uid='+this.uid).then(res=>{
+							if(res.data.status==200){
+								let data=res.data
+								this.daydataList=data.rows
+								this.daytotal=data.total
+								this.daypageSize=data.pageSize
+							}
+						})
+					break;
+					//年
+					case 3:
+						this.axios.get('/storeRPT/year?length='+size+'&uid='+this.uid).then(res=>{
+							if(res.data.status==200){
+								let data=res.data
+								this.daydataList=data.rows
+								this.daytotal=data.total
+								this.daypageSize=data.pageSize
+							}
+						})
+					break;
+				}
+			},
+			//搜索
+			searchDate(){
+				switch(this.valueT){
+					case 1:
+						this.axios.get('/storeRPT/day?uid='+this.uid,{
+							params:{
+								startDate:this.startDate1,
+								endDate:this.endDate1
+							}
+						}).then(res=>{
+							if(res.data.status==200){
+								let data=res.data
+								this.daydataList=data.rows
+								this.daytotal=data.total
+								this.daypageSize=data.pageSize
+
+							}
+						})
+					break;
+					//月
+					case 2:
+						this.axios.get('/storeRPT/month?uid='+this.uid,{
+							params:{
+								startDate:this.startDate2,
+								endDate:this.endDate2
+							}
+						}).then(res=>{
+							if(res.data.status==200){
+								let data=res.data
+								this.daydataList=data.rows
+								this.daytotal=data.total
+								this.daypageSize=data.pageSize
+								
+							}
+						})
+					break;
+					//年
+					case 3:
+						this.axios.get('/storeRPT/year?uid='+this.uid,{
+							params:{
+								startDate:this.startDate3,
+								endDate:this.endDate3
+							}
+						}).then(res=>{
+							if(res.data.status==200){
+								let data=res.data
+								this.daydataList=data.rows
+								this.daytotal=data.total
+								this.daypageSize=data.pageSize
+								
+							}
+						})
+					break;
+				}
+			},
+			//切换
+			getfhlistbg(index){
+				this.fhindex=index
+				switch(this.fhindex){
+					case 0:
+						this.getcgList()//供应商对账单
+					break;
+					case 1:
+						this.getgysQk()//供应商欠款
+					break;
+					case 2:
+					break;
+					case 3:
+					break;
+					case 4:
+					break;
+					case 5:
+						this.getFirstDay()
+					break;
+				}
+				
+			},
+			//获取供应商对账单列表
+			getcgList: function() {
+				this.axios.get('/cwbb/bsupplier'+'?uid='+this.uid).then((res)=>{
+                    ////console.log(res)
+                    this.dataList = res.data.rows
+                    this.total=res.data.total
+                    this.pageSize=res.data.pageSize
+                    
+                })
+			},
+			
+			 //切换一条页
+            getData(current){
+                this.axios.get('/cwbb/bsupplier?offset='+current+'&uid='+this.uid).then((res)=>{
+                    ////console.log(res)
+                    this.dataList = res.data.rows
+                    this.total=res.data.total
+                    this.pageSize=res.data.pageSize
+                    
+                })
+            },
+            //翻页
+            changePageSize(size){
+                this.pageSize = size
+            },
+            //供应商欠款
+            getgysQk(){
+				this.axios.get('cwbb/dsupplier/'+'?uid='+this.uid).then(res=>{
+					if(res.data.status==200){
+						this.qkdataList=res.data.rows
+						this.qktotal=res.data.table
+						this.qkpageSize=res.data.pageSize
+					}
+				})
+            },
+             //供应商欠款切换一条页
+            getData(current){
+                this.axios.get('/cwbb/dsupplier?offset='+current+'&uid='+this.uid).then((res)=>{
+                    ////console.log(res)
+                    this.qkdataList = res.data.rows
+                    this.qktotal=res.data.table
+					this.qkpageSize=res.data.pageSize
+                    
+                })
+            },
+            //供应商欠款翻页
+            changePageSize(size){
+                this.qkpageSize = size
+            },
+              //应收应付
+            getYs(){
+
+            },
+            //应收应付
+            ysgetData(current){
+
+            },
+            yschangePageSize(){
+
+            },
+             //利润
+            getLr(){
+
+            },
+            //利润
+             lrgetData(current){
+
+            },
+            lrchangePageSize(){
+
+            },
+            //智胜结算
+            getZs(){
+
+            },
+            //智胜结算
+             zsgetData(current){
+
+            },
+            zschangePageSize(){
+
+            },
+            //日报月报
+            getDay(){
+
+            },
+             daygetData(current){
+            },
+            daychangePageSize(){
+
+            },
+		},
+		mounted() {
+			this.getcgList();
+
+		}
+	}
+</script>
+
+<style lang="css" scoped>
+p.edit:hover{
+	color:blue;
+}
+	.units-box {
+		width: 100%;
+		height:100%;
+		background: rgb(230,233,236)
+	}
+	.btns-box {
+		width: 100%;
+		height: 50px;
+		display:flex;
+		justify-content: space-between;
+		background: #fff;
+		line-height: 50px;
+	}
+	 .wldw{
+    	margin-left:15px;
+    }
+	.right{
+		margin-right:10px;
+		margin-bottom:10px;
+	}
+	.ivu-icon-chevron-down {
+		font-size: 10px;
+	}
+	.btns img {
+		width: 14px;
+		height: 14px;
+		vertical-align: middle;
+	}
+	.main-left{
+		width: 120px;
+		margin-right: 3px;
+		flex: 0 0 120px;
+		font-size: 14px;
+		background: #fff;
+	}
+	.main-left li{
+		list-style: none;
+		padding:10px 0;
+		width:100%;
+		
+	}
+	.main-left li span{
+		margin-left:20px;
+	}
+	.table {
+		width: 100%;
+		height: 100%;
+		background: #fff;
+		overflow: auto;
+	}
+	.tableb{
+		margin:0 10px;
+	}
+	.bor{
+		background: #EBF1FC
+	}
+	.page-box {
+		text-align: center;
+		margin-top:2px;
+		 margin-bottom:120px;
+	}
+	
+</style>
