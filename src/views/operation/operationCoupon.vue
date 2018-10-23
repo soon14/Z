@@ -867,7 +867,7 @@ export default{
 		goaddgoods(){
 			// if(this.msgisshow){
 				$('.addyhqmodel').animate({right:"0px"});
-				 $('.mark').css('display','block')
+				$('.mark').css('display','block')
 				 this.msgisshow=false
 			// }else{
 				 // $('.addyhqmodel').animate({right:"-70%"});

@@ -114,7 +114,8 @@
 		                   	</div>
 				    	</Form>
 				    </div>
-				    <div class="Goods" v-if="numIndex==1">
+				    <!--选择商品-->
+				    <div class="Goods" v-if="numIndex==1" style="position:relative">
 				     	<div class="selectGoods">
 				     		<Input v-model="goodsClientSku" style="width:50%;margin-left: 150px;" @on-enter="EntersearchClientSku">
 						        <Select v-model="selectG" slot="prepend" style="width: 80px">
@@ -141,7 +142,7 @@
 				     					<div class="goods-price">
 				     						<span class="money">￥:{{item.price}}</span>
 				     					</div>
-				     					<div class='addGoods-to-order' @click="ClickAddSalesOrder(item,index,$event)">
+				     					<div class='addGoods-to-order' @click="ClickAddSalesOrder(item,index,$event)" >
 				     						<span>加入销售订单</span>
 				     					</div>
 				     					
@@ -179,6 +180,55 @@
 				     			<div class="billBtn" @click="clickBill">结算</div>
 				     		</ul>
 				     	</div>
+				     	<!--浮动商品图标-->
+				     	<div class="f-g" @click="clickCircle">
+				     		<span class="f-g-n">{{NumAll(selectAllgoods)}}</span>
+				     	</div>
+				     	<!--浮动小线条-->
+				     	<div class="f-g-t" @mouseover='chaOver' @mouseleave='chleave'></div>
+				     	<!--点击小圆圈显示已选商品v-if="fglistIsShow"-->
+				     	<!-- <div class="f-g-list" > -->
+				     	<el-dialog :visible.sync="fglistIsShow" size="full" :append-to-body='false' :close-on-click-modal='false' :close-on-press-escape='false'>	
+				     		<div class='table-head' style="margin:20px">
+								<div style="width:330px;flex:0 0 330px;display: flex;text-align: center;">
+									<span >商品</span>
+								</div>
+								<span >商品属性</span>
+								<span >单价</span>
+								<span >数量</span>
+								<span >优惠方式</span>
+								<span >小计</span>
+								<i @click="cancelFixed" class="cancel-fixed"><Icon type="close"  ></Icon></i>
+							</div>
+							<div v-if="selectAllgoods.length==0" class='noDataTxt'>
+				                {{$t('public.NoData')}}
+				            </div>
+				     		<div class='table-head1' v-for='(item,index) in selectAllgoods' :key="index" style="margin:20px" v-else>
+								<div class='table-sub-order-list'>
+									<li style='flex:1 0 330px;text-align:left;position:relative'>
+										<img :src="item.mainPhoto" width='60' height='60' class='skuImg'>
+										<span class='skuname'>{{item.skuName}}</span>
+									</li>
+									<li>
+										<span>{{item.skuTypeDesc}}</span>
+									</li>
+									<li>
+										<span>{{item.price}}</span>
+									</li>
+									<li @click="clickQtyRow(item,index)">
+										
+										<InputNumber :min="1" v-model="item.qty" @on-change="changeQty"></InputNumber>
+									</li>
+									<li>
+										<span>{{item.discount}}</span>
+									</li>
+									<li>
+										<span style='color:#d53c39'>{{item.qty*item.price}} 元</span>
+									</li>
+								</div>
+							</div>
+						</el-dialog>
+				     	<!-- </div> -->
 				    </div>
 				    <!--提交订单-->
 				    <div v-if="numIndex==2">
@@ -548,6 +598,7 @@ export default{
 					id:3
 				},
 			],
+			fglistIsShow:false,//已选 商品点击圆圈显示
 			actionUrl:LoadUrl.httpPrefix.Url+'file/action/upload?uid='+this.$store.state.common.token,//客户附件地址
 			upData:[],//附件数据
 			
@@ -1075,20 +1126,54 @@ export default{
 			}
 			
 		},
+		//点击小圆圈
+		clickCircle(){
+			// $(".f-g-list").animate({
+			// 	width:"100%",
+			// 	padding:"20px",
+			// 	zIndex:"10"
+			// },'fast')
+			// $(".f-g-list").css({
+			// 	border:"1px solid #e4e4e4",
+			// 	boxShadow:"0 0 5px #ccc"
+			// })
+			 this.fglistIsShow=true
+		},
+		//弹出层商品叉号
+		cancelFixed(){
+			this.fglistIsShow=false
+			// $(".f-g-list").animate({
+			// 	width:"0",
+			// 	padding:"0",
+			// 	zIndex:"0"
+
+			// },'fast')
+			// $(".f-g-list").css({
+			// 	border:"none",
+			// 	boxShadow:"0 0 0px #ccc"
+			// })
+		},
+		//鼠标移动到数显上
+		chaOver(){
+			$('.f-g').animate({right:"0px"});
+		},
+		chleave(){
+			// $('.f-g').animate({right:"0px"});
+		},
 		//点击加入销售订单
 		ClickAddSalesOrder(item,index,event){
 			// this.drop(event.target);
    			//this.count ++;
 			if(item.attrDetailList!=null && item.attrDetailList.length!=0){
-				this.skuItem=data//商品一行数据
+				this.skuItem=item//商品一行数据
 				this.attrModel=true
-				this.sAttrsData=item.attrDetailList//属性
+				this.sAttrsData=item.attrDetailList//属
 				this.sAttrsData.forEach(x=>{
 					x.qty=0
 				})
 			}else{
 				this.skuItem=item//商品一行数据
-				this.$set(item,'qty',1)//解决动态添加属性无法触发视图更新
+				this.$set(this.skuItem,'qty',1)//解决动态添加属性无法触发视图更新
 				let goodsarr={
 						skuName:this.skuItem.skuName,
 						skuId:this.skuItem.skuId,
@@ -1107,7 +1192,9 @@ export default{
 						skuTypeDesc:'',//属性描述
 						salesPrice:this.skuItem.price,
 					}
-				this.selectAllgoods.push(item)
+				this.selectAllgoods.push(goodsarr)
+				$('.f-g').animate({right:"18px"});
+				console.log(this.selectAllgoods)
 				this.attrModel=false
 			}
 		},
@@ -1159,6 +1246,7 @@ export default{
 		//单击一行商品、、提交订单页面
 		clickQtyRow(item,index){
 			this.skuItemIndex=index
+			console.log(index)
 		},
 		//修改数量
 		changeQty(q){
@@ -2134,4 +2222,50 @@ li{
       background-color: #ff0000;
       transition: all 0.4s linear;
  }
+  .f-g{
+ 	position:fixed;
+ 	width:60px;
+ 	top:30%;
+ 	right:-60px;
+	z-index:10;
+
+ }
+ .f-g-n{
+ 	display: block;
+ 	background:#ff0000;
+ 	color:#fff;
+ 	height:40px;
+ 	line-height: 40px;
+ 	width:40px;
+ 	border: 1px solid #fff000;
+ 	border-radius: 50%;
+ 	text-align: center;
+ 	cursor: pointer
+ }
+ .f-g-list{
+ 	position:absolute;
+ 	width:0;
+ 	max-height:400px;
+ 	top:0;
+ 	z-index:10;
+ 	background: #fff;
+ 	overflow-y: auto;
+
+ }
+ .cancel-fixed{
+ 	position:absolute;
+ 	right:0;top:0;
+ 	cursor:pointer;
+ }
+
+ .f-g-t{
+	position:fixed;
+	width: 6px;
+	top:30%;
+	height:35px;
+	background: #ff0000;
+	right:3px;
+	z-index:10;
+    border-radius: 2px;
+}
 </style>
