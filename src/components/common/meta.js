@@ -4,17 +4,20 @@ export default {
 	//path 当前路由path
 	getMenu:(data,path)=>{
 		let child=[]
-		if(data.length==1){
-			return child=data[0].child
-		}else{
-			for(let i=0;i<data.length;i++){
+		for(let i=0;i<data.length;i++){
+			if(data[i].child==undefined){
+				break;
+			}else if(data.length==1){
+				return child=data[0].child
+			}else{
 				for(let j=0;j<data[i].child.length;j++){
 					if( data[i].path==path){
 						child.push(data[i].child[j])
 					}
 				}
 			}
-			return child
 		}
+		return child
+		
 	}
 }

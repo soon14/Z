@@ -88,6 +88,7 @@ axios.interceptors.request.use(
                         position: 'bottom-right'
                     });
                 }
+
                 // oldDate = new Date()
                 // let time = oldDate.getTime() - newDate.getTime()
                 // console.log(time)
@@ -101,15 +102,31 @@ axios.interceptors.request.use(
         error => {
             //alert(JSON.stringify(error));
             if (error.response) {
-                switch (error.response.status) {
-                    case 403:
-                        // 403 清除token信息并跳转到登录页面
-                        store.commit(types.LOGOUT);
-                        router.replace({
-                            path: '/loginIn',
-                            query: {redirect: router.currentRoute.fullPath}
-                        })
-                }
+                // if(error.response.data.errorCode==null){
+                //     store.commit(types.LOGOUT);
+                //     sessionStorage.removeItem('getSystem');
+                //     sessionStorage.removeItem('isselect');
+                //     sessionStorage.removeItem('storelogo');
+                //     router.replace({
+                //         path: '/loginIn',
+                //         query: {redirect: router.currentRoute.fullPath}
+                //     })
+                // }else{
+                     switch (error.response.status) {
+                        case 403:
+                            // 403 清除token信息并跳转到登录页面
+                            store.commit(types.LOGOUT);
+                            sessionStorage.removeItem('getSystem');
+                            sessionStorage.removeItem('isselect');
+                            sessionStorage.removeItem('storelogo');
+                            router.replace({
+                                path: '/loginIn',
+                                query: {redirect: router.currentRoute.fullPath}
+                            })
+                    }
+                // }
+               
+
             }
              //console.log(JSON.stringify(error));//console : Error: Request failed with status code 402
             try{
