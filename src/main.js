@@ -107,7 +107,7 @@ Vue.prototype.optionsB={
           return date.getTime() < (new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDate())).getTime();
       } 
 }
-//生日(最小18岁)
+//生日(最小18岁)测试
 Vue.prototype.optionsBirthday={
    disabledDate (date) {
           return date.getTime() > (new Date(new Date().getFullYear()-18,0,0)).getTime();
