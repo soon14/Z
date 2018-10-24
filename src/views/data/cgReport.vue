@@ -1773,7 +1773,9 @@
 		},
 		mounted() {
 			this.getcgList();//采购统计
-			
+			console.log(this.$route.path)
+			sessionStorage.setItem('isselect',this.$route.path)//一级菜单选中
+
 			if(this.$route.query.index==5){
 				this.fhindex='5'
 				this.getqx(new Date().getFullYear())
@@ -1781,6 +1783,7 @@
 			if(this.$route.query.index==6){
 				this.fhindex='6'
 				this.getgys6(new Date().getFullYear())
+				
 			}
 			if(this.$route.query.index==7){
 				this.fhindex='7'
@@ -1790,6 +1793,7 @@
 				this.fhindex='8'
 				this.getclass6(new Date().getFullYear())
 			}
+			sessionStorage.setItem('isselectTWO',this.$parent.data[0].url)
 		}
 	}
 </script>

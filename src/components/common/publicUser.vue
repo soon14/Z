@@ -122,9 +122,9 @@
 						<!--左侧二级菜单（一级菜单大于1个时显示）-->
 						<ul style="background:#fff;height:100%" class="nav-leftTWO" v-show="Datalenght>1">
 							<li v-for='(item,index) in secondMenu'  :key='index' class="navListTWO">
-								<div @click='gotourl(item,index)' class='bgdiv' :class="{bgMenuTWO:isselectTWO==item.name}">
+								<div @click='gotourl(item,index)' class='bgdiv' :class="{bgMenuTWO:isselectTWO==item.path}">
 									<div style='width:100%'>
-										<span class="layout-text sildeTitle"  v-if='isselectTWO==item.name'>
+										<span class="layout-text sildeTitle"  v-if='isselectTWO==item.path'>
 											<span style="color:#333">{{item.name}}</span>
 											<span class='sjxT'></span>
 										</span>
@@ -298,7 +298,7 @@ import m from '../common/meta.js'
 			
 				m:m,
 				Datalenght:"",
-				isselectTWO:"概览",
+				isselectTWO:"",
 				isselect:this.$route.path,
 				backUrl:LoadUrl.Website.OffProd,//官网
 				detailsisshow:false,
@@ -309,390 +309,390 @@ import m from '../common/meta.js'
 				types:types,
 
 				getSystem:[],//菜单
-				firstMenuData:[
-					// {
-					// 	"displayName":"概览",
-					// 	"path":"/dashbord",
-					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/dashbord.png",
-					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/dashbordActive.png",
-					// 	"child":[]
-					// },
-					// {
-					// 	"displayName":"管理",
-					// 	"path":"/enterprise",
-					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/manage.png",
-					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/manageActive.png",
-					// 	"child":[
-					// 		{
-					// 			"name":"概览",			
-					// 			"path":"/enterprise"
-					// 		},
-					// 		{
-					// 			"name":"安全",
-					// 			"path":"/power"
-					// 		},
-					// 		{
-					// 			"name":"仓库",
-					// 			"path":"/storehouse"
-					// 		},
-					// 		{
-					// 			"name":"门店",
-					// 			"path":"/ShopAddPage"
-					// 		},
-					// 		{
-					// 			"name":"商品",
-					// 			"path":"/goods"
-					// 		},
-					// 		{
-					// 			"name":"员工",
-					// 			"path":"/ey"
-					// 		},
-					// 		{
-					// 			"name":"设置",
-					// 			"path":"/settingDetails"
-					// 		},
-					// 		{
-					// 			"name":"素材库",
-					// 			"path":"/materialHome"
-					// 		},
-					// 	]
-					// },
-					// {
-					// 	"displayName":"采购",
-					// 	"path":"/purchase",
-					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/purchase.png",
-					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/purchaseActive.png",
-					// 	"child":[
-					// 		{
-					// 			"name":"概览",
-					// 			"path":"/purchase"
-					// 		},
-					// 		{
-					// 			"name":"供应商",
-					// 			"path":"/supplier"
-					// 		},
-					// 		{
-					// 			"name":"采购",
-					// 			"path":"/purchasehome"
-					// 		},
-					// 		{
-					// 			"name":"收货",
-					// 			"path":"/cgsend"
-					// 		},
-					// 		{
-					// 			"name":"设置",
-					// 			"path":"/purchaseSetting"
-					// 		},
-					// 	]
-					// },
-					// {
-					// 	"displayName":"销售",
-					// 	"path":"/sales",
-					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/sales.png",
-					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/salesActive.png",
-					// 	"child":[
-					// 		{
-					// 			"name":"概览",
-					// 			"path":"/sales"
-					// 		},
-					// 		{
-					// 			"name":"客户",
-					// 			"path":"/customer"
-					// 		},
-					// 		{
-					// 			"name":"报价单",
-					// 			"path":"/quotation"
-					// 		},
-					// 		{
-					// 			"name":"订单",
-					// 			"path":"/salespage"
-					// 		},
-					// 		{
-					// 			"name":"发货",
-					// 			"path":"/send"
-					// 		},
-					// 		{
-					// 			"name":"设置",
-					// 			"path":"/salesSetting"
-					// 		}
+				// firstMenuData:[
+				// 	{
+				// 		"displayName":"概览",
+				// 		"path":"/dashbord",
+				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/dashbord.png",
+				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/dashbordActive.png",
+				// 		"child":[]
+				// 	},
+				// 	{
+				// 		"displayName":"管理",
+				// 		"path":"/enterprise",
+				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/manage.png",
+				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/manageActive.png",
+				// 		"child":[
+				// 			{
+				// 				"name":"概览",			
+				// 				"path":"/enterprise"
+				// 			},
+				// 			{
+				// 				"name":"安全",
+				// 				"path":"/power"
+				// 			},
+				// 			{
+				// 				"name":"仓库",
+				// 				"path":"/storehouse"
+				// 			},
+				// 			{
+				// 				"name":"门店",
+				// 				"path":"/ShopAddPage"
+				// 			},
+				// 			{
+				// 				"name":"商品",
+				// 				"path":"/goods"
+				// 			},
+				// 			{
+				// 				"name":"员工",
+				// 				"path":"/ey"
+				// 			},
+				// 			{
+				// 				"name":"设置",
+				// 				"path":"/settingDetails"
+				// 			},
+				// 			{
+				// 				"name":"素材库",
+				// 				"path":"/materialHome"
+				// 			},
+				// 		]
+				// 	},
+				// 	{
+				// 		"displayName":"采购",
+				// 		"path":"/purchase",
+				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/purchase.png",
+				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/purchaseActive.png",
+				// 		"child":[
+				// 			{
+				// 				"name":"概览",
+				// 				"path":"/purchase"
+				// 			},
+				// 			{
+				// 				"name":"供应商",
+				// 				"path":"/supplier"
+				// 			},
+				// 			{
+				// 				"name":"采购",
+				// 				"path":"/purchasehome"
+				// 			},
+				// 			{
+				// 				"name":"收货",
+				// 				"path":"/cgsend"
+				// 			},
+				// 			{
+				// 				"name":"设置",
+				// 				"path":"/purchaseSetting"
+				// 			},
+				// 		]
+				// 	},
+				// 	{
+				// 		"displayName":"销售",
+				// 		"path":"/sales",
+				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/sales.png",
+				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/salesActive.png",
+				// 		"child":[
+				// 			{
+				// 				"name":"概览",
+				// 				"path":"/sales"
+				// 			},
+				// 			{
+				// 				"name":"客户",
+				// 				"path":"/customer"
+				// 			},
+				// 			{
+				// 				"name":"报价单",
+				// 				"path":"/quotation"
+				// 			},
+				// 			{
+				// 				"name":"订单",
+				// 				"path":"/salespage"
+				// 			},
+				// 			{
+				// 				"name":"发货",
+				// 				"path":"/send"
+				// 			},
+				// 			{
+				// 				"name":"设置",
+				// 				"path":"/salesSetting"
+				// 			}
 
-					// 	]
-					// },
-					// {
-					// 	"displayName":"会员",
-					// 	"path":"/memberHome",
-					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/crm.png",
-					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/crmActive.png",
-					// 	"child":[
-					// 		{
-					// 			"name":"概览",
-					// 			"path":"/memberHome"
-					// 		},
-					// 		{
-					// 			"name":"会员",
-					// 			"path":"/management"
-					// 		},
-					// 		{
-					// 			"name":"黑名单",
-					// 			"path":"/blacklisthome"
-					// 		},
-					// 		{
-					// 			"name":"生命周期",
-					// 			"path":"/lifecyclehome"
-					// 		},
-					// 		{
-					// 			"name":"近期生日",
-					// 			"path":"/birthdayhome"
-					// 		}
-					// 	]
-					// },
-					// {
-					// 	"displayName":"门店",
-					// 	"path":"/storeHome",
-					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/store.png",
-					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/storeActive.png",
-					// 	"child":[
-					// 		{
-					// 			"name":"概览",
-					// 			"path":"/storeHome"
-					// 		},
-					// 		{
-					// 			"name":"收银",
-					// 			"path":"/storecashier"
-					// 		},
-					// 		{
-					// 			"name":"会员",
-					// 			"path":"/storeCrm"
-					// 		},
-					// 		{
-					// 			"name":"订单",
-					// 			"path":"/storeorder"
-					// 		},
-					// 		{
-					// 			"name":"商品",
-					// 			"path":"/storejxc"
-					// 		},
-					// 		{
-					// 			"name":"运营",
-					// 			"path":"/storeoperation"
-					// 		},
+				// 		]
+				// 	},
+				// 	{
+				// 		"displayName":"会员",
+				// 		"path":"/memberHome",
+				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/crm.png",
+				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/crmActive.png",
+				// 		"child":[
+				// 			{
+				// 				"name":"概览",
+				// 				"path":"/memberHome"
+				// 			},
+				// 			{
+				// 				"name":"会员",
+				// 				"path":"/management"
+				// 			},
+				// 			{
+				// 				"name":"黑名单",
+				// 				"path":"/blacklisthome"
+				// 			},
+				// 			{
+				// 				"name":"生命周期",
+				// 				"path":"/lifecyclehome"
+				// 			},
+				// 			{
+				// 				"name":"近期生日",
+				// 				"path":"/birthdayhome"
+				// 			}
+				// 		]
+				// 	},
+				// 	{
+				// 		"displayName":"门店",
+				// 		"path":"/storeHome",
+				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/store.png",
+				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/storeActive.png",
+				// 		"child":[
+				// 			{
+				// 				"name":"概览",
+				// 				"path":"/storeHome"
+				// 			},
+				// 			{
+				// 				"name":"收银",
+				// 				"path":"/storecashier"
+				// 			},
+				// 			{
+				// 				"name":"会员",
+				// 				"path":"/storeCrm"
+				// 			},
+				// 			{
+				// 				"name":"订单",
+				// 				"path":"/storeorder"
+				// 			},
+				// 			{
+				// 				"name":"商品",
+				// 				"path":"/storejxc"
+				// 			},
+				// 			{
+				// 				"name":"运营",
+				// 				"path":"/storeoperation"
+				// 			},
 
-					// 		{
-					// 			"name":"交易",
-					// 			"path":"/storefinancial"
-					// 		},
-					// 		{
-					// 			"name":"美业",
-					// 			"path":"/storesever"
-					// 		},
-					// 		{
-					// 			"name":"统计",
-					// 			"path":"/storedata"
-					// 		},
-					// 		{
-					// 			"name":"管理",
-					// 			"path":"/storemanage"
-					// 		}
-					// 	]
-					// },
-					// {
-					// 	"displayName":"运营",
-					// 	"path":"/operationHome",
-					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/markting.png",
-					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/marktingActive.png",
-					// 	"child":[
-					// 		{
-					// 			"name":"概览",
-					// 			"path":"/operationHome"
-					// 		},
-					// 		{
-					// 			"name":"投诉与建议",
-					// 			"path":"/complain"
-					// 		},
-					// 	]
-					// },
-					// {
-					// 	"displayName":"订单",
-					// 	"path":"/orderHome",
-					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/order.png",
-					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/orderActive.png",
-					// 	"child":[
-					// 		{
-					// 			"name":"概览",
-					// 			"path":"/orderHome"
-					// 		},
-					// 		{
-					// 			"name":"线上订单",
-					// 			"path":"/order"
-					// 		},
-					// 		{
-					// 			"name":"线下订单",
-					// 			"path":"/networdOrder"
-					// 		},
-					// 		{
-					// 			"name":"跨店订单",
-					// 			"path":"kdOrder"
-					// 		},
-					// 		{
-					// 			"name":"退货订单",
-					// 			"path":"/returnorder"
-					// 		},
-					// 		{
-					// 			"name":"订单配置",
-					// 			"path":"/logtSetting"
-					// 		}
+				// 			{
+				// 				"name":"交易",
+				// 				"path":"/storefinancial"
+				// 			},
+				// 			{
+				// 				"name":"美业",
+				// 				"path":"/storesever"
+				// 			},
+				// 			{
+				// 				"name":"统计",
+				// 				"path":"/storedata"
+				// 			},
+				// 			{
+				// 				"name":"管理",
+				// 				"path":"/storemanage"
+				// 			}
+				// 		]
+				// 	},
+				// 	{
+				// 		"displayName":"运营",
+				// 		"path":"/operationHome",
+				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/markting.png",
+				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/marktingActive.png",
+				// 		"child":[
+				// 			{
+				// 				"name":"概览",
+				// 				"path":"/operationHome"
+				// 			},
+				// 			{
+				// 				"name":"投诉与建议",
+				// 				"path":"/complain"
+				// 			},
+				// 		]
+				// 	},
+				// 	{
+				// 		"displayName":"订单",
+				// 		"path":"/orderHome",
+				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/order.png",
+				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/orderActive.png",
+				// 		"child":[
+				// 			{
+				// 				"name":"概览",
+				// 				"path":"/orderHome"
+				// 			},
+				// 			{
+				// 				"name":"线上订单",
+				// 				"path":"/order"
+				// 			},
+				// 			{
+				// 				"name":"线下订单",
+				// 				"path":"/networdOrder"
+				// 			},
+				// 			{
+				// 				"name":"跨店订单",
+				// 				"path":"kdOrder"
+				// 			},
+				// 			{
+				// 				"name":"退货订单",
+				// 				"path":"/returnorder"
+				// 			},
+				// 			{
+				// 				"name":"订单配置",
+				// 				"path":"/logtSetting"
+				// 			}
 
-					// 	]
-					// },
-					// {
-					// 	"displayName":"库存",
-					// 	"path":"/sku",
-					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/inv.png",
-					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/invActive.png",
-					// 	"child":[
-					// 		{
-					// 			"name":"概览",
-					// 			"path":"/sku"
-					// 		},
-					// 		{
-					// 			"name":"库存",
-					// 			"path":"/skuinventory"
-					// 		},
-					// 		{
-					// 			"name":"调拨",
-					// 			"path":"/investigate"
-					// 		},
-					// 		{
-					// 			"name":"盘点",
-					// 			"path":"/pdhome"
-					// 		},
-					// 		{
-					// 			"name":"渠道库存",
-					// 			"path":"/channelInventory"
-					// 		},
-					// 		{
-					// 			"name":"入库明细",
-					// 			"path":"/Ininventoryhome"
-					// 		},
-					// 		{
-					// 			"name":"出库明细",
-					// 			"path":"/OutInventoryhome"
-					// 		},
-					// 		{
-					// 			"name":"设置",
-					// 			"path":"/InventorySetting"
-					// 		},
-					// 	]
-					// },
-					// {
-					// 	"displayName":"财务",
-					// 	"path":"/financeHome",
-					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/finance.png",
-					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/financeActive.png",
-					// 	"child":[
-					// 		{
-					// 			"name":"概览",
-					// 			"path":"/financeHome"
-					// 		},
-					// 		{
-					// 			"name":"收款",
-					// 			"path":"/receipts"
-					// 		},
-					// 		{
-					// 			"name":"应收",
-					// 			"path":"/receivablea"
-					// 		},
-					// 		{
-					// 			"name":"付款",
-					// 			"path":"/payment"
-					// 		},
-					// 		{
-					// 			"name":"应付",
-					// 			"path":"receivable"
-					// 		},
-					// 		{
-					// 			"name":"交易流水",
-					// 			"path":"/withdraw"
-					// 		},
-					// 		{
-					// 			"name":"设置",
-					// 			"path":"/financeSetting"
-					// 		},
-					// 	]
-					// },
-					// {
-					// 	"displayName":"数据",
-					// 	"path":"/dataHome",
-					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/report.png",
-					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/reportActive.png",
-					// 	"child":[
-					// 		{
-					// 			"name":"采购",
-					// 			"path":"/dataHome"
-					// 		},
-					// 		{
-					// 			"name":"销售",
-					// 			"path":"/salesreport"
-					// 		},
-					// 		{
-					// 			"name":"库存",
-					// 			"path":"/dataInv"
-					// 		},
-					// 		{
-					// 			"name":"零售",
-					// 			"path":"/dataretail"
-					// 		},
-					// 		{
-					// 			"name":"商品",
-					// 			"path":"/datasku"
-					// 		},
-					// 		{
-					// 			"name":"店铺",
-					// 			"path":"/storeReport"
-					// 		},
-					// 		{
-					// 			"name":"会员",
-					// 			"path":"/crmreport"
-					// 		},
-					// 		{
-					// 			"name":"财务",
-					// 			"path":"/datacw"
-					// 		},
-					// 	]
-					// },
-					// {
-					// 	"displayName":"长护宝",
-					// 	"path":"/zhb",
-					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/zhb.png",
-					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/zhbActive.png",
-					// 	"child":[
-					// 		{
-					// 			"name":"概览",
-					// 			"path":"/zhb"
-					// 		},
-					// 		{
-					// 			"name":"客户",
-					// 			"path":"/customerIndex"
-					// 		},
-					// 		{
-					// 			"name":"护理员",
-					// 			"path":"/attendantIndex"
-					// 		},
-					// 		{
-					// 			"name":"工单",
-					// 			"path":"/wordOrderIndex"
-					// 		},
-					// 		{
-					// 			"name":"日程",
-					// 			"path":"/zhbDate"
-					// 		},
-					// 		{
-					// 			"name":"设置",
-					// 			"path":"/settingIndex"
-					// 		}
-					// 	]
-					// }
-				],
+				// 		]
+				// 	},
+				// 	{
+				// 		"displayName":"库存",
+				// 		"path":"/sku",
+				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/inv.png",
+				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/invActive.png",
+				// 		"child":[
+				// 			{
+				// 				"name":"概览",
+				// 				"path":"/sku"
+				// 			},
+				// 			{
+				// 				"name":"库存",
+				// 				"path":"/skuinventory"
+				// 			},
+				// 			{
+				// 				"name":"调拨",
+				// 				"path":"/investigate"
+				// 			},
+				// 			{
+				// 				"name":"盘点",
+				// 				"path":"/pdhome"
+				// 			},
+				// 			{
+				// 				"name":"渠道库存",
+				// 				"path":"/channelInventory"
+				// 			},
+				// 			{
+				// 				"name":"入库明细",
+				// 				"path":"/Ininventoryhome"
+				// 			},
+				// 			{
+				// 				"name":"出库明细",
+				// 				"path":"/OutInventoryhome"
+				// 			},
+				// 			{
+				// 				"name":"设置",
+				// 				"path":"/InventorySetting"
+				// 			},
+				// 		]
+				// 	},
+				// 	{
+				// 		"displayName":"财务",
+				// 		"path":"/financeHome",
+				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/finance.png",
+				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/financeActive.png",
+				// 		"child":[
+				// 			{
+				// 				"name":"概览",
+				// 				"path":"/financeHome"
+				// 			},
+				// 			{
+				// 				"name":"收款",
+				// 				"path":"/receipts"
+				// 			},
+				// 			{
+				// 				"name":"应收",
+				// 				"path":"/receivablea"
+				// 			},
+				// 			{
+				// 				"name":"付款",
+				// 				"path":"/payment"
+				// 			},
+				// 			{
+				// 				"name":"应付",
+				// 				"path":"receivable"
+				// 			},
+				// 			{
+				// 				"name":"交易流水",
+				// 				"path":"/withdraw"
+				// 			},
+				// 			{
+				// 				"name":"设置",
+				// 				"path":"/financeSetting"
+				// 			},
+				// 		]
+				// 	},
+				// 	{
+				// 		"displayName":"数据",
+				// 		"path":"/dataHome",
+				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/report.png",
+				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/reportActive.png",
+				// 		"child":[
+				// 			{
+				// 				"name":"采购",
+				// 				"path":"/dataHome"
+				// 			},
+				// 			{
+				// 				"name":"销售",
+				// 				"path":"/salesreport"
+				// 			},
+				// 			{
+				// 				"name":"库存",
+				// 				"path":"/dataInv"
+				// 			},
+				// 			{
+				// 				"name":"零售",
+				// 				"path":"/dataretail"
+				// 			},
+				// 			{
+				// 				"name":"商品",
+				// 				"path":"/datasku"
+				// 			},
+				// 			{
+				// 				"name":"店铺",
+				// 				"path":"/storeReport"
+				// 			},
+				// 			{
+				// 				"name":"会员",
+				// 				"path":"/crmreport"
+				// 			},
+				// 			{
+				// 				"name":"财务",
+				// 				"path":"/datacw"
+				// 			},
+				// 		]
+				// 	},
+				// 	{
+				// 		"displayName":"长护宝",
+				// 		"path":"/zhb",
+				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/zhb.png",
+				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/zhbActive.png",
+				// 		"child":[
+				// 			{
+				// 				"name":"概览",
+				// 				"path":"/zhb"
+				// 			},
+				// 			{
+				// 				"name":"客户",
+				// 				"path":"/customerIndex"
+				// 			},
+				// 			{
+				// 				"name":"护理员",
+				// 				"path":"/attendantIndex"
+				// 			},
+				// 			{
+				// 				"name":"工单",
+				// 				"path":"/wordOrderIndex"
+				// 			},
+				// 			{
+				// 				"name":"日程",
+				// 				"path":"/zhbDate"
+				// 			},
+				// 			{
+				// 				"name":"设置",
+				// 				"path":"/settingIndex"
+				// 			}
+				// 		]
+				// 	}
+				// ],
 				//二级菜单
 				secondMenu:[],
 				// isSetting:false,//是否有设置项
@@ -820,14 +820,20 @@ import m from '../common/meta.js'
 			},
 			//一级菜单
 			gotourlNav(item){
-				console.log(item.path)
+				console.log(item)
 				this.isselect=item.path
            		sessionStorage.setItem('isselect', this.isselect)
-				this.$router.push(item.path);
+           		this.$router.push(item.path);
+           		if(item.child==undefined){
+           			return
+           		}else{
+           			sessionStorage.setItem('isselectTWO',item.child[0].path)
+           		}
+				
 			},
 			//二级点击菜单的跳转
            gotourl(item,index) {
-           		this.isselectTWO=item.name
+           		this.isselectTWO=item.path
            		sessionStorage.setItem('isselectTWO', this.isselectTWO)
 				this.$router.push(item.path);
 			},
@@ -958,10 +964,10 @@ import m from '../common/meta.js'
 	        getenterprise(){
 	        	this.axios.get('enterprise/view?uid='+this.uid).then(res=>{
 	        		if(res.data.status==200){
-	        			let data=res.data.rows
-	        			////console.log(res.data)
+	        			let data=res.data
+	        			console.log(res)
 						// this.storelogo=res.data.rows.logo==undefined?"http://img.zsydian.com/icon/logoin.png":res.data.rows.logo//保存头像
-						sessionStorage.setItem("storelogo",data.logo==undefined?"http://img.zsydian.com/icon/logoin.png":data.logo)
+						sessionStorage.setItem("storelogo",data==undefined?"http://img.zsydian.com/icon/logoin.png":data.rows==undefined?"http://img.zsydian.com/icon/logoin.png":data.rows.logo==undefined?"http://img.zsydian.com/icon/logoin.png":data.rows.logo)
 	        		}else{
 	        			this.$notify({
 		                    title:"",//
@@ -999,9 +1005,9 @@ import m from '../common/meta.js'
 				})
 			},
 			mounted() {
+				
 				//一级菜单个数 ==1就不显示，显示二级菜单;
 				//>1显示一级和二级
-				
 				// this.secondMenu=this.m.getMenu(this.firstMenuData,this.$parent.data.length==0?this.$route.path:this.$parent.data[0].url)//依据路由显示二级菜单
 				// this.Datalenght=this.firstMenuData.length
 				
@@ -1026,31 +1032,19 @@ import m from '../common/meta.js'
 				if(sessionStorage.getItem('isselect')){
 					if(this.Datalenght>1){
 						this.isselect = sessionStorage.getItem('isselect')
+						console.log(this.isselect )
 					}else{
-						this.isselect = '/'+sessionStorage.getItem('isselect')
+						this.isselect = sessionStorage.setItem(this.$route.path)
 					}
 					
 				}else{
-					if(this.$route.name=="/dataHome"){
-						// this.isselect="dataHome"
-						this.isselect=this.getSystem[0].path
-					}
-					else{
-						this.isselect="/dashbord"
-					}
+					this.isselect=this.getSystem[0].path
 				}
 				//二级菜单
-				if(sessionStorage.getItem('isselecttwo')){
-					this.isselectTWO = sessionStorage.getItem('isselecttwo')
-					// this.numberIndex = sessionStorage.getItem('numberIndex')
-				}else{
-					if(this.$route.name=="/dataHome"){
-						this.isselectTWO="采购报表"
-					}
-					else{
-						this.isselectTWO="概览"
-					}
+				if(sessionStorage.getItem('isselectTWO')){
+					this.isselectTWO = sessionStorage.getItem('isselectTWO')
 				}
+
 				this.getenterprise()//企业信息
 				this.getAllMsg()//消息
 				this.otime=setInterval(this.OutTime,1000*60*15)//15分钟轮询一次查看用户有没有操作
@@ -1489,7 +1483,8 @@ import m from '../common/meta.js'
 	    height:14px;
 	    background: #fff;
 	    border-radius: 2px;
-	    margin-right:10px;
+	   	position: absolute;
+   	 	right: 10px;
 	}
 	.sjxT{
 	    margin-right: 10px;

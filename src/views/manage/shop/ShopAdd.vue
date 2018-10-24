@@ -10,17 +10,17 @@
                          <Select style="width:100px" v-model='valueT' placeholder="全部"  @on-change="orderselected">
                             <Option v-for="item in orderListname" :value="item.value" :key="item.value">{{ item.label }}</Option>
                         </Select>
-                    </p>
-                        <div>
-                        <!--新建-->
-                        <span class="top-left-btn"  @click="addStoreInfo">
-                            <Icon type="plus" style="position:absolute;top:7px;left:8px"></Icon></span>
-                    </div>
+                        </p>
+                            <div>
+                            <!--新建-->
+                            <span class="top-left-btn"  @click="addStoreInfo">
+                                <Icon type="plus" style="position:absolute;top:7px;left:8px"></Icon></span>
+                        </div>
                     </div>
                     <!-- <div style='background: rgb(230,233,236);width:3px;height:100%'></div> -->
                     <div class="right-top">
                         <span style="margin-left:20px;font-size:19px;font-weight:bold">{{storeTxt}}</span>
-                    <div style="display: inline-block;position:absolute;right:270px;">
+                    <div style="margin-right: 25px;">
                             <Button shape="circle" type="ghost" style="background:#3b77e3;color:#fff;border:none" @click="saveAddInfo('formValidate')" v-show="addText" ><Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>{{$t('public.SaveBtn')}}</Button><!--保存-->
                             <Button shape="circle" v-show="addText"  @click="addCancel"  style="background:#999999;color:#fff;" ><Icon type="close" style="margin-right:5px;">
                             </Icon>{{$t('public.cancel')}}</Button><!--取消-->
@@ -56,12 +56,10 @@
                 <!-- </Col> -->
             </div>
         </div>
-
-        <div class="cheng"></div>
+        <!-- <div class="cheng"></div> -->
         <div style="display:flex;background: rgb(230,233,236);height: 100%;">
               <!-- <Col span="6"> -->
             <div class="add-left">
-
                <div class="left-content" >
                        <!--左边内容-->
               <div class='locationSearch'>
@@ -1477,13 +1475,12 @@ width: 40px;
 
         display: flex;
         justify-content: space-between;
-        position: fixed;
+        /*position: fixed;*/
     }
     .top{
         display:flex;
         height:60px;
         line-height: 60px;
-        position:fixed;
         width:100%;
         z-index:9;
         background: #fff;
@@ -1502,14 +1499,11 @@ width: 40px;
 
     }
     .right-top{
-
         display: flex;
         justify-content: space-between;
+        width:100%;
     }
-     .top button{
-
-        cursor:pointer;
-    }
+  
     .detail-title-mark{
         display:flex;
         justify-content: flex-start;
@@ -1548,7 +1542,6 @@ width: 40px;
         flex:0 0 360px;
         width:360px;
         border-right:1px solid #eee;
-        margin-top:10px;
         display:flex;
         background:#fff;
     }
@@ -1754,9 +1747,8 @@ width: 40px;
 
     .add-right {
        width:100%;
-        /*height: 100%;*/
-        /*position:relative;*/
-        margin-top:10px; background: #fff;
+      
+       background: #fff;
         overflow: auto;
     }
     .right-title p {

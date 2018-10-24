@@ -479,9 +479,8 @@ import LoadUrl from '@/components/common/actionLoad'
             getenterprise(uid){
                 this.axios.get('enterprise/view?uid='+uid).then(res=>{
                     if(res.data.status==200){
-                        let data=res.data.rows
-                        // this.storelogo=res.data.rows.logo==undefined?"http://img.zsydian.com/icon/logoin.png":res.data.rows.logo//保存头像
-                        sessionStorage.setItem("storelogo",res.data.rows.logo==undefined?"http://img.zsydian.com/icon/logoin.png":res.data.rows.logo)
+                        let data=res.data
+                        sessionStorage.setItem("storelogo",data==undefined?"http://img.zsydian.com/icon/logoin.png":data.rows==undefined?"http://img.zsydian.com/icon/logoin.png":data.rows.logo==undefined?"http://img.zsydian.com/icon/logoin.png":data.rows.logo)
                     }else{
                         this.$notify({
                             title:"",//
@@ -508,13 +507,7 @@ import LoadUrl from '@/components/common/actionLoad'
 					if(res.data.status == 200) { //登录成功 
                         this.$store.commit(types.LOGIN, res.data.rows.uid);//登陆凭证uid
                         this.$store.commit(types.USER, res.data.rows);//个人信息
-                        console.log(res.data.rows)
                         this.getenterprise(res.data.rows.uid)
-                        //加密密码保存localStorage
-                        // this.pss=aesEncrypt(this.pss,"pss")
-                        // localStorage.setItem("username",this.username)
-                        // localStorage.setItem("pss",this.pss)
-                        //只有一个模块时自动跳转进入当前模块
                         this.axios.get('getSystem?uid='+res.data.rows.uid).then((res)=>{
                             if(res.data.status==200){
                                 let data=res.data.rows
@@ -532,6 +525,7 @@ import LoadUrl from '@/components/common/actionLoad'
                                         name: data[0].path
                                     });
                                 }
+                                
                             }else{
                                  this.$notify({
                                     title:"",//

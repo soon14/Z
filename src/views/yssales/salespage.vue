@@ -576,14 +576,13 @@
 		 },
 		},
 		mounted() {
+			sessionStorage.setItem('isselectTWO',this.$route.path)
 			if(this.$route.query.value){
-
 				this.valueT=this.$route.query.value
-
-				
 			}else{
 				this.getcgList(this.valueT);
 			}
+			console.log(this.$route.path)
 			
 
 		}

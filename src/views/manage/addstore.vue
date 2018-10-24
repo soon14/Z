@@ -21,7 +21,7 @@
                     <!-- <div style='background: rgb(230,233,236);width:3px;height:100%'></div> -->
                     <div class="right-top">
                         <span style="margin-left:20px;font-weight:600;font-size:19px">{{storeTxt}}</span>
-                        <div style="display:inline-block;position:absolute;right: 270px;">
+                        <div style="margin-right: 25px;">
                             <Button shape="circle"  style="background:#3b77e3;color:#fff;border:none" @click="saveAddInfo('formValidate')" v-show="addText">
                             <Icon type="checkmark-round" style=";margin-right:5px;color:#fff"></Icon>
                             {{$t('public.SaveBtn')}}<!--保存-->
@@ -1599,21 +1599,16 @@ width: 40px;
     .add-header{
         width: 100%;
         height: 60px;
-       /* padding: 10px 0px;*/
         z-index: 1;
         background: #ffffff;
-
         display: flex;
         justify-content: space-between;
-        /*position: fixed;*/
     }
     .top{
         display:flex;
         height:60px;
         line-height: 60px;
-        position:fixed;
         width:100%;
-        z-index:9;
         background: #fff;
        border-bottom:1px solid #eee;
     }
@@ -1661,13 +1656,10 @@ width: 40px;
     .right-top{
         display: flex;
         justify-content: space-between;
+        width:100%;
 
     }
-     .top button{
-
-        cursor:pointer;
-    }
-
+    
     .right-top button:hover{
         color:#478FCA;
     }

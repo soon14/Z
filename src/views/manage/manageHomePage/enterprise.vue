@@ -448,8 +448,6 @@ export default{
         	}else{
         		this.dateFormat=value
         	}
-        	
-        	//console.log(value)
 
         },
         //上传前

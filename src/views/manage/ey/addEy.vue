@@ -68,7 +68,7 @@
 		</div>
 	</div>
 		 <div style='height:60px;width:100%;'></div>
-		 <div style='display:flex;height:50%'>
+		 <div style='display:flex'>
 			<!--左侧列表-->
 			<div class="left-content">
 				<div class='locationSearch'>

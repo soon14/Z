@@ -179,23 +179,23 @@ export default {
 			YpageSize:0,
 			dataKey:[
 				{
-            		headerName:"Order ID",
+            		headerName:"订单号",
             		field: 'orderNo',
             	},
             	{
-            		headerName:"Customer",
+            		headerName:"会员",
             		field: 'customerName',
             	},
             	{
-            		headerName:"Total",
+            		headerName:"总数量",
             		field: 'listQty',
             	},
             	{
-            		headerName:"Date Added",
+            		headerName:"时间",
             		field: 'createTime',
             	},
             	{
-            		headerName:"Status",
+            		headerName:"状态",
             		field: 'statusDesc',
             	},
 			],
@@ -214,24 +214,24 @@ export default {
 			CpageSize:0,
 			TOPCustomersKey:[
 				{
-            		headerName:"Code",
+            		headerName:"编号",
             		field: 'code',
             	},
             	{
-            		headerName:"Customer",
+            		headerName:"姓名",
             		field: 'name',
             	},
             	
             	{
-            		headerName:"Orders Qty",
+            		headerName:"订单数",
             		field: 'count',
             	},
             	{
-            		headerName:"Amount",
+            		headerName:"总金额",
             		field: 'amount',
             	},
             	{
-            		headerName:"Mobile",
+            		headerName:"手机号",
             		field: 'mobile',
             	},
 			],
@@ -251,27 +251,27 @@ export default {
 			TpageSize:0,
 			TOPProductsKey:[
 				{
-            		headerName:"Barcode",
+            		headerName:"条码",
             		field: 'barcode',
             	},
             	{
-            		headerName:"SkuName",
+            		headerName:"名称",
             		field: 'skuName',
             	},
             	{
-            		headerName:"SkuCount",
+            		headerName:"数量",
             		field: 'skuCount',
             	},
             	{
-            		headerName:"Price",
+            		headerName:"吊牌价",
             		field: 'price',
             	},
             	{
-            		headerName:"Total",
+            		headerName:"总数量",
             		field: 'qty',
             	},
             	{
-            		headerName:"unitDesc",
+            		headerName:"单位描述",
             		field: 'unitDesc',
             	},
 			],
