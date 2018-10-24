@@ -1,7 +1,7 @@
 <template>
     <div class="main">
     	<div class='head-bottom1'>
-			<Col class='head-bottom1-li' span="7">
+			<div class='head-bottom1-li' span="8">
 				<div class="car-body">
 					<h3 class="f-50 font-weight-100">{{totalOrders}}</h3>
 					<p class="titleN">总订单</p>
@@ -24,8 +24,8 @@
 					</div>
 					<span></span>
 				</div>
-			</Col>
-			<Col class='head-bottom1-li' span="7">
+			</div>
+			<div class='head-bottom1-li' span="8">
 				<div class="car-body">
 					<h3 class="f-50 font-weight-100">{{totalSales}}</h3>
 					<p class="titleN">总销售额</p>
@@ -49,8 +49,8 @@
 					</div>
 					<span></span>
 				</div>
-			</Col>
-			<Col class='head-bottom1-li' span="7">
+			</div>
+			<div class='head-bottom1-li' span="8">
 				<div class="car-body">
 					
 					<h3 class="f-50 font-weight-100">{{totalCustomer}}</h3>
@@ -74,7 +74,7 @@
 					</div>
 					<span></span>
 				</div>
-			</Col>
+			</div>
 		</div>
 		<div class="CustomerMap">
 			<span style='font-size:30px'>会员地图</span>
@@ -569,7 +569,8 @@ export default {
     border: 1px solid rgba(0,0,0,.125);
     border-radius: 4px;
    	box-shadow: 0 1px 3px #ccc;
-    margin:10px 10px 0 10px;
+    margin:10px;
+    flex:1 0 auto;
     font-family:'Times New Roman', Times, serif
 }
 li{
