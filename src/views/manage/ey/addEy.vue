@@ -18,12 +18,11 @@
 
 					</div>
 				</div>
-			<!-- </Col> -->
-			<!-- <Col span='18'> -->
-				<div style='position:absolute;left:360px;top:0px'>
+				
+			<div class="right-top">
+				<div >
 					<span style="margin-left:10px;font-size:14px;font-weight:900">{{crmDetail.name}}</span>
 				</div>
-				<div class="right-top">
 				<div style="margin-right:10px;">
 					<div v-if="addText">
 						<Button shape="circle"  style="background:#3b77e3;margin-right:5px;color:#fff;border:none" @click="saveCgInfo('formValidate')" >
@@ -63,12 +62,12 @@
 						</span>
 					</div>
 				</div>
-				</div>
-			<!-- </Col> -->
+			</div>
+	
 		</div>
 	</div>
-		 <div style='height:60px;width:100%;'></div>
-		 <div style='display:flex'>
+		 <!-- <div style='height:60px;width:100%;'></div> -->
+		<div style='display:flex'>
 			<!--左侧列表-->
 			<div class="left-content">
 				<div class='locationSearch'>
@@ -266,89 +265,88 @@
 					<div class="right-content right-detail" ref="detail" style="display:none">
 						<div >
 
-						<div style='display:flex'>
-							<div style="flex:0 0 178px;width:178px;height:178px"><img :src="crmDetail.headPic"  style='vertical-align:middle;width:100%;height:100%'></div>
-							
-							<Form :label-width="120" style="width: 100%;margin: 0 10px;height: 100%;">
+							<div style='display:flex'>
+								<div style="flex:0 0 178px;width:178px;height:178px"><img :src="crmDetail.headPic"  style='vertical-align:middle;width:100%;height:100%'></div>
+								
+								<Form :label-width="120" style="width: 100%;margin: 0 10px;height: 100%;">
 
-								<div style='display:flex;height: 100%;'>
-								<div style='width:50%'>
-									<FormItem :label="$t('manage.ey.loginTitle')" >
-					                	<Input disabled v-model="formValidate.accountName" :placeholder="$t('manage.ey.loginTitle')"></Input>
-					           		</FormItem>
-									<FormItem :label="$t('manage.ey.name')">
-					                	<Input disabled v-model="formValidate.name" :placeholder="$t('manage.ey.name')"></Input>
-					           		</FormItem>
-									<FormItem :label="$t('manage.ey.mobile')">
-					                	<Input disabled v-model="formValidate.phone" :placeholder="$t('manage.ey.mobile')"></Input>
-					           		</FormItem>
-					           		<FormItem :label="$t('manage.ey.personJ')">
-				                		<Input disabled v-model="formValidate.emergencyContact" :placeholder="$t('manage.ey.personJ')"></Input>
-				           			</FormItem>
-									<!-- <FormItem :label="$t('manage.ey.loginTitleRole')" prop="roleId">
-				                	<Input v-model="formValidate.roleId" :placeholder="$t('manage.ey.loginTitleRole')"></Input>
-				           			</FormItem> -->
-				           			<FormItem :label="$t('manage.ey.loginTitleRole')" prop="roleId">
-										<!-- <span @click='clickRole'>
-				                			<Input v-model="formValidate.roleName" :placeholder="$t('manage.ey.loginTitleRole')"></Input>
-				                		</span> -->
+									<div style='display:flex;height: 100%;'>
+									<div style='width:50%'>
+										<FormItem :label="$t('manage.ey.loginTitle')" >
+						                	<Input disabled v-model="formValidate.accountName" :placeholder="$t('manage.ey.loginTitle')"></Input>
+						           		</FormItem>
+										<FormItem :label="$t('manage.ey.name')">
+						                	<Input disabled v-model="formValidate.name" :placeholder="$t('manage.ey.name')"></Input>
+						           		</FormItem>
+										<FormItem :label="$t('manage.ey.mobile')">
+						                	<Input disabled v-model="formValidate.phone" :placeholder="$t('manage.ey.mobile')"></Input>
+						           		</FormItem>
+						           		<FormItem :label="$t('manage.ey.personJ')">
+					                		<Input disabled v-model="formValidate.emergencyContact" :placeholder="$t('manage.ey.personJ')"></Input>
+					           			</FormItem>
+										<!-- <FormItem :label="$t('manage.ey.loginTitleRole')" prop="roleId">
+					                	<Input v-model="formValidate.roleId" :placeholder="$t('manage.ey.loginTitleRole')"></Input>
+					           			</FormItem> -->
+					           			<FormItem :label="$t('manage.ey.loginTitleRole')" prop="roleId">
+											<!-- <span @click='clickRole'>
+					                			<Input v-model="formValidate.roleName" :placeholder="$t('manage.ey.loginTitleRole')"></Input>
+					                		</span> -->
 
-										<Select disabled v-model='roleleveid' >
-			                                <Option v-for="(item,index) in rolelevel" :value='item.value' :key="index">
-			                                	{{ item.label }}
-			                            	</Option>
-			                            </Select>
-				           			</FormItem>
-				           		</div>
-								<div style='width:50%'>
-								<!-- <FormItem :label="$t('manage.ey.loginTitlePSS')" prop="accountPs">
-				                	<Input disabled v-model="formValidate.accountPs" type='password'  :placeholder="$t('manage.ey.loginTitlePSS')"></Input>
-				           		</FormItem> -->
-								<FormItem :label="$t('public.gender')" >
-				                	<RadioGroup v-model="gender" @on-change="selsectedSex">
-									        <Radio disabled label="1">
-									            <span>{{$t('public.man')}}</span><!--男-->
-									        </Radio>
-									        <Radio disabled label="0">
-									            <span>{{$t('public.woman')}}</span>
-									        </Radio>
-									    </RadioGroup>
-				           		</FormItem>
-
-								<FormItem :label="$t('manage.ey.email')" prop="email">
-				                	<Input disabled v-model="formValidate.email" :placeholder="$t('manage.ey.email')"></Input>
-				           		</FormItem>
-				           		<FormItem :label="$t('manage.ey.position')">
-					                	 <Select disabled v-model='category'>
-			                                <Option v-for="(item,index) in storelevel" :value='item.value' :key="index">
-			                                	{{ item.label }}
-			                            	</Option>
-			                            </Select>
+											<Select disabled v-model='roleleveid' >
+				                                <Option v-for="(item,index) in rolelevel" :value='item.value' :key="index">
+				                                	{{ item.label }}
+				                            	</Option>
+				                            </Select>
+					           			</FormItem>
+					           		</div>
+									<div style='width:50%'>
+									<!-- <FormItem :label="$t('manage.ey.loginTitlePSS')" prop="accountPs">
+					                	<Input disabled v-model="formValidate.accountPs" type='password'  :placeholder="$t('manage.ey.loginTitlePSS')"></Input>
+					           		</FormItem> -->
+									<FormItem :label="$t('public.gender')" >
+					                	<RadioGroup v-model="gender" @on-change="selsectedSex">
+										        <Radio disabled label="1">
+										            <span>{{$t('public.man')}}</span><!--男-->
+										        </Radio>
+										        <Radio disabled label="0">
+										            <span>{{$t('public.woman')}}</span>
+										        </Radio>
+										    </RadioGroup>
 					           		</FormItem>
-				           		</div>
-				           		</div>
-				           		<FormItem :label="$t('public.address')"><!--地址-->
-									<div style='display:flex;width:100%'>
 
-									<Input disabled v-model='address' :placeholder="$t('public.address')"></Input>
-									</div>
-				           		</FormItem>
-							</Form>
-						</div>
+									<FormItem :label="$t('manage.ey.email')" prop="email">
+					                	<Input disabled v-model="formValidate.email" :placeholder="$t('manage.ey.email')"></Input>
+					           		</FormItem>
+					           		<FormItem :label="$t('manage.ey.position')">
+						                	 <Select disabled v-model='category'>
+				                                <Option v-for="(item,index) in storelevel" :value='item.value' :key="index">
+				                                	{{ item.label }}
+				                            	</Option>
+				                            </Select>
+						           		</FormItem>
+					           		</div>
+					           		</div>
+					           		<FormItem :label="$t('public.address')"><!--地址-->
+										<div style='display:flex;width:100%'>
+
+										<Input disabled v-model='address' :placeholder="$t('public.address')"></Input>
+										</div>
+					           		</FormItem>
+								</Form>
+							</div>
 					
-					</div>
+						</div>
 					<ul class="detail-title-mark" style='margin-top:20px'>
                         <li v-for="(item,index) in detailsArr" class="detail-title" @click="addborderdefails(index)" :class="{bor:index==num5}">
                             {{item}}
                         </li>
                     </ul>
-                    <div v-if='num5==0' style='margin-top:10px'>
+                    <div v-if='num5==0' style='margin-top:10px;margin-bottom:120px'>
                     	<Table borderhighlight-row :columns="warehouseskey" :data="warehouses" ></Table>
                     </div>
 				</div>
 			</div>
 		</div>
-
 		<div class='totBottom'>
 	        <span>共<span style='color:#ff0000'> {{total}} </span>条</span>
 	        <span>当前第<span style='color:#ff0000'> {{current}} </span>页</span>
@@ -1090,11 +1088,18 @@ import LoadUrl from '@/components/common/actionLoad'
 			// this.handleReachEdge()//滚动加载
 			window.onresize=function(){
 				this.height = document.documentElement.clientHeight
+				let W=$('.head').width()-360
+				$('.right-top').width(W)
 			}
+			let W=$('.head').width()-360
+			$('.right-top').width(W)
 		}
 	}
 </script>
 <style type="text/css" scoped>
+.addCrm{
+	overflow: scroll;
+}
 .lanrenLeft{
     position: absolute;
     text-align: center;
@@ -1161,7 +1166,7 @@ width: 40px;
     display:flex;
     height:60px;
     line-height: 60px;
-    position:fixed;
+    /*position:fixed;*/
     width:100%;
     z-index:9;
     background: #fff;
@@ -1171,9 +1176,7 @@ width: 40px;
 	height: 60px;
 	border-bottom: 1px solid #e4e4e4;
 	line-height: 60px;
-	position:absolute;
-	right:240px;
-	z-index:10;
+	margin-left:360px;
 	display:flex;
 
 	background: #fff;

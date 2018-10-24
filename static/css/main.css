@@ -24,6 +24,7 @@ a{
     bottom: 10px;
     left: 358px;
     z-index: 12;
+    display: none
 }
 .footer-mark{
   width:100%;

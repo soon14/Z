@@ -6,7 +6,7 @@
 				<!--左侧一级菜单-->
 				<div class="navList userImgclass"> <p><img :src="storelogo" width='45' height='45'></p></div>
 				<div v-if="Datalenght>1">
-					<li v-for='(item,index) in getSystem'  :key='index' class="navList navListbg" style="position:relative" >
+					<li v-for='(item,index) in firstMenuData'  :key='index' class="navList navListbg" style="position:relative" >
 						<ul @click='gotourlNav(item,index)' class='bgdiv' :class="{bgMenu:isselect==item.path}">
 							<li >
 								<img :src="item.activeIcon" width='18' height='18' class='icon-img' v-if='isselect==item.path'>
@@ -136,11 +136,11 @@
 					</div>
 					<router-view keep-alive class='Router'></router-view>
 				</article>
-				<footer class="layout-copy">
+				<!-- <footer class="layout-copy">
 					<p>&copy;2018-2020
 						<a :href="backUrl" target='_blank'>智胜云</a>
 					</p>
-				</footer>
+				</footer> -->
 			</div>
 		</div>
 		<!--消息-->
@@ -309,390 +309,390 @@ import m from '../common/meta.js'
 				types:types,
 
 				getSystem:[],//菜单
-				// firstMenuData:[
-				// 	{
-				// 		"displayName":"概览",
-				// 		"path":"/dashbord",
-				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/dashbord.png",
-				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/dashbordActive.png",
-				// 		"child":[]
-				// 	},
-				// 	{
-				// 		"displayName":"管理",
-				// 		"path":"/enterprise",
-				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/manage.png",
-				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/manageActive.png",
-				// 		"child":[
-				// 			{
-				// 				"name":"概览",			
-				// 				"path":"/enterprise"
-				// 			},
-				// 			{
-				// 				"name":"安全",
-				// 				"path":"/power"
-				// 			},
-				// 			{
-				// 				"name":"仓库",
-				// 				"path":"/storehouse"
-				// 			},
-				// 			{
-				// 				"name":"门店",
-				// 				"path":"/ShopAddPage"
-				// 			},
-				// 			{
-				// 				"name":"商品",
-				// 				"path":"/goods"
-				// 			},
-				// 			{
-				// 				"name":"员工",
-				// 				"path":"/ey"
-				// 			},
-				// 			{
-				// 				"name":"设置",
-				// 				"path":"/settingDetails"
-				// 			},
-				// 			{
-				// 				"name":"素材库",
-				// 				"path":"/materialHome"
-				// 			},
-				// 		]
-				// 	},
-				// 	{
-				// 		"displayName":"采购",
-				// 		"path":"/purchase",
-				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/purchase.png",
-				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/purchaseActive.png",
-				// 		"child":[
-				// 			{
-				// 				"name":"概览",
-				// 				"path":"/purchase"
-				// 			},
-				// 			{
-				// 				"name":"供应商",
-				// 				"path":"/supplier"
-				// 			},
-				// 			{
-				// 				"name":"采购",
-				// 				"path":"/purchasehome"
-				// 			},
-				// 			{
-				// 				"name":"收货",
-				// 				"path":"/cgsend"
-				// 			},
-				// 			{
-				// 				"name":"设置",
-				// 				"path":"/purchaseSetting"
-				// 			},
-				// 		]
-				// 	},
-				// 	{
-				// 		"displayName":"销售",
-				// 		"path":"/sales",
-				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/sales.png",
-				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/salesActive.png",
-				// 		"child":[
-				// 			{
-				// 				"name":"概览",
-				// 				"path":"/sales"
-				// 			},
-				// 			{
-				// 				"name":"客户",
-				// 				"path":"/customer"
-				// 			},
-				// 			{
-				// 				"name":"报价单",
-				// 				"path":"/quotation"
-				// 			},
-				// 			{
-				// 				"name":"订单",
-				// 				"path":"/salespage"
-				// 			},
-				// 			{
-				// 				"name":"发货",
-				// 				"path":"/send"
-				// 			},
-				// 			{
-				// 				"name":"设置",
-				// 				"path":"/salesSetting"
-				// 			}
+				firstMenuData:[
+					// {
+					// 	"displayName":"概览",
+					// 	"path":"/dashbord",
+					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/dashbord.png",
+					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/dashbordActive.png",
+					// 	"child":[]
+					// },
+					{
+						"displayName":"管理",
+						"path":"/enterprise",
+						"icon":"http://img.zsydian.com/icon/sidebaricon/manage.png",
+						"activeIcon":"http://img.zsydian.com/icon/sidebaricon/manageActive.png",
+						"child":[
+							{
+								"name":"概览",			
+								"path":"/enterprise"
+							},
+							{
+								"name":"安全",
+								"path":"/power"
+							},
+							{
+								"name":"仓库",
+								"path":"/storehouse"
+							},
+							{
+								"name":"门店",
+								"path":"/ShopAddPage"
+							},
+							{
+								"name":"商品",
+								"path":"/goods"
+							},
+							{
+								"name":"员工",
+								"path":"/ey"
+							},
+							{
+								"name":"设置",
+								"path":"/settingDetails"
+							},
+							{
+								"name":"素材库",
+								"path":"/materialHome"
+							},
+						]
+					},
+					{
+						"displayName":"采购",
+						"path":"/purchase",
+						"icon":"http://img.zsydian.com/icon/sidebaricon/purchase.png",
+						"activeIcon":"http://img.zsydian.com/icon/sidebaricon/purchaseActive.png",
+						"child":[
+							{
+								"name":"概览",
+								"path":"/purchase"
+							},
+							{
+								"name":"供应商",
+								"path":"/supplier"
+							},
+							{
+								"name":"采购",
+								"path":"/purchasehome"
+							},
+							{
+								"name":"收货",
+								"path":"/cgsend"
+							},
+							{
+								"name":"设置",
+								"path":"/purchaseSetting"
+							},
+						]
+					},
+					// {
+					// 	"displayName":"销售",
+					// 	"path":"/sales",
+					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/sales.png",
+					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/salesActive.png",
+					// 	"child":[
+					// 		{
+					// 			"name":"概览",
+					// 			"path":"/sales"
+					// 		},
+					// 		{
+					// 			"name":"客户",
+					// 			"path":"/customer"
+					// 		},
+					// 		{
+					// 			"name":"报价单",
+					// 			"path":"/quotation"
+					// 		},
+					// 		{
+					// 			"name":"订单",
+					// 			"path":"/salespage"
+					// 		},
+					// 		{
+					// 			"name":"发货",
+					// 			"path":"/send"
+					// 		},
+					// 		{
+					// 			"name":"设置",
+					// 			"path":"/salesSetting"
+					// 		}
 
-				// 		]
-				// 	},
-				// 	{
-				// 		"displayName":"会员",
-				// 		"path":"/memberHome",
-				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/crm.png",
-				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/crmActive.png",
-				// 		"child":[
-				// 			{
-				// 				"name":"概览",
-				// 				"path":"/memberHome"
-				// 			},
-				// 			{
-				// 				"name":"会员",
-				// 				"path":"/management"
-				// 			},
-				// 			{
-				// 				"name":"黑名单",
-				// 				"path":"/blacklisthome"
-				// 			},
-				// 			{
-				// 				"name":"生命周期",
-				// 				"path":"/lifecyclehome"
-				// 			},
-				// 			{
-				// 				"name":"近期生日",
-				// 				"path":"/birthdayhome"
-				// 			}
-				// 		]
-				// 	},
-				// 	{
-				// 		"displayName":"门店",
-				// 		"path":"/storeHome",
-				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/store.png",
-				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/storeActive.png",
-				// 		"child":[
-				// 			{
-				// 				"name":"概览",
-				// 				"path":"/storeHome"
-				// 			},
-				// 			{
-				// 				"name":"收银",
-				// 				"path":"/storecashier"
-				// 			},
-				// 			{
-				// 				"name":"会员",
-				// 				"path":"/storeCrm"
-				// 			},
-				// 			{
-				// 				"name":"订单",
-				// 				"path":"/storeorder"
-				// 			},
-				// 			{
-				// 				"name":"商品",
-				// 				"path":"/storejxc"
-				// 			},
-				// 			{
-				// 				"name":"运营",
-				// 				"path":"/storeoperation"
-				// 			},
+					// 	]
+					// },
+					// {
+					// 	"displayName":"会员",
+					// 	"path":"/memberHome",
+					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/crm.png",
+					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/crmActive.png",
+					// 	"child":[
+					// 		{
+					// 			"name":"概览",
+					// 			"path":"/memberHome"
+					// 		},
+					// 		{
+					// 			"name":"会员",
+					// 			"path":"/management"
+					// 		},
+					// 		{
+					// 			"name":"黑名单",
+					// 			"path":"/blacklisthome"
+					// 		},
+					// 		{
+					// 			"name":"生命周期",
+					// 			"path":"/lifecyclehome"
+					// 		},
+					// 		{
+					// 			"name":"近期生日",
+					// 			"path":"/birthdayhome"
+					// 		}
+					// 	]
+					// },
+					// {
+					// 	"displayName":"门店",
+					// 	"path":"/storeHome",
+					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/store.png",
+					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/storeActive.png",
+					// 	"child":[
+					// 		{
+					// 			"name":"概览",
+					// 			"path":"/storeHome"
+					// 		},
+					// 		{
+					// 			"name":"收银",
+					// 			"path":"/storecashier"
+					// 		},
+					// 		{
+					// 			"name":"会员",
+					// 			"path":"/storeCrm"
+					// 		},
+					// 		{
+					// 			"name":"订单",
+					// 			"path":"/storeorder"
+					// 		},
+					// 		{
+					// 			"name":"商品",
+					// 			"path":"/storejxc"
+					// 		},
+					// 		{
+					// 			"name":"运营",
+					// 			"path":"/storeoperation"
+					// 		},
 
-				// 			{
-				// 				"name":"交易",
-				// 				"path":"/storefinancial"
-				// 			},
-				// 			{
-				// 				"name":"美业",
-				// 				"path":"/storesever"
-				// 			},
-				// 			{
-				// 				"name":"统计",
-				// 				"path":"/storedata"
-				// 			},
-				// 			{
-				// 				"name":"管理",
-				// 				"path":"/storemanage"
-				// 			}
-				// 		]
-				// 	},
-				// 	{
-				// 		"displayName":"运营",
-				// 		"path":"/operationHome",
-				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/markting.png",
-				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/marktingActive.png",
-				// 		"child":[
-				// 			{
-				// 				"name":"概览",
-				// 				"path":"/operationHome"
-				// 			},
-				// 			{
-				// 				"name":"投诉与建议",
-				// 				"path":"/complain"
-				// 			},
-				// 		]
-				// 	},
-				// 	{
-				// 		"displayName":"订单",
-				// 		"path":"/orderHome",
-				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/order.png",
-				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/orderActive.png",
-				// 		"child":[
-				// 			{
-				// 				"name":"概览",
-				// 				"path":"/orderHome"
-				// 			},
-				// 			{
-				// 				"name":"线上订单",
-				// 				"path":"/order"
-				// 			},
-				// 			{
-				// 				"name":"线下订单",
-				// 				"path":"/networdOrder"
-				// 			},
-				// 			{
-				// 				"name":"跨店订单",
-				// 				"path":"kdOrder"
-				// 			},
-				// 			{
-				// 				"name":"退货订单",
-				// 				"path":"/returnorder"
-				// 			},
-				// 			{
-				// 				"name":"订单配置",
-				// 				"path":"/logtSetting"
-				// 			}
+					// 		{
+					// 			"name":"交易",
+					// 			"path":"/storefinancial"
+					// 		},
+					// 		{
+					// 			"name":"美业",
+					// 			"path":"/storesever"
+					// 		},
+					// 		{
+					// 			"name":"统计",
+					// 			"path":"/storedata"
+					// 		},
+					// 		{
+					// 			"name":"管理",
+					// 			"path":"/storemanage"
+					// 		}
+					// 	]
+					// },
+					// {
+					// 	"displayName":"运营",
+					// 	"path":"/operationHome",
+					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/markting.png",
+					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/marktingActive.png",
+					// 	"child":[
+					// 		{
+					// 			"name":"概览",
+					// 			"path":"/operationHome"
+					// 		},
+					// 		{
+					// 			"name":"投诉与建议",
+					// 			"path":"/complain"
+					// 		},
+					// 	]
+					// },
+					// {
+					// 	"displayName":"订单",
+					// 	"path":"/orderHome",
+					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/order.png",
+					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/orderActive.png",
+					// 	"child":[
+					// 		{
+					// 			"name":"概览",
+					// 			"path":"/orderHome"
+					// 		},
+					// 		{
+					// 			"name":"线上订单",
+					// 			"path":"/order"
+					// 		},
+					// 		{
+					// 			"name":"线下订单",
+					// 			"path":"/networdOrder"
+					// 		},
+					// 		{
+					// 			"name":"跨店订单",
+					// 			"path":"kdOrder"
+					// 		},
+					// 		{
+					// 			"name":"退货订单",
+					// 			"path":"/returnorder"
+					// 		},
+					// 		{
+					// 			"name":"订单配置",
+					// 			"path":"/logtSetting"
+					// 		}
 
-				// 		]
-				// 	},
-				// 	{
-				// 		"displayName":"库存",
-				// 		"path":"/sku",
-				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/inv.png",
-				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/invActive.png",
-				// 		"child":[
-				// 			{
-				// 				"name":"概览",
-				// 				"path":"/sku"
-				// 			},
-				// 			{
-				// 				"name":"库存",
-				// 				"path":"/skuinventory"
-				// 			},
-				// 			{
-				// 				"name":"调拨",
-				// 				"path":"/investigate"
-				// 			},
-				// 			{
-				// 				"name":"盘点",
-				// 				"path":"/pdhome"
-				// 			},
-				// 			{
-				// 				"name":"渠道库存",
-				// 				"path":"/channelInventory"
-				// 			},
-				// 			{
-				// 				"name":"入库明细",
-				// 				"path":"/Ininventoryhome"
-				// 			},
-				// 			{
-				// 				"name":"出库明细",
-				// 				"path":"/OutInventoryhome"
-				// 			},
-				// 			{
-				// 				"name":"设置",
-				// 				"path":"/InventorySetting"
-				// 			},
-				// 		]
-				// 	},
-				// 	{
-				// 		"displayName":"财务",
-				// 		"path":"/financeHome",
-				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/finance.png",
-				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/financeActive.png",
-				// 		"child":[
-				// 			{
-				// 				"name":"概览",
-				// 				"path":"/financeHome"
-				// 			},
-				// 			{
-				// 				"name":"收款",
-				// 				"path":"/receipts"
-				// 			},
-				// 			{
-				// 				"name":"应收",
-				// 				"path":"/receivablea"
-				// 			},
-				// 			{
-				// 				"name":"付款",
-				// 				"path":"/payment"
-				// 			},
-				// 			{
-				// 				"name":"应付",
-				// 				"path":"receivable"
-				// 			},
-				// 			{
-				// 				"name":"交易流水",
-				// 				"path":"/withdraw"
-				// 			},
-				// 			{
-				// 				"name":"设置",
-				// 				"path":"/financeSetting"
-				// 			},
-				// 		]
-				// 	},
-				// 	{
-				// 		"displayName":"数据",
-				// 		"path":"/dataHome",
-				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/report.png",
-				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/reportActive.png",
-				// 		"child":[
-				// 			{
-				// 				"name":"采购",
-				// 				"path":"/dataHome"
-				// 			},
-				// 			{
-				// 				"name":"销售",
-				// 				"path":"/salesreport"
-				// 			},
-				// 			{
-				// 				"name":"库存",
-				// 				"path":"/dataInv"
-				// 			},
-				// 			{
-				// 				"name":"零售",
-				// 				"path":"/dataretail"
-				// 			},
-				// 			{
-				// 				"name":"商品",
-				// 				"path":"/datasku"
-				// 			},
-				// 			{
-				// 				"name":"店铺",
-				// 				"path":"/storeReport"
-				// 			},
-				// 			{
-				// 				"name":"会员",
-				// 				"path":"/crmreport"
-				// 			},
-				// 			{
-				// 				"name":"财务",
-				// 				"path":"/datacw"
-				// 			},
-				// 		]
-				// 	},
-				// 	{
-				// 		"displayName":"长护宝",
-				// 		"path":"/zhb",
-				// 		"icon":"http://img.zsydian.com/icon/sidebaricon/zhb.png",
-				// 		"activeIcon":"http://img.zsydian.com/icon/sidebaricon/zhbActive.png",
-				// 		"child":[
-				// 			{
-				// 				"name":"概览",
-				// 				"path":"/zhb"
-				// 			},
-				// 			{
-				// 				"name":"客户",
-				// 				"path":"/customerIndex"
-				// 			},
-				// 			{
-				// 				"name":"护理员",
-				// 				"path":"/attendantIndex"
-				// 			},
-				// 			{
-				// 				"name":"工单",
-				// 				"path":"/wordOrderIndex"
-				// 			},
-				// 			{
-				// 				"name":"日程",
-				// 				"path":"/zhbDate"
-				// 			},
-				// 			{
-				// 				"name":"设置",
-				// 				"path":"/settingIndex"
-				// 			}
-				// 		]
-				// 	}
-				// ],
+					// 	]
+					// },
+					// {
+					// 	"displayName":"库存",
+					// 	"path":"/sku",
+					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/inv.png",
+					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/invActive.png",
+					// 	"child":[
+					// 		{
+					// 			"name":"概览",
+					// 			"path":"/sku"
+					// 		},
+					// 		{
+					// 			"name":"库存",
+					// 			"path":"/skuinventory"
+					// 		},
+					// 		{
+					// 			"name":"调拨",
+					// 			"path":"/investigate"
+					// 		},
+					// 		{
+					// 			"name":"盘点",
+					// 			"path":"/pdhome"
+					// 		},
+					// 		{
+					// 			"name":"渠道库存",
+					// 			"path":"/channelInventory"
+					// 		},
+					// 		{
+					// 			"name":"入库明细",
+					// 			"path":"/Ininventoryhome"
+					// 		},
+					// 		{
+					// 			"name":"出库明细",
+					// 			"path":"/OutInventoryhome"
+					// 		},
+					// 		{
+					// 			"name":"设置",
+					// 			"path":"/InventorySetting"
+					// 		},
+					// 	]
+					// },
+					// {
+					// 	"displayName":"财务",
+					// 	"path":"/financeHome",
+					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/finance.png",
+					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/financeActive.png",
+					// 	"child":[
+					// 		{
+					// 			"name":"概览",
+					// 			"path":"/financeHome"
+					// 		},
+					// 		{
+					// 			"name":"收款",
+					// 			"path":"/receipts"
+					// 		},
+					// 		{
+					// 			"name":"应收",
+					// 			"path":"/receivablea"
+					// 		},
+					// 		{
+					// 			"name":"付款",
+					// 			"path":"/payment"
+					// 		},
+					// 		{
+					// 			"name":"应付",
+					// 			"path":"receivable"
+					// 		},
+					// 		{
+					// 			"name":"交易流水",
+					// 			"path":"/withdraw"
+					// 		},
+					// 		{
+					// 			"name":"设置",
+					// 			"path":"/financeSetting"
+					// 		},
+					// 	]
+					// },
+					// {
+					// 	"displayName":"数据",
+					// 	"path":"/dataHome",
+					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/report.png",
+					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/reportActive.png",
+					// 	"child":[
+					// 		{
+					// 			"name":"采购",
+					// 			"path":"/dataHome"
+					// 		},
+					// 		{
+					// 			"name":"销售",
+					// 			"path":"/salesreport"
+					// 		},
+					// 		{
+					// 			"name":"库存",
+					// 			"path":"/dataInv"
+					// 		},
+					// 		{
+					// 			"name":"零售",
+					// 			"path":"/dataretail"
+					// 		},
+					// 		{
+					// 			"name":"商品",
+					// 			"path":"/datasku"
+					// 		},
+					// 		{
+					// 			"name":"店铺",
+					// 			"path":"/storeReport"
+					// 		},
+					// 		{
+					// 			"name":"会员",
+					// 			"path":"/crmreport"
+					// 		},
+					// 		{
+					// 			"name":"财务",
+					// 			"path":"/datacw"
+					// 		},
+					// 	]
+					// },
+					// {
+					// 	"displayName":"长护宝",
+					// 	"path":"/zhb",
+					// 	"icon":"http://img.zsydian.com/icon/sidebaricon/zhb.png",
+					// 	"activeIcon":"http://img.zsydian.com/icon/sidebaricon/zhbActive.png",
+					// 	"child":[
+					// 		{
+					// 			"name":"概览",
+					// 			"path":"/zhb"
+					// 		},
+					// 		{
+					// 			"name":"客户",
+					// 			"path":"/customerIndex"
+					// 		},
+					// 		{
+					// 			"name":"护理员",
+					// 			"path":"/attendantIndex"
+					// 		},
+					// 		{
+					// 			"name":"工单",
+					// 			"path":"/wordOrderIndex"
+					// 		},
+					// 		{
+					// 			"name":"日程",
+					// 			"path":"/zhbDate"
+					// 		},
+					// 		{
+					// 			"name":"设置",
+					// 			"path":"/settingIndex"
+					// 		}
+					// 	]
+					// }
+				],
 				//二级菜单
 				secondMenu:[],
 				// isSetting:false,//是否有设置项
@@ -1008,24 +1008,24 @@ import m from '../common/meta.js'
 				
 				//一级菜单个数 ==1就不显示，显示二级菜单;
 				//>1显示一级和二级
-				// this.secondMenu=this.m.getMenu(this.firstMenuData,this.$parent.data.length==0?this.$route.path:this.$parent.data[0].url)//依据路由显示二级菜单
-				// this.Datalenght=this.firstMenuData.length
+				this.secondMenu=this.m.getMenu(this.firstMenuData,this.$parent.data.length==0?this.$route.path:this.$parent.data[0].url)//依据路由显示二级菜单
+				this.Datalenght=this.firstMenuData.length
 				
-				if(sessionStorage.getItem('getSystem')){
-					this.getSystem=JSON.parse(sessionStorage.getItem('getSystem'))//将sessionStorage存储得字符串转为对象数组
-					this.secondMenu=this.m.getMenu(this.getSystem,this.$parent.data.length==0?this.$route.path:this.$parent.data[0].url)//依据路由显示二级菜单
-					 this.Datalenght=this.getSystem.length
-				}else{
-					this.System();//菜单模块
-					this.getSystem=JSON.parse(sessionStorage.getItem('getSystem'))//将sessionStorage存储得字符串转为对象数组
-					this.secondMenu=this.m.getMenu(this.getSystem,this.$parent.data.length==0?this.$route.path:this.$parent.data[0].url)//依据路由显示二级菜单
-					 this.Datalenght=this.getSystem.length
+				// if(sessionStorage.getItem('getSystem')){
+				// 	this.getSystem=JSON.parse(sessionStorage.getItem('getSystem'))//将sessionStorage存储得字符串转为对象数组
+				// 	this.secondMenu=this.m.getMenu(this.getSystem,this.$parent.data.length==0?this.$route.path:this.$parent.data[0].url)//依据路由显示二级菜单
+				// 	 this.Datalenght=this.getSystem.length
+				// }else{
+				// 	this.System();//菜单模块
+				// 	this.getSystem=JSON.parse(sessionStorage.getItem('getSystem'))//将sessionStorage存储得字符串转为对象数组
+				// 	this.secondMenu=this.m.getMenu(this.getSystem,this.$parent.data.length==0?this.$route.path:this.$parent.data[0].url)//依据路由显示二级菜单
+				// 	 this.Datalenght=this.getSystem.length
 					
-				}
+				// }
 				if(sessionStorage.getItem('storelogo')){
 					this.storelogo=sessionStorage.getItem('storelogo')
 				}else{
-					this.getenterprise();//下拉模块
+					this.getenterprise();//企业信息
 					this.storelogo=sessionStorage.getItem('storelogo')
 				}
 				//一级菜单
@@ -1051,197 +1051,197 @@ import m from '../common/meta.js'
 				this.trigger = this.$refs.button.$el;
 				this.userName=this.user.name//保存用户名
 				this.trueNameS=this.user.trueName//保存用户名
-				this.userImg=this.user.logo==undefined?"http://img.zsydian.com/icon/logoin.png":this.user.logo//保存头像
+				this.userImg=this.user.logo==undefined || this.user.logo==''?"http://img.zsydian.com/icon/logoin.png":this.user.logo//保存头像
 				
 
 			}
 	}
 </script>
 <style lang="css" scoped>
-#particles-js{
-    background-color: #000;
-    height: 100%;
+	#particles-js{
+	    background-color: #000;
+	    height: 100%;
 
-}
-.userImgclass{
-	padding: 30px 0px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+	}
+	.userImgclass{
+		padding: 30px 0px;
+	    display: flex;
+	    align-items: center;
+	    justify-content: center;
+	}
 
-.userImgclass p{
-	width:45px;
-	height:45px;
-	border-radius: 50%;
-	overflow: hidden;
-}
-.navListbg:hover{
-	background-color:#333;
-	color:#fff;
-}
-.position{
-    position: absolute;
-    z-index: 2;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    overflow: auto;
-}
-.lockCenterBack{
-	display: flex;
-	justify-content: center;
-	align-items: center;
-    flex-direction: column;
-    background-color: #fff;
-    padding: 60px;
-    box-shadow: 0 0 20px #fff;
-    border-radius: 6px;
-}
-.main-nav{
-	width:100%;
-	height:100%;
-	display: flex;
-}
+	.userImgclass p{
+		width:45px;
+		height:45px;
+		border-radius: 50%;
+		overflow: hidden;
+	}
+	.navListbg:hover{
+		background-color:#333;
+		color:#fff;
+	}
+	.position{
+	    position: absolute;
+	    z-index: 2;
+	    width: 100%;
+	    height: 100%;
+	    top: 0;
+	    left: 0;
+	    overflow: auto;
+	}
+	.lockCenterBack{
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	    flex-direction: column;
+	    background-color: #fff;
+	    padding: 60px;
+	    box-shadow: 0 0 20px #fff;
+	    border-radius: 6px;
+	}
+	.main-nav{
+		width:100%;
+		height:100%;
+		display: flex;
+	}
 
-.nav-left{
-	height:100%;background:#273543;
-	flex:0 0 120px;
-	width:120px;
-	font-size: 14px;
-	overflow-y: scroll;
-}
-.nav-leftTWO{
-	height:100%;
-	overflow-y: scroll;
-	
-}
-.main-right{
-	height:100%;
-	width:100%;
-	overflow: hidden;
-}
-/* .hoverbg{
-	background: #d0d0d0
-} */
-.nav-list:hover{
-	background: #ff0000
-}
-.Router {
-	width: 100%;
-  	height: 100%;
-	overflow: auto ;
+	.nav-left{
+		height:100%;background:#273543;
+		flex:0 0 120px;
+		width:120px;
+		font-size: 14px;
+		overflow-y: scroll;
+	}
+	.nav-leftTWO{
+		height:100%;
+		overflow-y: scroll;
+		
+	}
+	.main-right{
+		height:100%;
+		width:100%;
+		overflow: hidden;
+	}
+	/* .hoverbg{
+		background: #d0d0d0
+	} */
+	.nav-list:hover{
+		background: #ff0000
+	}
+	.Router {
+		width: 100%;
+	  	height: 100%;
+		overflow: auto ;
 
-}  
-.slide-left-enter, .slide-right-leave-active {  
-  opacity: 0;  
-  -webkit-transform: translate(100%, 0);  
-  transform: translate(100%, 0);  
-}  
-.slide-left-leave-active, .slide-right-enter {  
-  opacity: 0;  
-  -webkit-transform: translate(-100%, 0);  
-  transform: translate(-100%, 0);  
-} 
-.changestore{
-	position:fixed;
-	left:0px;
-	width:106px;
-	flex:0 0 106px;
-	bottom:5px;
-	z-index:999;
-	color:#fff;
-	background:#273543;
-	/*background:#12161B;*/
-	cursor:pointer;
-	text-align: center;
-}
-.changestoreZSY{
-	position:fixed;
-	left:0px;
-	width:106px;
-	flex:0 0 106px;
-	bottom:5px;
-	z-index:999;
-	color:#697790;
+	}  
+	.slide-left-enter, .slide-right-leave-active {  
+	  opacity: 0;  
+	  -webkit-transform: translate(100%, 0);  
+	  transform: translate(100%, 0);  
+	}  
+	.slide-left-leave-active, .slide-right-enter {  
+	  opacity: 0;  
+	  -webkit-transform: translate(-100%, 0);  
+	  transform: translate(-100%, 0);  
+	} 
+	.changestore{
+		position:fixed;
+		left:0px;
+		width:106px;
+		flex:0 0 106px;
+		bottom:5px;
+		z-index:999;
+		color:#fff;
+		background:#273543;
+		/*background:#12161B;*/
+		cursor:pointer;
+		text-align: center;
+	}
+	.changestoreZSY{
+		position:fixed;
+		left:0px;
+		width:106px;
+		flex:0 0 106px;
+		bottom:5px;
+		z-index:999;
+		color:#697790;
 
-	text-align: center;
-}
-.changeStore:hover{
-	color:#3091F9
-}
-.Copyright{
-	text-align: center;
-}
-.model-main{
-	display:flex;
-	border-radius:8px;
-}
-.model-main .left{
-	width:40%;
-	height:408px;
-	background: #495060;
-	display:flex;
-	flex-direction: column;
-	justify-content: center;;
-	align-items: center;
-	color:#fff;
-}
-.model-main .right{
-	flex: 2 0 60%;
-	background: #e2e2e2;
+		text-align: center;
+	}
+	.changeStore:hover{
+		color:#3091F9
+	}
+	.Copyright{
+		text-align: center;
+	}
+	.model-main{
+		display:flex;
+		border-radius:8px;
+	}
+	.model-main .left{
+		width:40%;
+		height:408px;
+		background: #495060;
+		display:flex;
+		flex-direction: column;
+		justify-content: center;;
+		align-items: center;
+		color:#fff;
+	}
+	.model-main .right{
+		flex: 2 0 60%;
+		background: #e2e2e2;
 
-}
-.right-top-search{
-	position:relative;
-	width:100%;
-	height:60px;
-	background: #fff;
-	line-height: 60px;
-	
-}
-.right-top-search input{
-	width:80%;
-}
+	}
+	.right-top-search{
+		position:relative;
+		width:100%;
+		height:60px;
+		background: #fff;
+		line-height: 60px;
+		
+	}
+	.right-top-search input{
+		width:80%;
+	}
 
-.right-bottom-main{
-	display:flex;
-	flex-wrap: wrap;
-	justify-content: center;
-	align-items: center;
+	.right-bottom-main{
+		display:flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		align-items: center;
 
-}
-.item{
-	display:flex;
-	justify-content: center;
-	align-items: center;
-	flex-direction: column;
-	text-align: center;
-	background: #fff;
-	margin:10px;
-	border-radius:6px;
-}
-.item img{
-	margin-top:10px;
-}
+	}
+	.item{
+		display:flex;
+		justify-content: center;
+		align-items: center;
+		flex-direction: column;
+		text-align: center;
+		background: #fff;
+		margin:10px;
+		border-radius:6px;
+	}
+	.item img{
+		margin-top:10px;
+	}
 
-.item .x-name{
-	width:100%;
-	padding:5px;
-	overflow: hidden;
-	text-overflow:ellipsis;
-	white-space: nowrap;
-}
-.bgMenu{
-	background: #4A7DFA;
-	color:#fff;
-}
-.bgMenuTWO{
-	background: #E9E9EF;
-	border-radius: 4px;
+	.item .x-name{
+		width:100%;
+		padding:5px;
+		overflow: hidden;
+		text-overflow:ellipsis;
+		white-space: nowrap;
+	}
+	.bgMenu{
+		background: #4A7DFA;
+		color:#fff;
+	}
+	.bgMenuTWO{
+		background: #E9E9EF;
+		border-radius: 4px;
 
-}
+	}
 	.home-box {
 	    width: 100%;
     height: 100%;
@@ -1350,18 +1350,18 @@ import m from '../common/meta.js'
 	height: 4px;
 	background-color: #f5f5f5;
 }
-.layout-menu-left::-webkit-scrollbar-track{
-	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
-	border-radius: 10px;
-	background-color: #f5f5f5;
-}
-.layout-menu-left::-webkit-scrollbar-thumb{
-	
-	height: 2px;
-	border-radius: 18px;
-	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
-	background-color: #ccc;
-}
+	.layout-menu-left::-webkit-scrollbar-track{
+		-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+		border-radius: 10px;
+		background-color: #f5f5f5;
+	}
+	.layout-menu-left::-webkit-scrollbar-thumb{
+		
+		height: 2px;
+		border-radius: 18px;
+		-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+		background-color: #ccc;
+	}
 	.layout-ceiling-main a {
 		color: #9ba7b5;
 	}
@@ -1482,9 +1482,8 @@ import m from '../common/meta.js'
 	    width: 4px;
 	    height:14px;
 	    background: #fff;
+	    margin-right: 10px;
 	    border-radius: 2px;
-	   	position: absolute;
-   	 	right: 10px;
 	}
 	.sjxT{
 	    margin-right: 10px;
@@ -1643,13 +1642,7 @@ import m from '../common/meta.js'
     border-radius: 50%;
     font-size: 12px;
 	}
-	
-	  /*.inputAvatar::before { content: ''; position: absolute; top: 0; right: 0; bottom: 0; left: 0; filter: blur(20px); margin: -30px; }
 
-	  .inputAvatar{
-	  	
-	  	padding:10px 20px;width:250px;text-align: center;
-	  }*/
 .statusCircle{
 	display:inline-block;
 	width:10px;

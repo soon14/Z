@@ -1528,7 +1528,7 @@ export default {
 		clickAttrRow(data){
 			this.attrIdData=data
 		},
-		//取消确认
+	
 		// //继续添加属性按钮
         cgtypeSureattr(){
          	this.sAttrsData.forEach(x=>{

@@ -164,8 +164,8 @@
 
 					<!--右边保存-->
 					<div class="add-right">
-						<div class="right-content" ref="divsave">
-							<div v-if="addText" style='margin-bottom:260px'>
+						<div class="right-content" ref="divsave" >
+							<div v-if="addText" style='margin-bottom:120px'>
 								<Row>
 									<Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="90">
 									
@@ -319,8 +319,8 @@
 						</div>
 					</div>
 					<!--收货-->
-					<div class="right-content" ref="shouh">
-							<div v-if="shouhshow" style='margin-bottom:260px'>
+					<div class="right-content" ref="shouh" >
+							<div v-if="shouhshow" style='margin-bottom:120px'>
 								<el-steps :active="activeSend" finish-status="success" :align-center='true' style='margin-left:80px;margin-top:80px' v-if='activeIsShow'>
 										<el-step title="新增"></el-step>
 										<el-step title="审核"></el-step>
@@ -446,9 +446,9 @@
 					        </div>
 						</div>
 					</div>
-					<div class="right-content" ref="edit">
+					<div class="right-content" ref="edit" >
 						<!--修改-->
-						<div v-if="xiugai" style='margin-bottom:260px'>
+						<div v-if="xiugai" style='margin-bottom:120px'>
 								<Row>
 									<Form ref="formValidate1" :model="formValidate" :rules="ruleValidate" :label-width="90">
 									
@@ -1787,7 +1787,6 @@ import LoadUrl from '@/components/common/actionLoad'
 									e.stopPropagation()
 								},
 								"on-change":(e)=>{
-
 										parmas.row.qty=e
 										this.addshouarr[parmas.index]=parmas.row
 										this.addshouarr[parmas.index].qty=e
@@ -2937,6 +2936,7 @@ import LoadUrl from '@/components/common/actionLoad'
 			dblclickgoodsrow(data){
 				this.makegoods()
 			},
+			//继续添加
 			cgtypeSureattr(){
              	this.sAttrsData.forEach(x=>{
 					if(x.qty>0){
