@@ -32,7 +32,7 @@
                     </div>
                     <div v-if='isewm' style='width:100%;padding:0 30px'>
                         <div class='login-l'  style=';border:none'>
-                           <mu-text-field  v-model="username"  :label="$t('login.Rmobile')" :placeholder="$t('login.RmobilePlaceholder')" style='width:100%'></mu-text-field><br/>
+                           <mu-text-field  v-model="username" autofocus :label="$t('login.Rmobile')" :placeholder="$t('login.RmobilePlaceholder')" style='width:100%' @keyup.enter='enterLogin'></mu-text-field><br/>
                         </div>
                         <div class='login-l' style='border:none;margin:0'>
                             <mu-text-field v-model="pss" 

@@ -1,8 +1,8 @@
 <template>
 	<div class='setting'>
 			<!--企业信息-->
-			 <Tabs :animated="false" value="name1" style="background:#fff;width:100%">
-		        <TabPane label="企业信息" name="name1" class='right-content right-content-1'>
+			 <Tabs :animated="false" style="background:#fff;width:100%" @on-click="addBg">
+		        <TabPane label="企业信息" class='right-content right-content-1'>
 		        	<div class='right-content right-content-1'>
 						<div style='display: flex;justify-content: space-between;;height: 40px; border-bottom: 1px solid rgb(228, 228, 228); font-size: 18px; font-weight: 900; line-height: 40px;'>
 							<span style='font-size:18px;font-weight:600;margin-left:10px'></span><!--企业信息-->
@@ -71,7 +71,7 @@
 						</div>
 					</div>
 		        </TabPane>
-		        <TabPane label="编码规则" name="name2" class='right-content'>
+		        <TabPane label="编码规则" class='right-content'>
 		        	<!--编码规则-->
 					<div >
 					 <div style='margin: 10px;'>
@@ -83,7 +83,7 @@
 						</div>
 					</div>
 		        </TabPane>
-		        <TabPane label="操作日志" name="name3" class='right-content'>
+		        <TabPane label="操作日志" class='right-content'>
 		        	<!--操作日志-->
 					<div >
 						 <div style='display: flex;;height: 40px; border-bottom: 1px solid rgb(228, 228, 228); font-size: 18px; font-weight: 900; line-height: 40px;'>
@@ -174,6 +174,7 @@ export default{
 	components: {Uediter},
 	data(){
 		return{
+			
 			valueT:"",
 			orderListnameIndustry:[],
 			optionsB: {
