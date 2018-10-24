@@ -255,7 +255,7 @@
 									</li>
 									<li @click="clickQtyRow(item,index)">
 										
-										<InputNumber :min="1" v-model="item.qty" @on-change="changeQty"></InputNumber>
+										<InputNumber :min="0" v-model="item.qty" @on-change="changeQty"></InputNumber>
 									</li>
 									<li>
 										<span>{{item.discount}}</span>
@@ -1574,11 +1574,15 @@ export default {
 		//单击一行商品、、提交订单页面
 		clickQtyRow(item,index){
 			this.skuItemIndex=index
+			this.skuItem=item
 		},
 		//修改数量
 		changeQty(q){
 			this.selectAllgoods[this.skuItemIndex].qty=q
-			console.log(this.selectAllgoods)
+			if(this.skuItem.qty==0){
+				this.selectAllgoods.splice(this.selectAllgoods.indexOf('qty'),1)
+			}
+			console.log(this.skuItem)
 		},
 		//点击地址
 		clickAddress(item){

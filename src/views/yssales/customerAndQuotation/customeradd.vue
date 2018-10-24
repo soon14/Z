@@ -1292,27 +1292,32 @@ import LoadUrl from '@/components/common/actionLoad'
                         on:{
                           'click':()=>{
                            
-                            //////console.log(params)
-                            this.axios.delete('client/deletesku/'+params.row.id+'?uid='+this.uid).then(res=>{
-                              if(res.data.status==200){
-                                this.$notify({
-                                  title:"",//
-                                  message: this.$t('public.deleteSuccess'),//
-                                  type: 'success',
-                                  position: 'bottom-right'
-                              });
-                                  this.getglsku()
-                                  this.kxskudata.splice(params.index,1)
-                              }else{
-                                this.$notify({
-                                  title:"",//
-                                  message: res.data.errorMessage,
-                                  type: 'error',
-                                  position: 'bottom-right'
-                              });
-                              }
-                            })
-                            // this.yxskudata.splice(params.index,1)
+                            this.$Modal.confirm({
+                                      title: '删除',
+                                      content: '<p>确定要删除吗?删除后客户将不在提供此商品！</p>',
+                                      onOk: () => {
+                                          this.axios.delete('client/deletesku/'+params.row.id+'?uid='+this.uid).then(res=>{
+                                            if(res.data.status==200){
+                                              this.$notify({
+                                                title:"",//
+                                                message: this.$t('public.deleteSuccess'),//
+                                                type: 'success',
+                                                position: 'bottom-right'
+                                            });
+                                                this.getglsku()
+                                                this.kxskudata.splice(params.index,1)
+                                            }else{
+                                              this.$notify({
+                                                title:"",//
+                                                message: res.data.errorMessage,
+                                                type: 'error',
+                                                position: 'bottom-right'
+                                            });
+                                            }
+                                          })
+                                      }
+                                      
+                                  });
                           }
                         }
                       },'删除')

@@ -898,25 +898,33 @@ import LoadUrl from '@/components/common/actionLoad'
 	                				'click':()=>{
 	                					this.kxskudata.splice(params.index,1)
 	                					//console.log(params)
-	                					this.axios.delete('client/deletesku/'+params.row.id+'?uid='+this.uid).then(res=>{
-	                						if(res.data.status==200){
-	                							this.$notify({
-							                        title:"",//
-							                        message: this.$t('public.deleteSuccess'),//
-							                        type: 'success',
-							                        position: 'bottom-right'
-							                    });
-          											this.getglsku()
-          	                				}else{
+	                					this.$Modal.confirm({
+					                            title: '删除',
+					                            content: '<p>确定要删除吗?删除后此供应商将不在提供此商品！</p>',
+					                            onOk: () => {
+					                                this.axios.delete('client/deletesku/'+params.row.id+'?uid='+this.uid).then(res=>{
+				                						if(res.data.status==200){
+				                							this.$notify({
+										                        title:"",//
+										                        message: this.$t('public.deleteSuccess'),//
+										                        type: 'success',
+										                        position: 'bottom-right'
+										                    });
+			          											this.getglsku()
+			          	                				}else{
 
-  												this.$notify({
-							                        title:"",//
-							                        message:res.data.errorMessage,
-							                        type: 'error',
-							                        position: 'bottom-right'
-							                    });
-	                						}
-	                					})
+			  												this.$notify({
+										                        title:"",//
+										                        message:res.data.errorMessage,
+										                        type: 'error',
+										                        position: 'bottom-right'
+										                    });
+				                						}
+				                					})
+					                            }
+					                            
+					                        });
+	                					
 	                				
 	                				}
 	                			}
