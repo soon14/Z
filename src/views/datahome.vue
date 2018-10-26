@@ -12,62 +12,42 @@ export default{
 	data(){
 		return{
 			data:[
+				{
+					name:"采购",
+					url:"/dataHome"
+				},
+				{
+					name:"销售",
+					url:"/salesreport"
+				},
+				{
+					name:"财务",
+					url:"/datacw"
+				},
+				{
+					name:"零售",
+					url:"/dataretail"
+				},
+				{
+					name:"商品",
+					url:"/datasku"
+				},
+				{
+					name:"会员",
+					url:"/crmreport"
+				},
+				{
+					name:"店铺",
+					url:"/storeReport"
+				},
+				{
+					name:"员工",
+					url:"/storeReport"
+				},
 				
 				{
-					title:this.$t('sideBar.data.purchaseReport'),//"采购",
-					url:"/dataHome",
-					  icon:"http://img.zsydian.com/icon/cg.png",
-					  icon1:"http://img.zsydian.com/icon/cg1.png",
-				},
-				{
-					title:this.$t('sideBar.data.saleReport'),//"销售",
-					url:"/salesreport",
-					icon:"http://img.zsydian.com/icon/ys.png",
-					 icon1:"http://img.zsydian.com/icon/ysk1.png",
-				},
-				{
-					title:this.$t('sideBar.data.InvReport'),//"库存",
-					url:"/dataInv",
-					icon:"http://img.zsydian.com/icon/crm.png",
-					icon1:"http://img.zsydian.com/icon/crm1.png",
-				},
-				
-				{
-					title:this.$t('sideBar.data.retailReport'),//"零售",
-					url:"/dataretail",
-					 icon:"http://img.zsydian.com/icon/ls.png",
-					 icon1:"http://img.zsydian.com/icon/ls1.png",
-				},
-				{
-					title:this.$t('sideBar.data.skuReport'),//"商品",
-					url:"/datasku",
-					icon:"http://img.zsydian.com/icon/good.png",
-					icon1:"http://img.zsydian.com/icon/good1.png",
-				},
-				{
-					title:this.$t('sideBar.data.storeReport'),//"店铺",
-					url:"/storeReport",
-					 icon:"http://img.zsydian.com/icon/shop.png",
-					 icon1:"http://img.zsydian.com/icon/shop1.png",
-
-				},
-				{
-					title:this.$t('sideBar.data.crmReport'),//"会员",
-					url:"/crmreport",
-					icon:"http://img.zsydian.com/icon/crm.png",
-					icon1:"http://img.zsydian.com/icon/crm1.png",
-				},
-				// {
-				// 	title:this.$t('sideBar.data.eyReport'),//"员工",
-				// 	url:"/ygreport",
-				// 	icon:"http://img.zsydian.com/icon/crm.png",
-				// 	icon1:"http://img.zsydian.com/icon/crm1.png",
-				// },
-				{
-					title:this.$t('sideBar.data.financeReport'),//"财务",
-					url:"/datacw",
-					icon:"http://img.zsydian.com/icon/sy.png",
-					 icon1:"http://img.zsydian.com/icon/sy1.png",
+					name:"库存",
+					url:"/dataInv"
 				},
 			],
 			titleName:this.$t('sideBar.data.title'),//'数据'

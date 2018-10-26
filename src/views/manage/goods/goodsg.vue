@@ -38,18 +38,15 @@
 				<!--更多-->
 				<Dropdown trigger="click">
                     <Button shape="circle" type="ghost" style="background:#ff7d16;color:#fff;border:none">{{$t('public.more')}}
-                    <span><i class="ivu-icon ivu-icon-chevron-down"></i></span>
-                </Button>
+                        <span><i class="ivu-icon ivu-icon-chevron-down"></i></span>
+                    </Button>
 
-                <DropdownMenu slot="list">
-                    <!-- <span @click="start"><DropdownItem >{{$t('public.start')}}</DropdownItem></span>
-                    <span @click="stop"><DropdownItem >{{$t('public.stop')}}</DropdownItem></span> -->
-
-					<span @click="start"><DropdownItem >{{$t('manage.sku.Batchqy')}}</DropdownItem></span>
-                  	<span @click="stop"><DropdownItem >{{$t('manage.sku.Batchty')}}</DropdownItem></span>
-					<span  @click="del"><DropdownItem >{{$t('public.del')}}</DropdownItem></span>
-                </DropdownMenu>
-             </Dropdown>
+                    <DropdownMenu slot="list">
+    					<span @click="start"><DropdownItem >{{$t('manage.sku.Batchqy')}}</DropdownItem></span>
+                      	<span @click="stop"><DropdownItem >{{$t('manage.sku.Batchty')}}</DropdownItem></span>
+    					<span  @click="del"><DropdownItem >{{$t('public.del')}}</DropdownItem></span>
+                    </DropdownMenu>
+                </Dropdown>
              
 			</div>
 

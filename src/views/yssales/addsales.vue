@@ -2098,7 +2098,7 @@
 														//删除行
 
 														//删除行
-														if(this.soDetailList.length==1){
+														if(this.soDetailList.length==0){
 															this.soDetailList=[{skuName:this.$t('operation.yhqHome.choosesku'),amount:0,qty:0,salesPrice:"",allprice:""}]//'选择商品'
 														}else{
 															this.remove(params.index)

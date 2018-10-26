@@ -132,6 +132,7 @@ const routes = [
 					name:"addadjust",
 					component:resolve => require(['../views/ysgoods/adjust/addadjust.vue'], resolve),
 				},
+				
 				//盘点channelInventory
 				{
 					path:"/pdhome",
@@ -373,12 +374,6 @@ const routes = [
 					component:resolve => require(['../views/store/storeManage/storemanage.vue'], resolve),
 					
 				},
-				// {
-				// 	path:"/storeinfo",
-				// 	name:"storeinfo",
-				// 	component:resolve => require(['../views/store/storeManage/storeinfo.vue'], resolve),
-					
-				// },
 				{
 					path:"/storeguide",
 					name:"storeguide",
@@ -660,12 +655,6 @@ const routes = [
 					component:resolve => require(['../views/finance/financeHome.vue'], resolve),
 					meta: { requireAuth: types.CHECKAUTH,title:'财务'+trueName },
 				},
-				// {
-				// 	path:"/PresentRecord",
-				// 	name:"PresentRecord",
-				// 	component:resolve => require(['../views/finance/PresentRecord.vue'], resolve),
-				// },
-				
 				//付款单
 				{
 					path:"/payment",
@@ -850,8 +839,69 @@ const routes = [
 				},
 			]
 		},
+		//商品组公用商品
+		{
+			path:"/groupskuhome",
+			name:"groupskuhome",
+			component:resolve => require(['../views/groupsku.vue'], resolve),
+			meta: { requireAuth: types.CHECKAUTH },
+			children:[
+				//商品组.
+				{
+					path:"/groupsku",
+					name:"groupsku",
+					component:resolve => require(['../views/groupsku/groupsku.vue'], resolve),
+					meta: { requireAuth: types.CHECKAUTH,title:"智胜云-商品组" },
+				},
+				{
+					path:"/addgroupsku",
+					name:"addgroupsku",
+					component:resolve => require(['../views/groupsku/addgroupsku.vue'], resolve),
+					meta: { requireAuth: types.CHECKAUTH,title:"智胜云-商品组" },
+				},
+				//商品
+				{
+					path:"/skulist",
+					name:"skulist",
+					component:resolve => require(['../views/groupsku/sku.vue'], resolve),
+					meta: { requireAuth: types.CHECKAUTH,title:"智胜云-商品" },
+				},
+				//商品
+				{
+					path:"/addskulist",
+					name:"addskulist",
+					component:resolve => require(['../views/groupsku/addskulist.vue'], resolve),
+					meta: { requireAuth: types.CHECKAUTH,title:"智胜云-商品" },
+				},
+				//调拨
+				{
+					path:"/skuinvestigate",
+					name:"skuinvestigate",
+					component:resolve => require(['../views/groupsku/investigate.vue'], resolve),
+				},
+				{
+					path:"/skuaddinvestigate",
+					name:"skuaddinvestigate",
+					component:resolve => require(['../views/groupsku/addinvestigate.vue'], resolve),
+				},
+				//库存调整
+				{
+					path:"/skuadjust",
+					name:"skuadjust",
+					component:resolve => require(['../views/groupsku/adjust.vue'], resolve),
+				},
+				//库存调整
+				{
+					path:"/skuaddadjust",
+					name:"skuaddadjust",
+					component:resolve => require(['../views/groupsku/addadjust.vue'], resolve),
+				},
+				
+				
+			]
+		},
 
-	//会员入口
+		//会员入口
 		{
 			path:'/member_entrance',
 			name:'member_entrance',
@@ -1006,18 +1056,19 @@ const routes = [
 				component:resolve => require(['../views/operationhome.vue'], resolve),
 				meta: { requireAuth: types.CHECKAUTH},
 				children:[
-					//经营入口
-					{
-						path:"/wxsetting",
-						name:"wxsetting",
-						component:resolve => require(['../views/operation/wxGzh/wxsetting.vue'], resolve)
-					},
 					{
 						path:'/operationHome',
 						name:'operationHome',
 						component:resolve => require(['../views/operation/operationHome.vue'], resolve),
 						meta: { requireAuth: types.CHECKAUTH, title:"运营"+trueName},
 					},
+					//经营入口
+					{
+						path:"/wxsetting",
+						name:"wxsetting",
+						component:resolve => require(['../views/operation/wxGzh/wxsetting.vue'], resolve)
+					},
+					
 					//投诉
 					{
 						path:'/complain',

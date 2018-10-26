@@ -308,6 +308,7 @@ import m from '../common/meta.js'
 				loadMainisshow:false,
 				types:types,
 				getSystem:[],//一级菜单
+				
 				secondMenu:[],//二级菜单
 				zh:"zh",
 				storeType:[
@@ -437,11 +438,9 @@ import m from '../common/meta.js'
 				this.isselect=item.path
            		sessionStorage.setItem('isselect', this.isselect)
            		this.$router.push(item.path);
-           		if(item.child==undefined){
-           			return
-           		}else{
-           			sessionStorage.setItem('isselectTWO',item.child==undefined?"":item.child.length==0?"":item.child[0].path)
-           		}
+           		
+           		sessionStorage.setItem('isselectTWO',item.child==undefined?"":item.child.length==0?"":item.child[0].path)
+           		
 				
 			},
 			//二级点击菜单的跳转
@@ -614,7 +613,7 @@ import m from '../common/meta.js'
 			},
 			created(){
 				this.$nextTick(()=>{
-					this.System();//下拉模块
+					
 					this.getenterprise()//企业信息
 				})
 			},
@@ -624,20 +623,19 @@ import m from '../common/meta.js'
 				//>1显示一级和二级
 				// this.secondMenu=this.m.getMenu(this.firstMenuData,this.$parent.data.length==0?this.$route.path:this.$parent.data[0].url)//依据路由显示二级菜单
 				// this.Datalenght=this.firstMenuData.length
-				
+				this.System();//下拉模块
 				if(sessionStorage.getItem('getSystem')){
 					this.getSystem=JSON.parse(sessionStorage.getItem('getSystem'))//将sessionStorage存储得字符串转为对象数组
 					this.secondMenu=this.m.getMenu(this.getSystem,this.$parent.data.length==0?this.$route.path:this.$parent.data[0].url)//依据路由显示二级菜单
-					
+					// this.secondMenu=this.m.getMenu(this.getSystem,this.$route.path)//依据路由显示二级菜单
 					this.Datalenght=this.getSystem.length
-				
+					
 				}else{
 					this.System();//菜单模块
 					this.getSystem=JSON.parse(sessionStorage.getItem('getSystem'))//将sessionStorage存储得字符串转为对象数组
 					 this.secondMenu=this.m.getMenu(this.getSystem,this.$parent.data.length==0?this.$route.path:this.$parent.data[0].url)//依据路由显示二级菜单
-					
+					 // this.secondMenu=this.m.getMenu(this.getSystem,this.$route.path)//依据路由显示二级菜单
 					 this.Datalenght=this.getSystem.length
-					
 				}
 				if(sessionStorage.getItem('storelogo')){
 					this.storelogo=sessionStorage.getItem('storelogo')
@@ -649,9 +647,9 @@ import m from '../common/meta.js'
 				if(sessionStorage.getItem('isselect')){
 					if(this.Datalenght>1){
 						this.isselect = sessionStorage.getItem('isselect')
-						console.log(this.isselect )
+						
 					}else{
-						console.log(this.$route.path)
+						
 						this.isselect = sessionStorage.setItem('isselect',this.secondMenu[0].path)
 						// this.isselect = sessionStorage.setItem('isselect',this.$route.path)
 					}

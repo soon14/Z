@@ -11,8 +11,10 @@ export default {
 				return child=data[0].child
 			}else{
 				for(let j=0;j<data[i].child.length;j++){
+
 					if( data[i].path==path){
 						child.push(data[i].child[j])
+						console.log(child)
 					}
 				}
 			}

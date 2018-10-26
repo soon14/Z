@@ -44,7 +44,15 @@
 										<span>{{$t('manage.phone')}}</span><input v-model='phone'  style='width:100%;' :placeholder="$t('manage.phonePlaceholder')">
 									</li>
 									<li class='con-list'>
-										<span>{{$t('manage.address')}}</span><input  v-model='address' style='width:100%;' :placeholder="$t('manage.addressPlaceholder')">
+										<span>{{$t('manage.address')}}</span>
+										<!-- <input  v-model='address' style='width:100%;' :placeholder="$t('manage.addressPlaceholder')"> -->
+										<el-cascader
+				                            filterable
+				                            expand-trigger="click"
+				                            :options="cityInfo"
+				                            v-model="selectedOptions2"
+				                            @change="handleChange" style="width: 100%;margin-top:3px">
+				                          </el-cascader>
 									</li>
 									<li class='con-list'>
 										<span>{{$t('manage.type')}}</span><input v-model='enterType'  style='width:100%;' :placeholder="$t('manage.typePlaceholder')">
@@ -166,7 +174,7 @@ import '../../../../static/ue/ueditor.config.js'
 import '../../../../static/ue/ueditor.all.min.js'
 import '../../../../static/ue/lang/zh-cn/zh-cn.js'
 import '../../../../static/ue/ueditor.parse.min.js'
-
+import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
 import LoadUrl from '@/components/common/actionLoad'
 import Uediter from '@/components/ue.vue'
 export default{
@@ -174,7 +182,13 @@ export default{
 	components: {Uediter},
 	data(){
 		return{
-			
+			CodeToText:CodeToText,//code转为Text
+	        TextToCode:TextToCode,//Text转为code
+	        cityInfo:regionData,//地址数据
+	        selectedOptions2:[],//绑定的数据
+	        city:'',//市
+	        province:'',//省
+	        district:'',//区
 			valueT:"",
 			orderListnameIndustry:[],
 			optionsB: {
@@ -342,6 +356,12 @@ export default{
 		}
 	},
 	methods:{
+		//省市区
+	    handleChange(arr){
+	          this.province = this.CodeToText[arr[0]]
+	          this.city =this.CodeToText[arr[1]]
+	          this.district = this.CodeToText[arr[2]]
+	    },
 		endTimeChange(e) { //设置结束时间
 	        this.approvalDate = e;
 	        // //console.log(new Date(this.approvalDate))
@@ -505,6 +525,9 @@ export default{
 					this.industry=res.data.rows.industry
 					// this.valueT=res.data.rows.industryId
 					this.valueT=res.data.rows.industry
+					this.province = res.data.rows.province
+		          	this.city =res.data.rows.city
+		          	this.district = res.data.rows.district
 					this.ueditor.value=this.$refs.ue.setUEContent(data.intro)
 					//console.log(this.valueT)
         		}else{
@@ -545,6 +568,9 @@ export default{
 					logo:this.logo,	//企业logo
 					industry:this.valueT,
 					// industryId:this.valueT,
+					province:this.province,
+		          	city:this.city,
+		          	district:this.district,
 					intro:this.$refs.ue.getUEContent()
         	}).then(res=>{
         		if(res.data.status==200){

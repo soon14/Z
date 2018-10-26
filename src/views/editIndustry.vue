@@ -3,10 +3,11 @@
     	 <div style=" height: 100%;overflow-y: scroll">
         	<div class="head-top">
 	        	<div style="display: flex;">
-		        	<a :href="backUrl" target="_blank"><img src="http://img.zsydian.com/icon/navigation_step_logo.png" ></a>
+		        	<a :href="backUrl" target="_blank"><img src="http://img.zsydian.com/icon/logoin.png" width='50' height='50' style="margin-top:6px"></a>
 		        	<div style="margin-left:10px">
-	                    <div class='ZeroAfter'><b>智胜云</b></div>
-                        <div class='ZeroAfteZ'>助力零售数智化转型</div>
+	                  
+                        <h1 style="margin:0;color:rgba(45,139,241,0.9)">智胜云</h1>
+                        <p style=";color:rgba(45,139,241,0.7)">助力零售数智化转型</p>
 	                </div>
                 </div>
 	        	<span>{{user.trueName}}</span>
@@ -39,11 +40,12 @@
 	        	<mu-form ref="form" :model="validateForm" class="mu-demo-form">
 	        		 <span class='title-l'>商户信息</span>
 	        		<mu-form-item label="商户名称"  prop="name" :rules="usernameRules">
-                    	<mu-text-field v-model="validateForm.name" prop="name" placeholder="请填写您的商户名"></mu-text-field>
+                    	<mu-text-field v-model="validateForm.name" prop="name" placeholder="请填写您的商户名" @blur='inputBlur'></mu-text-field>
                 	</mu-form-item>
+                	
                 	<div style="position:relative">
 	                	<mu-form-item label="商户行业"  prop="industry" :rules="industryRules" >
-	                    	<mu-text-field v-model="validateForm.industryName" prop="industry" placeholder="请选择商户行业" @click='clickIndustry'></mu-text-field>
+	                    	<mu-text-field v-model="validateForm.industryName" prop="industry" placeholder="请选择商户行业" @click.stop='clickIndustry'></mu-text-field>
 	                	</mu-form-item>
 	                	<ul v-if='isshowIndustry' class="isshowIndustryClass">
 	                		<Input v-model="industryKeyword" style="margin:10px" @on-enter="enterSearchIndustry">
@@ -92,6 +94,7 @@ import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
 export default {
     data(){
     	return{
+
     		loadingisshow:false,//上传图片加载动画
     		upImgisshow:false,//修改图片是否显示
     		logoUrl:LoadUrl.httpPrefix.Url+'file/action/upload/image/url?c=行业Logo&uid='+this.$store.state.common.token,
@@ -212,6 +215,15 @@ export default {
 	    enterSearchIndustry(){
 	    	this.searchIndustry()
 	    },
+	    inputBlur(){
+	    	this.axios.get('param/industry?keyword='+this.industryKeyword+'&uid='+this.uid).then(res=>{
+	    		if(res.data.status==200){
+	    			this.industryList=res.data.rows
+	    			this.total=res.data.total
+	    			this.pageSize=res.data.pageSize
+	    		}
+	    	})
+	    },
 	    //获取行业数据
 	    getIndustryList(){
 	    	this.axios.get('param/industry?uid='+this.uid).then(res=>{
@@ -256,7 +268,6 @@ export default {
     					if(res.data.status==200){
     						this.$router.replace({
 	        					name: 'navigationIndex'
-	        					
 	        				})
     					}else{
     						this.$notify({
@@ -273,13 +284,15 @@ export default {
     },
     mounted(){
     	console.log(this.user)
+    	this.getIndustryList()//行业
     	//industry传过来的数据
     	if(this.$route.query.value&&this.$route.query.value!=undefined){
     		this.value=this.$route.query.value
     	}else{
     		this.value=this.user.roleId
     	}
-		this.getIndustryList()//行业
+		
+		
 	}
 }
 </script>
@@ -334,7 +347,7 @@ export default {
     width: 580px;
     font-size: 12px;
     max-height: 300px;
-    overflow-y: scroll;
+    overflow-y: auto;
     display: -ms-flexbox;
     display: flex;
     flex-wrap: wrap;

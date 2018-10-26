@@ -182,7 +182,6 @@
 				     					<div class='addGoods-to-order' @click="ClickAddSalesOrder(item,index,$event)">
 				     						<span>加入销售订单</span>
 				     					</div>
-				     					
 				     				</li>
 				     				<div style="margin:5px 0" v-if="goodsC.length==0">
 						                暂无商品
@@ -2462,7 +2461,6 @@ export default {
 .classMain{
 	display: flex;
     margin: 20px 0;
-   
     padding: 10px;
     border: 1px solid #e4e4e4;
 }

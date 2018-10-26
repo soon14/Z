@@ -3,10 +3,10 @@
     	<main class="main" >
 	        <div class="head-top">
 	        	<div style="display: flex;">
-		        	<a :href="backUrl" target="_blank"><img src="http://img.zsydian.com/icon/navigation_step_logo.png" ></a>
+		        	<a :href="backUrl" target="_blank"><img src="http://img.zsydian.com/icon/logoin.png" width='50' height='50' style="margin-top:6px"></a>
 		        	<div style="margin-left:10px">
-	                    <div class='ZeroAfter'><b>智胜云</b></div>
-                        <div class='ZeroAfteZ'>助力零售数智化转型</div>
+	                   <h1 style="margin:0;color:rgba(45,139,241,0.9)">智胜云</h1>
+                        <p style=";color:rgba(45,139,241,0.7)">助力零售数智化转型</p>
 	                </div>
                 </div>
 	        	<span>{{user.trueName}}</span>
@@ -16,13 +16,13 @@
 				<ul class="main-list">
 					<li v-for="(item,index) in products" :key='index' >
 						<div class="img-icon">
-							<img :src="item.icon"/>
-							<span class="img-con-title">{{item.name}}</span>
+							<img :src="item.userSef01"/>
 						</div>
 						<div class="li-bottom">
-							<span>{{item.desc}}</span>  <a :href="item.src" target='_blank'>了解更多</a>
+							<span>{{item.fDescription}}</span>  
+							<a :href="item.userSef02" target='_blank'>了解更多</a>
 						</div>
-						<div style="margin-top:20px;" @click="gotoProductPath(item,index)">
+						<div style="margin-top:20px;" @click="gotoProductPath(item)">
 							<span  class="li-button">立即创建</span>
 						</div>
 					</li>
@@ -34,7 +34,6 @@
 					<li v-for="(item,index) in industrys" :key='index' >
 						<div class="img-icon">
 							<img :src="item.icon"/>
-							<!-- <span class="img-con-title">{{item.name}}</span> -->
 						</div>
 						<div class="li-bottom">
 							<span>{{item.desc}}</span>
@@ -59,31 +58,7 @@ import LoadUrl from '@/components/common/actionLoad'
             	uid: this.$store.state.common.token,
 				user:this.$store.state.common.user,
 				//产品
-				products:[
-					{
-						// name:"全渠道零售",
-						icon:"http://img.zsydian.com/icon/allxls.png",
-						desc:"全渠道零售",
-						src:"http://erp.zsydian.com/erp.html",
-						value:1
-					},
-					{
-						// name:"全渠道会员",
-						icon:"http://img.zsydian.com/icon/allcrm.png",
-						desc:"全渠道会员",
-						src:"http://erp.zsydian.com/erp.html",
-						value:2
-					},
-					{
-						// name:"ERP",
-						icon:"http://img.zsydian.com/icon/alljxc.png",
-						desc:"全渠道进销存",
-						src:"http://erp.zsydian.com/erp.html",
-						value:3
-					},
-					
-					
-				],
+				products:[],
 				//行业方案
 				industrys:[
 					{
@@ -133,37 +108,37 @@ import LoadUrl from '@/components/common/actionLoad'
         },
         methods:{
         	//产品跳转
-        	gotoProductPath(item,index){
+        	gotoProductPath(item){
         		this.$router.push({
         			path:'/editIndustry',
         			query:{
-        				value:item.value
+        				value:item.fAppCode
         			}
         		})
         	},
         	//行业方案跳转
         	gotoIndustrysPath(item,index){
-        		this.$router.push({
-        			path:'/editIndustry',
-        			query:{
-        				value:item.value
-        			}
-        		})
+        		// this.$router.push({
+        		// 	path:'/editIndustry',
+        		// 	query:{
+        		// 		value:item.value
+        		// 	}
+        		// })
         	},
+        	 //产品
+	    	getProducts(){
+	    		this.axios.get('app/web?uid='+this.uid).then(res=>{
+	    			if(res.data.status==200){
+	    				let data=res.data
+	    				this.products=data.rows
+	    			}
+	    		})
+	    	}
         },
-    //    beforeRouteEnter (to, from, next) {
-		  //   //回调vm===this
-		  //   next(vm=>{
-		  //   	if(vm.user.roleId==null || vm.user.roleId=='' || vm.user.roleId==0){
-		  //   		vm.$router.go(-1)
 
-		  //   	}
-		    	
-		  //   })
-		  // },
         mounted(){
-
-        	// console.log(this.user)
+        	//产品
+        	this.getProducts()
         }
     }
 </script>
@@ -202,6 +177,7 @@ import LoadUrl from '@/components/common/actionLoad'
 	align-items: center;
 	padding:0 25px;
 	height:60px;
+	
 	box-shadow: 0 0 10px #ccc;
 	position: fixed;
 	background-color: #fff;
@@ -271,14 +247,5 @@ h4{
 .top-h4{
 	margin-top: 80px
 }
-.ZeroAfter{
-    font-size: 16px;
-    letter-spacing: 3px;
-    margin-left: 15px;
-    margin-top: 10px;
-}
-.ZeroAfteZ{
-    font-size:12px;
-    margin-left: 15px;
-}
+
 </style>

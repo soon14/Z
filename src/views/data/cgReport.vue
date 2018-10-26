@@ -1793,7 +1793,8 @@
 				this.fhindex='8'
 				this.getclass6(new Date().getFullYear())
 			}
-			sessionStorage.setItem('isselectTWO',this.$parent.data[0].url)
+			console.log(this.$parent)
+			sessionStorage.setItem('isselectTWO',this.$parent)
 		}
 	}
 </script>
