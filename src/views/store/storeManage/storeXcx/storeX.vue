@@ -2,7 +2,7 @@
     <div class='storeCode'>
 	    <div class='dytitle'>
 	        <Breadcrumb class='dytitlespan'>
-	            <BreadcrumbItem :to="{name:'storemanage',params:{index:2}}">打印设置</BreadcrumbItem>
+	            <BreadcrumbItem :to="{name:'storeprinting',params:{index:2}}">打印设置</BreadcrumbItem>
 	            <BreadcrumbItem to="/storeX">店铺小程序码</BreadcrumbItem>
 	        </Breadcrumb>
 	    </div>

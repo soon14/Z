@@ -35,6 +35,10 @@ export default{
 		        orderListname:[],
 	          	columnsIn: [
 	          		{
+		              	title: '入库时间',
+		              	key: 'createTime',
+		            },
+	          		{
 	          			title:"单号",
 	          			key:"recordNo"
 	          		},
@@ -86,11 +90,7 @@ export default{
 		              	title: '仓库',
 		              	key: 'warehouseName',
 		            },
-		            {
-		              	title: '入库时间',
-		              	key: 'createTime',
-		      
-		            },
+		            
 		           
 	          	],
 	         	AlldataIn: [],
@@ -108,7 +108,7 @@ export default{
 	      				this.totalIn=data.total
 	      				this.pageSizeIn=data.pageSize
 	      				this.AlldataIn.forEach(x=>{
-	      					x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+	      					x.createTime=this.getLocalTimeH(x.createTime)
 	      				})
 	      			}
 	      		})
@@ -121,7 +121,7 @@ export default{
 	      				this.totalIn=data.total
 	      				this.pageSizeIn=data.pageSize
 	      				this.AlldataIn.forEach(x=>{
-	      					x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+	      					x.createTime=this.getLocalTimeH(x.createTime)
 	      				})
 	      			}
 	      		})
@@ -138,7 +138,7 @@ export default{
 	      				this.totalIn=data.total
 	      				this.pageSizeIn=data.pageSize
 	      				this.AlldataIn.forEach(x=>{
-	      					x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+	      					x.createTime=this.getLocalTimeH(x.createTime)
 	      				})
 	      			}
 	      		})
@@ -152,7 +152,7 @@ export default{
 	      				this.totalIn=data.total
 	      				this.pageSizeIn=data.pageSize
 	      				this.AlldataIn.forEach(x=>{
-	      					x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+	      					x.createTime=this.getLocalTimeH(x.createTime)
 	      				})
 	      			}
 	      		})

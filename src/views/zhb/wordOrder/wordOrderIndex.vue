@@ -705,38 +705,38 @@ export default {
                     headerName: "工单号",
                     field: "code",
                      suppressSizeToFit: true,
-                     width:120,
+                     
                      pinned: 'left'
                 },
                 
                 {
                     headerName: "护理员",
                     field: "caregiversName",
-                    width:120,
+                    
                      suppressSizeToFit: true,
                 },
                 {
                     headerName: "护理手机",
                     field: "caregiversMobile",
-                    width:120,
+                    
                      suppressSizeToFit: true,
                     
                 },
                 {
                     headerName: "客户姓名",
-                    width:120,
+                   
                      suppressSizeToFit: true,
                     field: "auntName"
                 },
                 {
                     headerName: "客户手机",
-                    width:120,
+                  
                      suppressSizeToFit: true,
                     field: "auntMobile"
                 },
                 {
                     headerName: "开始时间",
-                    width:120,
+                  
                      suppressSizeToFit: true,
                     field: "startTime",
                     cellStyle: function(params) {
@@ -745,13 +745,13 @@ export default {
                 },
                 {
                     headerName: "结束时间",
-                    width:120,
+                  
                      suppressSizeToFit: true,
                     field: "endTime"
                 },
                  {
                     headerName: "实际开始时间",
-                    width:120,
+                
                      suppressSizeToFit: true,
                     field: "actStartTime",
                     cellStyle: function(params) {
@@ -760,7 +760,7 @@ export default {
                 },
                 {
                     headerName: "实际结束时间",
-                    width:120,
+                   
                      suppressSizeToFit: true,
                     field: "actEndTime"
                 },
@@ -772,7 +772,7 @@ export default {
                 {
                     headerName: "状态",
                      suppressSizeToFit: true,
-                     width:80,
+                     width:100,
                     field: "statusDesc",
                     pinned: 'right',
                     cellStyle: function(params) {

@@ -33,6 +33,10 @@ export default{
 		        totalOut:0,
 		        orderListname:[],
 	          	columnsOut: [
+	          		{
+		              	title: '出库时间',
+		              	key: 'createTime',
+		            },
 		            {
 	          			title:"单号",
 	          			key:"recordNo"
@@ -86,11 +90,7 @@ export default{
 		              	title: '仓库',
 		              	key: 'warehouseName',
 		            },
-		            {
-		              	title: '出库时间',
-		              	key: 'createTime',
-		      
-		            },
+		            
 	          	],
 	         	AlldataOut: [],
 	          	uid: this.$store.state.common.token,
@@ -106,7 +106,7 @@ export default{
 	      				this.totalOut=data.total
 	      				this.pageSizeOut=data.pageSize
 	      				this.AlldataOut.forEach(x=>{
-	      					x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+	      					x.createTime=this.getLocalTimeH(x.createTime)
 	      				})
 	      			}
 	      		})
@@ -119,7 +119,7 @@ export default{
 	      				this.totalOut=data.total
 	      				this.pageSizeOut=data.pageSize
 	      				this.AlldataOut.forEach(x=>{
-	      					x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+	      					x.createTime=this.getLocalTimeH(x.createTime)
 	      				})
 	      			}
 	      		})
@@ -136,7 +136,7 @@ export default{
 	      				this.totalOut=data.total
 	      				this.pageSizeOut=data.pageSize
 	      				this.AlldataOut.forEach(x=>{
-	      					x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+	      					x.createTime=this.getLocalTimeH(x.createTime)
 	      				})
 	      			}
 	      		})
@@ -149,7 +149,7 @@ export default{
 	      				this.totalOut=data.total
 	      				this.pageSizeOut=data.pageSize
 	      				this.AlldataOut.forEach(x=>{
-	      					x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+	      					x.createTime=this.getLocalTimeH(x.createTime)
 	      				})
 	      			}
 	      		})

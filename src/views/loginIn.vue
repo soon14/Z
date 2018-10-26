@@ -503,7 +503,7 @@ import LoadUrl from '@/components/common/actionLoad'
                 sessionStorage.removeItem('user');
 				//点击登录之后 调登录接口
 				this.axios.post('/login?username='+this.username+'&password='+this.pss).then((res) => {
-					let data=res.data;
+					
 					if(res.data.status == 200) { //登录成功 
                         this.$store.commit(types.LOGIN, res.data.rows.uid);//登陆凭证uid
                         this.$store.commit(types.USER, res.data.rows);//个人信息
@@ -514,17 +514,11 @@ import LoadUrl from '@/components/common/actionLoad'
                                 let stm=JSON.stringify(data)
                                 sessionStorage.setItem("getSystem",stm)
                                 sessionStorage.setItem("isselect",data[0].path)
+
+                                this.$router.replace({
+                                        name: data[0].path.substr(1)//name 去掉/
+                                    });
                                 
-                                if(data.length==1){
-                                    this.$router.replace({
-                                        name: data[0].path
-                                    });
-                                }else{
-                                    //多个有权限是的模块跳转main
-                                    this.$router.replace({
-                                        name: data[0].path
-                                    });
-                                }
                                 
                             }else{
                                  this.$notify({

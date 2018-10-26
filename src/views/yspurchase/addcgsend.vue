@@ -538,8 +538,8 @@
 												<FormItem :label="$t('purchase.purchaseOrder.type1')"><!--单证类型-->
 												
 												<RadioGroup v-model="modeldztype"  @on-change="getdztype">
-											        <Radio label="进货单"></Radio>
-											        <Radio label="退货单"></Radio>
+											        <Radio label="进货单" disabled></Radio>
+											        <Radio label="退货单" disabled></Radio>
 											    </RadioGroup>
 					                        </FormItem>
 					                    </Col>

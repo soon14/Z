@@ -80,6 +80,11 @@
       <!--左边内容-->
       <div style="width:100%;display:flex;height:100%">
        <div class="left-content">
+        <div class='locationSearch'>
+          <Input style='padding:10px 20px;' v-model='searchKeyword' :placeholder="$t('public.orderornameandphone')" @on-enter='enterSearch'>
+                <span slot="append"  @click='search' style='cursor:pointer;'>{{$t('public.search')}}</span>
+          </Input>
+        </div>
             <p v-if="Allpo.length==0"  class='scrollFix'>
                 <Spin> 
                       <div>暂无数据</div>
@@ -533,6 +538,7 @@ import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
   export default {
     data() {
       return {
+        searchKeyword:"",
         CodeToText:CodeToText,//code转为Text
         TextToCode:TextToCode,//Text转为code
         cityInfo:regionData,//地址数据
@@ -2585,6 +2591,33 @@ import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
 
             })
                     
+        },
+        //搜素哦
+        search(){
+          this.axios({
+            methods:'get',
+            url:'transfer/query?keyword='+this.searchKeyword+'&uid='+this.uid
+          }).then((res)=>{
+            if(res.data.status == 200){
+              console.log(res.data.rows)
+                this.Allpo=res.data.rows
+                this.totaldb=res.data.total
+                this.pageSizedb=res.data.pageSize
+              this.Allpo.forEach((x)=>{
+                  switch(x.status){
+                case 88:
+                  x.statusDesc='已完成'
+                break;
+              }
+                x.createTime=new Date(x.createTime).toLocaleDateString().replace(/\//g,'-')
+               
+              })
+                this.nums=res.data.rows.length
+            }
+        })
+        },
+        enterSearch(){
+          this.search()
         },
         modelCancelsku(){
           this.goodsinshow = false

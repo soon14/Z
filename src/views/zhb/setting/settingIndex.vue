@@ -167,19 +167,23 @@ export default {
                 {
                     headerName: "区",
                     field: "district",
+                    width:120
                },
                {
                     headerName: "街道",
                     field: "street",
+                    width:120
                },
                {
                     headerName: "居委会名称",
                     field: "name",
+                    width:120
                },
                
                {
                     headerName: "详细地址",
                     field: "addressDetail",
+                   
                },
                
             ],

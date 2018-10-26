@@ -145,7 +145,30 @@
                                     
                                 </div>
                             </div>
+                            <div style='display:flex;width:100%'>
+                               
+                                    <mu-form-item label="银行卡卡号" style="width:33%">
+                                        <mu-text-field type="number" v-model="validateForm.bankNum"
+                                        prop="code"
+                                        placeholder="请输入银行卡卡号" ></mu-text-field>
+                                    </mu-form-item>
+                                    <mu-form-item label="银行名称" style="padding-left:40px;width:33%">
+                                        <mu-text-field v-model="validateForm.bankName"
+                                        prop="code"
+                                        placeholder="请输入银行名称" ></mu-text-field>
+                                    </mu-form-item>
+
+                            </div>
                             <div  style='display:flex'>
+                                <div style='margin-right:20px'>
+                                    <div style='padding: 0 10px 10px 0;color: rgba(0,0,0,.54);font-size:14px'>
+                                        请选择推荐渠道</div>
+                                    <mu-form-item label="推荐渠道"  prop="tjqd" >
+                                        <mu-text-field v-model="validateForm.tjqd"
+                                        prop="tjqd"
+                                        placeholder="请输入推荐人" @click="chooseHly"></mu-text-field>
+                                    </mu-form-item>
+                                </div>
                                 <div style='margin-right:20px'>
                                     <div style='padding: 0 10px 10px 0;color: rgba(0,0,0,.54);font-size:14px'>
                                         请输入编号</div>
@@ -264,94 +287,109 @@
                                     </div>
                                     
                             </div>
-                             <mu-form-item label="地址"  prop="address" :rules="addressRules">
-                                <el-cascader
-                                    filterable
-                                    expand-trigger="click"
-                                    :options="cityInfo"
-                                    v-model="selectedOptions2"
-                                    @change="handleChange">
-                                </el-cascader>
-                                <Input type="text" :rules="addressRules" prop="address"
-                                    v-model="validateForm.address"
-                                    :placeholder="$t('purchase.supplier.Raddress')"
-                                    style="width:50%;margin-left:10px"></Input>
-                            </mu-form-item>
+                             <div >
+                                <div style="font-size:14px;color: rgba(0, 0, 0, 0.54);margin-bottom:-20px">地址</div>
+                                <mu-form-item style="width: 100%;" prop="housingEstateName" :rules="addressRules">
+
+                                    <div style="display:flex;width:100%;margin-top:28px" >
+                                       <mu-text-field v-model="validateForm.street"  placeholder="街道" style="width:200px;margin-left:10px" @click="clickCommunity"></mu-text-field>
+                                        <span >
+                                            <mu-text-field v-model="validateForm.housingEstateName" placeholder="请选择居委会" style="width:200px;margin-left:10px"></mu-text-field>
+                                        </span>
+                                        <mu-text-field v-model="validateForm.address" placeholder="请输入详细地址" style="margin-left:10px" @change="changeAddress"></mu-text-field>
+                                       
+                                    </div>
+                                </mu-form-item>
+                                <div v-if="addressisEmpty">
+                                    <span>纬度：</span><span>{{center.lat}}</span>
+                                    <span style="margin-left:20px">经度：</span><span>{{center.lng}}</span>
+                                </div>
+                                <div class="map-box" style="width:100%;float:none">
+                                <!--百度地图-->
+                                    <baidu-map :center="center" :zoom="zoom" @ready="handler" style="width:100%;height:100%;">
+                                        <bm-navigation anchor="BMAP_ANCHOR_TOP_RIGHT"></bm-navigation>
+                                        <bm-marker :position="center" :dragging="true" animation="BMAP_ANIMATION_BOUNCE" :icon="{url: 'http://img.zsydian.com/icon/zspo.png', size: {width: 80, height: 100}}">
+                                        </bm-marker>
+
+                                    </baidu-map>
+                                </div>
+                            </div>
+                        </mu-form>
+                        <div style="margin-bottom: 160px;">
                             <div class='title-txt'>证件材料：</div>
                             <ul class="detail-title-mark" style='margin-bottom:20px'>
                                 <li v-for="(item,index) in titlessku" class="detail-title" @click="addbordersku(index)" :class="{bor:index==num4}">
                                     {{item}}
                                 </li>
                             </ul>
-                                <div v-if='num4==0'>
-                                    <div style="display:flex">
-                                        <div style='border:2px dotted #C0CCDA;border-radius:6px;width:300px'>
-                                            <el-upload
-                                            class="avatar-uploader"
-                                            :action="sfzUrl"
-                                            :show-file-list="false"
-                                            name='file'
-                                            :before-upload="beforeAvatarUpload"
-                                            :on-success="handleAvatarSuccess"
-                                            >
-                                            <img v-if="validateForm.imageUrl" :src="validateForm.imageUrl" class="avatar">
-                                            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                                            <span v-if="!validateForm.imageUrl">身份证正面照</span>
-                                            </el-upload>
+                            <div v-if='num4==0'>
+                                        <div style="display:flex">
+                                            <div style='border:2px dotted #C0CCDA;border-radius:6px;width:300px'>
+                                                <el-upload
+                                                class="avatar-uploader"
+                                                :action="sfzUrl"
+                                                :show-file-list="false"
+                                                name='file'
+                                                :before-upload="beforeAvatarUpload"
+                                                :on-success="handleAvatarSuccess"
+                                                >
+                                                <img v-if="validateForm.imageUrl" :src="validateForm.imageUrl" class="avatar">
+                                                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                                <span v-if="!validateForm.imageUrl">身份证正面照</span>
+                                                </el-upload>
+                                            </div>
+                                            <div style='border:2px dotted #C0CCDA;border-radius:6px;width:300px;margin-left:20px'>
+                                                <el-upload
+                                                class="avatar-uploader"
+                                                :action="sfzUrl"
+                                                :show-file-list="false"
+                                                name='file'
+                                                :before-upload="beforeAvatarUpload2"
+                                                :on-success="handleAvatarSuccess2"
+                                                >
+                                                <img v-if="validateForm.imageUrl2" :src="validateForm.imageUrl2" class="avatar">
+                                                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                                <span v-if="!validateForm.imageUrl2">身份证背面照</span>
+                                                </el-upload>
+                                            </div>
                                         </div>
-                                        <div style='border:2px dotted #C0CCDA;border-radius:6px;width:300px;margin-left:20px'>
-                                            <el-upload
-                                            class="avatar-uploader"
-                                            :action="sfzUrl"
-                                            :show-file-list="false"
-                                            name='file'
-                                            :before-upload="beforeAvatarUpload2"
-                                            :on-success="handleAvatarSuccess2"
-                                            >
-                                            <img v-if="validateForm.imageUrl2" :src="validateForm.imageUrl2" class="avatar">
-                                            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                                            <span v-if="!validateForm.imageUrl2">身份证背面照</span>
-                                            </el-upload>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div v-if='num4==1'>
-                                   
-                                    <div style='border:2px dotted #C0CCDA;border-radius:6px;width:300px'>
+                            </div>
+                            <div v-if='num4==1'>
+                               
+                                <div style='border:2px dotted #C0CCDA;border-radius:6px;width:300px'>
 
-                                        <el-upload
-                                        class="avatar-uploader"
-                                        :action="sfzUrl"
-                                        :show-file-list="false"
-                                        name='file'
-                                        :before-upload="beforeAvatarUpload"
-                                        :on-success="handleAvatarSuccessJ"
-                                        >
-                                        <img v-if="validateForm.imageUrlJ" :src="validateForm.imageUrlJ" class="avatar">
-                                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                                        </el-upload>
-                                    </div>
+                                    <el-upload
+                                    class="avatar-uploader"
+                                    :action="sfzUrl"
+                                    :show-file-list="false"
+                                    name='file'
+                                    :before-upload="beforeAvatarUpload"
+                                    :on-success="handleAvatarSuccessJ"
+                                    >
+                                    <img v-if="validateForm.imageUrlJ" :src="validateForm.imageUrlJ" class="avatar">
+                                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                    </el-upload>
                                 </div>
-                                <div v-if='num4==2'>
-                                   
-                                    <div style='border:2px dotted #C0CCDA;border-radius:6px;width:300px'>
+                            </div>
+                            <div v-if='num4==2'>
+                               
+                                <div style='border:2px dotted #C0CCDA;border-radius:6px;width:300px'>
 
-                                        <el-upload
-                                        class="avatar-uploader"
-                                        :action="sfzUrl"
-                                        :show-file-list="false"
-                                        name='file'
-                                        :before-upload="beforeAvatarUpload"
-                                        :on-success="handleAvatarSuccessY"
-                                        >
-                                        <img v-if="validateForm.imageUrlY" 
-                                        :src="validateForm.imageUrlY" class="avatar">
-                                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                                        </el-upload>
-                                    </div>
+                                    <el-upload
+                                    class="avatar-uploader"
+                                    :action="sfzUrl"
+                                    :show-file-list="false"
+                                    name='file'
+                                    :before-upload="beforeAvatarUpload"
+                                    :on-success="handleAvatarSuccessY"
+                                    >
+                                    <img v-if="validateForm.imageUrlY" 
+                                    :src="validateForm.imageUrlY" class="avatar">
+                                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                    </el-upload>
                                 </div>
-                            
-                        </mu-form>
+                            </div>
+                        </div>
                     </div>
                      <!--修改信息-->
                     <div class="right-content" v-show="xiugai">
@@ -380,9 +418,9 @@
                                         <mu-form-item label="年"  >
                                             <mu-text-field type="number" v-model="validateForm.year"
                                        
-                                        placeholder="出生年份"></mu-text-field>
+                                        placeholder="出生年份" ></mu-text-field>
                                         </mu-form-item>
-                                         <mu-form-item label="月">
+                                         <mu-form-item label="月"  >
                                             <mu-text-field type="number" v-model="validateForm.month"
                                        
                                         placeholder="出生月份"></mu-text-field>
@@ -393,6 +431,7 @@
                                         placeholder="出生日" ></mu-text-field>
                                         </mu-form-item>
                                     </div>
+                                    
                                 </div>
                                 <div style='width:33%;padding-left:40px'>
                                     <mu-form-item label="紧急联系人"  prop="lxrname">
@@ -408,7 +447,30 @@
                                     
                                 </div>
                             </div>
+                            <div style='display:flex;width:100%'>
+                               
+                                    <mu-form-item label="银行卡卡号" style="width:33%">
+                                        <mu-text-field type="number" v-model="validateForm.bankNum"
+                                        prop="code"
+                                        placeholder="请输入银行卡卡号" ></mu-text-field>
+                                    </mu-form-item>
+                                    <mu-form-item label="银行名称" style="padding-left:40px;width:33%">
+                                        <mu-text-field v-model="validateForm.bankName"
+                                        prop="code"
+                                        placeholder="请输入银行名称" ></mu-text-field>
+                                    </mu-form-item>
+
+                            </div>
                             <div  style='display:flex'>
+                                <div style='margin-right:20px'>
+                                    <div style='padding: 0 10px 10px 0;color: rgba(0,0,0,.54);font-size:14px'>
+                                        请选择推荐渠道</div>
+                                    <mu-form-item label="推荐渠道"  prop="tjqd" >
+                                        <mu-text-field v-model="validateForm.tjqd"
+                                        prop="tjqd"
+                                        placeholder="请输入推荐人" @click="chooseHly"></mu-text-field>
+                                    </mu-form-item>
+                                </div>
                                 <div style='margin-right:20px'>
                                     <div style='padding: 0 10px 10px 0;color: rgba(0,0,0,.54);font-size:14px'>
                                         请输入编号</div>
@@ -493,7 +555,7 @@
                                         </div>
                                     </div>
                                     <div style='display:flex;margin-left:40px'>
-                                    
+                                        
                                         <mu-form-item label="护理日期"  prop="jsname"  style='margin-left:40px'>
                                    <li  style='float:left;padding:5px'>
                                         <!-- <Checkbox v-model='first0' @on-change="changeDay0">周一</Checkbox> -->
@@ -527,26 +589,42 @@
                                     </div>
                                     
                             </div>
-                             <mu-form-item label="地址"  prop="address" :rules="addressRules">
-                                <el-cascader
-                                    filterable
-                                    expand-trigger="click"
-                                    :options="cityInfo"
-                                    v-model="selectedOptions2"
-                                    @change="handleChange">
-                                </el-cascader>
-                                <Input type="text" :rules="addressRules" prop="address"
-                                    v-model="validateForm.address"
-                                    :placeholder="$t('purchase.supplier.Raddress')"
-                                    style="width:50%;margin-left:10px"></Input>
-                            </mu-form-item>
+                             <div >
+                                <div style="font-size:14px;color: rgba(0, 0, 0, 0.54);margin-bottom:-20px">地址</div>
+                                <mu-form-item style="width: 100%;" prop="housingEstateName" :rules="addressRules">
+
+                                    <div style="display:flex;width:100%;margin-top:28px" >
+                                       <mu-text-field v-model="validateForm.street"  placeholder="街道" style="width:200px;margin-left:10px" @click="clickCommunity"></mu-text-field>
+                                        <span >
+                                            <mu-text-field v-model="validateForm.housingEstateName" placeholder="请选择居委会" style="width:200px;margin-left:10px"></mu-text-field>
+                                        </span>
+                                        <mu-text-field v-model="validateForm.address" placeholder="请输入详细地址" style="margin-left:10px" @change="changeAddress"></mu-text-field>
+                                       
+                                    </div>
+                                </mu-form-item>
+                                <div v-if="addressisEmpty">
+                                    <span>纬度：</span><span>{{center.lat}}</span>
+                                    <span style="margin-left:20px">经度：</span><span>{{center.lng}}</span>
+                                </div>
+                                <div class="map-box" style="width:100%;float:none">
+                                <!--百度地图-->
+                                    <baidu-map :center="center" :zoom="zoom" @ready="handler" style="width:100%;height:100%;">
+                                        <bm-navigation anchor="BMAP_ANCHOR_TOP_RIGHT"></bm-navigation>
+                                        <bm-marker :position="center" :dragging="true" animation="BMAP_ANIMATION_BOUNCE" :icon="{url: 'http://img.zsydian.com/icon/zspo.png', size: {width: 80, height: 100}}">
+                                        </bm-marker>
+
+                                    </baidu-map>
+                                </div>
+                            </div>
+                        </mu-form>
+                        <div style="margin-bottom:140px">
                             <div class='title-txt'>证件材料：</div>
                             <ul class="detail-title-mark" style='margin-bottom:20px'>
                                 <li v-for="(item,index) in titlessku" class="detail-title" @click="addbordersku(index)" :class="{bor:index==num4}">
                                     {{item}}
                                 </li>
                             </ul>
-                                <div v-if='num4==0'>
+                            <div v-if='num4==0'>
                                     <div style="display:flex">
                                         <div style='border:2px dotted #C0CCDA;border-radius:6px;width:300px'>
                                             <el-upload
@@ -613,50 +691,51 @@
                                         </el-upload>
                                     </div>
                                 </div>
-                            
-                        </mu-form>
+
+                        </div>
                     </div>
                     <!--详情明细订单页面-->
                     <div class="right-content right-detail" ref="detail"  v-if='details'>
                         <div>
-                            <mu-form :model="validateForm" >
+                        <mu-form >
                             <div class='title-txt'>基本资料：</div>
                             <div style='display:flex;width:100%'>
                                 <div style='width:33%;'>
-                                    <mu-form-item label="姓名"  prop="name" >
+                                    <mu-form-item label="姓名"  prop="name" :rules="usernameRules">
                                         <mu-text-field disabled v-model="validateForm.name"
                                         prop="name"
                                         placeholder="请输入姓名"></mu-text-field>
                                     </mu-form-item>
-                                    <mu-form-item label="身份证"  prop="sfz" >
+                                    <mu-form-item label="身份证"  prop="sfz" :rules="sfzRules">
                                         <mu-text-field disabled v-model="validateForm.sfz"
                                         prop="sfz"
                                         placeholder="请输入身份证号"></mu-text-field>
                                     </mu-form-item>
                                 </div>
                                 <div style='width:33%;padding-left:40px'>
-                                    <mu-form-item label="手机号"  prop="mobile">
+                                    <mu-form-item label="手机号"  prop="mobile" :rules="mobileRules">
                                         <mu-text-field disabled v-model="validateForm.mobile"
                                         prop="mobile"
                                         placeholder="请输入手机号"></mu-text-field>
                                     </mu-form-item>
                                     <div style="display: flex;">
                                         <mu-form-item label="年"  >
-                                            <mu-text-field v-model="validateForm.year"
+                                            <mu-text-field disabled type="number" v-model="validateForm.year"
                                        
-                                        placeholder="出生年份" disabled></mu-text-field>
+                                        placeholder="出生年份" ></mu-text-field>
                                         </mu-form-item>
                                          <mu-form-item label="月"  >
-                                            <mu-text-field v-model="validateForm.month"
+                                            <mu-text-field disabled type="number" v-model="validateForm.month"
                                        
-                                        placeholder="出生月份" disabled></mu-text-field>
+                                        placeholder="出生月份"></mu-text-field>
                                         </mu-form-item>
                                         <mu-form-item label="日"  >
-                                            <mu-text-field v-model="validateForm.day"
+                                            <mu-text-field disabled type="number" v-model="validateForm.day"
                                       
-                                        placeholder="出生日" disabled></mu-text-field>
+                                        placeholder="出生日" ></mu-text-field>
                                         </mu-form-item>
                                     </div>
+                                    
                                 </div>
                                 <div style='width:33%;padding-left:40px'>
                                     <mu-form-item label="紧急联系人"  prop="lxrname">
@@ -672,14 +751,37 @@
                                     
                                 </div>
                             </div>
+                            <div style='display:flex;width:100%'>
+                               
+                                    <mu-form-item label="银行卡卡号" style="width:33%">
+                                        <mu-text-field disabled type="number" v-model="validateForm.bankNum"
+                                        prop="code"
+                                        placeholder="请输入银行卡卡号" ></mu-text-field>
+                                    </mu-form-item>
+                                    <mu-form-item label="银行名称" style="padding-left:40px;width:33%">
+                                        <mu-text-field disabled v-model="validateForm.bankName"
+                                        prop="code"
+                                        placeholder="请输入银行名称" ></mu-text-field>
+                                    </mu-form-item>
+
+                            </div>
                             <div  style='display:flex'>
+                                <div style='margin-right:20px'>
+                                    <div style='padding: 0 10px 10px 0;color: rgba(0,0,0,.54);font-size:14px'>
+                                        请选择推荐渠道</div>
+                                    <mu-form-item label="推荐渠道"  prop="tjqd" >
+                                        <mu-text-field disabled v-model="validateForm.tjqd"
+                                        prop="tjqd"
+                                        placeholder="请输入推荐人" @click="chooseHly"></mu-text-field>
+                                    </mu-form-item>
+                                </div>
                                 <div style='margin-right:20px'>
                                     <div style='padding: 0 10px 10px 0;color: rgba(0,0,0,.54);font-size:14px'>
                                         请输入编号</div>
                                     <mu-form-item label="编号">
-                                        <mu-text-field v-model="validateForm.code"
+                                        <mu-text-field disabled v-model="validateForm.code"
                                         prop="code"
-                                        placeholder="请输入编号" disabled></mu-text-field>
+                                        placeholder="请输入编号" ></mu-text-field>
                                     </mu-form-item>
                                 </div>
                                 <div>
@@ -692,17 +794,17 @@
                                             view-type='list'
                                             type="date"
                                             label-float
-                                            container="dialog"
-                                            full-width disabled></mu-date-input>
+                                            disabled container="dialog"
+                                            full-width @change='changecontractStart'></mu-date-input>
                                         </mu-form-item>
                                         <mu-form-item label="结束日期" prop="contractEnd" :rules="contractEndRules" style='margin-left:20px;'>
                                             <mu-date-input  landscape
                                             v-model="validateForm.contractEnd"
                                             view-type='list'
-                                            type="date"
+                                            disabled type="date"
                                             label-float
                                             container="dialog"
-                                            full-width disabled></mu-date-input>
+                                            full-width @change='changecontractEnd'></mu-date-input>
                                         </mu-form-item>
                                         
                                     </div>
@@ -717,18 +819,20 @@
                                                 v-model="validateForm.hlbtime"
                                                 view-type='list'
                                                 type="time"
-                                                label-float
+                                                disabled label-float
+                                                clock-type="24hr"
                                                 container="dialog"
-                                                full-width disabled></mu-date-input>
+                                                full-width @change='changebTime'></mu-date-input>
                                         </mu-form-item>
                                         <mu-form-item label="结束时间" prop="hletime" style='margin-left:20px'>
                                             <mu-date-input  landscape
                                             v-model="validateForm.hletime"
                                             view-type='list'
                                             type="time"
-                                            label-float
+                                            disabled label-float
+                                            clock-type="24hr"
                                             container="dialog"
-                                            full-width disabled></mu-date-input>
+                                            full-width @change='changeeTime'></mu-date-input>
                                         </mu-form-item>
                                     </div>
                                 </div>
@@ -740,7 +844,7 @@
                                             性别</div>
                                             <div style='display:flex'>
                                                 <div :label-left='true' class="select-control-row" :key="index" v-for="(i,index) in genders">
-                                                    <mu-radio disabled :value="i.value" v-model="gender" :label="i.lable"></mu-radio>
+                                                    <mu-radio @change="changeGender" :value="i.value" v-model="gender" :label="i.lable"disabled ></mu-radio>
                                                 </div>
                                             </div>
                                         </div>
@@ -749,69 +853,80 @@
                                             全兼职</div>
                                             <div style='display:flex'>
                                                 <div :label-left='true' class="select-control-row" :key="index" v-for="(i,index) in genders1">
-                                                    <mu-radio disabled :value="i.value" v-model="gender1" :label="i.lable"></mu-radio>
+                                                    <mu-radio @change="changeGender1" :value="i.value" v-model="gender1" :label="i.lable"disabled ></mu-radio>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div style='display:flex;margin-left:40px'>
-                                       
+                                        
                                         <mu-form-item label="护理日期"  prop="jsname"  style='margin-left:40px'>
-                                           <li  style='float:left;padding:5px'>
-                                                <!-- <Checkbox v-model='first0' @on-change="changeDay0">周一</Checkbox> -->
-                                                <mu-checkbox v-model="first0" disabled label="周一" @change="changeDay0"></mu-checkbox>
-                                            </li>
-                                            <li  style='float:left;padding:5px'>
-                                                <!-- <Checkbox v-model='first1' @on-change="changeDay1">周二</Checkbox> -->
-                                                 <mu-checkbox v-model="first1" disabled label="周二" @change="changeDay1"></mu-checkbox>
-                                            </li>
-                                            <li  style='float:left;padding:5px'>
-                                                <!-- <Checkbox v-model='first2' @on-change="changeDay2">周三</Checkbox> -->
-                                                 <mu-checkbox v-model="first2" disabled label="周三" @change="changeDay2"></mu-checkbox>
-                                            </li>
-                                            <li  style='float:left;padding:5px'>
-                                                <!-- <Checkbox v-model='first3' @on-change="changeDay3">周四</Checkbox> -->
-                                                <mu-checkbox v-model="first3" disabled label="周四" @change="changeDay3"></mu-checkbox>
-                                            </li>
-                                            <li  style='float:left;padding:5px'>
-                                                <!-- <Checkbox v-model='first4' @on-change="changeDay4">周五</Checkbox> -->
-                                                <mu-checkbox v-model="first4" disabled label="周五" @change="changeDay4"></mu-checkbox>
-                                            </li>
-                                            <li  style='float:left;padding:5px'>
-                                                <!-- <Checkbox v-model='first5' @on-change="changeDay5">周六</Checkbox> -->
-                                                <mu-checkbox v-model="first5" disabled label="周六" @change="changeDay5"></mu-checkbox>
-                                            </li>
-                                            <li  style='float:left;padding:5px'>
-                                                <!-- <Checkbox v-model='first6' @on-change="changeDay6">周日</Checkbox> -->
-                                                <mu-checkbox v-model="first6" disabled label="周日" @change="changeDay6"></mu-checkbox>
-                                            </li>
-                                        </mu-form-item>
+                                   <li  style='float:left;padding:5px'>
+                                        <!-- <Checkbox v-model='first0' @on-change="changeDay0">周一</Checkbox> -->
+                                        <mu-checkbox v-model="first0" label="周一" @change="changeDay0"disabled ></mu-checkbox>
+                                    </li>
+                                    <li  style='float:left;padding:5px'>
+                                        <!-- <Checkbox v-model='first1' @on-change="changeDay1">周二</Checkbox> -->
+                                         <mu-checkbox v-model="first1" label="周二" @change="changeDay1"disabled ></mu-checkbox>
+                                    </li>
+                                    <li  style='float:left;padding:5px'>
+                                        <!-- <Checkbox v-model='first2' @on-change="changeDay2">周三</Checkbox> -->
+                                         <mu-checkbox v-model="first2" label="周三" @change="changeDay2"disabled ></mu-checkbox>
+                                    </li>
+                                    <li  style='float:left;padding:5px'>
+                                        <!-- <Checkbox v-model='first3' @on-change="changeDay3">周四</Checkbox> -->
+                                        <mu-checkbox v-model="first3" label="周四" @change="changeDay3"disabled ></mu-checkbox>
+                                    </li>
+                                    <li  style='float:left;padding:5px'>
+                                        <!-- <Checkbox v-model='first4' @on-change="changeDay4">周五</Checkbox> -->
+                                        <mu-checkbox v-model="first4" label="周五" @change="changeDay4"disabled ></mu-checkbox>
+                                    </li>
+                                    <li  style='float:left;padding:5px'>
+                                        <!-- <Checkbox v-model='first5' @on-change="changeDay5">周六</Checkbox> -->
+                                        <mu-checkbox v-model="first5" label="周六" @change="changeDay5"disabled ></mu-checkbox>
+                                    </li>
+                                    <li  style='float:left;padding:5px'>
+                                        <!-- <Checkbox v-model='first6' @on-change="changeDay6">周日</Checkbox> -->
+                                        <mu-checkbox v-model="first6" label="周日" @change="changeDay6"disabled ></mu-checkbox>
+                                    </li>
+                                </mu-form-item>
                                     </div>
                                     
                             </div>
-                             <mu-form-item label="地址"  prop="address" :rules="addressRules">
-                                <el-cascader
-                                    filterable
-                                    expand-trigger="click"
-                                    :options="cityInfo"
-                                    v-model="selectedOptions2"
-                                   disabled>
-                                </el-cascader>
-                                <Input type="text" disabled prop="address"
-                                    v-model="validateForm.address"
-                                    :placeholder="$t('purchase.supplier.Raddress')"
-                                    style="width:50%;margin-left:10px"></Input>
-                            </mu-form-item>
-                            
-                                
-                            
+                             <div >
+                                <div style="font-size:14px;color: rgba(0, 0, 0, 0.54);margin-bottom:-20px">地址</div>
+                                <mu-form-item style="width: 100%;" prop="housingEstateName" :rules="addressRules">
+
+                                    <div style="display:flex;width:100%;margin-top:28px" >
+                                       <mu-text-field v-model="validateForm.street" disabled  placeholder="街道" style="width:200px;margin-left:10px" @click="clickCommunity"></mu-text-field>
+                                        <span >
+                                            <mu-text-field v-model="validateForm.housingEstateName" disabled placeholder="请选择居委会" style="width:200px;margin-left:10px"></mu-text-field>
+                                        </span>
+                                        <mu-text-field v-model="validateForm.address" disabled placeholder="请输入详细地址" style="margin-left:10px" @change="changeAddress"></mu-text-field>
+                                       
+                                    </div>
+                                </mu-form-item>
+                                <div v-if="addressisEmpty">
+                                    <span>纬度：</span><span>{{center.lat}}</span>
+                                    <span style="margin-left:20px">经度：</span><span>{{center.lng}}</span>
+                                </div>
+                                <div class="map-box" style="width:100%;float:none">
+                                <!--百度地图-->
+                                    <baidu-map :center="center" :zoom="zoom" @ready="handler" style="width:100%;height:100%;">
+                                        <bm-navigation anchor="BMAP_ANCHOR_TOP_RIGHT"></bm-navigation>
+                                        <bm-marker :position="center" :dragging="true" animation="BMAP_ANIMATION_BOUNCE" :icon="{url: 'http://img.zsydian.com/icon/zspo.png', size: {width: 80, height: 100}}">
+                                        </bm-marker>
+
+                                    </baidu-map>
+                                </div>
+                            </div>
                         </mu-form>
-                                <ul class="detail-title-mark" style='margin-top:20px'>
-                                    <li v-for="(item,index) in detailsArr" :key='index' class="detail-title flclass" @click="addborderdefails(index)" :class="{bor:index==num5}">
-                                        {{item}}
-                                    </li>
-                                </ul>
-                           
+                        <div style="bottom:140px">
+                            <ul class="detail-title-mark" style='margin-top:20px'>
+                                <li v-for="(item,index) in detailsArr" :key='index' class="detail-title flclass" @click="addborderdefails(index)" :class="{bor:index==num5}">
+                                    {{item}}
+                                </li>
+                            </ul>
                             <!--工单-->
                             <div v-show='num5==0' class='main-btm'>
                                 <div style='margin: 10px 10px 0 0;'>
@@ -912,6 +1027,8 @@
                                     </el-upload>
                                 </div>
                             </div>
+                        </div>
+                            
                         <!--状态-->
                         <div class="lanren" :class="{bgd1:storeDetails.status==1,bgd2:storeDetails.status==9,bgd21:storeDetails.status==3}">
                            <span>{{storeDetails.statusDesc}}</span>
@@ -978,6 +1095,62 @@
               
             </div>
         </Modal>
+        <Modal v-model="hlyisshow1" width="760px">
+            <p slot="header" style="height:30px;line-height:30px;">
+              <span>选择推荐人</span>
+            </p>
+            <mu-text-field v-model="hlykeyword1" style='width:100%;padding:0 10px;margin-bottom:0' @keyup.enter='enterhly1' placeholder='请输入名称手机号'></mu-text-field>
+             <ag-grid-vue style='width:100%;' class="ag-theme-balham is-full-widthag" 
+                :gridOptions="gridtj"
+                :rowData="HLYrowData1"
+                :columnDefs="HLYdataKey1"
+                :cellClicked="hlyClickRow1"
+                :rowDoubleClicked="dblClickhyl1" 
+                :gridAutoHeight="true"
+                :enableSorting="true"
+                :enableFilter="true"
+                ></ag-grid-vue>
+                <div>
+                    <Page :total="HLYtotal1" size='small' show-total :pageSize='HLYpageSize1'  @on-change="HLYchangeSize"></Page>
+                </div>
+            <div slot="footer">
+              <div class='footer-mark'>
+                <span><a style='color:#999;font-size:14px' @click='cancelhly1'>{{$t('public.cancel')}}</a></span>
+                <span style='font-size:20px;width:1px;height:40px;background:#e4e4e4'></span>
+                <span ><a style='color:#3B77E3;font-size:14px' @click='hlySure1'>{{$t('public.sure')}}</a></span>
+              </div>
+            </div>
+        </Modal>
+
+        <Modal v-model="CommunityIsshow" width="760px">
+            <p slot="header" style="height:30px;line-height:30px;">
+              <span>选择居委会</span>
+            </p>
+             <mu-text-field v-model="keywordQ" style='width:100%;margin-bottom:0;padding:0 10px' @keyup.enter='enterQ' placeholder='请输入居委会名称'></mu-text-field>
+             <ag-grid-vue style='width:100%;' class="ag-theme-balham is-full-widthag" 
+                 :gridOptions="Qgrid"
+                :rowData="QrowData"
+                :columnDefs="QdataKey"
+                :cellClicked="QClickRow"
+                :rowDoubleClicked="dblClickQ" 
+                :gridAutoHeight="true"
+                :enableSorting="true"
+                :enableFilter="true"
+                ></ag-grid-vue>
+                <div>
+                    <!-- <mu-pagination raised circle 
+                    :current='Qcurrent' :total="Qtotal"  
+                    :pageSize='QpageSize' @change='QchangeSize'></mu-pagination> -->
+                    <Page :total="Qtotal" size='small' show-total :pageSize='QpageSize'  @on-change="QchangeSize"></Page>
+                </div>
+            <div slot="footer">
+              <div class='footer-mark'>
+                <span><a style='color:#999;font-size:14px' @click='CommunityCancel'>{{$t('public.cancel')}}</a></span>
+                <span style='font-size:20px;width:1px;height:40px;background:#e4e4e4'></span>
+                <span ><a style='color:#3B77E3;font-size:14px' @click='CommunitySure'>{{$t('public.sure')}}</a></span>
+              </div>
+            </div>
+          </Modal>
     <div class='totBottom'>
         <span>共<span style='color:#ff0000'> {{total}} </span>条</span>
         <span>当前第<span style='color:#ff0000'> {{current}} </span>页</span>
@@ -994,17 +1167,138 @@ import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
         },
         data() {
             return {
+                addressisEmpty:false,//经度纬度是否显示
+                //百度地图
+                center: {
+                    lng: 121.4035730000,//经度
+                    lat: 31.2549740000//纬度
+                },
+                zoom: 20,
+                Qgrid:{
+                    enableFilter:true,
+                    enableSorting:true,
+                    animateRows:true,
+                    rowHeight:40,
+                    // pagination: true,
+                    enableColResize:true,
+                },
+                QpageSize:0,
+                Qtotal:0,
+                Qcurrent:1,
+                QObj:{},
+                keywordQ:"",
+                CommunityIsshow:false,
+                QrowData: [],
+                QdataKey:[
+                    
+                       {
+                            headerName: "区",
+                            field: "district",
+                            width:80
+                       },
+                       {
+                            headerName: "街道",
+                            field: "street",
+                            width:80
+                       }, 
+                       {
+                            headerName: "居委会名称",
+                            field: "name",
+                            width:140
+                       },
+                       {
+                            headerName: "管辖范围",
+                            field: "",
+                            
+                       },
+                       
+                ],
+
+
+                hlyisshow1:false,
+                hlykeyword1:"",
+                hlyzd1:false,//指定护理员
+                hlyisshow1:false,
+                HLYpageSize1:0,
+                HLYcurrent:1,
+                HLYtotal1:0,
+                HLYcurrent1:1,
+                HLYObj1:{},
+                HLYrowData1: [],
+                HLYdataKey1:[
+                    {
+                        headerName:"状态",
+                        width:100,
+                        field: 'statusDesc',
+                        cellStyle: function(params) {
+                            switch(params.data.status){
+                                case 1:
+                                    return {color:"#40ca98"}
+                                break;
+                                case 3:
+                                    return {color:"#3b77e3"}
+                                break;
+                                case 9:
+                                    return {color:"#d53c39"}
+                                break;
+                            }
+                        }
+                    },
+                    {
+                        headerName:"编号",
+                        field:"code",
+                        width:100
+                    },
+                    {
+                        headerName:"护理员",
+                        field: 'name',
+                        width:100
+                    },
+                    {
+                        headerName:"性别",
+                        field:'gender',
+                        width:100
+                    },
+                    {
+                        headerName:"地址",//"地址",
+                        field:'Raddress',
+                        width:200
+                    },
+                    {
+                        headerName:"电话",//"电话",
+                        field:'mobile',
+                        width:100
+                    },
+                    {
+                        headerName:"开始时间",//"电话",
+                        field:'serviceStartTime ',
+                        width:100
+                    },
+                    {
+                        headerName:"结束时间",//"电话",
+                        field:'serviceEndTime',
+                        width:100
+                    },
+                ],
+                 gridtj:{
+                    enableFilter:true,
+                    enableSorting:true,
+                    animateRows:true,
+                    rowHeight:40,
+                    enableColResize:true,
+                    enableRangeSelection:true,
+                    
+                },
                 grid:{
-                
-                enableFilter:true,
-                enableSorting:true,
-                animateRows:true,
-                rowHeight:40,
-                // pagination: true,
-                enableColResize:true,
-                enableRangeSelection:true,
-                //单行选中，"multiple" 多选（ctrl）,"single" 单选
-                 rowSelection: 'multiple',
+                    enableFilter:true,
+                    enableSorting:true,
+                    animateRows:true,
+                    rowHeight:40,
+                    // pagination: true,
+                    enableColResize:true,
+                    enableRangeSelection:true,
+                    //单行选中，"multiple" 多选（ctrl）,"single" 单选
+                     rowSelection: 'multiple',
             },
             gridIm:{
                 enableFilter:true,
@@ -1278,7 +1572,7 @@ import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
                 imageUrlY:LoadUrl.httpPrefix.Url+'file/action/upload/image/url?c=医疗照护证&uid='+this.$store.state.common.token,
                 
                 importstore:false,//导入
-                value:1,
+                value:3,
                 orderListname:[
                     
                     {
@@ -1304,6 +1598,9 @@ import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
                     year:"",
                     month:"",
                     day:"",
+                    tjqd:"",//推荐人
+                    bankNum:"",//银行卡卡号
+                    bankName:"",//银行卡名称
                     lxrname:"",//紧急联系人
                     lxrtel:"",//紧急联系人电话
                     hlbtime:null,//服务时间
@@ -1318,6 +1615,9 @@ import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
                     imageUrl2:"",//身份证照片
                     imageUrlJ:"",//健康证
                     imageUrlY:"",//医疗照护证
+                    street:"",//街道
+                    housingEstateName:"",//居委会
+                    housingEstateId:"",
                 },
                 usernameRules:[{ validate: (val) => !!val, message:"必须填写姓名"}],//姓名不能为空,
                 mobileRules:[{ validate: (val) => !!val, message:"必须填写手机号"},//必须填写手机号
@@ -1561,7 +1861,203 @@ import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
             changeSize0(size){
                 this.current0=size
             },
-            
+            //推荐渠道选择护理员
+            chooseHly(){
+                this.hlyisshow1=true
+                this.gethly1()
+            },
+            //推荐渠道人
+            gethly1(){
+                // this.axios.get('/caregivers/query?uid=' + this.uid+'&status=3').then((res) => {
+                //     let data = res.data;
+                //     if(res.data.status == '200') {
+                //         this.HLYrowData1 = data.rows;
+                //         this.HLYpageSize1 = data.pageSize;
+                //         this.HLYtotal1 = data.total;
+                //         this.HLYrowData1.forEach(j=>{
+                //             if(j.gender==1){    
+                //                 j.gender="男"
+                //             }else{
+                //                 j.gender="女"
+                //             }
+                //            j.serviceStartTime  = new Date(j.serviceStartTime).toTimeString().substring(0, 5)
+                //             j.serviceEndTime = new Date(j.serviceEndTime).toTimeString().substring(0, 5)
+                            
+                //             console.log(j.serviceStartTime)
+                //         })
+                //     }
+                // })
+            },
+            //搜索护理员
+            enterhly1(){
+                this.axios.get('/caregivers/query?keyword='+this.hlykeyword1+'&uid=' + this.uid+'&status=3').then((res) => {
+                    let data = res.data;
+                    if(res.data.status == '200') {
+                        this.HLYrowData1 = data.rows;
+                        this.HLYpageSize1 = data.pageSize;
+                        this.HLYtotal1 = data.total;
+                        this.HLYrowData1 .forEach(x=>{
+                            if(x.gender==1){    
+                                x.gender="男"
+                            }else{
+                                x.gender="女"
+                            }
+                           
+                        })
+                    }
+                })
+            },
+            //推荐渠道护理员
+            //点击护理员一行
+            hlyClickRow1(data){
+                this.HLYObj1=data.data
+            },
+            dblClickhyl1(row){
+                let data=row.data
+                console.log(data)
+                this.hlyisshow1=false
+                this.hlyid1=data.id
+                this.validateForm.tjqd=data.name
+                
+            },
+            //护理员确认
+            hlySure1(){
+                this.hlyid1=this.HLYObj1.id
+                this.validateForm.tjqd=this.HLYObj1.name
+                this.hlyisshow1=false
+            },
+            //护理员取消
+            cancelhly1(){
+                this.hlyisshow1=false
+            },
+             HLYchangeSize(size){
+                this.HLYcurrent1=size
+                this.axios.get('/caregivers/query?offset='+this.HLYcurrent1+'&uid=' + this.uid+'&status=3').then((res) => {
+                    let data = res.data;
+                    if(res.data.status == '200') {
+                        this.HLYrowData1 = data.rows;
+                        this.HLYpageSize1 = data.pageSize;
+                        this.HLYtotal1 = data.total;
+                        this.HLYrowData1 .forEach(x=>{
+                            if(x.gender==1){    
+                                x.gender="男"
+                            }else{
+                                x.gender="女"
+                            }
+                            
+                        })
+                    }
+                })
+            },
+
+            //点击选择居委会GET /housingEstate/query 居委会清
+            clickCommunity(){
+                this.CommunityIsshow=true
+                this.axios.get('/housingEstate/query?uid='+this.uid).then(res=>{
+                    if(res.data.status==200){
+                        this.QrowData=res.data.rows
+                        this.Qtotal=res.data.total
+                        this.QpageSize=res.data.pageSize
+                    }
+                })
+            },
+            QchangeSize(size){
+                this.Qcurrent=size
+                if(this.keywordQ==""){
+                    this.axios.get('/housingEstate/query?offset='+this.Qcurrent+'&uid='+this.uid).then(res=>{
+                        if(res.data.status==200){
+                            this.QrowData=res.data.rows
+                            this.Qtotal=res.data.total
+                            this.QpageSize=res.data.pageSize
+                            
+                        }
+                    })
+                }else{
+                    this.axios.get('/housingEstate/query?keyword='+this.keywordQ+'&offset='+this.Qcurrent+'&uid='+this.uid).then(res=>{
+                        if(res.data.status==200){
+                            this.QrowData=res.data.rows
+                            this.Qtotal=res.data.total
+                            this.QpageSize=res.data.pageSize
+                            
+                        }
+                    }) 
+                }
+                
+            },
+            //设置地图参数
+            handler({
+                        BMap,
+                        map
+                    }) {
+                this.center.lng = 121.4035730000;
+                this.center.lat = 31.2549740000;
+                this.zoom = 20;
+            },
+            //输入地址改变时
+            changeAddress(s){
+                this.validateForm.address=s
+               this.getLngLat()//获取低地理位置
+            },
+            //获取地理位置
+            getLngLat(){
+                var _this = this;
+                $.ajax({
+                    dataType: 'jsonp',
+                    url: 'https://api.map.baidu.com/geocoder/v2/?address='+"上海市"+"市辖区"+"普陀区"+ _this.validateForm.street+_this.validateForm.housingEstateName +_this.validateForm.address+ '&output=json&ak=BBe8b008fb274f9544aa96828ac8c10e&callback=showLocation',
+                    type: 'get',
+                    crossDomain: true,
+                    success:function(data){
+                     console.log(data.result)
+                    _this.center.lat=data.result.location.lat;
+                    _this.center.lng=data.result.location.lng;
+                    _this.addressisEmpty=true
+                   
+                    }
+                })
+            },
+            //搜索居委会
+            enterQ(){
+                this.axios.get('/housingEstate/query?keyword='+this.keywordQ+'&uid='+this.uid).then(res=>{
+                    if(res.data.status==200){
+                        this.QrowData=res.data.rows
+                        this.Qtotal=res.data.total
+                        this.QpageSize=res.data.pageSize
+                    }
+                })
+            },
+            //单击一行
+            QClickRow(data){
+                this.QObj=data.data
+            },
+            //地址确认
+            dblClickQ(row){
+                let data=row.data
+                this.CommunityIsshow=false
+                this.validateForm.housingEstateId=data.id
+                this.validateForm.housingEstateName=data.name
+                this.validateForm.street=data.street
+                this.getLngLat()//获取低地理位置
+               
+            },
+            //居委会取消
+            CommunityCancel(){
+                this.CommunityIsshow=false
+            },
+            //居委会确认
+            CommunitySure(){
+                this.CommunityIsshow=false
+                this.validateForm.housingEstateId=this.QObj.id
+                this.validateForm.housingEstateName=this.QObj.name
+                this.validateForm.street=this.QObj.street
+               
+            },
+
+
+
+
+
+
+
             //上传前
             beforeAvatarUpload(file) {
                 const isJPG = file.type === 'image/jpeg';
@@ -2516,7 +3012,7 @@ width: 40px;
 
     padding: 25px;
 
-    margin-bottom: 280px;
+    /*margin-bottom: 280px;*/
     }
 
     .code-box {
@@ -2598,7 +3094,7 @@ width: 40px;
        }
     .map-box {
         width: 98%;
-        height: 180px;
+        height: 280px;
 
     }
 

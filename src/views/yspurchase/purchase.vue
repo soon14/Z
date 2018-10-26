@@ -236,6 +236,7 @@
 								<span >数量</span>
 								<span >优惠方式</span>
 								<span >小计</span>
+								<span >操作</span>
 								<i @click="cancelFixed" class="cancel-fixed"><Icon type="close"  ></Icon></i>
 							</div>
 							<div v-if="selectAllgoods.length==0" class='noDataTxt'>
@@ -253,15 +254,18 @@
 									<li>
 										<span>{{item.costPrice}}</span>
 									</li>
-									<li @click="clickQtyRow(item,index)">
+									<li @click="clickQtyRow(item,index)"><!---->
+										<InputNumber :min="1" v-model="item.qty" @on-change="changeQty"></InputNumber>
 										
-										<InputNumber :min="0" v-model="item.qty" @on-change="changeQty"></InputNumber>
 									</li>
 									<li>
 										<span>{{item.discount}}</span>
 									</li>
 									<li>
 										<span style='color:#d53c39'>{{item.qty*item.costPrice}} 元</span>
+									</li>
+									<li>
+										<span style='color:#d53c39;cursor:pointer' @click="deleteGood(item,index)">删除</span>
 									</li>
 								</div>
 							</div>
@@ -308,6 +312,7 @@
 									<span >数量</span>
 									<span >优惠方式</span>
 									<span >小计</span>
+									<span >操作</span>
 								</div>
 								<div class='table-head1' v-for='(item,index) in selectAllgoods' :key="index">
 									
@@ -331,6 +336,9 @@
 										</li>
 										<li>
 											<span style='color:#d53c39'>{{item.qty*item.costPrice}} 元</span>
+										</li>
+										<li>
+											<span style='color:#d53c39;cursor:pointer' @click="deleteGood(item,index)">删除</span>
 										</li>
 									</div>
 								</div>
@@ -1528,7 +1536,6 @@ export default {
 		clickAttrRow(data){
 			this.attrIdData=data
 		},
-	
 		// //继续添加属性按钮
         cgtypeSureattr(){
          	this.sAttrsData.forEach(x=>{
@@ -1575,14 +1582,16 @@ export default {
 		clickQtyRow(item,index){
 			this.skuItemIndex=index
 			this.skuItem=item
+
 		},
 		//修改数量
-		changeQty(q){
-			this.selectAllgoods[this.skuItemIndex].qty=q
-			if(this.skuItem.qty==0){
-				this.selectAllgoods.splice(this.selectAllgoods.indexOf('qty'),1)
-			}
-			console.log(this.skuItem)
+		changeQty(qty){
+			this.selectAllgoods[this.skuItemIndex].qty=qty
+		},
+		//删除已选
+		deleteGood(item,index){
+			
+			this.selectAllgoods.splice(index,1)
 		},
 		//点击地址
 		clickAddress(item){

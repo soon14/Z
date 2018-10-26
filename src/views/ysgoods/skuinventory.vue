@@ -97,6 +97,7 @@
                     		])
                         }
 	                },
+	                
 	                {
 						title:"条码",
 						width:180,
@@ -220,6 +221,9 @@
 						this.dataList = res.data.rows
 						this.pageSize = data.pageSize;
 						this.total = data.total;
+						this.dataList .forEach((x)=>{
+							x.createTime=this.getLocalTimeH(x.createTime)
+						})
 					}
 				})
 			},

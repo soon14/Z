@@ -6,7 +6,7 @@ export default {
 		let child=[]
 		for(let i=0;i<data.length;i++){
 			if(data[i].child==undefined){
-				break;
+				continue;//没有子类跳过此次，下次继续
 			}else if(data.length==1){
 				return child=data[0].child
 			}else{

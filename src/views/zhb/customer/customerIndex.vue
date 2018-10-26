@@ -211,13 +211,13 @@ export default {
                     field: "code",
                     pinned: 'left',
                     suppressSizeToFit: true,
-                    width:120,
+                   
                     
                 },
                 {
                     headerName:"护理员",
                     field:'caregiversName',
-                    width:120,
+                    
                     suppressSizeToFit: true,
                
                 },
@@ -225,7 +225,7 @@ export default {
                     headerName:"客户",
                     field: 'name',
                     suppressSizeToFit: true,
-                    width:120,
+                   
                 },
                 
                 {
@@ -233,49 +233,48 @@ export default {
                    
                     field: 'street',
                     suppressSizeToFit: true,
-                    width:120,
+                   
                 },
                 {
                     headerName:"居委会",
                     field: 'committees',
                      suppressSizeToFit: true,
-                    width:120,
+                   
                 },
                 {
                     headerName:"详细地址",
                     field: 'addressDetail',
                     suppressSizeToFit: true,
-                    width:200,
+                   
                 },
                 {
                     headerName:"开始时间",
                     field: 'purposeStartTime',
                     suppressSizeToFit: true,
-                    width:120,
+                   
                 },
                 {
                     headerName:"结束时间",
                     field: 'purposeEndTime',
                     suppressSizeToFit: true,
-                    width:120,
+                    
                 },
                 {
                     headerName:"次数",
                     field: 'weekTimes',
                     suppressSizeToFit: true,
-                    width:80,
+                   
                 },
                 {
                     headerName:"等级",
                     field: 'level',
                     suppressSizeToFit: true,
-                    width:80,
+                   
                 },
                 {
                     headerName:"一",
                     field:'monday',
                     suppressSizeToFit: true,
-                   
                     width:80,
                     cellStyle: function(params) {
                         if (params.value=="班") {

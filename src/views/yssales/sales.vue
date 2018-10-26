@@ -198,6 +198,7 @@
 								<span >数量</span>
 								<span >优惠方式</span>
 								<span >小计</span>
+								<span >操作</span>
 								<i @click="cancelFixed" class="cancel-fixed"><Icon type="close"  ></Icon></i>
 							</div>
 							<div v-if="selectAllgoods.length==0" class='noDataTxt'>
@@ -224,6 +225,9 @@
 									</li>
 									<li>
 										<span style='color:#d53c39'>{{item.qty*item.price}} 元</span>
+									</li>
+									<li>
+										<span style='color:#d53c39;cursor:pointer' @click="deleteGood(item,index)">删除</span>
 									</li>
 								</div>
 							</div>
@@ -267,6 +271,7 @@
 									<span >数量</span>
 									<span >优惠方式</span>
 									<span >小计</span>
+									<span >操作</span>
 								</div>
 								<div class='table-head1' v-for='(item,index) in selectAllgoods' :key="index">
 									
@@ -290,6 +295,9 @@
 										</li>
 										<li>
 											<span style='color:#d53c39'>{{item.qty*item.price}} 元</span>
+										</li>
+										<li>
+											<span style='color:#d53c39;cursor:pointer' @click="deleteGood(item,index)">删除</span>
 										</li>
 									</div>
 								</div>
@@ -1252,6 +1260,10 @@ export default{
 		changeQty(q){
 			this.selectAllgoods[this.skuItemIndex].qty=q
 			console.log(this.selectAllgoods)
+		},
+		//删除已选
+		deleteGood(item,index){
+			this.selectAllgoods.splice(index,1)
 		},
 		//点击地址
 		clickAddress(item){

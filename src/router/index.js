@@ -268,7 +268,6 @@ const routes = [
 		{
 			path:"/storehome",
 			name:"storehome",
-			// component:storehome,views/store.vue
 			component:resolve => require(['../views/store.vue'], resolve),
 			meta: { requireAuth: types.CHECKAUTH },
 			children:[
@@ -346,11 +345,50 @@ const routes = [
 					name:"storedata",
 					component:resolve => require(['../views/store/storeData/storedata.vue'], resolve)
 				},
-				//管理storemanage
+
+				//财务storeCodeIndex
+				{
+					path:"/storefinancial",
+					name:"storefinancial",
+					component:resolve => require(['../views/store/storeFinancial/storefinancial.vue'], resolve)
+				},
+				//美业
+				{
+					path:"/storesever",
+					name:"storesever",
+					component:resolve => require(['../views/store/storeSever/storesever.vue'], resolve)
+				},
+
+			]
+		},
+		//门店下管理
+		{
+			path:"/storemanagehome",
+			name:"storemanagehome",
+			component:resolve => require(['../views/storemanage.vue'], resolve),
+			children:[
 				{
 					path:"/storemanage",
 					name:"storemanage",
 					component:resolve => require(['../views/store/storeManage/storemanage.vue'], resolve),
+					
+				},
+				// {
+				// 	path:"/storeinfo",
+				// 	name:"storeinfo",
+				// 	component:resolve => require(['../views/store/storeManage/storeinfo.vue'], resolve),
+					
+				// },
+				{
+					path:"/storeguide",
+					name:"storeguide",
+					component:resolve => require(['../views/store/storeManage/storeguide.vue'], resolve),
+					
+				},
+				{
+					path:"/storeprinting",
+					name:"storeprinting",
+					component:resolve => require(['../views/store/storeManage/storeprinting.vue'], resolve),
 					
 				},
 				//店铺二维码
@@ -388,20 +426,7 @@ const routes = [
 					path:"/goodsLabel",
 					name:"goodsLabel",
 					component:resolve => require(['../views/store/storeManage/templeteSetting/goodsLabel.vue'], resolve),
-				},
-				//财务storeCodeIndex
-				{
-					path:"/storefinancial",
-					name:"storefinancial",
-					component:resolve => require(['../views/store/storeFinancial/storefinancial.vue'], resolve)
-				},
-				//美业
-				{
-					path:"/storesever",
-					name:"storesever",
-					component:resolve => require(['../views/store/storeSever/storesever.vue'], resolve)
-				},
-
+				}
 			]
 		},
 		//采购

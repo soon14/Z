@@ -18,7 +18,7 @@
                     </li>
                 </ul>
                 <div class='storeTitle' v-else>您暂无权限使用  请联系公司管理员 </div>
-                <a @click="clickBack"  style="position: absolute;top: 20px;left: 10px;cursor:pointer;font-size: 16px;" v-if='allShop.length==0'> 返回</a>
+                <!-- <a @click="clickBack"  style="position: absolute;top: 20px;left: 10px;cursor:pointer;font-size: 16px;" v-if='allShop.length==0'> 返回</a> -->
                 <span v-if='isclose' @click='closeStoreModel' class='close'><Icon type="close-round"></Icon></span>
           </div>
         </div>

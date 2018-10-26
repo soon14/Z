@@ -147,26 +147,6 @@
                                         prop="tjqd"
                                         placeholder="请输入推荐人" @click="chooseHly"></mu-text-field>
                                     </mu-form-item>
-                                    
-                                    <div style="display: flex;">
-                                        <mu-form-item label="年"   >
-                                            <mu-text-field type="number" :max-length="4" v-model="validateForm.year"
-                                       
-                                        placeholder="出生年份" ></mu-text-field>
-                                        </mu-form-item>
-                                         <mu-form-item label="月"  >
-                                            <mu-text-field type="number" :max-length="2" v-model="validateForm.month"
-                                       
-                                        placeholder="出生月份"></mu-text-field>
-                                        </mu-form-item>
-                                        <mu-form-item label="日"  >
-                                            <mu-text-field type="number" :max-length="2" v-model="validateForm.day"
-                                      
-                                        placeholder="出生日" ></mu-text-field>
-                                        </mu-form-item>
-                                        
-                                        
-                                    </div>
                                 </div>
                             </div>
                             <div style='display:flex'>
@@ -274,17 +254,18 @@
                                         placeholder="请输入护理计划表编码" ></mu-text-field>
                                     </mu-form-item>
                                 </div>
-                                <div style='margin-left:20px;width:70%'>
-                                    <mu-form-item label="长护险平台录入计划">
-                                        <mu-text-field v-model="validateForm.enterPlan"
-                                        prop="enterPlan"
-                                        placeholder="请输入长护险平台录入计划" ></mu-text-field>
-                                    </mu-form-item>
-                                </div>
+                                
                             </div>
                             <div style='display:flex;'>
 
-                                
+                                <div style='padding: 0 20px 0 0;'>
+                                    <mu-form-item label="长护险平台录入计划">
+                                        <!-- <mu-text-field v-model="validateForm.enterPlan"
+                                        prop="enterPlan"
+                                        placeholder="请输入长护险平台录入计划" ></mu-text-field> -->
+                                        <mu-checkbox v-model="validateForm.enterPlan" :label="validateForm.enterPlan1" @change="changeenterPlan"></mu-checkbox>
+                                    </mu-form-item>
+                                </div>
                                 <div style='display:flex'>
                                     <mu-form-item label="长护险平台接收"  prop="checkbox1" style='margin-right:20px'>
                                         <mu-checkbox v-model="validateForm.checkbox1" :label="validateForm.checkbox11" @change="changecheckbox1"></mu-checkbox>
@@ -485,7 +466,7 @@
                                         prop="tjqd"
                                         placeholder="请输入推荐人"  @click="chooseHly"></mu-text-field>
                                     </mu-form-item>
-                                     <div style="display: flex;">
+                                     <!-- <div style="display: flex;">
                                         <mu-form-item label="年"  >
                                             <mu-text-field type="number" v-model="validateForm.year"
                                        
@@ -501,7 +482,7 @@
                                       
                                         placeholder="出生日" ></mu-text-field>
                                         </mu-form-item>
-                                    </div>
+                                    </div> -->
                                 </div>
 
                             </div>
@@ -608,16 +589,17 @@
                                         placeholder="请输入护理计划表编码" ></mu-text-field>
                                     </mu-form-item>
                                 </div>
-                                <div style='margin-left:20px;width:70%'>
-                                    <mu-form-item label="长护险平台录入计划">
-                                        <mu-text-field v-model="validateForm.enterPlan"
-                                        prop="enterPlan"
-                                        placeholder="请输入长护险平台录入计划" ></mu-text-field>
-                                    </mu-form-item>
-                                </div>
+                               
                             </div>
                             <div style='display:flex;'>
-                               
+                               <div style='padding: 0 20px 0 0;'>
+                                    <mu-form-item label="长护险平台录入计划">
+                                        <!-- <mu-text-field v-model="validateForm.enterPlan"
+                                        prop="enterPlan"
+                                        placeholder="请输入长护险平台录入计划" ></mu-text-field> -->
+                                        <mu-checkbox v-model="validateForm.enterPlan" :label="validateForm.enterPlan1" @change="changeenterPlan"></mu-checkbox>
+                                    </mu-form-item>
+                                </div>
                                 <div style='display:flex'>
                                     <mu-form-item label="长护险平台接收"  prop="checkbox1" style='margin-right:20px'>
                                         <mu-checkbox v-model="validateForm.checkbox1" :label="validateForm.checkbox11" @change="changecheckbox1"></mu-checkbox>
@@ -822,7 +804,7 @@
                                         prop="tjqd"
                                         placeholder="请输入推荐人" disabled></mu-text-field>
                                     </mu-form-item>
-                                     <div style="display: flex;">
+                                     <!-- <div style="display: flex;">
                                         <mu-form-item label="年"  >
                                             <mu-text-field v-model="validateForm.year"
                                        
@@ -838,7 +820,7 @@
                                       
                                         placeholder="出生日" disabled></mu-text-field>
                                         </mu-form-item>
-                                    </div>
+                                    </div> -->
                                 </div>
 
                             </div>
@@ -867,7 +849,6 @@
 
                                         full-width  disabled></mu-date-input>
                                     </mu-form-item>
-                                  
                                 </div>
                             </div>
                             <div style='display:flex'>
@@ -961,17 +942,18 @@
                                         placeholder="请输入护理计划表编码" disabled></mu-text-field>
                                     </mu-form-item>
                                 </div>
-                                <div style='margin-left:20px;width:70%'>
-                                    <mu-form-item label="长护险平台录入计划">
-                                        <mu-text-field v-model="validateForm.enterPlan"
-                                        prop="enterPlan"
-                                        placeholder="请输入长护险平台录入计划" disabled></mu-text-field>
-                                    </mu-form-item>
-                                </div>
+                                
                             </div>
                             <div style='display:flex;'>
                                 
-                                
+                                <div style='padding: 0 20px 0 0;'>
+                                    <mu-form-item label="长护险平台录入计划">
+                                        <!-- <mu-text-field v-model="validateForm.enterPlan"
+                                        prop="enterPlan"
+                                        placeholder="请输入长护险平台录入计划" ></mu-text-field> -->
+                                        <mu-checkbox disabled v-model="validateForm.enterPlan" :label="validateForm.enterPlan1" @change="changeenterPlan"></mu-checkbox>
+                                    </mu-form-item>
+                                </div>
                                  <div style='display:flex'>
                                     <mu-form-item label="长护险平台接收"  prop="checkbox1" style='margin-right:20px'>
                                         <mu-checkbox disabled v-model="validateForm.checkbox1" :label="validateForm.checkbox11" ></mu-checkbox>
@@ -1182,9 +1164,6 @@
                 :enableFilter="true"
                 ></ag-grid-vue>
                 <div>
-                    <!-- <mu-pagination raised circle 
-                    :current='HLYcurrent1' :total="HLYtotal1"  
-                    :pageSize='HLYpageSize1' @change='HLYchangeSize'></mu-pagination> -->
                     <Page :total="HLYtotal1" size='small' show-total :pageSize='HLYpageSize1'  @on-change="HLYchangeSize"></Page>
                 </div>
             <div slot="footer">
@@ -1365,8 +1344,6 @@ import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
                     enableSorting:true,
                     animateRows:true,
                     rowHeight:40,
-                    // pagination: true,
-
                     enableColResize:true,
                     enableRangeSelection:true,
                     
@@ -1492,17 +1469,25 @@ import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
                        {
                             headerName: "区",
                             field: "district",
+                            width:80
                        },
                        {
                             headerName: "街道",
                             field: "street",
+                            width:80
                        }, 
                        {
                             headerName: "居委会名称",
                             field: "name",
+                            width:140
+                       },
+                       {
+                            headerName: "管辖范围",
+                            field: "",
+                            
                        },
                        
-                    ],
+                ],
 
                  grid:{
                     enableFilter:true,
@@ -1822,12 +1807,13 @@ import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
                     sfz:null,//身份证
                     age:null,//年龄
                     firstTime:null,//首次服务时间
-                    checkbox1:true,//长护险平台接收
-                    checkbox11:"已接收",//长护险平台接收
-                    checkbox2:true,//医护平台派单
-                    checkbox22:"已派单",//医护平台派单
+                    checkbox1:false,//长护险平台接收
+                    checkbox11:"未接收",//长护险平台接收
+                    checkbox2:false,//医护平台派单
+                    checkbox22:"未派单",//医护平台派单
                     planCode:"",//护理计划表编码
-                    enterPlan:"",//长护险平台录入计划
+                    enterPlan:false,//长护险平台录入计划
+                    enterPlan1:"未录入",//长护险平台录入计划
                 },
                 usernameRules:[{ validate: (val) => !!val, message:"必须填写姓名"}],//姓名不能为空,
                 mobileRules:[{ validate: (val) => !!val, message:"必须填写手机号"},//必须填写手机号
@@ -1936,6 +1922,28 @@ import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
                 this.hlyisshow1=true
                 this.gethly1()
             },
+            //推荐渠道人
+            gethly1(){
+                this.axios.get('/caregivers/query?uid=' + this.uid+'&status=3').then((res) => {
+                    let data = res.data;
+                    if(res.data.status == '200') {
+                        this.HLYrowData1 = data.rows;
+                        this.HLYpageSize1 = data.pageSize;
+                        this.HLYtotal1 = data.total;
+                        this.HLYrowData1.forEach(j=>{
+                            if(j.gender==1){    
+                                j.gender="男"
+                            }else{
+                                j.gender="女"
+                            }
+                           j.serviceStartTime  = new Date(j.serviceStartTime).toTimeString().substring(0, 5)
+                            j.serviceEndTime = new Date(j.serviceEndTime).toTimeString().substring(0, 5)
+                            
+                            console.log(j.serviceStartTime)
+                        })
+                    }
+                })
+            },
             //首次服务时间
             changefirstTime(s){
                 this.validateForm.firstTime=s
@@ -1959,6 +1967,17 @@ import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
                 if(this.validateForm.checkbox2==false){
                     this.validateForm.checkbox22="未派单"
                 }
+            },
+            ////长护险平台录入计划
+            changeenterPlan(s){
+                this.validateForm.enterPlan=s
+                if(this.validateForm.enterPlan){
+                    this.validateForm.enterPlan1="已录入"
+                }
+                if(this.validateForm.enterPlan==false){
+                    this.validateForm.enterPlan1="未录入"
+                }
+                
             },
             //搜索
             search(){
@@ -2053,6 +2072,7 @@ import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
             changecontracteTime(d){
                 this.contractvalidateForm.endDate=d
             },
+
             //续约确认GET /aunt/contract/{id} 续约
             contractSure(){
                 this.$refs.contractform.validate().then((result) => {
@@ -2114,16 +2134,12 @@ import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
                         this.QrowData=res.data.rows
                         this.Qtotal=res.data.total
                         this.QpageSize=res.data.pageSize
-                        // this.QrowData.forEach(x=>{
-                        //     x.Raddress=x.province+x.city+x.district+x.addressDetail
-                        // })
                     }
                 })
             },
             //输入地址改变时
             changeAddress(s){
                 this.validateForm.address=s
-
                this.getLngLat()//获取低地理位置
             },
             //获取地理位置
@@ -2504,9 +2520,9 @@ import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
                 this.validateForm.age=''
                 this.validateForm.sfz=''
                 this.validateForm.checkbox1=true
-                this.validateForm.checkbox11='已接收'
+                this.validateForm.checkbox11='未接收'
                 this.validateForm.checkbox2=true
-                this.validateForm.checkbox22='已派单'
+                this.validateForm.checkbox22='未派单'
                 this.validateForm.firstTime=null
                 this.validateForm.enterPlan=''
                 this.center.lat=31.2549740000
@@ -2590,6 +2606,7 @@ import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
                     }
                 })
             },
+            //推荐渠道人
             gethly1(){
                 this.axios.get('/caregivers/query?uid=' + this.uid+'&status=3').then((res) => {
                     let data = res.data;
@@ -2714,7 +2731,6 @@ import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
                 this.hlyid1=this.HLYObj1.id
                 this.validateForm.tjqd=this.HLYObj1.name
                 this.hlyisshow1=false
-                
             },
             //护理员取消
             cancelhly1(){
@@ -2950,6 +2966,7 @@ import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
                         this.validateForm.enterPlan=rwos.enterPlan
                         this.validateForm.checkbox1=rwos.enterPlanFlag//接收
                         this.validateForm.checkbox2=rwos.senfOrderFlag//派单
+                        this.validateForm.enterPlan=rwos.enterPlan//录入
                         if(this.validateForm.checkbox1){
                             this.validateForm.checkbox11='已接收'
                         }else{
@@ -2960,7 +2977,12 @@ import { regionData,CodeToText,TextToCode} from 'element-china-area-data'
                         }else{
                             this.validateForm.checkbox22='未派单'
                         }
-                 
+
+                        if(this.validateForm.enterPlan){
+                            this.validateForm.enterPlan1='已录入'
+                        }else{
+                            this.validateForm.enterPlan1='未录入'
+                        }
                         this.getOrderDetails(this.storeTxt)
                         switch(rwos.status){
                             case 1://申请

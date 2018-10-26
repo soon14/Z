@@ -1525,16 +1525,9 @@ export default{
                     let stm=JSON.stringify(data)
                     sessionStorage.setItem("getSystem",stm)
                     sessionStorage.setItem("isselect",data[0].path)
-                    if(data.length==1){
-                        this.$router.replace({
-                            name: data[0].path
-                        });
-                    }else{
-                        //多个有权限是的模块跳转main
-                        this.$router.replace({
-                            name: data[0].path
-                        });
-                    }
+                    this.$router.replace({
+                        name: data[0].path.substr(1)
+                    });
                 }else{
                  	this.$notify({
 	                    title:"",
